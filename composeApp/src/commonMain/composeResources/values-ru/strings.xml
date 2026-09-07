@@ -469,4 +469,6 @@
     <string name="title_lyric_providers">Источники текстов песен</string>
     <string name="title_link_confirmation">Покидаете Navic</string>
     <string name="action_start">Запустить</string>
+    <string name="info_update_check">Данная опция включит проверку обновлений на GitHub.\n\nЭто может быть нежелательным, если вы устанавливали Navic через репозиторий приложений, например F-Droid или IzzyOnDroid, так как проверка обновлений на GitHub игнорирует любую модерацию, проводимую репозиторием.\n\nВы уверены, что хотите включить?</string>
+    <string name="action_scroll_down">Прокрутить вниз</string>
 </resources>
