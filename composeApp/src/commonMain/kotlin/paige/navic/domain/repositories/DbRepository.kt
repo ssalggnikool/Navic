@@ -227,8 +227,8 @@ class DbRepository(
 
 					album.songs.forEach { song ->
 						val songEntity = song.toEntity(
-							artistIdOverride = albumEntity.artistId,
-							artistNameOverride = albumEntity.artistName
+							artistIdOverride = albumEntity.artistId.takeIf { song.artistId.isNullOrBlank() },
+							artistNameOverride = albumEntity.artistName.takeIf { song.artistName.isBlank() }
 						)
 						songBatch.add(songEntity)
 						allValidSongIds.add(songEntity.songId)

@@ -501,21 +501,26 @@ class AndroidMediaPlayerViewModel(
 
 					override fun onIsPlayingChanged(isPlaying: Boolean) {
 						if (isPlaying) startProgressLoop()
+
+						val currentSong = _uiState.value.currentSong
+						val displayArtist = currentSong?.artists?.joinToString { it.name }
+							?.ifBlank { currentSong.artistName }
+
 						val intent =
 							Intent("${application.packageName}.NOW_PLAYING_UPDATED").apply {
 								setPackage(application.packageName)
 								putExtra("isPlaying", isPlaying)
 								putExtra(
 									"title",
-									_uiState.value.currentSong?.title ?: "Unknown song"
+									currentSong?.title ?: "Unknown song"
 								)
 								putExtra(
 									"artist",
-									_uiState.value.currentSong?.artistName ?: "Unknown artist"
+									displayArtist ?: "Unknown artist"
 								)
 								putExtra(
 									"artUrl",
-									_uiState.value.currentSong?.coverArtId?.let {
+									currentSong?.coverArtId?.let {
 										sessionManager.getCoverArtUrl(it)
 									})
 							}
@@ -1111,10 +1116,14 @@ class AndroidMediaPlayerViewModel(
 	}
 
 	private fun DomainSong.toMediaItem(): MediaItem {
+		val displayArtist = artists.joinToString { it.name }.ifBlank { artistName }
+		val albumArtistName = albumArtists.joinToString { it.name }.ifBlank { artistName }
+
 		val metadataBuilder = MediaMetadata.Builder()
 			.setTitle(title)
-			.setSubtitle(artistName)
-			.setArtist(artistName)
+			.setSubtitle(displayArtist)
+			.setArtist(displayArtist)
+			.setAlbumArtist(albumArtistName)
 			.setAlbumTitle(albumTitle)
 			.setDurationMs(duration.inWholeMilliseconds)
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
