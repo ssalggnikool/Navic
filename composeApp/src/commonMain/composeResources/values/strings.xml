@@ -103,6 +103,7 @@
 	<string name="option_now_playing_slider_style_slim">Slim</string>
 	<string name="option_now_playing_slider_style_yoyo">Yoyo</string>
 	<string name="option_swipe_to_skip">Swipe to change songs</string>
+	<string name="option_hide_bottom_bar_if_idle">Hide if idle</string>
 	<string name="option_artwork_shape">Album/song artwork shapes</string>
 	<string name="option_artist_image_shape">Artist image shape</string>
 	<string name="option_auto_fill_queue">Auto-fill queue</string>

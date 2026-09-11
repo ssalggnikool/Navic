@@ -146,250 +146,257 @@ fun MiniPlayer(
 	val isRadio = song?.id?.startsWith("radio_") == true
 	val isInteractive = enabled && hasSong
 
-	Swiper(
-		onSwipeLeft = {
-			if (isInteractive) player.next()
-		},
-		onSwipeRight = {
-			if (isInteractive) player.previous()
-		},
-		swipeLeftAccessibilityLabel = stringResource(Res.string.action_previous_song),
-		swipeRightAccessibilityLabel = stringResource(Res.string.action_next_song),
-		modifier = modifier.then(if (detached) {
-			Modifier.windowInsetsPadding(windowInsets)
-		} else Modifier),
-		enabled = isInteractive
+	AnimatedVisibility(
+		visible = !preferenceManager.hideIfIdle && hasSong,
+		modifier = modifier
 	) {
-		Box(
-			modifier = Modifier
-				.widthIn(max = if (detached) 600.dp else Dp.Unspecified)
-				.padding(
-					bottom = if (detached) outerPadding + navBarPadding else 0.dp,
-					start = outerPadding,
-					end = outerPadding
-				)
-				.align(Alignment.Center)
+		Swiper(
+			onSwipeLeft = {
+				if (isInteractive) player.next()
+			},
+			onSwipeRight = {
+				if (isInteractive) player.previous()
+			},
+			swipeLeftAccessibilityLabel = stringResource(Res.string.action_previous_song),
+			swipeRightAccessibilityLabel = stringResource(Res.string.action_next_song),
+			modifier = modifier.then(
+				if (detached) {
+					Modifier.windowInsetsPadding(windowInsets)
+				} else Modifier
+			),
+			enabled = isInteractive
 		) {
-			ListItem(
+			Box(
 				modifier = Modifier
-					.dropShadow(
-						shape,
-						Shadow(
-							radius = if (detached) 10.dp else 8.dp,
-							alpha = 0.25f
-						)
+					.widthIn(max = if (detached) 600.dp else Dp.Unspecified)
+					.padding(
+						bottom = if (detached) outerPadding + navBarPadding else 0.dp,
+						start = outerPadding,
+						end = outerPadding
 					)
-					.pointerInput(isInteractive) {
-						if (!isInteractive) return@pointerInput
-						var totalDrag = 0f
-						detectVerticalDragGestures(
-							onVerticalDrag = { _, dragAmount ->
-								totalDrag += dragAmount
-							},
-							onDragEnd = {
-								if (totalDrag < -150f) {
-									onClick()
-								}
-								totalDrag = 0f
-							}
-						)
-					},
-				contentPadding = PaddingValues(
-					start = if (detached) 10.dp else 16.dp,
-					end = if (detached) 10.dp else 16.dp,
-					top = if (detached) 10.dp else 16.dp,
-					bottom = (if (detached) 10.dp else 12.dp) + if (detached) 0.dp else navBarPadding
-				) + if (!detached)
-					windowInsets.asPaddingValues()
-				else PaddingValues(),
-				verticalAlignment = Alignment.CenterVertically,
-				colors = ListItemDefaults.colors(
-					containerColor = NavigationBarDefaults.containerColor
-				),
-				shapes = ListItemDefaults.shapes(
-					shape = shape,
-					selectedShape = shape,
-					pressedShape = shape,
-					focusedShape = shape,
-					hoveredShape = shape,
-					draggedShape = shape
-				),
-				onClick = {
-					onClick()
-				},
-				onLongClick = {
-					haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-					onClick()
-				},
-				leadingContent = {
-					Box(contentAlignment = Alignment.Center) {
-						AsyncImage(
-							model = model,
-							contentDescription = null,
-							contentScale = ContentScale.Fit,
-							modifier = Modifier
-								.size(if (detached) 48.dp else 50.dp)
-								.padding(if (playerState.isLoading) 8.dp else 0.dp)
-								.clip(
-									ContinuousRoundedRectangle(coverRounding)
-								)
-								.background(MaterialTheme.colorScheme.surfaceVariant)
-						)
-						if (song?.coverArtId.isNullOrEmpty()) {
-							Icon(
-								imageVector = if (isRadio) Icons.Outlined.Radio else Icons.Filled.Note,
-								contentDescription = null,
-								tint = MaterialTheme.colorScheme.onSurface.copy(alpha = .38f)
-							)
-						}
-						AnimatedVisibility(
-							playerState.isLoading,
-							modifier = Modifier.matchParentSize(),
-							enter = scaleIn(MaterialTheme.motionScheme.defaultSpatialSpec())
-								+ fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
-							exit = scaleOut(MaterialTheme.motionScheme.defaultSpatialSpec())
-								+ fadeOut(MaterialTheme.motionScheme.defaultEffectsSpec())
-						) {
-							CircularProgressIndicator(
-								Modifier.matchParentSize(),
-								trackColor = MaterialTheme.colorScheme.primaryContainer
-							)
-						}
-					}
-				},
-				trailingContent = {
-					Row(
-						horizontalArrangement = Arrangement.spacedBy(
-							if (detached) 8.dp else 12.dp
-						)
-					) {
-						val colors = IconButtonDefaults.iconButtonVibrantColors()
-						IconButton(
-							onClick = {
-								if (playerState.isPaused) {
-									player.resume()
-								} else {
-									player.pause()
-								}
-							},
-							enabled = isInteractive,
-							colors = colors
-						) {
-							val painter = playPauseIconPainter(playerState.isPaused)
-							val description = stringResource(
-								if (playerState.isPaused)
-									Res.string.action_play
-								else Res.string.action_pause
-							)
-							if (painter != null) {
-								Icon(
-									painter = painter,
-									contentDescription = description,
-									modifier = Modifier.size(iconSize)
-								)
-							} else {
-								Icon(
-									imageVector = if (playerState.isPaused)
-										Icons.Filled.Play
-									else Icons.Filled.Pause,
-									contentDescription = description,
-									modifier = Modifier.size(iconSize)
-								)
-							}
-						}
-						IconButton(
-							onClick = {
-								player.next()
-							},
-							enabled = isInteractive,
-							colors = colors
-						) {
-							Icon(
-								imageVector = Icons.Filled.SkipNext,
-								contentDescription = stringResource(Res.string.action_next_song),
-								modifier = Modifier.size(iconSize)
-							)
-						}
-					}
-				},
-				content = {
-					song?.title?.let { title ->
-						MarqueeText(title)
-					}
-				},
-				supportingContent = {
-					if (song != null) {
-						MarqueeText(song.artistName)
-					} else {
-						MarqueeText(stringResource(Res.string.info_not_playing))
-					}
-				},
-				enabled = enabled
-			)
-			if (preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Visible
-				|| preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Seekable
+					.align(Alignment.Center)
 			) {
-				var dragging by remember { mutableStateOf(false) }
-				val alpha by animateFloatAsState(
-					if (dragging) 1f else .7f
-				)
-				val progress by animateFloatAsState(
-					playerState.progress.coerceIn(0f, 1f)
-				)
-				val alignment = if (detached) Alignment.BottomStart else Alignment.TopStart
-				Box(
+				ListItem(
 					modifier = Modifier
-						.matchParentSize()
-						.clip(shape)
-						.align(alignment),
-					contentAlignment = alignment
+						.dropShadow(
+							shape,
+							Shadow(
+								radius = if (detached) 10.dp else 8.dp,
+								alpha = 0.25f
+							)
+						)
+						.pointerInput(isInteractive) {
+							if (!isInteractive) return@pointerInput
+							var totalDrag = 0f
+							detectVerticalDragGestures(
+								onVerticalDrag = { _, dragAmount ->
+									totalDrag += dragAmount
+								},
+								onDragEnd = {
+									if (totalDrag < -150f) {
+										onClick()
+									}
+									totalDrag = 0f
+								}
+							)
+						},
+					contentPadding = PaddingValues(
+						start = if (detached) 10.dp else 16.dp,
+						end = if (detached) 10.dp else 16.dp,
+						top = if (detached) 10.dp else 16.dp,
+						bottom = (if (detached) 10.dp else 12.dp) + if (detached) 0.dp else navBarPadding
+					) + if (!detached)
+						windowInsets.asPaddingValues()
+					else PaddingValues(),
+					verticalAlignment = Alignment.CenterVertically,
+					colors = ListItemDefaults.colors(
+						containerColor = NavigationBarDefaults.containerColor
+					),
+					shapes = ListItemDefaults.shapes(
+						shape = shape,
+						selectedShape = shape,
+						pressedShape = shape,
+						focusedShape = shape,
+						hoveredShape = shape,
+						draggedShape = shape
+					),
+					onClick = {
+						onClick()
+					},
+					onLongClick = {
+						haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+						onClick()
+					},
+					leadingContent = {
+						Box(contentAlignment = Alignment.Center) {
+							AsyncImage(
+								model = model,
+								contentDescription = null,
+								contentScale = ContentScale.Fit,
+								modifier = Modifier
+									.size(if (detached) 48.dp else 50.dp)
+									.padding(if (playerState.isLoading) 8.dp else 0.dp)
+									.clip(
+										ContinuousRoundedRectangle(coverRounding)
+									)
+									.background(MaterialTheme.colorScheme.surfaceVariant)
+							)
+							if (song?.coverArtId.isNullOrEmpty()) {
+								Icon(
+									imageVector = if (isRadio) Icons.Outlined.Radio else Icons.Filled.Note,
+									contentDescription = null,
+									tint = MaterialTheme.colorScheme.onSurface.copy(alpha = .38f)
+								)
+							}
+							AnimatedVisibility(
+								playerState.isLoading,
+								modifier = Modifier.matchParentSize(),
+								enter = scaleIn(MaterialTheme.motionScheme.defaultSpatialSpec())
+									+ fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+								exit = scaleOut(MaterialTheme.motionScheme.defaultSpatialSpec())
+									+ fadeOut(MaterialTheme.motionScheme.defaultEffectsSpec())
+							) {
+								CircularProgressIndicator(
+									Modifier.matchParentSize(),
+									trackColor = MaterialTheme.colorScheme.primaryContainer
+								)
+							}
+						}
+					},
+					trailingContent = {
+						Row(
+							horizontalArrangement = Arrangement.spacedBy(
+								if (detached) 8.dp else 12.dp
+							)
+						) {
+							val colors = IconButtonDefaults.iconButtonVibrantColors()
+							IconButton(
+								onClick = {
+									if (playerState.isPaused) {
+										player.resume()
+									} else {
+										player.pause()
+									}
+								},
+								enabled = isInteractive,
+								colors = colors
+							) {
+								val painter = playPauseIconPainter(playerState.isPaused)
+								val description = stringResource(
+									if (playerState.isPaused)
+										Res.string.action_play
+									else Res.string.action_pause
+								)
+								if (painter != null) {
+									Icon(
+										painter = painter,
+										contentDescription = description,
+										modifier = Modifier.size(iconSize)
+									)
+								} else {
+									Icon(
+										imageVector = if (playerState.isPaused)
+											Icons.Filled.Play
+										else Icons.Filled.Pause,
+										contentDescription = description,
+										modifier = Modifier.size(iconSize)
+									)
+								}
+							}
+							IconButton(
+								onClick = {
+									player.next()
+								},
+								enabled = isInteractive,
+								colors = colors
+							) {
+								Icon(
+									imageVector = Icons.Filled.SkipNext,
+									contentDescription = stringResource(Res.string.action_next_song),
+									modifier = Modifier.size(iconSize)
+								)
+							}
+						}
+					},
+					content = {
+						song?.title?.let { title ->
+							MarqueeText(title)
+						}
+					},
+					supportingContent = {
+						if (song != null) {
+							MarqueeText(song.artistName)
+						} else {
+							MarqueeText(stringResource(Res.string.info_not_playing))
+						}
+					},
+					enabled = enabled
+				)
+				if (preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Visible
+					|| preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Seekable
 				) {
-					if (!detached) {
+					var dragging by remember { mutableStateOf(false) }
+					val alpha by animateFloatAsState(
+						if (dragging) 1f else .7f
+					)
+					val progress by animateFloatAsState(
+						playerState.progress.coerceIn(0f, 1f)
+					)
+					val alignment = if (detached) Alignment.BottomStart else Alignment.TopStart
+					Box(
+						modifier = Modifier
+							.matchParentSize()
+							.clip(shape)
+							.align(alignment),
+						contentAlignment = alignment
+					) {
+						if (!detached) {
+							Box(
+								Modifier
+									.background(MaterialTheme.colorScheme.surfaceBright)
+									.fillMaxWidth()
+									.height(3.dp)
+							)
+						}
 						Box(
 							Modifier
-								.background(MaterialTheme.colorScheme.surfaceBright)
-								.fillMaxWidth()
+								.background(MaterialTheme.colorScheme.primary.copy(alpha = alpha))
+								.fillMaxWidth(if (song != null) progress else 0f)
 								.height(3.dp)
 						)
-					}
-					Box(
-						Modifier
-							.background(MaterialTheme.colorScheme.primary.copy(alpha = alpha))
-							.fillMaxWidth(if (song != null) progress else 0f)
-							.height(3.dp)
-					)
-					Box(
-						Modifier
-							.fillMaxWidth()
-							.height(14.dp)
-							.then(
-								if (song != null
-									&& preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Seekable
-									&& isInteractive
-								)
-									Modifier.pointerInput(Unit) {
-										detectDragGestures(
-											onDragStart = {
-												dragging = true
-												haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-											},
-											onDragEnd = {
-												dragging = false
-												haptics.performHapticFeedback(HapticFeedbackType.GestureEnd)
-											}
-										) { change, _ ->
-											player.seek(
-												(change.position.x / size.width.toFloat()).coerceIn(
-													0f,
-													1f
+						Box(
+							Modifier
+								.fillMaxWidth()
+								.height(14.dp)
+								.then(
+									if (song != null
+										&& preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Seekable
+										&& isInteractive
+									)
+										Modifier.pointerInput(Unit) {
+											detectDragGestures(
+												onDragStart = {
+													dragging = true
+													haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+												},
+												onDragEnd = {
+													dragging = false
+													haptics.performHapticFeedback(HapticFeedbackType.GestureEnd)
+												}
+											) { change, _ ->
+												player.seek(
+													(change.position.x / size.width.toFloat()).coerceIn(
+														0f,
+														1f
+													)
 												)
-											)
-											change.consume()
+												change.consume()
+											}
 										}
-									}
-								else Modifier
-							)
-					)
+									else Modifier
+								)
+						)
+					}
 				}
 			}
 		}
