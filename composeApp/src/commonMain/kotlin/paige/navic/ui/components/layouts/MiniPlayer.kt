@@ -147,7 +147,7 @@ fun MiniPlayer(
 	val isInteractive = enabled && hasSong
 
 	AnimatedVisibility(
-		visible = !preferenceManager.hideIfIdle && hasSong,
+		visible = hasSong || !preferenceManager.hideIfIdle,
 		modifier = modifier
 	) {
 		Swiper(
