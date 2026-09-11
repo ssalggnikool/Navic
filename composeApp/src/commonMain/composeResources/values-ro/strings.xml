@@ -19,7 +19,6 @@
     <string name="title_delete_playlist">Sterge playlist?</string>
     <string name="title_create_share">Creaza partajare</string>
     <string name="title_delete_share">Sterge partajare?</string>
-    <string name="title_acknowledgements">Multumiri</string>
     <string name="title_create_playlist">Creaza playlist</string>
     <string name="title_create_radio">Creeaza radio</string>
     <string name="title_albums">Albume</string>
@@ -452,9 +451,5 @@
     <string name="info_equaliser_unsupported">Dispozitivul dvs. nu acceptă această funcție.</string>
     <string name="info_equaliser_mode_not_builtin">Controalele sunt disponibile doar în modul Integrat.</string>
     <string name="info_lyric_provider_disclaimer">Activarea LRCLIB și/sau LyricsPlus va trimite cereri către servicii web externe și neafiliate cu Navic.</string>
-    <string name="sideloading_warning_title">STOP, CITIȚI!</string>
-    <string name="sideloading_warning_subtitle">Google plănuiește să oprească sideloading-ul pentru TOATE dispozitivele cu Google Play Services instalat!\n</string>
-    <string name="sideloading_warning_description">Deși detaliile exacte ale acestei schimbări nu sunt încă pe deplin cunoscute, acest lucru ar putea duce la blocarea TUTUROR instalărilor sideload, cu excepția cazului în care semnatarul aplicației își dezvăluie datele personale către Google și/sau public.\n\nDacă aveți cunoștințele necesare pentru a instala un ROM personalizat pe dispozitivul dvs., ACUM ESTE MOMENTUL SĂ O FACEȚI.\n\nVă rugăm să citiți mai multe despre ce puteți face și cum vă puteți face auzită vocea</string>
-    <string name="sideloading_warning_link_mask">aici.</string>
     <string name="info_dynamic_replay_gain">ReplayGain Dinamic</string>
 </resources>

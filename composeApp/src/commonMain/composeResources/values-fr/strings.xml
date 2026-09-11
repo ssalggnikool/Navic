@@ -10,7 +10,6 @@
     <string name="title_now_playing">Lecture en cours</string>
     <string name="title_bottom_app_bar">Barre inférieure</string>
     <string name="title_about">À propos</string>
-    <string name="title_acknowledgements">Remerciements</string>
     <string name="title_delete_playlist">Supprimer la liste de lecture ?</string>
     <string name="title_delete_share">Supprimer le partage ?</string>
     <string name="title_create_share">Créer un partage</string>
@@ -217,10 +216,6 @@
     <string name="info_no_playlists_short">Aucune liste de lecture</string>
     <string name="info_lyrics_provider">Paroles fournies par %1$s</string>
     <string name="info_image_failed_to_load">Échec du chargement</string>
-    <string name="sideloading_warning_title">STOP, LISEZ !</string>
-    <string name="sideloading_warning_subtitle">Google prévoit de désactiver l'installation d'applications tierces sur TOUS les appareils sur lesquels les services Google Play sont installés!\n</string>
-    <string name="sideloading_warning_description">Cela va entraîner le blocage de TOUTES les applications tierces, à moins que le signataire de l'application ne divulgue son identité à Google et/ou publiquement.\n\nSi vous maîtrisez suffisamment le sujet pour installer une ROM tierce sur votre appareil, C'EST LE MOMENT DE LE FAIRE.\n\nDécouvrez ce que vous pouvez faire et comment faire entendre votre voix sur</string>
-    <string name="sideloading_warning_link_mask">keepandroidopen.org</string>
     <string name="title_data_storage">Données &amp; Stockage</string>
     <string name="title_sync_control">Contrôle de la synchronisation</string>
     <string name="title_cache_management">Gestion du stockage et du cache</string>

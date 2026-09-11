@@ -426,12 +426,11 @@
     <string name="notice_deleted_share">Deling avsluttet.</string>
     <string name="title_delete_share">Avslutt deling?</string>
     <string name="option_use_marquee_text">Hastighet på automatisk rullende tekst</string>
-    <string name="sideloading_warning_title">STOPP, LES DETTE!</string>
-    <string name="sideloading_warning_subtitle">Google planlegger å drepe all installasjon av apper utenfor appbutikker for alle enheter med Google Play Services installert.\n</string>
-    <string name="sideloading_warning_description">Dette vil føre til at all installasjon av apper utenfor appbutikker blir blokkert hvis app utvikleren ikke utleverer sin personopplysninger til Google og/eller offentligheten.\n\nHvis du har kunnskapen som kreves for å installere alternativ fastvare er tiden inne for å gjøre det.\n\nLes mer om dette og si din mening på</string>
-    <string name="sideloading_warning_link_mask">keepandroidopen.org</string>
-    <string name="title_acknowledgements">Anerkjennelser</string>
     <string name="action_scroll_down">Rulle ned</string>
     <string name="info_update_check">Se etter oppdateringer på Github.\n\nDette er kanskje ikke ønskelig hvis du har installert Navic fra kilder som F-droid eller IzzyOnDroid. Å se etter oppdateringer fra Github omgår eventuelle sikkerhetskontroller som den kilden gjør.\n\nEr du sikker på at du vil slå dette på?</string>
     <string name="option_palette_specification">Fargespesifikasjon for Material Design</string>
+    <string name="title_audio_effects">Lydeffekter</string>
+    <string name="option_title_preamp">Forforsterkerinnstillinger</string>
+    <string name="subtitle_audio_effects">Juster lydeffekter for musikken</string>
+    <string name="option_preamp_tip">Setter du forforsterker valgene til veldig høye verdier kan det føre til forvrengning av lyden.</string>
 </resources>
