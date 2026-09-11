@@ -10,7 +10,6 @@
     <string name="title_now_playing">Tocando agora</string>
     <string name="title_bottom_app_bar">Barra inferior</string>
     <string name="title_about">Sobre</string>
-    <string name="title_acknowledgements">Agradecimentos</string>
     <string name="title_delete_playlist">Deletar a playlist?</string>
     <string name="title_delete_share">Deletar compartilhamento?</string>
     <string name="title_create_share">Criar compartilhamento</string>
@@ -171,7 +170,7 @@
     <string name="info_track_replay_gain">ReplayGain da faixa</string>
     <string name="info_album_replay_gain">ReplayGain do álbum</string>
     <string name="info_dynamic_replay_gain">ReplayGain dinâmico</string>
-	<string name="info_track_replay_gain_effective">Valor efetivo de ReplayGain</string>
+    <string name="info_track_replay_gain_effective">Valor efetivo de ReplayGain</string>
     <string name="info_shared_by">Compartilhado por %1$s</string>
     <string name="info_share_expires_in">Expira em %1$s</string>
     <string name="info_share_expires_never">Nunca expira</string>
@@ -185,10 +184,6 @@
     <string name="info_no_playlists_short">Sem playlists</string>
     <string name="info_lyrics_provider">Letras de %1$s</string>
     <string name="info_image_failed_to_load">Carregamento falhou</string>
-    <string name="sideloading_warning_title">PARE, LEIA!</string>
-    <string name="sideloading_warning_subtitle">A Google planeja acabar com o sideloading em TODOS os dispositivos com o Google Play Services instalado.\n</string>
-    <string name="sideloading_warning_description">Isso pode resultar no bloqueio de TODAS as instalações de aplicativos de terceiros, a menos que o autor do aplicativo revele a sua identidade ao Google e/ou publicamente.\n\nSe você tem conhecimento suficiente para instalar uma ROM personalizada no seu dispositivo, AGORA É A HORA DE FAZER ISSO.\n\nPor favor leia mais sobre o que você pode fazer e como fazer com que a sua voz seja ouvida em</string>
-    <string name="sideloading_warning_link_mask">keepandroidopen.org</string>
     <string name="title_data_storage">Dados e armazenamento</string>
     <string name="title_update">Atualização disponível</string>
     <string name="title_sort_by">Ordenar por</string>
@@ -446,4 +441,16 @@
     <string name="option_mini_player_progress_style_seekable">Navegável</string>
     <string name="title_github">GitHub</string>
     <string name="title_codeberg">Codeberg</string>
+    <string name="title_audio_effects">Efeitos de áudio</string>
+    <string name="subtitle_audio_effects">Ajuste o som da música</string>
+    <string name="option_replaygain_mode">Modo do ReplayGain</string>
+    <string name="option_title_preamp">Opções de preamp</string>
+    <string name="option_preamp_with_rg">Com tags ReplayGain</string>
+    <string name="option_preamp_without_rg">Sem tags ReplayGain</string>
+    <string name="option_preamp_tip">Ao configurar quaisquer das opções de preamp para um valor muito alto talvez ocasione em distorção no áudio.</string>
+    <string name="option_dynamic_replaygain_tip">Configurar o ReplayGain para Dinâmico irá utilizar o ganho do álbum se um álbum estiver sendo tocado. Caso contrário, o ganho da faixa será utilizado.</string>
+    <string name="action_scroll_down">Descer para baixo</string>
+    <string name="action_reset_dont_show_agains">Resetar diálogos de "não mostrar novamente"</string>
+    <string name="info_login_description_end">.</string>
+    <string name="info_update_check">Essa opção irá checar por atualizações no GitHub\n\nTalvez isso não seja desejável caso você tenha instalado o Navic através de um repositório de aplicativos, como o F-Droid ou o IzzyOnDroid, já que checar por atualizações do GitHub ignora qualquer checagem feita pelos próprios repositórios.\n\nVocê tem certeza que deseja ativar isso?</string>
 </resources>

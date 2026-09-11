@@ -95,10 +95,6 @@
     <string name="option_sort_starred">Preferiti</string>
     <string name="option_swipe_to_skip">Scorri per skippare</string>
     <string name="option_use_marquee_text">Usa testo marquee</string>
-    <string name="sideloading_warning_description">Sebbene i dettagli esatti di questo cambiamento non siano ancora completamente noti, potrebbe comportare il blocco DI QUALSIASI forma di sideloading, a meno che lo sviluppatore dell’app non riveli la propria identità a Google e/o pubblicamente.\n\nSe sei abbastanza esperto da installare una ROM personalizzata sul tuo dispositivo, ORA È IL MOMENTO DI FARLO.\n\nLeggi di più su cosa puoi fare e su come far sentire la tua voce</string>
-    <string name="sideloading_warning_link_mask">keepandroidopen.org</string>
-    <string name="sideloading_warning_subtitle">Google sta pianificando di eliminare il sideloading su TUTTI i dispositivi con Google Play Services installato!\n</string>
-    <string name="sideloading_warning_title">LEGGI !!!!</string>
     <string name="subtitle_about">Versioni, aggiornamenti, licenze</string>
     <string name="subtitle_appearance">Temi, coloriz layout, icona app</string>
     <string name="subtitle_bottom_app_bar">Personalizza il player inferiore e la barra di navigazione</string>
@@ -111,7 +107,6 @@
     <string name="theme_seeded">Tinta</string>
     <string name="theme_spotify">Spotlight</string>
     <string name="title_about">About</string>
-    <string name="title_acknowledgements">Riconoscimenti</string>
     <string name="title_albums">Album</string>
     <string name="title_all">Tutto</string>
     <string name="title_appearance">Aspetto</string>
@@ -458,4 +453,14 @@
     <string name="title_sleep_timer_songs">Tracce</string>
     <string name="info_equaliser_mode_not_builtin">Per favore aggiusta l'equalizzatore esterno nella sua app dedicata.</string>
     <string name="info_dynamic_replay_gain">ReplayGain dinamico</string>
+    <string name="title_audio_effects">Effetti audio</string>
+    <string name="subtitle_audio_effects">Regola come suona la musica</string>
+    <string name="option_replaygain_mode">Modalità ReplayGain</string>
+    <string name="option_title_preamp">Opzioni preamplificatore</string>
+    <string name="option_preamp_with_rg">Con tag ReplayGain</string>
+    <string name="option_preamp_without_rg">Senza tag ReplayGain</string>
+    <string name="option_preamp_tip">Impostando una delle opzioni del preamplificatore ad un valore elevato può causare distorsione audio.</string>
+    <string name="option_dynamic_replaygain_tip">Impostando il ReplayGain a Dinamico userà il gain dell'album se si sta riproducendo un album. Altrimenti, verrà usato il gain della traccia.</string>
+    <string name="action_scroll_down">Scendi</string>
+    <string name="info_update_check">Questa opzione cercherà aggiornamenti da GirHub.\n\nQuesto potrebbe essere non desiderato se Navic è stato installato da uno store come F-Droid o IzzyOnDroid, perché cercare aggiornamenti da GitHub bypassa il controllo fatto dallo store.\n\nSei sicuro di volerlo arrivare?</string>
 </resources>

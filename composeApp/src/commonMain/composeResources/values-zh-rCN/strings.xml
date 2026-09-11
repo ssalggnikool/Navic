@@ -10,7 +10,6 @@
     <string name="title_playback">播放</string>
     <string name="title_developer">开发者选项</string>
     <string name="title_about">关于</string>
-    <string name="title_acknowledgements">致谢</string>
     <string name="title_delete_playlist">是否删除歌单？</string>
     <string name="title_delete_share">是否删除分享？</string>
     <string name="title_create_share">创建分享</string>
@@ -203,10 +202,6 @@
     <string name="info_no_playlists_short">无歌单</string>
     <string name="info_lyrics_provider">由 %1$s 提供歌词</string>
     <string name="info_image_failed_to_load">加载失败</string>
-    <string name="sideloading_warning_title">注意！</string>
-    <string name="sideloading_warning_subtitle">Google 正计划在所有安装了 Google Play 服务的设备上彻底封杀“侧载 (Sideloading)”！\n</string>
-    <string name="sideloading_warning_description">虽然这一变化的具体细节尚未完全明朗，但这可能导致所有侧载行为被阻断——除非应用签名者向 Google 和/或公众公开其真实身份。\n\n如果你具备为设备刷入自定义 ROM 的技术能力，现在就是行动的最佳时机。\n\n请阅读更多关于你能做什么以及如何发出你的声音，详情请点击</string>
-    <string name="sideloading_warning_link_mask">此处。</string>
     <string name="title_behaviour">行为</string>
     <string name="action_new">新建</string>
     <string name="action_queue">队列</string>
