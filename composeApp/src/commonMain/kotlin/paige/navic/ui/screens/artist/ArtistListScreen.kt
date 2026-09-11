@@ -126,6 +126,7 @@ fun ArtistListScreen(
 			ArtistListScreenContent(
 				state = artistsState,
 				starred = starred,
+				selectedSorting = selectedSorting,
 				selectedArtist = selectedArtist,
 				selectedArtistAlbums = selectedArtistAlbums,
 				selectedViewMode = selectedViewMode,
