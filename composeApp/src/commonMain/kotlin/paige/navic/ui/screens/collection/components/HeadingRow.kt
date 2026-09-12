@@ -39,6 +39,7 @@ fun CollectionDetailScreenHeadingRow(
 	titleAlpha: Float
 ) {
 	val backStack = LocalNavStack.current
+	val sharedTransitionKey = "${tab}-${collection.id}-cover"
 	with(LocalSharedTransitionScope.current) {
 		CoverArt(
 			coverArtId = collection.coverArtId,
@@ -48,7 +49,7 @@ fun CollectionDetailScreenHeadingRow(
 				.padding(horizontal = 64.dp)
 				.aspectRatio(1f)
 				.sharedElement(
-					sharedContentState = this@with.rememberSharedContentState("${tab}-${collection.id}-cover"),
+					sharedContentState = this@with.rememberSharedContentState(sharedTransitionKey),
 					boundsTransform = BoundsTransform { _, _ ->
 						tween(
 							durationMillis = 500,
@@ -58,7 +59,16 @@ fun CollectionDetailScreenHeadingRow(
 					animatedVisibilityScope = LocalNavAnimatedContentScope.current
 				)
 				.alpha(titleAlpha),
-			crossfadeMs = 0
+			crossfadeMs = 0,
+			onClick = collection.coverArtId?.let { coverArtId ->
+				dropUnlessResumed {
+					backStack.add(Screen.ImageView(
+						coverArtId = coverArtId,
+						title = collection.name,
+						sharedTransitionKey = sharedTransitionKey
+					))
+				}
+			}
 		)
 		Column(
 			modifier = Modifier
