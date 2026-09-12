@@ -5,12 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,10 +19,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
-import navic.composeapp.generated.resources.action_cancel
-import navic.composeapp.generated.resources.action_ok
 import navic.composeapp.generated.resources.info_app_version
-import navic.composeapp.generated.resources.info_update_check
 import navic.composeapp.generated.resources.option_check_for_updates
 import navic.composeapp.generated.resources.subtitle_check_for_updates
 import navic.composeapp.generated.resources.title_about
@@ -57,7 +51,6 @@ fun SettingsAboutScreen() {
 	val platformContext = LocalPlatformContext.current
 	val hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 	var linkToOpen by rememberSaveable { mutableStateOf<String?>(null) }
-	var updateDialogIsOpen by rememberSaveable { mutableStateOf(false) }
 
 	Scaffold(
 		topBar = {
@@ -115,13 +108,7 @@ fun SettingsAboutScreen() {
 						content = { Text(stringResource(Res.string.option_check_for_updates)) },
 						supportingContent = { Text(stringResource(Res.string.subtitle_check_for_updates)) },
 						checked = preferenceManager.checkForUpdates,
-						onCheckedChange = { checked ->
-							if (checked) {
-								updateDialogIsOpen = true
-							} else {
-								preferenceManager.checkForUpdates = false
-							}
-						},
+						onCheckedChange = { preferenceManager.checkForUpdates = it },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
 					)
 				}
@@ -133,30 +120,6 @@ fun SettingsAboutScreen() {
 		LinkConfirmationDialog(
 			linkToOpen = linkToOpen!!,
 			onDismissRequest = { linkToOpen = null }
-		)
-	}
-
-	if (updateDialogIsOpen) {
-		AlertDialog(
-			text = { Text(stringResource(Res.string.info_update_check)) },
-			confirmButton = {
-				Button(
-					onClick = {
-						updateDialogIsOpen = false
-						preferenceManager.checkForUpdates = true
-					},
-					content = { Text(stringResource(Res.string.action_ok)) }
-				)
-			},
-			dismissButton = {
-				TextButton(
-					onClick = { updateDialogIsOpen = false },
-					content = { Text(stringResource(Res.string.action_cancel)) }
-				)
-			},
-			onDismissRequest = {
-				updateDialogIsOpen = false
-			}
 		)
 	}
 }
