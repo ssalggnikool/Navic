@@ -71,37 +71,9 @@ val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
 	into(layout.buildDirectory.dir("generated/buildInfo/commonMain/kotlin"))
 }
 
-val generateIosWorkaround = tasks.register("generateIosWorkaround", Sync::class) {
-	// “truly horrifying workaround” for a crash in SearchScreen.kt
-	// https://youtrack.jetbrains.com/issue/KT-84055/Reference-to-lambda-in-lambda-in-function-TextField-can-not-be-evaluated#focus=Comments-27-13188532.0-0
-	description = "generates a file to workaround a crash on iOS"
-
-	from(
-		resources.text.fromString(
-			"""
-			|package androidx.compose.foundation.text.input
-			|
-			|import androidx.compose.runtime.Composable
-			|
-			|public fun interface TextFieldDecorator {
-			|	@Suppress("ComposableLambdaParameterNaming")
-			|	@Composable
-			|	public fun Decoration(innerTextField: @Composable () -> Unit)
-			|}
-			|
-			""".trimMargin()
-		)
-	) {
-		rename { "TextFieldDecorator.kt" }
-	}
-
-	into(layout.buildDirectory.dir("generated/iosWorkaround/commonMain/kotlin"))
-}
-
 tasks.withType<KotlinCompilationTask<*>>().configureEach {
 	dependsOn("generateValkyrieImageVector")
 	dependsOn(generateBuildInfo)
-	dependsOn(generateIosWorkaround)
 }
 
 // no idea why ksp tasks depend on valkyrie
@@ -111,7 +83,31 @@ tasks.withType<KspAATask>().configureEach {
 
 kotlin.sourceSets.commonMain {
 	kotlin.srcDir(generateBuildInfo.map { it.destinationDir })
-	kotlin.srcDir(generateIosWorkaround.map { it.destinationDir })
+}
+
+tasks.matching { it.name.startsWith("compileKotlinIos") }.configureEach {
+	// “truly horrifying workaround” for a crash in SearchScreen.kt
+	// https://youtrack.jetbrains.com/issue/KT-84055/Reference-to-lambda-in-lambda-in-function-TextField-can-not-be-evaluated#focus=Comments-27-13188532.0-0
+	val tmp = layout.buildDirectory.dir("generated/iosWorkaround/commonMain/kotlin").get()
+	kotlin.sourceSets["commonMain"].kotlin.srcDir(tmp)
+
+	doFirst {
+		tmp.asFile.mkdirs()
+		tmp.file("TextFieldDecorator.kt").asFile.writeText("""
+package androidx.compose.foundation.text.input
+
+import androidx.compose.runtime.Composable
+
+public fun interface TextFieldDecorator {
+    @Suppress("ComposableLambdaParameterNaming")
+    @Composable
+    public fun Decoration(innerTextField: @Composable () -> Unit)
+}
+""")
+	}
+	doLast {
+		tmp.asFile.deleteRecursively()
+	}
 }
 
 kotlin {
