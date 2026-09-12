@@ -29,6 +29,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainArtist
+import paige.navic.domain.models.DomainArtistListType
 import paige.navic.domain.models.settings.ListViewMode
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Artist
@@ -44,6 +45,7 @@ import paige.navic.ui.util.withoutTop
 fun ArtistListScreenContent(
 	state: UiState<ImmutableList<DomainArtist>>,
 	starred: Boolean,
+	selectedSorting: DomainArtistListType,
 	gridState: LazyGridState,
 	scrollBehavior: TopAppBarScrollBehavior,
 	innerPadding: PaddingValues,
@@ -116,21 +118,54 @@ fun ArtistListScreenContent(
 					}
 				}
 			}
-			grouped.forEach { (letter, artists) ->
-				stickyHeader {
-					Row(
-						modifier = Modifier
-							.background(MaterialTheme.colorScheme.surface)
-							.padding(textPadding),
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						Text(
-							text = letter.toString(),
-							color = MaterialTheme.colorScheme.onSurfaceVariant
-						)
+			if (selectedSorting == DomainArtistListType.AlphabeticalByName) {
+				grouped.forEach { (letter, artists) ->
+					stickyHeader {
+						Row(
+							modifier = Modifier
+								.background(MaterialTheme.colorScheme.surface)
+								.padding(textPadding),
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							Text(
+								text = letter.toString(),
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						}
+					}
+					items(artists, { it.id }) { artist ->
+						if (selectedViewMode == ListViewMode.Grid) {
+							ArtistListScreenGridItem(
+								modifier = Modifier.animateItem(),
+								tab = "artists",
+								artist = artist,
+								selected = artist == selectedArtist,
+								selectedArtistAlbums = selectedArtistAlbums,
+								starred = starred,
+								onSelect = { onUpdateSelection(artist) },
+								onDeselect = { onClearSelection() },
+								onSetStarred = { onSetStarred(it) },
+								onPlayNext = onPlayNext,
+								onAddToQueue = onAddToQueue
+							)
+						} else {
+							ArtistListScreenListItem(
+								modifier = Modifier.animateItem(),
+								artist = artist,
+								selected = artist == selectedArtist,
+								selectedArtistAlbums = selectedArtistAlbums,
+								starred = starred,
+								onSelect = { onUpdateSelection(artist) },
+								onDeselect = { onClearSelection() },
+								onSetStarred = { onSetStarred(it) },
+								onPlayNext = onPlayNext,
+								onAddToQueue = onAddToQueue
+							)
+						}
 					}
 				}
-				items(artists, { it.id }) { artist ->
+			} else {
+				items(data, { it.id }) { artist ->
 					if (selectedViewMode == ListViewMode.Grid) {
 						ArtistListScreenGridItem(
 							modifier = Modifier.animateItem(),
@@ -171,10 +206,12 @@ fun ArtistListScreenContent(
 				}
 			}
 		}
-		AlphabeticalScroller(
-			state = gridState,
-			headers = headerIndices,
-			modifier = Modifier.align(Alignment.TopEnd)
-		)
+		if (selectedSorting == DomainArtistListType.AlphabeticalByName) {
+			AlphabeticalScroller(
+				state = gridState,
+				headers = headerIndices,
+				modifier = Modifier.align(Alignment.TopEnd)
+			)
+		}
 	}
 }

@@ -48,6 +48,10 @@ import paige.navic.ui.screens.album.viewmodels.AlbumListViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.di.isLandscape
 import paige.navic.ui.util.withoutTop
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
+import kotlinx.collections.immutable.toImmutableList
+import paige.navic.ui.components.common.AlphabeticalScroller
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -123,37 +127,62 @@ fun AlbumListScreen(
 			onRefresh = { viewModel.refreshAlbums(true) },
 			key = albumsState
 		) {
-			ArtGrid(
-				modifier = if (!nested)
-					Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-				else Modifier,
-				state = viewModel.gridState,
-				contentPadding = innerPadding.withoutTop(),
-				verticalArrangement = if (albumsState.data?.isEmpty() == true) {
-					Arrangement.Center
-				} else if (selectedViewMode == ListViewMode.List) {
-					Arrangement.spacedBy(0.dp)
-				} else {
-					Arrangement.spacedBy(12.dp)
-				},
-				selectedViewMode = selectedViewMode
-			) {
-				albumListScreenContent(
-					state = albumsState,
-					starred = starred,
-					selectedAlbum = selectedAlbum,
-					selectedAlbumRating = rating,
-					selectedViewMode = selectedViewMode,
-					onPlayNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
-					onAddToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
-					onUpdateSelection = { viewModel.selectAlbum(it) },
-					onClearSelection = { viewModel.clearSelection() },
-					onSetShareId = { newShareId ->
-						shareId = newShareId
+			val grouped = remember(albumsState.data) {
+				albumsState.data.orEmpty().groupBy { it.name.firstOrNull()?.uppercaseChar() ?: '#' }
+					.toList()
+					.sortedBy { it.first }
+			}
+
+			val headerIndices = remember(grouped) {
+				var currentIndex = 0
+				grouped.map { (letter, albums) ->
+					val pos = currentIndex
+					currentIndex += albums.size + 1
+					letter.toString() to pos
+				}.toImmutableList()
+			}
+
+			Box {
+				ArtGrid(
+					modifier = if (!nested)
+						Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+					else Modifier,
+					state = viewModel.gridState,
+					contentPadding = innerPadding.withoutTop(),
+					verticalArrangement = if (albumsState.data?.isEmpty() == true) {
+						Arrangement.Center
+					} else if (selectedViewMode == ListViewMode.List) {
+						Arrangement.spacedBy(0.dp)
+					} else {
+						Arrangement.spacedBy(12.dp)
 					},
-					onSetStarred = { viewModel.starAlbum(it) },
-					onRateSelectedAlbum = { viewModel.setRating(it) }
-				)
+					selectedViewMode = selectedViewMode
+				) {
+					albumListScreenContent(
+						state = albumsState,
+						starred = starred,
+						selectedSorting = selectedSorting,
+						selectedAlbum = selectedAlbum,
+						selectedAlbumRating = rating,
+						selectedViewMode = selectedViewMode,
+						onPlayNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
+						onAddToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
+						onUpdateSelection = { viewModel.selectAlbum(it) },
+						onClearSelection = { viewModel.clearSelection() },
+						onSetShareId = { newShareId ->
+							shareId = newShareId
+						},
+						onSetStarred = { viewModel.starAlbum(it) },
+						onRateSelectedAlbum = { viewModel.setRating(it) }
+					)
+				}
+				if (selectedSorting == DomainAlbumListType.AlphabeticalByName) {
+					AlphabeticalScroller(
+						state = viewModel.gridState,
+						headers = headerIndices,
+						modifier = Modifier.align(Alignment.TopEnd)
+					)
+				}
 			}
 		}
 	}
