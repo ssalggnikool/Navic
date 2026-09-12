@@ -38,6 +38,7 @@ class PreferenceManager(
 	var animationStyle by preference(AnimationStyle.Expressive)
 	var nowPlayingBackgroundStyle by preference(NowPlayingBackgroundStyle.Dynamic)
 	var swipeToSkip by preference(true)
+	var hideIfIdle by preference(false)
 	var gridSize by preference(GridSize.TwoByTwo)
 	var coverArtShape by preference(CoverArtShape.Soft)
 	var artistImageShape by preference(CoverArtShape.Soft)

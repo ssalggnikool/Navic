@@ -22,6 +22,7 @@ import kotlinx.collections.immutable.toImmutableList
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.option_bottom_bar_collapse_mode
 import navic.composeapp.generated.resources.option_bottom_bar_visibility_mode
+import navic.composeapp.generated.resources.option_hide_bottom_bar_if_idle
 import navic.composeapp.generated.resources.option_mini_player_progress_style
 import navic.composeapp.generated.resources.option_mini_player_style
 import navic.composeapp.generated.resources.option_navigation_bar_label_visibility
@@ -132,7 +133,7 @@ fun BottomBarScreen() {
 						onChoiceSelected = { preferenceManager.miniPlayerStyle = it },
 						content = { Text(stringResource(Res.string.option_mini_player_style)) },
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4)
 					)
 					SettingsChoiceItem(
 						choices = MiniPlayerProgressStyle.entries.toImmutableList(),
@@ -140,13 +141,19 @@ fun BottomBarScreen() {
 						onChoiceSelected = { preferenceManager.miniPlayerProgressStyle = it },
 						content = { Text(stringResource(Res.string.option_mini_player_progress_style)) },
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
 					)
 					SettingsToggleItem(
 						content = { Text(stringResource(Res.string.option_swipe_to_skip)) },
 						checked = preferenceManager.swipeToSkip,
 						onCheckedChange = { preferenceManager.swipeToSkip = it },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
+					)
+					SettingsToggleItem(
+						content = { Text(stringResource(Res.string.option_hide_bottom_bar_if_idle)) },
+						checked = preferenceManager.hideIfIdle,
+						onCheckedChange = { preferenceManager.hideIfIdle = it },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
 					)
 				}
 			}
