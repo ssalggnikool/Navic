@@ -10,7 +10,7 @@ plugins {
 
 val isTaskRelease = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
 
-val fdroid = providers.gradleProperty("fdroid")
+val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdroid")
 	.map { it.toBoolean() }
 	.getOrElse(false)
 

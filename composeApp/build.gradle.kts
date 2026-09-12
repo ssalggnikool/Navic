@@ -48,7 +48,7 @@ valkyrie {
 val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
 	description = "generate BuildInfo.kt"
 
-	val fdroid = providers.gradleProperty("fdroid")
+	val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdroid")
 		.map { it.toBoolean() }
 		.getOrElse(false)
 
@@ -93,7 +93,8 @@ tasks.matching { it.name.startsWith("compileKotlinIos") }.configureEach {
 
 	doFirst {
 		tmp.asFile.mkdirs()
-		tmp.file("TextFieldDecorator.kt").asFile.writeText("""
+		tmp.file("TextFieldDecorator.kt").asFile.writeText(
+			"""
 package androidx.compose.foundation.text.input
 
 import androidx.compose.runtime.Composable
@@ -103,7 +104,8 @@ public fun interface TextFieldDecorator {
     @Composable
     public fun Decoration(innerTextField: @Composable () -> Unit)
 }
-""")
+"""
+		)
 	}
 	doLast {
 		tmp.asFile.deleteRecursively()
