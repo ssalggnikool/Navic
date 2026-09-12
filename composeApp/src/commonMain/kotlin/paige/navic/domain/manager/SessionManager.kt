@@ -4,6 +4,8 @@ import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import dev.zt64.subsonic.client.SubsonicAuth
 import dev.zt64.subsonic.client.SubsonicClient
+import io.ktor.client.engine.ProxyBuilder
+import io.ktor.client.engine.http
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
@@ -42,6 +44,29 @@ class SessionManager(
 		clientConfig = {
 			install(UserAgent) {
 				agent = "Navic"
+			}
+
+			val proxyUrl = preferenceManager.proxyUrl
+
+			if (proxyUrl.isNotEmpty() && proxyUrl.isNotBlank()) {
+				engine {
+					// socks is not tested but the parsing here should just work... hopefully...
+					if (proxyUrl.startsWith("http")) {
+						proxy = ProxyBuilder.http(proxyUrl)
+					} else if (proxyUrl.startsWith("socks")) {
+						val urlRegex = Regex("socks[4-5]?://(.+):(\\d+)")
+						val match = urlRegex.matchEntire(proxyUrl)
+
+						if (match?.groupValues?.isNotEmpty() == true) {
+							val port = match.groupValues.getOrNull(1)?.toIntOrNull()
+
+							proxy = ProxyBuilder.socks(
+								match.groupValues[0],
+								port ?: 1080
+							)
+						}
+					}
+				}
 			}
 
 			val customHeaders = preferenceManager.customHeadersMap()
