@@ -32,6 +32,16 @@ import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.extractor.ExtractorsFactory
+import androidx.media3.extractor.flac.FlacExtractor
+import androidx.media3.extractor.mkv.MatroskaExtractor
+import androidx.media3.extractor.mp3.Mp3Extractor
+import androidx.media3.extractor.mp4.FragmentedMp4Extractor
+import androidx.media3.extractor.mp4.Mp4Extractor
+import androidx.media3.extractor.ogg.OggExtractor
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory
+import androidx.media3.extractor.ts.AdtsExtractor
+import androidx.media3.extractor.wav.WavExtractor
 import androidx.media3.session.CommandButton
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaController
@@ -127,7 +137,21 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 		val httpDataSourceFactory = DefaultHttpDataSource.Factory()
 			.setDefaultRequestProperties(preferenceManager.customHeadersMap())
 		val dataSourceFactory = DefaultDataSource.Factory(this, httpDataSourceFactory)
-		val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+
+		val extractorsFactory = ExtractorsFactory {
+			arrayOf(
+				FlacExtractor(),
+				WavExtractor(),
+				FragmentedMp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+				Mp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+				OggExtractor(),
+				MatroskaExtractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+				AdtsExtractor(AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
+				Mp3Extractor(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING)
+			)
+		}
+
+		val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory, extractorsFactory)
 
 		val audioRenderer = RenderersFactory { handler, _, audioListener, _, _ ->
 			arrayOf<BaseRenderer>(
