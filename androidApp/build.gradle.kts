@@ -10,6 +10,10 @@ plugins {
 
 val isTaskRelease = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
 
+val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdroid")
+	.map { it.toBoolean() }
+	.getOrElse(false)
+
 extensions.configure<ApplicationExtension> {
 	namespace = "paige.navic.androidApp"
 	compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -94,7 +98,11 @@ extensions.configure<ApplicationAndroidComponentsExtension> {
 	onVariants { variant ->
 		variant.outputs.forEach { output ->
 			if (output is VariantOutputImpl) {
-				output.outputFileName = "Navic.apk"
+				output.outputFileName = if (fdroid) {
+					"Navic.fdroid.apk"
+				} else {
+					"Navic.apk"
+				}
 			}
 		}
 	}

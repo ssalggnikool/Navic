@@ -477,5 +477,4 @@
 	<string name="info_equaliser_unsupported">Your device does not support this feature.</string>
 	<string name="info_equaliser_mode_not_builtin">Please adjust the external equaliser using its dedicated app.</string>
 	<string name="info_lyric_provider_disclaimer">Enabling LRCLIB and/or LyricsPlus will make requests to external and unaffiliated web services.</string>
-	<string name="info_update_check">This option will check for updates from GitHub.\n\nThis may not be desirable if you installed Navic through an app repository, such as F-Droid or IzzyOnDroid, as checking for updates from GitHub bypasses any screening performed by the app repository.\n\nAre you sure you want to enable this?</string>
 </resources>
