@@ -37,6 +37,7 @@ import org.koin.compose.koinInject
 import paige.navic.di.LocalPlatformContext
 import paige.navic.di.PlatformType
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.generated.BuildInfo
 import paige.navic.ui.components.common.SegmentedListItem
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.dialogs.LinkConfirmationDialog
@@ -108,7 +109,7 @@ fun SettingsAboutScreen() {
 				)
 			}
 
-			if (platformContext.platformType == PlatformType.Android) {
+			if (platformContext.platformType == PlatformType.Android && !BuildInfo.FDROID) {
 				SettingsGroup {
 					SettingsToggleItem(
 						content = { Text(stringResource(Res.string.option_check_for_updates)) },

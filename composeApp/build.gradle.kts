@@ -1,8 +1,6 @@
-import androidx.room3.gradle.RoomExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
-import io.github.composegears.valkyrie.gradle.ValkyrieExtension
+import com.google.devtools.ksp.gradle.KspAATask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
 	alias(libs.plugins.kotlinMultiplatform)
@@ -21,7 +19,7 @@ configurations.all {
 	exclude(group = "androidx.compose.material", module = "material")
 }
 
-extensions.configure<ValkyrieExtension> {
+valkyrie {
 	packageName = "paige.navic.icons"
 	generateAtSync = true
 	outputDirectory = layout.buildDirectory.dir("generated/sources/valkyrie")
@@ -47,49 +45,76 @@ extensions.configure<ValkyrieExtension> {
 	}
 }
 
-tasks {
-	matching { it.name.startsWith("ksp") }.configureEach {
-		dependsOn(":composeApp:generateValkyrieImageVector")
-	}
-	withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
-		dependsOn(":composeApp:generateValkyrieImageVector")
-	}
-	withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-		compilerOptions {
-			jvmTarget.set(JvmTarget.JVM_21)
-			freeCompilerArgs.add("-Xexpect-actual-classes")
+val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
+	description = "generate BuildInfo.kt"
 
-		}
+	val fdroid = providers.gradleProperty("fdroid")
+		.map { it.toBoolean() }
+		.getOrElse(false)
+
+	from(
+		resources.text.fromString(
+			"""
+			|package paige.navic.generated
+			|
+			|object BuildInfo {
+			|	const val FDROID = $fdroid
+			|}
+			|
+			""".trimMargin()
+		)
+	) {
+		rename { "BuildInfo.kt" }
+		into("paige/navic/generated")
 	}
-	matching { it.name.startsWith("compileKotlinIos") }.configureEach {
-		// “truly horrifying workaround” for a crash in SearchScreen.kt
-		// https://youtrack.jetbrains.com/issue/KT-84055/Reference-to-lambda-in-lambda-in-function-TextField-can-not-be-evaluated#focus=Comments-27-13188532.0-0
-		val tmp = layout.buildDirectory.dir("generated/iosWorkaround/commonMain/kotlin").get()
-		kotlin.sourceSets["commonMain"].kotlin.srcDir(tmp)
 
-		doFirst {
-			tmp.asFile.mkdirs()
-			tmp.file("TextFieldDecorator.kt").asFile.writeText(
-				"""
-package androidx.compose.foundation.text.input
-
-import androidx.compose.runtime.Composable
-
-public fun interface TextFieldDecorator {
-    @Suppress("ComposableLambdaParameterNaming")
-    @Composable
-    public fun Decoration(innerTextField: @Composable () -> Unit)
-}
-"""
-			)
-		}
-		doLast {
-			tmp.asFile.deleteRecursively()
-		}
-	}
+	into(layout.buildDirectory.dir("generated/buildInfo/commonMain/kotlin"))
 }
 
-extensions.configure<KotlinMultiplatformExtension> {
+val generateIosWorkaround = tasks.register("generateIosWorkaround", Sync::class) {
+	// “truly horrifying workaround” for a crash in SearchScreen.kt
+	// https://youtrack.jetbrains.com/issue/KT-84055/Reference-to-lambda-in-lambda-in-function-TextField-can-not-be-evaluated#focus=Comments-27-13188532.0-0
+	description = "generates a file to workaround a crash on iOS"
+
+	from(
+		resources.text.fromString(
+			"""
+			|package androidx.compose.foundation.text.input
+			|
+			|import androidx.compose.runtime.Composable
+			|
+			|public fun interface TextFieldDecorator {
+			|	@Suppress("ComposableLambdaParameterNaming")
+			|	@Composable
+			|	public fun Decoration(innerTextField: @Composable () -> Unit)
+			|}
+			|
+			""".trimMargin()
+		)
+	) {
+		rename { "TextFieldDecorator.kt" }
+	}
+
+	into(layout.buildDirectory.dir("generated/iosWorkaround/commonMain/kotlin"))
+}
+
+tasks.withType<KotlinCompilationTask<*>>().configureEach {
+	dependsOn("generateValkyrieImageVector")
+	dependsOn(generateBuildInfo)
+	dependsOn(generateIosWorkaround)
+}
+
+// no idea why ksp tasks depend on valkyrie
+tasks.withType<KspAATask>().configureEach {
+	dependsOn("generateValkyrieImageVector")
+}
+
+kotlin.sourceSets.commonMain {
+	kotlin.srcDir(generateBuildInfo.map { it.destinationDir })
+	kotlin.srcDir(generateIosWorkaround.map { it.destinationDir })
+}
+
+kotlin {
 	listOf(
 		iosArm64(),
 		iosSimulatorArm64()
@@ -100,12 +125,16 @@ extensions.configure<KotlinMultiplatformExtension> {
 		}
 	}
 
-	extensions.configure<KotlinMultiplatformAndroidLibraryExtension> {
+	android {
 		namespace = "paige.navic"
 		compileSdk = libs.versions.android.compileSdk.get().toInt()
 		minSdk = libs.versions.android.minSdk.get().toInt()
 
 		androidResources.enable = true
+
+		compilerOptions {
+			jvmTarget.set(JvmTarget.JVM_21)
+		}
 
 		packaging {
 			resources {
@@ -159,7 +188,7 @@ extensions.configure<KotlinMultiplatformExtension> {
 	}
 }
 
-extensions.configure<RoomExtension> {
+room3 {
 	schemaDirectory("$projectDir/schemas")
 }
 
