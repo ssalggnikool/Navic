@@ -2,6 +2,7 @@ package paige.navic.ui.screens.album
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,15 +12,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import kotlinx.collections.immutable.toImmutableList
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.title_albums
 import org.jetbrains.compose.resources.stringResource
@@ -28,12 +32,14 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalPlatformContext
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbumListType
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.domain.models.settings.ListViewMode
 import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.ui.components.common.AlphabeticalScroller
 import paige.navic.ui.components.layouts.ArtGrid
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.components.layouts.PullToRefreshBox
@@ -46,12 +52,8 @@ import paige.navic.ui.screens.album.components.AlbumListScreenSortButton
 import paige.navic.ui.screens.album.components.albumListScreenContent
 import paige.navic.ui.screens.album.viewmodels.AlbumListViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
-import paige.navic.di.isLandscape
 import paige.navic.ui.util.withoutTop
-import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.Alignment
-import kotlinx.collections.immutable.toImmutableList
-import paige.navic.ui.components.common.AlphabeticalScroller
+import paige.navic.ui.viewmodel.RootViewModel
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -97,6 +99,15 @@ fun AlbumListScreen(
 			selectedFilters = selectedFilters,
 			onToggleFilter = { viewModel.toggleFilter(it) }
 		)
+	}
+
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				viewModel.gridState.animateScrollToItem(0)
+			}
+		}
 	}
 
 	Scaffold(

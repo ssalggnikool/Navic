@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,7 @@ import org.koin.core.parameter.parametersOf
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalPlatformContext
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainArtist
@@ -52,7 +54,7 @@ import paige.navic.ui.screens.artist.components.ArtistListScreenContent
 import paige.navic.ui.screens.artist.components.ArtistListScreenSortButton
 import paige.navic.ui.screens.artist.viewmodels.ArtistListViewModel
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
-import paige.navic.di.isLandscape
+import paige.navic.ui.viewmodel.RootViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -93,6 +95,15 @@ fun ArtistListScreen(
 			selectedFilters = selectedFilters,
 			onToggleFilter = { viewModel.toggleFilter(it) }
 		)
+	}
+
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				viewModel.gridState.animateScrollToItem(0)
+			}
+		}
 	}
 
 	Scaffold(
