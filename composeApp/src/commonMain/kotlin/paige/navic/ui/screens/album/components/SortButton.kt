@@ -52,7 +52,7 @@ fun AlbumListScreenSortButton(
 			)
 		}
 	} else {
-		TopBarButton({ expanded = true }) {
+		TopBarButton(onClick = { expanded = true }) {
 			Icon(
 				Icons.Outlined.Sort,
 				contentDescription = null

@@ -45,6 +45,7 @@ import paige.navic.domain.models.settings.NavigationBarLabelVisibility
 import paige.navic.domain.models.settings.NavigationBarStyle
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
+import paige.navic.ui.components.layouts.NestedTopBarDefaults
 import paige.navic.ui.screens.settings.components.SettingsChoiceItem
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
@@ -56,14 +57,19 @@ import paige.navic.ui.screens.settings.dialogs.NavtabsDialog
 @Composable
 fun BottomBarScreen() {
 	val platformContext = LocalPlatformContext.current
+	val hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 	var tabsDialogOpen by rememberSaveable { mutableStateOf(false) }
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	Scaffold(
 		topBar = {
 			NestedTopBar(
-				{ Text(stringResource(Res.string.title_bottom_app_bar)) },
-				hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+				title = { Text(stringResource(Res.string.title_bottom_app_bar)) },
+				navigationAction = {
+					if (!hideBack) {
+						NestedTopBarDefaults.NavigationAction()
+					}
+				}
 			)
 		}
 	) { innerPadding ->

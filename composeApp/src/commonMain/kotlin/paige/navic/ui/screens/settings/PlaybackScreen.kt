@@ -40,6 +40,7 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.ExplicitContentPlayback
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
+import paige.navic.ui.components.layouts.NestedTopBarDefaults
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.settings.components.SettingsChoiceItem
 import paige.navic.ui.screens.settings.components.SettingsGroup
@@ -53,14 +54,19 @@ import kotlin.math.roundToInt
 @Composable
 fun SettingsPlaybackScreen() {
 	val platformContext = LocalPlatformContext.current
+	val hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	Scaffold(
 		topBar = {
 			NestedTopBar(
-				{ Text(stringResource(Res.string.title_playback)) },
-				hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+				title = { Text(stringResource(Res.string.title_playback)) },
+				navigationAction = {
+					if (!hideBack) {
+						NestedTopBarDefaults.NavigationAction()
+					}
+				}
 			)
 		}
 	) { innerPadding ->
