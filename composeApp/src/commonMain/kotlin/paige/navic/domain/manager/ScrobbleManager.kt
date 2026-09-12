@@ -34,6 +34,7 @@ class ScrobbleManager(
 	fun onMediaChanged(mediaId: String?) {
 		currentMediaId = mediaId
 		hasScrobbledCurrent = false
+		hasSentNowPlaying = false
 		accumulatedPlayTime = 0
 
 		progressJob?.cancel()
