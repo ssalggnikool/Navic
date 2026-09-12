@@ -8,6 +8,7 @@ A modern Navidrome client for Android and iOS.
 [![AltSource provides links for most sideloading apps, like Feather](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/altsource.svg)][ALTSOURCE]
 [![Link to the latest release where you can download the APK or IPA directly](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/direct_download.svg)][LATEST_RELEASE]
 [![Discord](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/discord.svg)](https://discord.gg/TBcnNX66PH)
+[![IzzyOnDroid](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/izzyondroid.svg)](https://apt.izzysoft.de/fdroid/index/apk/paige.navic)
 [![F-droid](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/fdroid.svg)](https://f-droid.org/packages/paige.navic/)
 [![Translate](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/translate.svg)](#translating)
 [![Codeberg](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/codeberg.svg)](https://codeberg.org/paige/Navic)
