@@ -58,7 +58,9 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
           ./gradlew :androidApp:packageRelease --stacktrace
+          mv androidApp/build/outputs/apk/**/*.apk ./
           ./gradlew :androidApp:packageRelease -Pfdroid=true --stacktrace
+          mv androidApp/build/outputs/apk/**/*.apk ./
           rm release.keystore
 
       - name: Build with Gradle (debug)
@@ -66,13 +68,15 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           ./gradlew :androidApp:assembleDebug --stacktrace
+          mv androidApp/build/outputs/apk/**/*.apk ./
           ./gradlew :androidApp:assembleDebug -Pfdroid=true --stacktrace
+          mv androidApp/build/outputs/apk/**/*.apk ./
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v6
         with:
           name: navic-release-android
-          path: androidApp/build/outputs/apk/**/*.apk
+          path: ./*.apk
           compression-level: 0
           if-no-files-found: ignore
 
