@@ -58,6 +58,7 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
           ./gradlew :androidApp:packageRelease --stacktrace
+          ./gradlew :androidApp:packageRelease -Pfdroid=true --stacktrace
           rm release.keystore
 
       - name: Build with Gradle (debug)
@@ -65,6 +66,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           ./gradlew :androidApp:assembleDebug --stacktrace
+          ./gradlew :androidApp:assembleDebug -Pfdroid=true --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v6
