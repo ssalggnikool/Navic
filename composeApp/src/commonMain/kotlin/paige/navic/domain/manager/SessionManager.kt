@@ -2,6 +2,7 @@ package paige.navic.domain.manager
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
+import dev.zt64.subsonic.api.model.User
 import dev.zt64.subsonic.client.SubsonicAuth
 import dev.zt64.subsonic.client.SubsonicClient
 import io.ktor.client.engine.ProxyBuilder
@@ -91,6 +92,7 @@ class SessionManager(
 		try {
 			client.ping()
 		} catch (e: Exception) {
+			// TODO: custom exception instead of the generic "Exception"
 			throw Exception(
 				"Failed to connect to the instance. Please check your credentials and try again.",
 				e
@@ -124,4 +126,15 @@ class SessionManager(
 		auth = true,
 		size = "${preferenceManager.coverArtQuality.value}"
 	)
+
+	suspend fun getCurrentUser(): User {
+		val username = settings.getString("username", "")
+
+		if (username.isNotBlank()) {
+			return api.getUser(username)
+		}
+
+		// TODO: custom exception instead of the generic "Exception"
+		throw Exception("Failed to get current user because the username is blank")
+	}
 }
