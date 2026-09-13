@@ -8,8 +8,14 @@ import dev.zt64.subsonic.client.SubsonicClient
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class SessionManager(
 	private val settings: Settings,
@@ -17,6 +23,10 @@ class SessionManager(
 ) {
 	val isLoggedIn: StateFlow<Boolean>
 		field = MutableStateFlow(false)
+
+	private var currentUser: User? = null
+	private val mutex = Mutex()
+	private val scope = CoroutineScope(Dispatchers.IO)
 
 	var api: SubsonicClient = createClient(
 		instanceUrl = settings.getString("instanceUrl", ""),
@@ -27,6 +37,7 @@ class SessionManager(
 
 	init {
 		isLoggedIn.value = settings.getStringOrNull("username") != null
+		if (isLoggedIn.value) getCachedUser()
 	}
 
 	private fun createClient(
@@ -63,6 +74,7 @@ class SessionManager(
 
 		try {
 			client.ping()
+			fetchCurrentUser(username, client)
 		} catch (e: Exception) {
 			// TODO: custom exception instead of the generic "Exception"
 			throw Exception(
@@ -99,14 +111,33 @@ class SessionManager(
 		size = "${preferenceManager.coverArtQuality.value}"
 	)
 
-	suspend fun getCurrentUser(): User {
-		val username = settings.getString("username", "")
 
-		if (username.isNotBlank()) {
-			return api.getUser(username)
+	private suspend fun fetchCurrentUser(
+		username: String = settings.getString("username", ""),
+		client: SubsonicClient = api
+	): User? {
+		mutex.withLock {
+			if (username.isNotBlank()) {
+				currentUser = client.getUser(username)
+				return currentUser
+			}
 		}
 
 		// TODO: custom exception instead of the generic "Exception"
 		throw Exception("Failed to get current user because the username is blank")
+	}
+
+	fun getCachedUser(): User? {
+		if (currentUser != null) {
+			return currentUser
+		}
+
+		if (currentUser == null) {
+			scope.launch {
+				fetchCurrentUser()
+			}
+		}
+
+		return currentUser
 	}
 }
