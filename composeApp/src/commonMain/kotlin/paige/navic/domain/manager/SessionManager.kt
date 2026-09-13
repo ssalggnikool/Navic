@@ -16,6 +16,10 @@ class SessionManager(
 	private val settings: Settings,
 	private val preferenceManager: PreferenceManager
 ) {
+	private companion object {
+		val PROXY_URL_REGEX = Regex("socks[4-5]?://(.+):(\\d+)")
+	}
+
 	val isLoggedIn: StateFlow<Boolean>
 		field = MutableStateFlow(false)
 
@@ -48,14 +52,13 @@ class SessionManager(
 
 			val proxyUrl = preferenceManager.proxyUrl
 
-			if (proxyUrl.isNotEmpty() && proxyUrl.isNotBlank()) {
+			if (proxyUrl.isNotBlank()) {
 				engine {
 					// socks is not tested but the parsing here should just work... hopefully...
 					if (proxyUrl.startsWith("http")) {
 						proxy = ProxyBuilder.http(proxyUrl)
 					} else if (proxyUrl.startsWith("socks")) {
-						val urlRegex = Regex("socks[4-5]?://(.+):(\\d+)")
-						val match = urlRegex.matchEntire(proxyUrl)
+						val match = PROXY_URL_REGEX.matchEntire(proxyUrl)
 
 						if (match?.groupValues?.isNotEmpty() == true) {
 							val port = match.groupValues.getOrNull(1)?.toIntOrNull()
