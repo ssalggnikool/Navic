@@ -141,7 +141,7 @@ fun CollectionSheet(
 			},
 			colors = colors
 		)
-		if (rating != null && onSetRating != null && preferenceManager.enableRatings) {
+		if (rating != null && onSetRating != null && preferenceManager.showRatings) {
 			RatingRow(
 				rating = rating,
 				setRating = onSetRating
@@ -176,7 +176,7 @@ fun CollectionSheet(
 				)
 			}
 
-			if (onShare != null && preferenceManager.enableSharing) {
+			if (onShare != null) {
 				ListItem(
 					content = { Text(stringResource(Res.string.action_share)) },
 					leadingContent = { Icon(Icons.Outlined.Share, null) },
