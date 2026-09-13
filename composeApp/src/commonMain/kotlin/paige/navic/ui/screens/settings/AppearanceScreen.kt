@@ -35,11 +35,11 @@ import navic.composeapp.generated.resources.option_choose_app_icon
 import navic.composeapp.generated.resources.option_choose_theme
 import navic.composeapp.generated.resources.option_cover_art_size
 import navic.composeapp.generated.resources.option_dynamic_theming
+import navic.composeapp.generated.resources.option_enable_ratings
 import navic.composeapp.generated.resources.option_grid_items_per_row
-import navic.composeapp.generated.resources.option_show_ratings
 import navic.composeapp.generated.resources.option_use_marquee_text
 import navic.composeapp.generated.resources.subtitle_dynamic_theming
-import navic.composeapp.generated.resources.subtitle_show_ratings
+import navic.composeapp.generated.resources.subtitle_enable_ratings
 import navic.composeapp.generated.resources.title_appearance
 import navic.composeapp.generated.resources.title_choose_font
 import navic.composeapp.generated.resources.title_layout
@@ -220,8 +220,8 @@ fun SettingsAppearanceScreen() {
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5)
 					)
 					SettingsToggleItem(
-						content = { Text(stringResource(Res.string.option_show_ratings)) },
-						supportingContent = { Text(stringResource(Res.string.subtitle_show_ratings)) },
+						content = { Text(stringResource(Res.string.option_enable_ratings)) },
+						supportingContent = { Text(stringResource(Res.string.subtitle_enable_ratings)) },
 						checked = preferenceManager.enableRatings,
 						onCheckedChange = { preferenceManager.enableRatings = it },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)

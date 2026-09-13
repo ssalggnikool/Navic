@@ -2,6 +2,7 @@ package paige.navic.domain.manager
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
+import dev.zt64.subsonic.api.model.Role
 import dev.zt64.subsonic.api.model.User
 import dev.zt64.subsonic.client.SubsonicAuth
 import dev.zt64.subsonic.client.SubsonicClient
@@ -168,4 +169,16 @@ class SessionManager(
 
 		return currentUser
 	}
+}
+
+fun User.hasRole(role: Role): Boolean {
+	return this.roles.contains(role)
+}
+
+fun User.canShare(): Boolean {
+	return this.hasRole(Role.SHARE)
+}
+
+fun SessionManager.canUserShare(): Boolean {
+	return this.getCachedUser()?.canShare() ?: false
 }
