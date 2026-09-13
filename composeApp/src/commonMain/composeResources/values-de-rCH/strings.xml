@@ -10,7 +10,6 @@
     <string name="title_now_playing">Läuft gerade</string>
     <string name="title_bottom_app_bar">Untere Navigationsleiste</string>
     <string name="title_about">Über diese App</string>
-    <string name="title_acknowledgements">Mitwirkende</string>
     <string name="title_delete_playlist">Playlist löschen?</string>
     <string name="title_delete_share">Freigabe löschen?</string>
     <string name="title_create_share">Teilen</string>
@@ -142,8 +141,4 @@
     <string name="info_share_expires_never">Läuft nie ab</string>
     <string name="info_share_expired">Abgelaufen</string>
     <string name="info_no_shares">Noch nicht geteilt</string>
-    <string name="sideloading_warning_title">ACHTUNG, LESEN!</string>
-    <string name="sideloading_warning_subtitle">Google plant, Sideloading für ALLE Geräte mit installierten Google Play Services zu entfernen!\n</string>
-    <string name="sideloading_warning_description">Obwohl die genauen Details dieser Änderung noch nicht vollständig bekannt sind, könnte es darin enden, dass JEGLICHES Sideloading blockiert wird, ausser der App Signer würde sich zu Google und/oder öffentlich doxxen.\n\nSolltest du das nötige Wissen haben, ein benutzerdefiniertes ROM auf deinem Gerät zu installieren, IST JETZT DER ZEITPUNKT DAFÜR!\n\nBitte lies mehr über was du tun kannst und wie du deine Stimme zählen lassen kannst unter</string>
-    <string name="sideloading_warning_link_mask">diesem Link.</string>
 </resources>
