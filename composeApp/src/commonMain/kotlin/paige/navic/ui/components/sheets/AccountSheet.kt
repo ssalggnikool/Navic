@@ -70,7 +70,6 @@ fun AccountSheet(
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
 	val sessionManager = koinInject<SessionManager>()
-	val currentUser = sessionManager.getCachedUser()
 
 	val settings = koinInject<Settings>()
 
