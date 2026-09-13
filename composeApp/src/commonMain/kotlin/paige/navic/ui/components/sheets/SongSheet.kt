@@ -57,8 +57,10 @@ import org.koin.compose.koinInject
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SleepTimerMode
+import paige.navic.domain.manager.canUserShare
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainExplicitStatus
 import paige.navic.domain.models.DomainSong
@@ -120,6 +122,7 @@ fun SongSheet(
 	useSongTheme: Boolean = true
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
+	val sessionManager = koinInject<SessionManager>()
 
 	val sleepTimerManager = koinInject<SleepTimerManager>()
 	val sleepTimerMode by sleepTimerManager.mode.collectAsStateWithLifecycle()
@@ -198,7 +201,7 @@ fun SongSheet(
 			HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
 
 			Column(Modifier.verticalScroll(rememberScrollState())) {
-				if (onShare != null) {
+				if (onShare != null && sessionManager.canUserShare()) {
 					ListItem(
 						content = { Text(stringResource(Res.string.action_share)) },
 						leadingContent = { Icon(Icons.Outlined.Share, null) },
