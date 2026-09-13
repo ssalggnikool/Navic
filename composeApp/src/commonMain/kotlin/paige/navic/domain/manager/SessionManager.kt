@@ -96,6 +96,7 @@ class SessionManager(
 		settings["username"] = null
 		settings["password"] = null
 		isLoggedIn.value = false
+		currentUser = null
 	}
 
 	fun refreshClient() {
