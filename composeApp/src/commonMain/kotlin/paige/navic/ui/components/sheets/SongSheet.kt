@@ -187,7 +187,7 @@ fun SongSheet(
 				},
 				colors = colors
 			)
-			if (rating != null && onSetRating != null && preferenceManager.showRatings) {
+			if (rating != null && onSetRating != null && preferenceManager.enableRatings) {
 				RatingRow(
 					rating = rating,
 					setRating = onSetRating
