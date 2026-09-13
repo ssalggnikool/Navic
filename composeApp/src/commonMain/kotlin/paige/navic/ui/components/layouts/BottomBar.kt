@@ -135,13 +135,13 @@ fun BottomBar(
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	val onTabSelected = { destination: Screen ->
-		if (destination !in backStack) {
+		if (backStack.lastOrNull() == destination) {
+			rootViewModel.requestScrollToTop()
+		} else {
 			backStack.apply {
 				clear()
 				add(destination)
 			}
-		} else {
-			rootViewModel.requestScrollToTop()
 		}
 	}
 

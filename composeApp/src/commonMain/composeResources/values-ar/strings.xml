@@ -11,7 +11,6 @@
     <string name="title_playback">التشغيل</string>
     <string name="title_developer">خيارات المطور</string>
     <string name="title_about">عن التطبيق</string>
-    <string name="title_acknowledgements">شكر وتقدير</string>
     <string name="title_delete_playlist">عايز تحذف قايمة التشغيل؟</string>
     <string name="title_delete_share">عايز تحذف المشاركة؟</string>
     <string name="title_create_share">اعمل مشاركة</string>
@@ -212,8 +211,4 @@
     <string name="info_no_playlists_short">مفيش قوايم تشغيل</string>
     <string name="info_lyrics_provider">الكلمات من %1$s</string>
     <string name="info_image_failed_to_load">فشل التحميل</string>
-    <string name="sideloading_warning_title">وقف، اقرا الأول!!</string>
-    <string name="sideloading_warning_subtitle">جوجل بتفكر إنها توقف الـ Sideloading على كل الأجهزة اللي عليها Google Play Services!\n</string>
-    <string name="sideloading_warning_description">التفاصيل الكاملة لسه مش واضحة، بس ممكن يوصل للنقطة دي إن أي تطبيق مش على البلاي ستور يتحجب، إلا لو صاحب التطبيق كشف هويته لجوجل أو للناس....\n\nلو عندك الخبرة إنك تركّب ROM مخصص على جهازك، دلوقتي أحسن وقت.\n\nاقرا أكتر عن اللي تقدر تعمله وإزاي تخلي صوتك يتسمع</string>
-    <string name="sideloading_warning_link_mask">من هنا.</string>
 </resources>

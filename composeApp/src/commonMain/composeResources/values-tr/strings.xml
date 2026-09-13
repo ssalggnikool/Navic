@@ -10,7 +10,6 @@
     <string name="title_now_playing">Şimdi Çalınan</string>
     <string name="title_bottom_app_bar">Alt Gezinme Çubuğu</string>
     <string name="title_about">Hakkında</string>
-    <string name="title_acknowledgements">Teşekkürler</string>
     <string name="title_delete_playlist">Çalma Listesi Silinsin Mi?</string>
     <string name="title_delete_share">Paylaşım Silinsin Mi?</string>
     <string name="title_create_share">Paylaşım Oluştur</string>
@@ -164,10 +163,6 @@
     <string name="info_no_shares">Paylaşım yok</string>
     <string name="info_no_lyrics">Şarkı sözü yok</string>
     <string name="info_lyrics_provider">Şarkı sözleri %1$s tarafından sağlanmıştır</string>
-    <string name="sideloading_warning_title">DUR, OKU!</string>
-    <string name="sideloading_warning_subtitle">Google, Google Play Hizmetleri yüklü olan TÜM cihazlar için dışarıdan uygulama yüklemeyi (sideloading) sonlandırmayı planlıyor!\n</string>
-    <string name="sideloading_warning_description">Bu değişikliğin kesin ayrıntıları henüz tam olarak bilinmese de, uygulama imzalayıcısı kendini Google\\'a ve/veya herkese açık bir şekilde ifşa etmediği sürece TÜM dışarıdan yüklemelerin engellenmesiyle sonuçlanabilir.\n\nCihazınıza özel bir ROM (custom ROM) yükleyecek kadar bilgi sahibiyseniz, ŞİMDİ TAM ZAMANI.\n\nNeler yapabileceğiniz ve sesinizi nasıl duyurabileceğiniz hakkında daha fazla bilgi almak için tıklayın:</string>
-    <string name="sideloading_warning_link_mask">Buraya</string>
     <string name="title_developer">Geliştirici Seçenekleri</string>
     <string name="title_navigation_bar">Gezinme çubuğu</string>
     <string name="option_now_playing_background_style">Arka plan stili</string>

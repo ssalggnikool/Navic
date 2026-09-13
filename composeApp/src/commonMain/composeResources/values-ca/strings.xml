@@ -16,7 +16,6 @@
     <string name="title_danger_zone">Opcions perilloses</string>
     <string name="title_developer">Opcions per a desenvolupadors</string>
     <string name="title_about">Quant a</string>
-    <string name="title_acknowledgements">Reconeixements</string>
     <string name="title_delete_playlist">Eliminar la llista de reproducció?</string>
     <string name="title_create_playlist">Crear llista de reproducció</string>
     <string name="title_create_radio">Crear emissora</string>
@@ -403,10 +402,6 @@
     <string name="info_repeat_one">Repetir una</string>
     <string name="info_repeat_all">Repetir totes</string>
     <string name="info_app_icon">Canviar l'icona de l'app tancarà Navic; així ho requereix Android. Algunes icones poden veure's idèntiques en la vostra pantalla d'inici si el llançador del sistema aplica temes o colors dinàmics a les icones.</string>
-    <string name="sideloading_warning_title">ATENCIÓ, LLEGIU!</string>
-    <string name="sideloading_warning_subtitle">Google vol eliminar la possibilitat d'instal·lar aplicacions des de fonts externes en TOTS els dispositius que tinguin instal·lats els Google Play Services!\n</string>
-    <string name="sideloading_warning_description">Tot i que els detalls concrets d'aquest canvi encara no es coneixen del tot, això podria provocar que quedin bloquejades TOTES les instal·lacions d'aplicacions des de fonts externes tret que el signant de l'aplicació s'expose a Google públicament.\n\nSi teniu coneixements suficients per instal·lar una ROM personalitzada al vostre dispositiu, ARA ÉS EL MOMENT DE FER-HO.\n\nSi us plau, llegiu més sobre el que podeu fer i com fer que s'escolte la vostra veu</string>
-    <string name="sideloading_warning_link_mask">aquí.</string>
     <string name="subtitle_equaliser">Ajusta i millora l'àudio</string>
     <string name="subtitle_equaliser_disabled">No disponible amb la relegació d'àudio activada</string>
     <string name="option_auto_fill_queue">Emplenament automàtic de la cua</string>
