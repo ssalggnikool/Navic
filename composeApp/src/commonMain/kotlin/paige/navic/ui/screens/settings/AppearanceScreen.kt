@@ -222,8 +222,8 @@ fun SettingsAppearanceScreen() {
 					SettingsToggleItem(
 						content = { Text(stringResource(Res.string.option_show_ratings)) },
 						supportingContent = { Text(stringResource(Res.string.subtitle_show_ratings)) },
-						checked = preferenceManager.showRatings,
-						onCheckedChange = { preferenceManager.showRatings = it },
+						checked = preferenceManager.enableRatings,
+						onCheckedChange = { preferenceManager.enableRatings = it },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
 					)
 					SettingsChoiceItem(
