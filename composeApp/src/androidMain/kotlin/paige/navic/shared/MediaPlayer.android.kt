@@ -23,7 +23,7 @@ import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.ktor.KtorDataSource
 import androidx.media3.exoplayer.BaseRenderer
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
@@ -54,6 +54,7 @@ import coil3.ImageLoader
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -133,8 +134,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 				setSmallIcon(resourceProvider.icNavic)
 			}
 
-		val httpDataSourceFactory = DefaultHttpDataSource.Factory()
-			.setDefaultRequestProperties(preferenceManager.customHeadersMap())
+		val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.getKtorHttpClient())
 		val dataSourceFactory = DefaultDataSource.Factory(this, httpDataSourceFactory)
 
 		val extractorsFactory = ExtractorsFactory {
@@ -1178,4 +1178,13 @@ class AndroidMediaPlayerViewModel(
 
 		return builder.build()
 	}
+}
+
+// hack: this is using kotlin/java reflection and should be removed later
+fun SessionManager.getKtorHttpClient(): HttpClient {
+	val apiInstance = this.api
+	val field = apiInstance.javaClass.getDeclaredField("httpClient").apply {
+		isAccessible = true
+	}
+	return field.get(apiInstance) as HttpClient
 }
