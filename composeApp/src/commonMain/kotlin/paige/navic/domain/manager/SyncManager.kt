@@ -120,9 +120,14 @@ class SyncManager(
 					}
 				}
 
-				if (result.isSuccess) {
-					preferenceManager.lastFullSyncTime = currentTime.toEpochMilliseconds()
+				preferenceManager.lastFullSyncTime = currentTime.toEpochMilliseconds()
+
+				// TODO: error should show up in UI as snack bar or something
+				try {
+					result.getOrThrow()
 					Logger.i("SyncManager", "Full library sync complete.")
+				} catch (ex: Exception) {
+					Logger.e("SyncManager", "couldn't sync library", ex)
 				}
 
 				syncState.update {
