@@ -30,20 +30,15 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
-import paige.navic.di.LocalPlatformContext
-import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainArtist
 import paige.navic.domain.models.DomainArtistListType
-import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.layouts.ArtGridItem
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.components.layouts.PullToRefreshBox
-import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.layouts.RootTopBar
 import paige.navic.ui.components.sheets.ArtistSheet
 import paige.navic.ui.components.snackbars.ErrorSnackBar
@@ -62,7 +57,6 @@ fun ArtistListScreen(
 	nested: Boolean = false,
 	listType: DomainArtistListType
 ) {
-	val platformContext = LocalPlatformContext.current
 	val preferenceManager = koinInject<PreferenceManager>()
 	val selectedViewMode = preferenceManager.artistListViewMode
 
@@ -118,13 +112,6 @@ fun ArtistListScreen(
 				NestedTopBar({ Text(stringResource(Res.string.title_artists)) }, actions)
 			}
 		},
-		bottomBar = {
-			val scrollManager = LocalBottomBarScrollManager.current
-			val preferVisible = preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
-			if (!nested || (!platformContext.isLandscape() && preferVisible)) {
-				RootBottomBar(scrolled = scrollManager.isTriggered)
-			}
-		}
 	) { innerPadding ->
 		PullToRefreshBox(
 			modifier = Modifier

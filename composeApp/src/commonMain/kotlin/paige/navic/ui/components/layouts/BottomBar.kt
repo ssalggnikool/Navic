@@ -145,6 +145,22 @@ fun BottomBar(
 		}
 	}
 
+	val allTabDestinations = tabs.map { tab ->
+		when (tab.id) {
+			NavbarTab.Id.LIBRARY -> Screen.Library()
+			NavbarTab.Id.ALBUMS -> Screen.AlbumList()
+			NavbarTab.Id.PLAYLISTS -> Screen.PlaylistList()
+			NavbarTab.Id.ARTISTS -> Screen.ArtistList()
+			NavbarTab.Id.SEARCH -> Screen.Search()
+			NavbarTab.Id.GENRES -> Screen.GenreList()
+			NavbarTab.Id.SONGS -> Screen.SongList()
+			NavbarTab.Id.RADIOS -> Screen.RadioList()
+		}
+	}
+	val currentActiveTab = backStack.lastOrNull { entry ->
+		allTabDestinations.any { tab -> tab::class == entry::class }
+	} ?: backStack.lastOrNull()
+
 	AnimatedContent(
 		preferenceManager.navigationBarStyle != NavigationBarStyle.Short
 			&& platformContext.sizeClass.widthSizeClass <= WindowWidthSizeClass.Compact
@@ -168,7 +184,7 @@ fun BottomBar(
 						NavbarTab.Id.SONGS -> NavItem.SONGS
 						NavbarTab.Id.RADIOS -> NavItem.RADIOS
 					}
-					val selected = backStack.lastOrNull() == item.destination
+					val selected = currentActiveTab?.let { it::class == item.destination::class } ?: false
 
 					NavigationBarItem(
 						selected = selected,
@@ -224,13 +240,13 @@ fun BottomBar(
 						NavbarTab.Id.SONGS -> NavItem.SONGS
 						NavbarTab.Id.RADIOS -> NavItem.RADIOS
 					}
-					val selected = backStack.last() == item.destination
+					val selected = currentActiveTab?.let { it::class == item.destination::class } ?: false
 
 					ShortNavigationBarItem(
 						iconPosition = if (platformContext.sizeClass.widthSizeClass > WindowWidthSizeClass.Compact)
 							NavigationItemIconPosition.Start
 						else NavigationItemIconPosition.Top,
-						selected = backStack.last() == item.destination,
+						selected = selected,
 						enabled = enabled,
 						onClick = dropUnlessResumed {
 							onTabSelected(item.destination)

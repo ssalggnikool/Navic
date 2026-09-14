@@ -46,6 +46,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.di.LocalNavStack
+import paige.navic.di.LocalSheetState
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.PlaylistRemove
 import paige.navic.shared.MediaPlayerViewModel
@@ -53,7 +54,6 @@ import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.queue.components.QueueScreenItem
 import paige.navic.ui.screens.queue.viewmodels.QueueViewModel
-import paige.navic.di.LocalSheetState
 import paige.navic.ui.util.draggableItemsIndexed
 import paige.navic.ui.util.rememberDraggableListState
 import kotlin.time.DurationUnit
