@@ -117,7 +117,8 @@ fun SongRow(
 			MarqueeText(
 				buildSongInfoString(
 					song = song,
-					onClickArtist = { backStack.add(Screen.ArtistDetail(it)) }
+					onClickArtist = { backStack.add(Screen.ArtistDetail(it)) },
+					showPlayCount = true
 				)
 			)
 		},

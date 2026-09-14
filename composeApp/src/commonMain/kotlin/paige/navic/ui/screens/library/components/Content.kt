@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +24,7 @@ import navic.composeapp.generated.resources.option_sort_starred
 import navic.composeapp.generated.resources.title_artists
 import navic.composeapp.generated.resources.title_genres
 import navic.composeapp.generated.resources.title_playlists
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumListType
 import paige.navic.domain.models.DomainArtist
@@ -40,6 +42,7 @@ import paige.navic.ui.screens.album.components.AlbumListScreenGridItem
 import paige.navic.ui.screens.artist.ArtistListScreenGridItem
 import paige.navic.ui.screens.genre.components.GenreListScreenCard
 import paige.navic.ui.screens.playlist.components.PlaylistListScreenGridItem
+import paige.navic.ui.screens.stats.viewmodels.StatisticsState
 import paige.navic.ui.util.withoutTop
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,7 +86,10 @@ fun LibraryScreenContent(
 	onAddPlaylistToQueue: () -> Unit,
 
 	// genres
-	genresState: UiState<ImmutableList<DomainGenre>>
+	genresState: UiState<ImmutableList<DomainGenre>>,
+
+	// stats
+	statsState: StatisticsState
 ) {
 	LazyVerticalGrid(
 		modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -193,6 +199,14 @@ fun LibraryScreenContent(
 			seeAll = true
 		) { genreWithAlbums ->
 			GenreListScreenCard(genre = genreWithAlbums)
+		}
+
+		item(span = { GridItemSpan(2) }) {
+			val backStack = LocalNavStack.current
+			StatisticsOverviewCard(
+				statsState = statsState,
+				onClick = { backStack.add(Screen.Statistics(true)) }
+			)
 		}
 	}
 }

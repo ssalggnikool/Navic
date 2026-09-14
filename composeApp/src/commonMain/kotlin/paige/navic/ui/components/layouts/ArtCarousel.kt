@@ -7,19 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.carousel.CarouselDefaults
-import androidx.compose.material3.carousel.CarouselItemScope
-import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,9 +24,18 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.collections.immutable.ImmutableList
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_see_all
+import navic.composeapp.generated.resources.count_plays
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import paige.navic.di.LocalNavStack
 import paige.navic.ui.components.common.CoverArt
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.unit.sp
+import paige.navic.util.toSummaryString
+import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -39,69 +43,60 @@ fun <T> ArtCarousel(
 	title: String,
 	items: ImmutableList<T>,
 	destination: NavKey? = null,
-	content: @Composable CarouselItemScope.(item: T) -> Unit
+	content: @Composable (item: T) -> Unit
 ) {
 	val backStack = LocalNavStack.current
 
 	if (items.isNotEmpty()) {
-		val state = rememberCarouselState { items.count() }
-		Column(Modifier.padding(horizontal = 16.dp)) {
-			if (destination != null) {
-				Row(
-					modifier = Modifier
-						.fillMaxWidth(),
-					verticalAlignment = Alignment.CenterVertically,
-					horizontalArrangement = Arrangement.SpaceBetween
-				) {
-					Text(
-						title,
-						style = MaterialTheme.typography.titleMediumEmphasized,
-						fontWeight = FontWeight(600),
-						modifier = Modifier.heightIn(min = 32.dp).padding(top = 8.dp)
-					)
+		Column {
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(horizontal = 16.dp),
+				verticalAlignment = Alignment.CenterVertically,
+				horizontalArrangement = Arrangement.SpaceBetween
+			) {
+				Text(
+					title,
+					style = MaterialTheme.typography.titleMediumEmphasized,
+					fontWeight = FontWeight(600),
+					modifier = Modifier.heightIn(min = 32.dp).padding(top = 12.dp)
+				)
+				if (destination != null) {
 					Text(
 						stringResource(Res.string.action_see_all),
-						style = MaterialTheme.typography.labelLarge,
+						fontSize = 12.sp,
 						color = MaterialTheme.colorScheme.primary,
 						modifier = Modifier
-							.heightIn(min = 32.dp).padding(top = 8.dp)
+							.heightIn(min = 32.dp).padding(top = 12.dp)
 							.clickable(onClick = dropUnlessResumed {
 								backStack.add(destination)
 							})
 					)
 				}
-			} else {
-				Text(
-					title,
-					style = MaterialTheme.typography.titleMediumEmphasized,
-					fontWeight = FontWeight(600),
-					modifier = Modifier.heightIn(min = 32.dp).padding(top = 8.dp)
-				)
 			}
-			HorizontalMultiBrowseCarousel(
-				state = state,
-				flingBehavior = CarouselDefaults.multiBrowseFlingBehavior(
-					state = state
-				),
+			LazyRow(
 				modifier = Modifier
 					.fillMaxWidth()
-					.wrapContentHeight()
 					.padding(top = 16.dp, bottom = 16.dp),
-				preferredItemWidth = 150.dp,
-				itemSpacing = 8.dp
-			) { index ->
-				content(items[index])
+				horizontalArrangement = Arrangement.spacedBy(12.dp),
+				contentPadding = PaddingValues(horizontal = 16.dp)
+			) {
+				items(items) { item ->
+					content(item)
+				}
 			}
 		}
 	}
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CarouselItemScope.ArtCarouselItem(
+fun ArtCarouselItem(
 	coverArtId: String?,
 	title: String,
 	subtitle: String? = null,
+	playCount: Int? = null,
+	duration: Duration? = null,
 	contentDescription: String?,
 	onSelect: () -> Unit = {},
 	onClick: () -> Unit = {}
@@ -110,15 +105,14 @@ fun CarouselItemScope.ArtCarouselItem(
 
 	Column(
 		modifier = Modifier
-			.fillMaxWidth()
+			.width(150.dp)
 	) {
 		CoverArt(
 			coverArtId = coverArtId,
 			contentDescription = contentDescription,
 			modifier = Modifier
 				.fillMaxWidth()
-				.maskClip(MaterialTheme.shapes.large),
-			shape = RectangleShape,
+				.clip(MaterialTheme.shapes.large),
 			onClick = {
 				focusManager.clearFocus(true)
 				onClick()
@@ -144,7 +138,24 @@ fun CarouselItemScope.ArtCarouselItem(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(start = 4.dp, end = 4.dp),
-				maxLines = 2
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
+		}
+
+		if (playCount != null && playCount > 0) {
+			val playsText = pluralStringResource(Res.plurals.count_plays, playCount, playCount)
+			val timeText = duration?.toSummaryString()
+			
+			Text(
+				text = if (timeText != null) "$playsText • $timeText" else playsText,
+				style = MaterialTheme.typography.labelSmall,
+				color = MaterialTheme.colorScheme.primary,
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(start = 4.dp, end = 4.dp),
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
 			)
 		}
 	}

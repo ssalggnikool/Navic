@@ -39,6 +39,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import org.koin.compose.koinInject
+import navic.composeapp.generated.resources.Res
+import navic.composeapp.generated.resources.count_plays
+import org.jetbrains.compose.resources.pluralStringResource
 import paige.navic.di.LocalPlatformContext
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.domain.manager.PreferenceManager
@@ -98,6 +101,7 @@ fun ArtGridItem(
 	coverArtId: String?,
 	title: String,
 	subtitle: String? = null,
+	playCount: Int? = null,
 	id: String,
 	// this parameter is a shitty workaround for shared element
 	// transitions being performed when switching between tabs
@@ -150,7 +154,17 @@ fun ArtGridItem(
 					style = MaterialTheme.typography.bodySmall,
 					color = MaterialTheme.colorScheme.onSurfaceVariant,
 					modifier = Modifier.fillMaxWidth(),
-					maxLines = 2,
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
+			if (playCount != null && playCount > 0) {
+				Text(
+					text = pluralStringResource(Res.plurals.count_plays, playCount, playCount),
+					style = MaterialTheme.typography.labelSmall,
+					color = MaterialTheme.colorScheme.primary,
+					modifier = Modifier.fillMaxWidth(),
+					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
 				)
 			}

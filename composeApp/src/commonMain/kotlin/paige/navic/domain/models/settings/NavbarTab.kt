@@ -16,6 +16,7 @@ data class NavbarTab(
 		SEARCH,
 		GENRES,
 		SONGS,
-		RADIOS
+		RADIOS,
+		STATISTICS
 	}
 }
