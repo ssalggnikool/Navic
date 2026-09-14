@@ -11,7 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import paige.navic.domain.manager.StorageManager
 import paige.navic.domain.models.DomainSong
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
