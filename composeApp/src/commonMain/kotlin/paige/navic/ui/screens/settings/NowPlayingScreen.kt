@@ -1,12 +1,15 @@
 package paige.navic.ui.screens.settings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -39,29 +42,30 @@ import navic.composeapp.generated.resources.title_layout
 import navic.composeapp.generated.resources.title_now_playing
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.di.LocalPlatformContext
+import paige.navic.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.CoverArtTapAction
 import paige.navic.domain.models.settings.NowPlayingBackgroundStyle
 import paige.navic.domain.models.settings.ToolbarPosition
-import paige.navic.ui.components.common.SegmentedListItem
-import paige.navic.ui.components.common.SegmentedListItemDefaults
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.ChevronForward
+import paige.navic.ui.components.common.Form
+import paige.navic.ui.components.common.FormRow
+import paige.navic.ui.components.common.FormTitle
 import paige.navic.ui.components.layouts.NestedTopBar
-import paige.navic.ui.screens.settings.components.SettingsChoiceItem
-import paige.navic.ui.screens.settings.components.SettingsGroup
-import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
-import paige.navic.ui.screens.settings.components.SettingsNavItem
-import paige.navic.ui.screens.settings.components.SettingsToggleItem
+import paige.navic.ui.screens.settings.components.SettingSelectionRow
+import paige.navic.ui.screens.settings.components.SettingSwitchRow
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import paige.navic.ui.screens.settings.dialogs.LyricsPrioritySheet
 import paige.navic.ui.screens.settings.dialogs.NowPlayingSliderStyleDialog
+import paige.navic.util.ui.LocalGlobalBottomBarHeight
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsNowPlayingScreen() {
 	val platformContext = LocalPlatformContext.current
 	val preferenceManager = koinInject<PreferenceManager>()
 	var lyricProvidersSheetOpen by rememberSaveable { mutableStateOf(false) }
-	var sliderStyleDialogOpen by rememberSaveable { mutableStateOf(false) }
 
 	Scaffold(
 		topBar = {
@@ -69,115 +73,134 @@ fun SettingsNowPlayingScreen() {
 				{ Text(stringResource(Res.string.title_now_playing)) },
 				hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 			)
-		}
+		},
+		contentWindowInsets = WindowInsets.statusBars
 	) { innerPadding ->
 		CompositionLocalProvider(
 			LocalMinimumInteractiveComponentSize provides 0.dp
 		) {
 			Column(
-				modifier = Modifier
-					.padding(innerPadding)
+				Modifier
+					.fillMaxSize()
 					.verticalScroll(rememberScrollState())
-					.padding(horizontal = 16.dp),
-				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
+					.padding(top = innerPadding.calculateTopPadding())
+					.padding(top = 16.dp, end = 16.dp, start = 16.dp)
 			) {
-				SettingsGroup {
-					SettingsToggleItem(
-						checked = preferenceManager.swipeToSkip,
-						onCheckedChange = { preferenceManager.swipeToSkip = it },
-						content = { Text(stringResource(Res.string.option_swipe_to_skip)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4)
+				Form {
+					SettingSwitchRow(
+						title = { Text(stringResource(Res.string.option_swipe_to_skip)) },
+						value = preferenceManager.swipeToSkip,
+						onSetValue = { preferenceManager.swipeToSkip = it }
 					)
-					SettingsChoiceItem(
-						content = { Text(stringResource(Res.string.option_cover_art_action)) },
-						choices = CoverArtTapAction.entries.toImmutableList(),
-						selectedChoice = preferenceManager.nowPlayingCoverArtAction,
-						onChoiceSelected = { preferenceManager.nowPlayingCoverArtAction = it },
+
+					SettingSelectionRow(
+						items = CoverArtTapAction.entries.toImmutableList(),
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+						selection = preferenceManager.nowPlayingCoverArtAction,
+						onSelect = { preferenceManager.nowPlayingCoverArtAction = it },
+						title = { Text(stringResource(Res.string.option_cover_art_action)) }
 					)
-					SettingsChoiceItem(
-						content = { Text(stringResource(Res.string.option_now_playing_background_style)) },
+
+					SettingSelectionRow(
+						items = NowPlayingBackgroundStyle.entries.toImmutableList(),
+						label = { stringResource(it.displayName) },
+						selection = preferenceManager.nowPlayingBackgroundStyle,
+						onSelect = { preferenceManager.nowPlayingBackgroundStyle = it },
 						description = stringResource(Res.string.subtitle_now_playing_background_style),
-						choices = NowPlayingBackgroundStyle.entries.toImmutableList(),
-						selectedChoice = preferenceManager.nowPlayingBackgroundStyle,
-						onChoiceSelected = { preferenceManager.nowPlayingBackgroundStyle = it },
-						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
+						title = { Text(stringResource(Res.string.option_now_playing_background_style)) }
 					)
-					SegmentedListItem(
-						onClick = { sliderStyleDialogOpen = true },
-						content = { Text(stringResource(Res.string.option_now_playing_slider_style)) },
-						supportingContent = { Text(stringResource(preferenceManager.nowPlayingSliderStyle.displayName)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
+
+					var showSliderStyleDialog by rememberSaveable { mutableStateOf(false) }
+					FormRow(
+						onClick = {
+							showSliderStyleDialog = true
+						}
+					) {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.option_now_playing_slider_style))
+							Text(
+								stringResource(preferenceManager.nowPlayingSliderStyle.displayName),
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						}
+					}
+
+					NowPlayingSliderStyleDialog(
+						presented = showSliderStyleDialog,
+						onDismissRequest = { showSliderStyleDialog = false }
 					)
 				}
 
-				SettingsGroup(title = { Text(stringResource(Res.string.action_lyrics)) }) {
-					SettingsNavItem(
-						onClick = { lyricProvidersSheetOpen = true },
-						content = { Text(stringResource(Res.string.action_configure_lyric_providers)) },
-						supportingContent = { Text(stringResource(Res.string.subtitle_configure_lyric_providers)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 6)
+				FormTitle(stringResource(Res.string.action_lyrics))
+				Form {
+					FormRow(
+						onClick = { lyricProvidersSheetOpen = true }
+					) {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.action_configure_lyric_providers))
+							Text(
+								text = stringResource(Res.string.subtitle_configure_lyric_providers),
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						}
+						Icon(Icons.Outlined.ChevronForward, null)
+					}
+
+					SettingSwitchRow(
+						title = { Text(stringResource(Res.string.option_lyrics_autoscroll)) },
+						value = preferenceManager.lyricsAutoscroll,
+						onSetValue = { preferenceManager.lyricsAutoscroll = it }
 					)
-					SettingsToggleItem(
-						checked = preferenceManager.lyricsAutoscroll,
-						onCheckedChange = { preferenceManager.lyricsAutoscroll = it },
-						content = { Text(stringResource(Res.string.option_lyrics_autoscroll)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
+
+					SettingSwitchRow(
+						title = { Text(stringResource(Res.string.option_lyrics_beat_by_beat)) },
+						value = preferenceManager.lyricsBeatByBeat,
+						onSetValue = { preferenceManager.lyricsBeatByBeat = it }
 					)
-					SettingsToggleItem(
-						checked = preferenceManager.lyricsBeatByBeat,
-						onCheckedChange = { preferenceManager.lyricsBeatByBeat = it },
-						content = { Text(stringResource(Res.string.option_lyrics_beat_by_beat)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 6)
+
+					SettingSwitchRow(
+						title = { Text(stringResource(Res.string.option_lyrics_keep_alive)) },
+						value = preferenceManager.lyricsKeepAlive,
+						onSetValue = { preferenceManager.lyricsKeepAlive = it }
 					)
-					SettingsToggleItem(
-						checked = preferenceManager.lyricsKeepAlive,
-						onCheckedChange = { preferenceManager.lyricsKeepAlive = it },
-						content = { Text(stringResource(Res.string.option_lyrics_keep_alive)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 6)
+
+					SettingSwitchRow(
+						title = { Text(stringResource(Res.string.option_lyrics_blur)) },
+						value = preferenceManager.lyricsBlur,
+						onSetValue = { preferenceManager.lyricsBlur = it }
 					)
-					SettingsToggleItem(
-						checked = preferenceManager.lyricsBlur,
-						onCheckedChange = { preferenceManager.lyricsBlur = it },
-						content = { Text(stringResource(Res.string.option_lyrics_blur)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 6)
-					)
-					SettingsToggleItem(
-						checked = preferenceManager.lyricsBrightInactive,
-						onCheckedChange = { preferenceManager.lyricsBrightInactive = it },
-						content = { Text(stringResource(Res.string.option_lyrics_bright_inactive)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
+
+					SettingSwitchRow(
+						title = { Text(stringResource(Res.string.option_lyrics_bright_inactive)) },
+						value = preferenceManager.lyricsBrightInactive,
+						onSetValue = { preferenceManager.lyricsBrightInactive = it }
 					)
 				}
 
-				SettingsGroup(title = { Text(stringResource(Res.string.title_layout)) }) {
-					SettingsToggleItem(
-						checked = preferenceManager.nowPlayingSongInfo,
-						onCheckedChange = { preferenceManager.nowPlayingSongInfo = it },
-						content = { Text(stringResource(Res.string.option_now_playing_song_info)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2)
+				FormTitle(stringResource(Res.string.title_layout))
+				Form {
+					SettingSwitchRow(
+						title = { Text(stringResource(Res.string.option_now_playing_song_info)) },
+						value = preferenceManager.nowPlayingSongInfo,
+						onSetValue = { preferenceManager.nowPlayingSongInfo = it }
 					)
-					SettingsChoiceItem(
-						content = { Text(stringResource(Res.string.option_now_playing_toolbar_position)) },
-						choices = ToolbarPosition.entries.toImmutableList(),
-						selectedChoice = preferenceManager.nowPlayingToolbarPosition,
-						onChoiceSelected = { preferenceManager.nowPlayingToolbarPosition = it },
+
+					SettingSelectionRow(
+						items = ToolbarPosition.entries.toImmutableList(),
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)
+						selection = preferenceManager.nowPlayingToolbarPosition,
+						onSelect = { preferenceManager.nowPlayingToolbarPosition = it },
+						title = { Text(stringResource(Res.string.option_now_playing_toolbar_position)) }
 					)
 				}
+				Spacer(Modifier.height(LocalGlobalBottomBarHeight.current))
 			}
 		}
+		LyricsPrioritySheet(
+			presented = lyricProvidersSheetOpen,
+			onDismissRequest = { lyricProvidersSheetOpen = false }
+		)
 	}
-
-	LyricsPrioritySheet(
-		presented = lyricProvidersSheetOpen,
-		onDismissRequest = { lyricProvidersSheetOpen = false }
-	)
-	NowPlayingSliderStyleDialog(
-		presented = sliderStyleDialogOpen,
-		onDismissRequest = { sliderStyleDialogOpen = false }
-	)
 }

@@ -11,6 +11,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,19 +41,16 @@ import navic.composeapp.generated.resources.title_radios
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import paige.navic.di.LocalBottomBarScrollManager
-import paige.navic.di.LocalPlatformContext
-import paige.navic.di.isLandscape
+import paige.navic.LocalBottomBarScrollManager
+import paige.navic.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.BottomBarCollapseMode
-import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Add
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.layouts.ArtGrid
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.components.layouts.PullToRefreshBox
-import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.layouts.RootTopBar
 import paige.navic.ui.components.snackbars.ErrorSnackBar
 import paige.navic.ui.core.UiState
@@ -60,8 +58,8 @@ import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screens.radio.components.radioListScreenContent
 import paige.navic.ui.screens.radio.dialogs.RadioCreateDialog
 import paige.navic.ui.screens.radio.viewmodels.RadioListViewModel
-import paige.navic.ui.util.withoutTop
-import paige.navic.ui.viewmodel.RootViewModel
+import paige.navic.util.ui.LocalGlobalBottomBarHeight
+import paige.navic.util.ui.withoutTop
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -85,15 +83,6 @@ fun RadioListScreen(
 	var createDialogShown by rememberSaveable { mutableStateOf(false) }
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	val rootViewModel = koinViewModel<RootViewModel>()
-	LaunchedEffect(Unit) {
-		rootViewModel.events.collect { event ->
-			if (event is RootViewModel.Event.ScrollToTop) {
-				viewModel.gridState.animateScrollToItem(0)
-			}
-		}
-	}
-
 	Scaffold(
 		topBar = {
 			if (!nested) {
@@ -104,6 +93,9 @@ fun RadioListScreen(
 			} else {
 				NestedTopBar({ Text(stringResource(Res.string.title_radios)) })
 			}
+		},
+		bottomBar = {
+			Spacer(Modifier.height(LocalGlobalBottomBarHeight.current))
 		},
 		floatingActionButton = {
 			AnimatedContent(
@@ -135,13 +127,6 @@ fun RadioListScreen(
 						)
 					}
 				}
-			}
-		},
-		bottomBar = {
-			val scrollManager = LocalBottomBarScrollManager.current
-			val preferVisible = preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
-			if (!nested || (!platformContext.isLandscape() && preferVisible)) {
-				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
 	) { innerPadding ->

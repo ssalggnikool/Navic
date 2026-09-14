@@ -4,15 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,7 +46,7 @@ import navic.composeapp.generated.resources.title_settings
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.di.LocalNavStack
+import paige.navic.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.icons.Icons
 import paige.navic.icons.filled.BottomNavigation
@@ -54,86 +57,78 @@ import paige.navic.icons.outlined.ChevronForward
 import paige.navic.icons.outlined.Code
 import paige.navic.icons.outlined.DataTable
 import paige.navic.icons.outlined.Note
-import paige.navic.ui.components.common.SegmentedListItem
-import paige.navic.ui.components.common.SegmentedListItemDefaults
+import paige.navic.ui.components.common.Form
+import paige.navic.ui.components.common.FormRow
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.settings.components.SettingsGroup
-import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.theme.defaultFont
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen() {
 	Scaffold(
-		topBar = { NestedTopBar({ Text(stringResource(Res.string.title_settings)) }) }
+		topBar = { NestedTopBar({ Text(stringResource(Res.string.title_settings)) }) },
+		contentWindowInsets = WindowInsets(0, 0, 0, 0)
 	) { innerPadding ->
 		Column(
 			modifier = Modifier
-				.padding(innerPadding)
+				.fillMaxSize()
 				.verticalScroll(rememberScrollState())
-				.padding(horizontal = 16.dp),
-			verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
+				.padding(top = innerPadding.calculateTopPadding())
+				.padding(top = 16.dp, end = 16.dp, start = 16.dp)
 		) {
-			SettingsGroup {
+			Form {
 				PageRow(
 					destination = Screen.Settings.Appearance,
 					icon = Icons.Filled.Palette,
 					iconSize = 24.dp,
 					title = Res.string.title_appearance,
-					subtitle = Res.string.subtitle_appearance,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 6)
+					subtitle = Res.string.subtitle_appearance
 				)
 				PageRow(
 					destination = Screen.Settings.NowPlaying,
 					icon = Icons.Filled.Play,
 					iconSize = 24.dp,
 					title = Res.string.title_now_playing,
-					subtitle = Res.string.subtitle_now_playing,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
+					subtitle = Res.string.subtitle_now_playing
 				)
 				PageRow(
 					destination = Screen.Settings.BottomAppBar,
 					icon = Icons.Filled.BottomNavigation,
 					iconSize = 24.dp,
 					title = Res.string.title_bottom_app_bar,
-					subtitle = Res.string.subtitle_bottom_app_bar,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 6)
+					subtitle = Res.string.subtitle_bottom_app_bar
 				)
 				PageRow(
 					destination = Screen.Settings.Playback,
 					icon = Icons.Outlined.Note,
 					iconSize = 24.dp,
 					title = Res.string.title_playback,
-					subtitle = Res.string.subtitle_playback,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 6)
+					subtitle = Res.string.subtitle_playback
 				)
 				PageRow(
 					destination = Screen.Settings.DataStorage,
 					icon = Icons.Outlined.DataTable,
 					iconSize = 24.dp,
 					title = Res.string.title_data_storage,
-					subtitle = Res.string.subtitle_data_storage,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 6)
+					subtitle = Res.string.subtitle_data_storage
 				)
 				PageRow(
 					destination = Screen.Settings.Developer,
 					icon = Icons.Outlined.Code,
 					iconSize = 24.dp,
 					title = Res.string.title_developer,
-					subtitle = Res.string.subtitle_developer,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
+					subtitle = Res.string.subtitle_developer
 				)
 			}
-			SettingsGroup {
+			Form {
 				PageRow(
 					destination = Screen.Settings.About,
 					icon = Icons.Filled.Info,
 					title = Res.string.title_about,
-					subtitle = Res.string.subtitle_about,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+					subtitle = Res.string.subtitle_about
 				)
 			}
+			Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
 		}
 	}
 }
@@ -145,13 +140,11 @@ private fun PageRow(
 	icon: ImageVector,
 	iconSize: Dp = 22.dp,
 	title: StringResource,
-	subtitle: StringResource,
-	shapes: ListItemShapes
+	subtitle: StringResource
 ) {
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()
-	SegmentedListItem(
-		shapes = shapes,
+	FormRow(
 		onClick = dropUnlessResumed {
 			destination?.let { destination ->
 				backStack.lastOrNull()?.let {
@@ -164,62 +157,59 @@ private fun PageRow(
 				}
 			}
 		},
+		horizontalArrangement = Arrangement.spacedBy(12.dp),
 		contentPadding = PaddingValues(if (preferenceManager.theme.isMaterialLike()) 16.dp else 12.dp)
 	) {
-		Row(
-			horizontalArrangement = Arrangement.spacedBy(12.dp)
-		) {
-			if (preferenceManager.theme.isMaterialLike()) {
-				Column(
-					modifier = Modifier
-						.size(40.dp)
-						.background(MaterialTheme.colorScheme.primary, CircleShape),
-					horizontalAlignment = Alignment.CenterHorizontally,
-					verticalArrangement = Arrangement.Center
-				) {
-					Icon(
-						imageVector = icon,
-						contentDescription = null,
-						modifier = Modifier.size(iconSize),
-						tint = MaterialTheme.colorScheme.onPrimary
-					)
-				}
-			} else {
+		if (preferenceManager.theme.isMaterialLike()) {
+			Column(
+				modifier = Modifier
+					.size(40.dp)
+					.background(MaterialTheme.colorScheme.primary, CircleShape),
+				horizontalAlignment = Alignment.CenterHorizontally,
+				verticalArrangement = Arrangement.Center
+			) {
 				Icon(
 					icon,
 					contentDescription = null,
-					modifier = Modifier.padding(start = 8.dp, end = 5.dp).size(22.dp),
-					tint = MaterialTheme.colorScheme.primary
+					modifier = Modifier.size(iconSize),
+					tint = MaterialTheme.colorScheme.onPrimary
 				)
 			}
-			Column(
-				Modifier.weight(1f),
-				verticalArrangement = Arrangement.spacedBy(1.dp)
-			) {
-				Text(
-					stringResource(title),
-					style = MaterialTheme.typography.titleSmall.copy(
-						fontFamily = defaultFont(100),
-						fontSize = 16.sp,
-						lineHeight = 16.sp
-					)
+		} else {
+			Icon(
+				icon,
+				contentDescription = null,
+				modifier = Modifier.padding(start = 8.dp, end = 5.dp).size(22.dp),
+				tint = MaterialTheme.colorScheme.primary
+			)
+		}
+		Column(
+			Modifier.weight(1f),
+			verticalArrangement = Arrangement.spacedBy(1.dp)
+		) {
+			Text(
+				stringResource(title),
+				style = MaterialTheme.typography.titleSmall.copy(
+					fontFamily = defaultFont(100),
+					fontSize = 16.sp,
+					lineHeight = 16.sp
 				)
-				Text(
-					stringResource(subtitle),
-					style = MaterialTheme.typography.bodyMedium.copy(
-						fontFamily = defaultFont(grade = 10),
-						lineHeight = 14.sp
-					),
-					color = MaterialTheme.colorScheme.onSurfaceVariant
-				)
-			}
-			if (!preferenceManager.theme.isMaterialLike()) {
-				Icon(
-					Icons.Outlined.ChevronForward,
-					null,
-					tint = MaterialTheme.colorScheme.onSurfaceVariant
-				)
-			}
+			)
+			Text(
+				stringResource(subtitle),
+				style = MaterialTheme.typography.bodyMedium.copy(
+					fontFamily = defaultFont(grade = 10),
+					lineHeight = 14.sp
+				),
+				color = MaterialTheme.colorScheme.onSurfaceVariant
+			)
+		}
+		if (!preferenceManager.theme.isMaterialLike()) {
+			Icon(
+				Icons.Outlined.ChevronForward,
+				null,
+				tint = MaterialTheme.colorScheme.onSurfaceVariant
+			)
 		}
 	}
 }

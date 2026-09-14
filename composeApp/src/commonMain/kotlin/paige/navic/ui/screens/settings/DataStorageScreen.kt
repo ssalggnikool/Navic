@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -36,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -87,28 +90,29 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import paige.navic.di.LocalNavStack
-import paige.navic.di.LocalPlatformContext
+import paige.navic.LocalNavStack
+import paige.navic.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.CoverArtQuality
 import paige.navic.domain.models.settings.OfflineMode
 import paige.navic.icons.Icons
+import paige.navic.icons.outlined.ChevronForward
 import paige.navic.icons.outlined.Offline
-import paige.navic.ui.components.common.SegmentedListItem
-import paige.navic.ui.components.common.SegmentedListItemDefaults
+import paige.navic.ui.components.common.Form
+import paige.navic.ui.components.common.FormRow
+import paige.navic.ui.components.common.FormTitle
 import paige.navic.ui.components.dialogs.BulkDownloadDialog
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.settings.components.SettingsChoiceItem
-import paige.navic.ui.screens.settings.components.SettingsGroup
-import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
-import paige.navic.ui.screens.settings.components.SettingsNavItem
+import paige.navic.ui.screens.settings.components.SettingSelectionRow
 import paige.navic.ui.screens.settings.viewmodels.SettingsDataStorageViewModel
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import paige.navic.util.ui.LocalGlobalBottomBarHeight
 import kotlin.time.Clock
 import kotlin.time.Instant
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsDataStorageScreen() {
 	val viewModel = koinViewModel<SettingsDataStorageViewModel>()
@@ -157,6 +161,7 @@ fun SettingsDataStorageScreen() {
 		animationSpec = tween(durationMillis = 500, easing = EaseOut)
 	)
 
+	val offlineModifier = Modifier.alpha(if (isOnline) 1f else 0.75f)
 	val offlineIcon = @Composable {
 		if (!isOnline) {
 			Icon(
@@ -210,240 +215,279 @@ fun SettingsDataStorageScreen() {
 				title = { Text(stringResource(Res.string.title_data_storage)) },
 				hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 			)
-		}
+		},
+		contentWindowInsets = WindowInsets.statusBars
 	) { innerPadding ->
 		CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
 			Column(
-				modifier = Modifier
-					.padding(innerPadding)
+				Modifier
+					.fillMaxSize()
 					.verticalScroll(rememberScrollState())
-					.padding(horizontal = 16.dp),
-				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
+					.padding(innerPadding)
+					.padding(top = 16.dp, end = 16.dp, start = 16.dp)
 			) {
-				SettingsGroup(title = { Text(stringResource(Res.string.title_network)) }) {
-					SettingsNavItem(
+				FormTitle(stringResource(Res.string.title_network))
+				Form {
+					FormRow(
 						onClick = dropUnlessResumed { backStack.add(Screen.Settings.DownloadQuality) },
-						content = { Text(stringResource(Res.string.title_download_quality)) },
-						supportingContent = { Text(stringResource(Res.string.subtitle_download_quality)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
-					)
-
-					SettingsChoiceItem(
-						choices = OfflineMode.entries.toImmutableList(),
-						selectedChoice = preferenceManager.offlineMode,
-						onChoiceSelected = { preferenceManager.offlineMode = it },
-						description = stringResource(Res.string.subtitle_offline_mode),
-						content = { Text(stringResource(Res.string.option_offline_mode)) },
+						horizontalArrangement = Arrangement.Start
+					) {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.title_download_quality))
+							Text(
+								text = stringResource(Res.string.subtitle_download_quality),
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						}
+						Icon(Icons.Outlined.ChevronForward, null)
+					}
+					SettingSelectionRow(
+						title = { Text(stringResource(Res.string.option_offline_mode)) },
+						items = OfflineMode.entries.toImmutableList(),
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+						description = stringResource(Res.string.subtitle_offline_mode),
+						selection = preferenceManager.offlineMode,
+						onSelect = { preferenceManager.offlineMode = it }
 					)
-
-					SettingsChoiceItem(
-						choices = CoverArtQuality.entries.toImmutableList(),
-						selectedChoice = preferenceManager.coverArtQuality,
-						onChoiceSelected = {
+					SettingSelectionRow(
+						title = { Text(stringResource(Res.string.option_cover_art_quality)) },
+						items = CoverArtQuality.entries.toImmutableList(),
+						label = { stringResource(it.displayName) },
+						selection = preferenceManager.coverArtQuality,
+						onSelect = {
 							preferenceManager.coverArtQuality = it
 							imageLoader.memoryCache?.clear()
 							scope.launch(Dispatchers.IO) {
 								imageLoader.diskCache?.clear()
 								imageCacheSizeMb = "0 MB"
 							}
-						},
-						content = { Text(stringResource(Res.string.option_cover_art_quality)) },
-						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
+						}
 					)
 				}
 
-				SettingsGroup(title = { Text(stringResource(Res.string.title_sync_control)) }) {
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(Res.string.option_live_status)) },
-						supportingContent = {
-							Column(Modifier.fillMaxWidth()) {
-								Text(stringResource(syncState.message))
-								AnimatedVisibility(
-									syncState.isSyncing,
-									enter = fadeIn() + expandVertically(clip = false),
-									exit = fadeOut() + shrinkVertically(clip = false)
-								) {
-									LinearProgressIndicator(
-										progress = {
-											if (!syncState.isSyncing)
-												1f
-											else smoothSyncProgress.coerceIn(0f, 1f)
-										},
-										modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-									)
-								}
+				FormTitle(stringResource(Res.string.title_sync_control))
+				Form {
+					FormRow {
+						Column(Modifier.fillMaxWidth()) {
+							Column {
+								Text(stringResource(Res.string.option_live_status))
+								Text(
+									text = stringResource(syncState.message),
+									style = MaterialTheme.typography.bodyMedium,
+									color = MaterialTheme.colorScheme.onSurfaceVariant
+								)
 							}
-						},
-						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
-					)
+							AnimatedVisibility(
+								syncState.isSyncing,
+								enter = fadeIn() + expandVertically(clip = false),
+								exit = fadeOut() + shrinkVertically(clip = false)
+							) {
+								LinearProgressIndicator(
+									progress = {
+										if (!syncState.isSyncing)
+											1f
+										else smoothSyncProgress.coerceIn(0f, 1f)
+									},
+									modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+								)
+							}
+						}
+					}
 
-					SegmentedListItem(
-						onClick = viewModel::triggerManualSync,
-						enabled = isOnline,
-						content = { Text(stringResource(Res.string.action_trigger_sync)) },
-						supportingContent = { Text(stringResource(Res.string.subtitle_trigger_sync)) },
-						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
-					)
+					FormRow(
+						modifier = offlineModifier,
+						onClick = if (isOnline) {
+							{ viewModel.triggerManualSync() }
+						} else null
+					) {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.action_trigger_sync))
+							Text(
+								stringResource(Res.string.subtitle_trigger_sync),
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						}
+						offlineIcon()
+					}
 
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(Res.string.option_last_sync)) },
-						supportingContent = { Text(timeSinceLastSync()) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
-					)
+					FormRow {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.option_last_sync))
+							Text(
+								text = timeSinceLastSync(),
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						}
+					}
 				}
 
-				SettingsGroup(title = { Text(stringResource(Res.string.title_cache_management)) }) {
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(Res.string.option_pending_actions)) },
-						supportingContent = {
+				FormTitle(stringResource(Res.string.title_cache_management))
+				Form {
+					FormRow {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.option_pending_actions))
 							Text(
-								text = stringResource(
+								stringResource(
 									Res.string.subtitle_pending_actions,
 									pendingActionCount
-								)
+								),
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
 							)
-						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4)
-					)
+						}
+					}
 
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(Res.string.option_downloaded_songs)) },
-						supportingContent = {
+					FormRow {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.option_downloaded_songs))
 							Text(
-								text = pluralStringResource(
+								pluralStringResource(
 									Res.plurals.count_songs,
 									downloadCount,
 									downloadCount
-								) + downloadsSizeMb
-							)
-						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
-					)
-
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(Res.string.option_image_cache_size)) },
-						supportingContent = { Text(imageCacheSizeMb) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
-					)
-
-					SegmentedListItem(
-						onClick = {
-							if (!isDownloadingLibrary) {
-								showLibraryDownloadDialog = true
-							}
-						},
-						enabled = isOnline,
-						content = { Text(stringResource(Res.string.title_library_download)) },
-						supportingContent = {
-							Column(Modifier.fillMaxWidth()) {
-								Text(
-									text = stringResource(
-										if (isDownloadingLibrary)
-											Res.string.info_status_downloading
-										else Res.string.info_library_download
-									)
 								)
-								AnimatedVisibility(
-									visible = isDownloadingLibrary,
-									enter = fadeIn() + expandVertically(clip = false),
-									exit = fadeOut() + shrinkVertically(clip = false)
-								) {
-									Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
-										Row(
-											modifier = Modifier.fillMaxWidth(),
-											horizontalArrangement = Arrangement.SpaceBetween,
-											verticalAlignment = Alignment.CenterVertically
-										) {
+									+ downloadsSizeMb,
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						}
+					}
+
+					FormRow {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.option_image_cache_size))
+							Text(
+								imageCacheSizeMb,
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						}
+					}
+
+					FormRow(
+						modifier = offlineModifier,
+						onClick = if (!isDownloadingLibrary && isOnline) {
+							{ showLibraryDownloadDialog = true }
+						} else null
+					) {
+						Column(Modifier.weight(1f)) {
+							Text(stringResource(Res.string.title_library_download))
+							Text(
+								text = stringResource(if (isDownloadingLibrary) Res.string.info_status_downloading else Res.string.info_library_download),
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+
+							AnimatedVisibility(
+								visible = isDownloadingLibrary,
+								enter = fadeIn() + expandVertically(clip = false),
+								exit = fadeOut() + shrinkVertically(clip = false)
+							) {
+								Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+									Row(
+										modifier = Modifier.fillMaxWidth(),
+										horizontalArrangement = Arrangement.SpaceBetween,
+										verticalAlignment = Alignment.CenterVertically
+									) {
+										Text(
+											text = stringResource(Res.string.info_progress),
+											style = MaterialTheme.typography.labelMedium,
+											color = MaterialTheme.colorScheme.primary
+										)
+
+										Row(verticalAlignment = Alignment.CenterVertically) {
+											TextButton(
+												onClick = {
+													viewModel.cancelLibraryDownload()
+												},
+												contentPadding = PaddingValues(
+													horizontal = 8.dp,
+													vertical = 0.dp
+												),
+												modifier = Modifier.padding(end = 8.dp)
+											) {
+												Text(
+													stringResource(Res.string.action_cancel_download),
+													style = MaterialTheme.typography.labelLarge,
+													color = MaterialTheme.colorScheme.error
+												)
+											}
+
 											Text(
-												text = stringResource(Res.string.info_progress),
+												text = "${(smoothLibraryDownloadProgress * 100).toInt()}%",
 												style = MaterialTheme.typography.labelMedium,
 												color = MaterialTheme.colorScheme.primary
 											)
-
-											Row(verticalAlignment = Alignment.CenterVertically) {
-												TextButton(
-													onClick = {
-														viewModel.cancelLibraryDownload()
-													},
-													contentPadding = PaddingValues(
-														horizontal = 8.dp,
-														vertical = 0.dp
-													),
-													modifier = Modifier.padding(end = 8.dp)
-												) {
-													Text(
-														stringResource(Res.string.action_cancel_download),
-														style = MaterialTheme.typography.labelLarge,
-														color = MaterialTheme.colorScheme.error
-													)
-												}
-
-												Text(
-													text = "${(smoothLibraryDownloadProgress * 100).toInt()}%",
-													style = MaterialTheme.typography.labelMedium,
-													color = MaterialTheme.colorScheme.primary
-												)
-											}
 										}
-
-										LinearProgressIndicator(
-											progress = { smoothLibraryDownloadProgress },
-											modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
-										)
 									}
+
+									LinearProgressIndicator(
+										progress = { smoothLibraryDownloadProgress },
+										modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+									)
 								}
 							}
-						},
-						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
-					)
+						}
+						offlineIcon()
+					}
 				}
 
-				SettingsGroup(title = { Text(stringResource(Res.string.title_danger_zone)) }) {
-					SegmentedListItem(
+				FormTitle(stringResource(Res.string.title_danger_zone))
+				Form {
+					FormRow(
 						onClick = {
 							imageLoader.memoryCache?.clear()
 							scope.launch(Dispatchers.IO) {
 								imageLoader.diskCache?.clear()
 								imageCacheSizeMb = "0 MB"
 							}
-						},
-						content = { Text(stringResource(Res.string.action_clear_image_cache)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4),
-						colors = SegmentedListItemDefaults.segmentedErrorColors()
-					)
-					SegmentedListItem(
-						onClick = viewModel::removeAllActions,
-						content = { Text(stringResource(Res.string.action_clear_pending_actions)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4),
-						colors = SegmentedListItemDefaults.segmentedErrorColors()
-					)
-					SegmentedListItem(
-						onClick = viewModel::clearAllDownloads,
-						content = { Text(stringResource(Res.string.action_clear_downloads)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4),
-						colors = SegmentedListItemDefaults.segmentedErrorColors()
-					)
-					SegmentedListItem(
-						onClick = viewModel::rebuildDatabase,
-						enabled = isOnline,
-						content = { Text(stringResource(Res.string.action_rebuild_database)) },
-						supportingContent = { Text(stringResource(Res.string.subtitle_rebuild_database)) },
-						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4),
-						colors = SegmentedListItemDefaults.segmentedErrorColors()
-					)
+						}
+					) {
+						Text(
+							stringResource(Res.string.action_clear_image_cache),
+							color = MaterialTheme.colorScheme.error,
+							modifier = Modifier.weight(1f)
+						)
+					}
+
+					FormRow(onClick = { viewModel.removeAllActions() }) {
+						Text(
+							stringResource(Res.string.action_clear_pending_actions),
+							color = MaterialTheme.colorScheme.error
+						)
+					}
+
+					FormRow(onClick = { viewModel.clearAllDownloads() }) {
+						Text(
+							stringResource(Res.string.action_clear_downloads),
+							color = MaterialTheme.colorScheme.error
+						)
+					}
+
+					FormRow(
+						modifier = offlineModifier,
+						onClick = if (isOnline) {
+							{ viewModel.rebuildDatabase() }
+						} else null
+					) {
+						Column(Modifier.weight(1f)) {
+							Text(
+								stringResource(Res.string.action_rebuild_database),
+								color = MaterialTheme.colorScheme.error
+							)
+							Text(
+								stringResource(Res.string.subtitle_rebuild_database),
+								style = MaterialTheme.typography.bodyMedium,
+								color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+							)
+						}
+						offlineIcon()
+					}
 				}
+				Spacer(Modifier.height(LocalGlobalBottomBarHeight.current))
 			}
 		}
 	}

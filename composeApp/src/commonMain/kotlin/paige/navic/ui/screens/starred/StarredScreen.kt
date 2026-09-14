@@ -21,21 +21,17 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.di.LocalBottomBarScrollManager
-import paige.navic.di.LocalPlatformContext
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.LocalPlatformContext
 import paige.navic.domain.models.DomainAlbumListType
 import paige.navic.domain.models.DomainArtistListType
 import paige.navic.domain.models.DomainFilter
 import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.models.DomainSongListType
-import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.dialogs.QueueDuplicateDialog
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.components.layouts.PullToRefreshBox
-import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screens.album.viewmodels.AlbumListViewModel
@@ -43,7 +39,7 @@ import paige.navic.ui.screens.artist.viewmodels.ArtistListViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.screens.song.viewmodels.SongListViewModel
 import paige.navic.ui.screens.starred.components.StarredScreenContent
-import paige.navic.di.isLandscape
+import paige.navic.util.ui.withGlobalBottomBar
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -51,16 +47,10 @@ import kotlin.time.Duration
 fun StarredScreen() {
 	val platformContext = LocalPlatformContext.current
 	val persistentViewModelStoreOwner = koinInject<PersistentViewModelStoreOwner>()
-	val preferenceManager = koinInject<PreferenceManager>()
 
 	val songsViewModel = koinViewModel<SongListViewModel>(
 		key = "starredSongs",
-		parameters = {
-			parametersOf(
-				DomainSongListType.FrequentlyPlayed,
-				setOf(DomainFilter.Starred)
-			)
-		},
+		parameters = { parametersOf(DomainSongListType.FrequentlyPlayed, setOf(DomainFilter.Starred)) },
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val songsState by songsViewModel.songsState.collectAsStateWithLifecycle()
@@ -71,12 +61,7 @@ fun StarredScreen() {
 
 	val albumsViewModel = koinViewModel<AlbumListViewModel>(
 		key = "starredAlbums",
-		parameters = {
-			parametersOf(
-				DomainAlbumListType.AlphabeticalByArtist,
-				setOf(DomainFilter.Starred)
-			)
-		},
+		parameters = { parametersOf(DomainAlbumListType.AlphabeticalByArtist, setOf(DomainFilter.Starred)) },
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val albumsState by albumsViewModel.albumsState.collectAsStateWithLifecycle()
@@ -86,12 +71,7 @@ fun StarredScreen() {
 
 	val artistsViewModel = koinViewModel<ArtistListViewModel>(
 		key = "starredArtists",
-		parameters = {
-			parametersOf(
-				DomainArtistListType.AlphabeticalByName,
-				setOf(DomainFilter.Starred)
-			)
-		},
+		parameters = { parametersOf(DomainArtistListType.AlphabeticalByName, setOf(DomainFilter.Starred)) },
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val artistsState by artistsViewModel.artistsState.collectAsStateWithLifecycle()
@@ -109,15 +89,7 @@ fun StarredScreen() {
 	val isOnline by songsViewModel.isOnline.collectAsStateWithLifecycle()
 
 	Scaffold(
-		topBar = { NestedTopBar({ Text(stringResource(Res.string.title_starred)) }) },
-		bottomBar = {
-			val scrollManager = LocalBottomBarScrollManager.current
-			val preferVisible =
-				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
-			if (!platformContext.isLandscape() && preferVisible) {
-				RootBottomBar(scrolled = scrollManager.isTriggered)
-			}
-		}
+		topBar = { NestedTopBar({ Text(stringResource(Res.string.title_starred)) }) }
 	) { innerPadding ->
 		val isAnythingLoading = albumsState is UiState.Loading ||
 			artistsState is UiState.Loading ||
@@ -135,7 +107,7 @@ fun StarredScreen() {
 			key = listOf(albumsState, artistsState, songsState)
 		) {
 			StarredScreenContent(
-				innerPadding = innerPadding,
+				innerPadding = innerPadding.withGlobalBottomBar(),
 				onSetShareId = { shareId = it },
 				isOnline = isOnline,
 
@@ -160,14 +132,14 @@ fun StarredScreen() {
 					songsViewModel.deleteDownload(song.id)
 				},
 				onPlaySongNext = { song ->
-					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+					if (player.uiState.value.queue.any { it.id == song.id }) {
 						songToQueue = song
 					} else {
 						player.playNextSingle(song)
 					}
 				},
 				onAddSongToQueue = { song ->
-					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+					if (player.uiState.value.queue.any { it.id == song.id }) {
 						songToQueue = song
 					} else {
 						player.addToQueueSingle(song)

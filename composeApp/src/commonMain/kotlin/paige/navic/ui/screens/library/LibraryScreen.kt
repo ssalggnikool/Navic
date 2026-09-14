@@ -2,7 +2,6 @@ package paige.navic.ui.screens.library
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +23,6 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.models.DomainAlbumListType
 import paige.navic.domain.models.DomainArtistListType
@@ -33,7 +31,6 @@ import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.dialogs.DeletionDialog
 import paige.navic.ui.components.dialogs.DeletionEndpoint
 import paige.navic.ui.components.layouts.PullToRefreshBox
-import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.layouts.RootTopBar
 import paige.navic.ui.components.snackbars.ErrorSnackBar
 import paige.navic.ui.core.LoginUiState
@@ -46,7 +43,7 @@ import paige.navic.ui.screens.library.components.LibraryScreenContent
 import paige.navic.ui.screens.playlist.dialogs.PlaylistCreateDialog
 import paige.navic.ui.screens.playlist.viewmodels.PlaylistListViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
-import paige.navic.ui.viewmodel.RootViewModel
+import paige.navic.util.ui.withGlobalBottomBar
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -104,22 +101,8 @@ fun LibraryScreen() {
 		genresViewModel.refreshGenres(false)
 	}
 
-	val gridState = rememberLazyGridState()
-	val rootViewModel = koinViewModel<RootViewModel>()
-	LaunchedEffect(Unit) {
-		rootViewModel.events.collect { event ->
-			if (event is RootViewModel.Event.ScrollToTop) {
-				gridState.animateScrollToItem(0)
-			}
-		}
-	}
-
 	Scaffold(
-		topBar = { RootTopBar({ Text(stringResource(Res.string.title_library)) }, scrollBehavior) },
-		bottomBar = {
-			val scrollManager = LocalBottomBarScrollManager.current
-			RootBottomBar(scrolled = scrollManager.isTriggered)
-		}
+		topBar = { RootTopBar({ Text(stringResource(Res.string.title_library)) }, scrollBehavior) }
 	) { innerPadding ->
 		PullToRefreshBox(
 			modifier = Modifier
@@ -138,9 +121,8 @@ fun LibraryScreen() {
 			key = listOf(albumsState, playlistsState, artistsState, genresState)
 		) {
 			LibraryScreenContent(
-				state = gridState,
 				scrollBehavior = scrollBehavior,
-				innerPadding = innerPadding,
+				innerPadding = innerPadding.withGlobalBottomBar(),
 				onSetShareId = { shareId = it },
 
 				albumsState = albumsState,

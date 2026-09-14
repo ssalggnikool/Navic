@@ -11,7 +11,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,20 +29,15 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.di.LocalBottomBarScrollManager
-import paige.navic.di.LocalNavStack
-import paige.navic.di.LocalPlatformContext
-import paige.navic.di.isLandscape
+import paige.navic.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainArtist
 import paige.navic.domain.models.DomainArtistListType
-import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.layouts.ArtGridItem
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.components.layouts.PullToRefreshBox
-import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.layouts.RootTopBar
 import paige.navic.ui.components.sheets.ArtistSheet
 import paige.navic.ui.components.snackbars.ErrorSnackBar
@@ -54,7 +48,7 @@ import paige.navic.ui.screens.artist.components.ArtistListScreenContent
 import paige.navic.ui.screens.artist.components.ArtistListScreenSortButton
 import paige.navic.ui.screens.artist.viewmodels.ArtistListViewModel
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
-import paige.navic.ui.viewmodel.RootViewModel
+import paige.navic.util.ui.withGlobalBottomBar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -62,7 +56,6 @@ fun ArtistListScreen(
 	nested: Boolean = false,
 	listType: DomainArtistListType
 ) {
-	val platformContext = LocalPlatformContext.current
 	val preferenceManager = koinInject<PreferenceManager>()
 	val selectedViewMode = preferenceManager.artistListViewMode
 
@@ -97,15 +90,6 @@ fun ArtistListScreen(
 		)
 	}
 
-	val rootViewModel = koinViewModel<RootViewModel>()
-	LaunchedEffect(Unit) {
-		rootViewModel.events.collect { event ->
-			if (event is RootViewModel.Event.ScrollToTop) {
-				viewModel.gridState.animateScrollToItem(0)
-			}
-		}
-	}
-
 	Scaffold(
 		topBar = {
 			if (!nested) {
@@ -116,13 +100,6 @@ fun ArtistListScreen(
 				)
 			} else {
 				NestedTopBar({ Text(stringResource(Res.string.title_artists)) }, actions)
-			}
-		},
-		bottomBar = {
-			val scrollManager = LocalBottomBarScrollManager.current
-			val preferVisible = preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
-			if (!nested || (!platformContext.isLandscape() && preferVisible)) {
-				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
 	) { innerPadding ->
@@ -137,13 +114,12 @@ fun ArtistListScreen(
 			ArtistListScreenContent(
 				state = artistsState,
 				starred = starred,
-				selectedSorting = selectedSorting,
 				selectedArtist = selectedArtist,
 				selectedArtistAlbums = selectedArtistAlbums,
 				selectedViewMode = selectedViewMode,
 				gridState = viewModel.gridState,
 				scrollBehavior = scrollBehavior,
-				innerPadding = innerPadding,
+				innerPadding = innerPadding.withGlobalBottomBar(),
 				nested = nested,
 				onUpdateSelection = { viewModel.selectArtist(it) },
 				onClearSelection = { viewModel.clearSelection() },

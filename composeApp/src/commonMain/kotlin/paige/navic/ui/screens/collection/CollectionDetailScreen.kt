@@ -38,21 +38,18 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.di.LocalBottomBarScrollManager
-import paige.navic.di.LocalPlatformContext
+import paige.navic.LocalPlatformContext
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainPlaylist
 import paige.navic.domain.models.DomainSongCollection
-import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Album
 import paige.navic.icons.outlined.Note
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.components.layouts.PullToRefreshBox
-import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.snackbars.ErrorSnackBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.screens.collection.components.CollectionDetailScreenFooterRow
@@ -65,9 +62,9 @@ import paige.navic.ui.screens.collection.components.collectionDetailScreenMoreBy
 import paige.navic.ui.screens.collection.viewmodels.CollectionDetailViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.di.isLandscape
-import paige.navic.ui.util.rememberColorSchemeFromCoverArt
-import paige.navic.ui.util.withoutTop
+import paige.navic.util.ui.withGlobalBottomBar
+import paige.navic.util.ui.rememberColorSchemeFromCoverArt
+import paige.navic.util.ui.withoutTop
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -158,18 +155,11 @@ fun CollectionDetailScreen(
 					} else null,
 					refreshCollection = { viewModel.refreshCollection(false) }
 				)
-			},
-			bottomBar = {
-				val scrollManager = LocalBottomBarScrollManager.current
-				val preferVisible = preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
-				if (!platformContext.isLandscape() && preferVisible) {
-					RootBottomBar(scrolled = scrollManager.isTriggered)
-				}
 			}
-		) { contentPadding ->
+		) { innerPadding ->
 			PullToRefreshBox(
 				modifier = Modifier
-					.padding(top = contentPadding.calculateTopPadding())
+					.padding(top = innerPadding.calculateTopPadding())
 					.background(MaterialTheme.colorScheme.surface),
 				finished = collectionState !is UiState.Loading,
 				onRefresh = { viewModel.refreshCollection(true) },
@@ -180,7 +170,7 @@ fun CollectionDetailScreen(
 						.background(MaterialTheme.colorScheme.surface)
 						.fillMaxSize(),
 					horizontalAlignment = Alignment.CenterHorizontally,
-					contentPadding = contentPadding.withoutTop(),
+					contentPadding = innerPadding.withoutTop(),
 					state = viewModel.listState
 				) {
 					if (collection == null) return@LazyColumn

@@ -2,6 +2,7 @@ package paige.navic
 
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -10,11 +11,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -22,9 +22,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
+import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.detailPane
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.listPane
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -34,10 +37,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,21 +64,16 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.getString
 import org.koin.compose.koinInject
-import paige.navic.di.LocalBottomBarScrollManager
-import paige.navic.di.LocalNavStack
-import paige.navic.di.LocalPlatformContext
-import paige.navic.di.LocalSharedTransitionScope
-import paige.navic.di.LocalSnackBarState
-import paige.navic.di.PlatformType
 import paige.navic.di.initializeSingletonImageLoader
-import paige.navic.di.rememberPlatformContext
 import paige.navic.domain.manager.BottomBarScrollManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
+import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.domain.models.settings.ExplicitContentPlayback
-import paige.navic.generated.BuildInfo
 import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.ui.components.dialogs.SideloadingDialog
+import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.sheets.ChangelogSheet
 import paige.navic.ui.components.snackbars.NavicSnackBar
 import paige.navic.ui.navigation.BottomSheetSceneStrategy
@@ -94,10 +94,10 @@ import paige.navic.ui.screens.playlist.PlaylistListScreen
 import paige.navic.ui.screens.queue.QueueScreen
 import paige.navic.ui.screens.radio.RadioListScreen
 import paige.navic.ui.screens.search.SearchScreen
-import paige.navic.ui.screens.settings.AudioEffectsScreen
 import paige.navic.ui.screens.settings.BottomBarScreen
 import paige.navic.ui.screens.settings.FontsScreen
 import paige.navic.ui.screens.settings.SettingsAboutScreen
+import paige.navic.ui.screens.settings.SettingsAcknowledgementsScreen
 import paige.navic.ui.screens.settings.SettingsAppIconScreen
 import paige.navic.ui.screens.settings.SettingsAppearanceScreen
 import paige.navic.ui.screens.settings.SettingsCustomHeadersScreen
@@ -117,7 +117,11 @@ import paige.navic.ui.screens.song.SongDetailSheet
 import paige.navic.ui.screens.song.SongListScreen
 import paige.navic.ui.screens.starred.StarredScreen
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.ui.util.Material3Transitions
+import paige.navic.util.core.PlatformContext
+import paige.navic.util.core.PlatformType
+import paige.navic.util.core.rememberPlatformContext
+import paige.navic.util.ui.LocalGlobalBottomBarHeight
+import paige.navic.util.ui.Material3Transitions
 
 @OptIn(ExperimentalSerializationApi::class)
 private val config = SavedStateConfiguration {
@@ -128,14 +132,27 @@ private val config = SavedStateConfiguration {
 	}
 }
 
+val LocalPlatformContext =
+	staticCompositionLocalOf<PlatformContext> { error("no platform context") }
+val LocalNavStack = staticCompositionLocalOf<NavBackStack<NavKey>> { error("no backstack") }
+val LocalSnackBarState = staticCompositionLocalOf<SnackbarHostState> { error("no snack bar state") }
+val LocalSharedTransitionScope =
+	staticCompositionLocalOf<SharedTransitionScope> { error("no shared transition scope") }
+
+val LocalBottomBarScrollManager = staticCompositionLocalOf<BottomBarScrollManager> {
+	error("No BottomBarScrollManager provided")
+}
+
+
+
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun App() {
 	// TODO: inject image loader and stop using this cursed singleton thing
 	runCatching {
-		SingletonImageLoader.setSafe { platformContext ->
+		SingletonImageLoader.setSafe({ platformContext ->
 			initializeSingletonImageLoader(platformContext)
-		}
+		})
 	}
 
 	val platformContext = rememberPlatformContext()
@@ -159,12 +176,27 @@ fun App() {
 	}
 
 	val density = LocalDensity.current
-	val layoutDirection = LocalLayoutDirection.current
 	val scrollManager = remember {
 		BottomBarScrollManager(with(density) { 50.dp.toPx() })
 	}
 
 	var appStarted by rememberSaveable { mutableStateOf(false) }
+	var bottomBarHeight by remember { mutableStateOf(0.dp) }
+
+	val adaptiveInfo = currentWindowAdaptiveInfoV2()
+	val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(
+		directive = calculatePaneScaffoldDirective(adaptiveInfo).let { directive ->
+			val hasDetail = backStack.any { key ->
+				key is Screen.CollectionDetail ||
+					(key is Screen.Settings && key !is Screen.Settings.Root)
+			}
+			if (!hasDetail) {
+				directive.copy(maxHorizontalPartitions = 1)
+			} else {
+				directive
+			}
+		}
+	)
 
 	LaunchedEffect(Unit) {
 		if (!appStarted) {
@@ -181,9 +213,32 @@ fun App() {
 			LocalNavStack provides backStack,
 			LocalSnackBarState provides snackBarState,
 			LocalSharedTransitionScope provides this@SharedTransitionLayout,
-			LocalBottomBarScrollManager provides scrollManager
+			LocalBottomBarScrollManager provides scrollManager,
+			LocalGlobalBottomBarHeight provides bottomBarHeight
 		) {
 			NavicTheme {
+				val showBottomBar = remember(backStack.size, backStack.lastOrNull(), preferenceManager.bottomBarVisibilityMode, platformContext.sizeClass.widthSizeClass) {
+					if (backStack.lastOrNull() is Screen.Login || backStack.any { it is Screen.Settings }) return@remember false
+					val rootKeys = listOf(
+						Screen.Library::class,
+						Screen.Starred::class,
+						Screen.AlbumList::class,
+						Screen.PlaylistList::class,
+						Screen.ArtistList::class,
+						Screen.GenreList::class,
+						Screen.SongList::class,
+						Screen.RadioList::class,
+						Screen.Search::class,
+						Screen.ShareList::class
+					)
+					val isRoot = if (platformContext.sizeClass.widthSizeClass <= WindowWidthSizeClass.Compact) {
+						rootKeys.any { it.isInstance(backStack.lastOrNull()) }
+					} else {
+						backStack.any { key -> rootKeys.any { it.isInstance(key) } }
+					}
+					isRoot || preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
+				} && isLoggedIn
+
 				Scaffold(
 					modifier = Modifier.nestedScroll(scrollManager.connection),
 					snackbarHost = {
@@ -192,69 +247,84 @@ fun App() {
 						}
 					},
 					contentWindowInsets = WindowInsets()
-				) { contentPadding ->
-					NavDisplay(
-						modifier = Modifier
-							.padding(
-								start = contentPadding
-									.calculateStartPadding(layoutDirection),
-								end = contentPadding
-									.calculateEndPadding(layoutDirection)
-							)
-							.fillMaxSize()
-							.background(MaterialTheme.colorScheme.surface),
-						backStack = backStack,
-						sceneStrategies = listOf(
-							remember { NowPlayingSceneStrategy() },
-							remember { BottomSheetSceneStrategy() },
-							rememberListDetailSceneStrategy()
-						),
-						entryDecorators = listOf(
-							rememberSaveableStateHolderNavEntryDecorator(),
+				) { _ ->
+					Box(Modifier.fillMaxSize()) {
+						NavDisplay(
+							modifier = Modifier
+								.fillMaxSize()
+								.background(MaterialTheme.colorScheme.surface),
+							backStack = backStack,
+							sceneStrategies = listOf(
+								remember { NowPlayingSceneStrategy() },
+								remember { BottomSheetSceneStrategy() },
+								listDetailStrategy
+							),
+							entryDecorators = listOf(
+								rememberSaveableStateHolderNavEntryDecorator(),
 
-							// makes it so that ViewModels get destroyed if their
-							// associated screen is removed from the back stack
-							//
-							// this might not always be desirable, so the
-							// `PersistentViewModelStoreOwner` class is used for
-							// certain ViewModels to work around this
-							rememberViewModelStoreNavEntryDecorator()
-						),
-						onBack = {
-							if (backStack.size >= 2) {
-								backStack.removeLastOrNull()
+								// makes it so that ViewModels get destroyed if their
+								// associated screen is removed from the back stack
+								//
+								// this might not always be desirable, so the
+								// `PersistentViewModelStoreOwner` class is used for
+								// certain ViewModels to work around this
+								rememberViewModelStoreNavEntryDecorator()
+							),
+							onBack = {
+								if (backStack.size >= 2) {
+									backStack.removeLastOrNull()
+								}
+							},
+							entryProvider = entryProvider(backStack),
+							transitionSpec = {
+								Material3Transitions.SharedXAxisEnterTransition(
+									density
+								) togetherWith Material3Transitions.SharedXAxisExitTransition(
+									density
+								)
+							},
+							popTransitionSpec = {
+								Material3Transitions.SharedXAxisPopEnterTransition(
+									density
+								) togetherWith Material3Transitions.SharedXAxisPopExitTransition(
+									density
+								)
+							},
+							predictivePopTransitionSpec = {
+								slideInHorizontally(
+									animationSpec = tween(300, easing = EaseOutQuart),
+									initialOffsetX = { -it }
+								) togetherWith slideOutHorizontally(
+									animationSpec = tween(300, easing = EaseOutQuart),
+									targetOffsetX = { it }
+								)
 							}
-						},
-						entryProvider = entryProvider(backStack),
-						transitionSpec = {
-							Material3Transitions.SharedXAxisEnterTransition(
-								density
-							) togetherWith Material3Transitions.SharedXAxisExitTransition(
-								density
-							)
-						},
-						popTransitionSpec = {
-							Material3Transitions.SharedXAxisPopEnterTransition(
-								density
-							) togetherWith Material3Transitions.SharedXAxisPopExitTransition(
-								density
-							)
-						},
-						predictivePopTransitionSpec = {
-							slideInHorizontally(
-								animationSpec = tween(300, easing = EaseOutQuart),
-								initialOffsetX = { -it }
-							) togetherWith slideOutHorizontally(
-								animationSpec = tween(300, easing = EaseOutQuart),
-								targetOffsetX = { it }
-							)
+						)
+						if (showBottomBar) {
+							Box(
+								modifier = Modifier
+									.align(Alignment.BottomCenter)
+									.fillMaxWidth()
+									.onGloballyPositioned {
+										bottomBarHeight = with(density) { it.size.height.toDp() }
+									}
+							) {
+								RootBottomBar(scrolled = scrollManager.isTriggered)
+							}
+						} else {
+							LaunchedEffect(showBottomBar) {
+								bottomBarHeight = 0.dp
+							}
 						}
-					)
+					}
+				}
+				if (!preferenceManager.showedSideloadingWarning
+					&& platformContext.name.lowercase().contains("android")
+				) {
+					SideloadingDialog()
 				}
 				// version check is annoying to do on iOS
-				if (preferenceManager.checkForUpdates
-					&& platformContext.platformType == PlatformType.Android
-					&& !BuildInfo.FDROID) {
+				if (preferenceManager.checkForUpdates && platformContext.platformType == PlatformType.Android) {
 					ChangelogSheet()
 				}
 			}
@@ -372,14 +442,14 @@ private fun entryProvider(
 		entry<Screen.Settings.Playback>(metadata = detailPane("settings")) {
 			SettingsPlaybackScreen()
 		}
-		entry<Screen.Settings.Effects>(metadata = detailPane("settings")) {
-			AudioEffectsScreen()
-		}
 		entry<Screen.Settings.Developer>(metadata = detailPane("settings")) {
 			SettingsDeveloperScreen()
 		}
 		entry<Screen.Settings.About>(metadata = detailPane("settings")) {
 			SettingsAboutScreen()
+		}
+		entry<Screen.Settings.Acknowledgements> {
+			SettingsAcknowledgementsScreen()
 		}
 		entry<Screen.Settings.DataStorage>(metadata = detailPane("settings")) {
 			SettingsDataStorageScreen()
