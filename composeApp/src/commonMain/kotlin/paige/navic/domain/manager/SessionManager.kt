@@ -133,13 +133,9 @@ class SessionManager(
 		if (currentUser != null) {
 			return currentUser
 		}
-
-		if (currentUser == null) {
-			scope.launch {
-				fetchCurrentUser()
-			}
+		scope.launch {
+			fetchCurrentUser()
 		}
-
 		return currentUser
 	}
 }
