@@ -59,10 +59,11 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalPlatformContext
-import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumListType
@@ -103,7 +104,7 @@ import paige.navic.ui.screens.search.components.SearchScreenChips
 import paige.navic.ui.screens.search.components.SearchScreenTopBar
 import paige.navic.ui.screens.search.viewmodels.SearchViewModel
 import paige.navic.ui.util.buildSongInfoString
-import paige.navic.di.isLandscape
+import paige.navic.ui.viewmodel.RootViewModel
 
 enum class SearchCategory(val res: StringResource) {
 	ALL(Res.string.title_all),
@@ -157,6 +158,15 @@ fun SearchScreen(
 
 	var selectedCategory by remember { mutableStateOf(SearchCategory.ALL) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
+
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				viewModel.gridState.animateScrollToItem(0)
+			}
+		}
+	}
 
 	Scaffold(
 		topBar = {

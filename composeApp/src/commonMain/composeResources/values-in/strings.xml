@@ -16,7 +16,6 @@
     <string name="title_danger_zone">Zona Bahaya</string>
     <string name="title_developer">Opsi Developer</string>
     <string name="title_about">Tentang</string>
-    <string name="title_acknowledgements">Penghargaan</string>
     <string name="title_delete_playlist">Hapus daftar putar?</string>
     <string name="title_delete_share">Hapus tautan berbagi?</string>
     <string name="title_all">Semua</string>
@@ -43,7 +42,6 @@
     <string name="info_syncing_radios">Menyinkronkan radio...</string>
     <string name="info_explicit">Eksplisit</string>
     <string name="info_track_album">Album</string>
-    <string name="sideloading_warning_subtitle">Google berencana untuk menghentikan sideloading untuk SEMUA perangkat yang telah memasang Google Play Services!\n</string>
     <string name="action_view_on_lastfm">Lihat di last.fm</string>
     <string name="option_sort_starred">Berbintang</string>
     <string name="option_offline_mode_no_wifi">Tidak ada Wi-Fi</string>
@@ -139,7 +137,6 @@
     <string name="option_image_cache_size">Ukuran cache gambar</string>
     <string name="info_streaming_quality">Preset berkualitas lebih tinggi akan menggunakan lebih banyak data. Transcoding dapat sangat memengaruhi waktu pemuatan dan menyebabkan lirik menjadi tidak sinkron. Pilih Lossless jika Anda mengalami masalah apa pun.</string>
     <string name="option_playlist_name">Nama</string>
-    <string name="sideloading_warning_link_mask">Di Sini.</string>
     <string name="title_advanced">Transkode Tingkat Lanjut</string>
     <string name="title_wifi">Wi-Fi</string>
     <string name="option_lyrics_keep_alive">Tetap nyalakan layar dalam tampilan lirik</string>
@@ -257,7 +254,6 @@
     <string name="option_sort_newest">Baru ditambahkan</string>
     <string name="option_scrobble_percentage">Persentase scrobble</string>
     <string name="info_error_hide">Sembunyikan detail</string>
-    <string name="sideloading_warning_description">Meskipun detail pasti dari perubahan ini belum sepenuhnya diketahui, hal ini dapat mengakibatkan SEMUA pemasangan aplikasi dari sumber luar (sideloading) diblokir kecuali jika penanda tangan aplikasi tersebut membocorkan identitasnya kepada Google dan/atau secara publik.\n\nJika Anda cukup berpengalaman untuk memasang ROM kustom di perangkat Anda, SEKARANGLAH SAATNYA UNTUK MELAKUKANNYA.\n\nSilakan baca lebih lanjut tentang apa yang dapat Anda lakukan dan bagaimana agar suara Anda didengar</string>
     <string name="option_sort_alphabetical_by_artist">Diurutkan berdasarkan abjad menurut nama artis</string>
     <string name="action_sleep_timer">Pengatur waktu tidur</string>
     <string name="option_share_expires">Berakhir</string>
@@ -299,7 +295,6 @@
     <string name="title_changelog">Catatan rilis</string>
     <string name="notice_loading_lyrics">Sedang memuat lirik...\nIni mungkin akan memakan waktu.</string>
     <string name="info_action_is_permanent">Tindakan ini tidak dapat dibatalkan</string>
-    <string name="sideloading_warning_title">BERHENTI, BACA!</string>
     <string name="info_downloaded">Diunduh</string>
     <string name="option_quality_high">Tinggi</string>
     <string name="action_log_in">Masuk</string>

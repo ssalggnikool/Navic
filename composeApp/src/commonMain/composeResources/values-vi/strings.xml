@@ -12,14 +12,13 @@
     <string name="title_data_storage">Dữ liệu &amp; Lưu trữ</string>
     <string name="title_cache_management">Bộ nhớ đệm &amp; Lưu trữ</string>
     <string name="title_danger_zone">Khu vực nguy hiểm</string>
-    <string name="title_developer">Cài Đặt Nhà Phát Triển</string>
+    <string name="title_developer">Cài đặt nhà phát triển</string>
     <string name="title_about">Thông Tin</string>
-    <string name="title_acknowledgements">Công nhận</string>
     <string name="title_delete_playlist">Xoá danh sách phát?</string>
     <string name="title_delete_share">Bỏ chia sẻ?</string>
     <string name="title_create_share">Tạo chia sẻ</string>
     <string name="title_create_playlist">Tạo danh sách phát</string>
-    <string name="title_create_radio">Tạo luồng phát</string>
+    <string name="title_create_radio">Thêm luồng phát</string>
     <string name="title_albums">Albums</string>
     <string name="title_songs">Bài hát</string>
     <string name="title_artists">Nghệ sĩ</string>
@@ -40,8 +39,8 @@
     <string name="title_layout">Bố cục</string>
     <string name="title_sort_by">Xắp xếp theo</string>
     <string name="title_direction">Hướng</string>
-    <string name="title_bulk_download">Tải Toàn Bộ Albums</string>
-    <string name="title_library_download">Tải Toàn Bộ Thư Viện</string>
+    <string name="title_bulk_download">Tải toàn bộ albums</string>
+    <string name="title_library_download">Tải toàn bộ thư viện</string>
     <string name="title_confirm">Xác Nhận</string>
     <string name="title_update">Có bản cập nhật mới</string>
     <string name="title_changelog">Ghi chú phát hành</string>
@@ -51,7 +50,7 @@
     <string name="title_wifi">Wi-Fi</string>
     <string name="title_cellular">Dữ liệu di động</string>
     <string name="title_select_lyrics">Chọn lời</string>
-    <string name="title_advanced">Giải Mã Nâng Cao</string>
+    <string name="title_advanced">Giải mã nâng cao</string>
     <string name="title_logs">Nhật ký</string>
     <string name="title_palette">Bảng màu</string>
     <string name="title_theme_mode">Chủ đề</string>
@@ -86,7 +85,7 @@
     <string name="subtitle_local_network_denied">Bạn cần cấp cho Navic quyền truy cập mạng cục bộ để có thể kết nối đến máy chủ của bạn.</string>
     <string name="subtitle_equaliser">Tinh chỉnh &amp; nâng cao chất lượng âm thanh</string>
     <string name="subtitle_equaliser_disabled">Không khả dụng khi tính năng audio offload được bật</string>
-    <string name="subtitle_configure_lyric_providers">Thay đổi nơi cung cấp lời bài hát</string>
+    <string name="subtitle_configure_lyric_providers">Chọn nơi cung cấp lời bài hát</string>
     <string name="option_off">Tắt</string>
     <string name="option_now_playing_background_style">Kiểu hình nền</string>
     <string name="option_now_playing_background_style_static">Tĩnh</string>
@@ -108,4 +107,10 @@
     <string name="option_alphabetical_scroll">Cuộn theo bảng chữ cái</string>
     <string name="option_grid_items_per_row">Cỡ lưới</string>
     <string name="option_lyrics_keep_alive">Giữ màn hình luôn bật khi xem lời bài hát</string>
+    <string name="title_audio_effects">Hiệu ứng âm thanh</string>
+    <string name="subtitle_audio_effects">Điều chỉnh thanh nhạc</string>
+    <string name="option_lyrics_blur">Làm mờ viền</string>
+    <string name="option_lyrics_bright_inactive">Làm sáng dòng không hoạt động</string>
+    <string name="option_share_expires">Hết hạn</string>
+    <string name="option_account_navidrome_instance">URL đối tượng</string>
 </resources>

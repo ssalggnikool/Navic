@@ -129,7 +129,6 @@
     <string name="title_danger_zone">危険地帯</string>
     <string name="title_developer">開発者向けオプション</string>
     <string name="title_about">このアプリについて</string>
-    <string name="title_acknowledgements">謝辞</string>
     <string name="title_delete_playlist">このプレイリストを削除しますか？</string>
     <string name="option_gapless_playback">ギャップレス再生</string>
     <string name="option_audio_offload">オーディオオフロード</string>

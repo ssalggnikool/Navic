@@ -2,6 +2,7 @@ package paige.navic.ui.screens.library
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +46,7 @@ import paige.navic.ui.screens.library.components.LibraryScreenContent
 import paige.navic.ui.screens.playlist.dialogs.PlaylistCreateDialog
 import paige.navic.ui.screens.playlist.viewmodels.PlaylistListViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
+import paige.navic.ui.viewmodel.RootViewModel
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -102,6 +104,16 @@ fun LibraryScreen() {
 		genresViewModel.refreshGenres(false)
 	}
 
+	val gridState = rememberLazyGridState()
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				gridState.animateScrollToItem(0)
+			}
+		}
+	}
+
 	Scaffold(
 		topBar = { RootTopBar({ Text(stringResource(Res.string.title_library)) }, scrollBehavior) },
 		bottomBar = {
@@ -126,6 +138,7 @@ fun LibraryScreen() {
 			key = listOf(albumsState, playlistsState, artistsState, genresState)
 		) {
 			LibraryScreenContent(
+				state = gridState,
 				scrollBehavior = scrollBehavior,
 				innerPadding = innerPadding,
 				onSetShareId = { shareId = it },

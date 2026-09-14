@@ -47,6 +47,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.LoginManager
+import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SleepTimerMode
 import paige.navic.icons.Icons
@@ -67,6 +68,7 @@ fun AccountSheet(
 ) {
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
+	val preferenceManager = koinInject<PreferenceManager>()
 	val settings = koinInject<Settings>()
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -144,23 +146,28 @@ fun AccountSheet(
 
 			Spacer(Modifier.height(9.dp))
 
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = 0,
-					count = 3
-				),
-				onClick = {
-					animateToDismiss()
-					backStack.add(Screen.ShareList)
-				},
-				leadingContent = { Icon(Icons.Outlined.Share, null) },
-				content = { Text(stringResource(Res.string.action_view_shares)) }
-			)
+			val enableSharing = preferenceManager.enableSharing
+			val count = if (enableSharing) 3 else 2
+
+			if (enableSharing) {
+				SegmentedListItem(
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = 0,
+						count = count
+					),
+					onClick = {
+						animateToDismiss()
+						backStack.add(Screen.ShareList)
+					},
+					leadingContent = { Icon(Icons.Outlined.Share, null) },
+					content = { Text(stringResource(Res.string.action_view_shares)) }
+				)
+			}
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = 1,
-					count = 3
+					index = count - 2,
+					count = count
 				),
 				onClick = { sleepTimerSheetOpen = true },
 				leadingContent = {
@@ -205,8 +212,8 @@ fun AccountSheet(
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = 2,
-					count = 3
+					index = count - 1,
+					count = count
 				),
 				onClick = {
 					animateToDismiss()

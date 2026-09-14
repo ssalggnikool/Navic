@@ -136,9 +136,9 @@ private val config = SavedStateConfiguration {
 fun App() {
 	// TODO: inject image loader and stop using this cursed singleton thing
 	runCatching {
-		SingletonImageLoader.setSafe({ platformContext ->
+		SingletonImageLoader.setSafe { platformContext ->
 			initializeSingletonImageLoader(platformContext)
-		})
+		}
 	}
 
 	val platformContext = rememberPlatformContext()
