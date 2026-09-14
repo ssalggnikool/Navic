@@ -5,13 +5,6 @@ import coil3.SingletonImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.size.Size
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.onDownload
-import io.ktor.client.request.header
-import io.ktor.client.request.prepareRequest
-import io.ktor.client.statement.bodyAsChannel
-import io.ktor.http.HttpMethod
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +36,6 @@ import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.repositories.LyricsRepository
 import paige.navic.util.Logger
 import paige.navic.di.PlatformType
-import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
     private val coilPlatformContext: PlatformContext,
