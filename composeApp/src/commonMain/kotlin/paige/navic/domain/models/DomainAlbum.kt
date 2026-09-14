@@ -13,7 +13,7 @@ data class DomainAlbum(
 	val artistName: String,
 	val artistId: String,
 	val year: Int?,
-	override val coverArtId: String,
+	override val coverArtId: String?,
 	val genre: String?,
 	val genres: List<String>,
 	override val songCount: Int,
@@ -26,5 +26,5 @@ data class DomainAlbum(
 	val version: String?,
 	val musicBrainzId: String?,
 	override val songs: List<DomainSong>,
-	val isExternal: Boolean
+	val isExternal: Boolean = false
 ) : DomainSongCollection

@@ -32,9 +32,9 @@ import androidx.navigation3.scene.SceneStrategyScope
 import com.kyant.capsule.ContinuousRoundedRectangle
 import paige.navic.ui.components.sheets.ModalBottomSheet
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.util.ui.LocalSheetState
-import paige.navic.util.ui.rememberColorSchemeForCurrentSong
-import paige.navic.util.ui.rememberScreenCornerRadius
+import paige.navic.di.LocalSheetState
+import paige.navic.ui.util.rememberColorSchemeForCurrentSong
+import paige.navic.ui.util.rememberScreenCornerRadius
 
 class NowPlayingScene<T : Any>(
 	override val key: Any,

@@ -28,7 +28,7 @@ import paige.navic.domain.repositories.AlbumRepository
 import paige.navic.domain.repositories.CollectionRepository
 import paige.navic.domain.repositories.SongRepository
 import paige.navic.ui.core.UiState
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 
 class CollectionDetailViewModel(
 	private val collectionId: String,

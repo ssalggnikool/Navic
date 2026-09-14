@@ -8,33 +8,36 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
+import paige.navic.di.ActivityProvider
+import java.util.UUID
 import kotlin.coroutines.resume
 
 actual class PermissionManager(
-	private val context: Context
+	private val context: Context,
+	private val activities: ActivityProvider
 ) {
 	private var pendingContinuation: CancellableContinuation<Boolean>? = null
-	private var permissionLauncher: ActivityResultLauncher<String>? = null
-
-	// I have no idea how else to get ComponentActivity
-	fun registerLauncher(componentActivity: ComponentActivity) {
-		permissionLauncher = componentActivity.registerForActivityResult(
-			ActivityResultContracts.RequestPermission()
-		) { isGranted ->
-			pendingContinuation?.resume(isGranted)
-			pendingContinuation = null
-		}
+	private var permissionLauncher = run {
+		val activity = activities.get<ComponentActivity>()
+		activity.activityResultRegistry.register(
+			key = UUID.randomUUID().toString(),
+			contract = ActivityResultContracts.RequestPermission(),
+			callback = { isGranted ->
+				pendingContinuation?.resume(isGranted)
+				pendingContinuation = null
+			},
+		)
 	}
 
 	actual fun openPermissionsSettings() {
+		val activity = activities.get<ComponentActivity>()
 		val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-		intent.data = Uri.fromParts("package", context.packageName, null)
+		intent.data = Uri.fromParts("package", activity.packageName, null)
 		intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-		context.startActivity(intent)
+		activity.startActivity(intent)
 	}
 
 	actual suspend fun requestLocalNetworkPermission(): Boolean {
@@ -54,7 +57,7 @@ actual class PermissionManager(
 			continuation.invokeOnCancellation {
 				pendingContinuation = null
 			}
-			permissionLauncher!!.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
+			permissionLauncher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
 		}
 	}
 }

@@ -1,27 +1,20 @@
 package paige.navic.ui.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,12 +48,14 @@ import paige.navic.domain.models.settings.StreamingQuality
 import paige.navic.domain.models.settings.description
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Info
-import paige.navic.ui.components.common.Form
-import paige.navic.ui.components.common.FormRow
-import paige.navic.ui.components.common.FormTitle
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
-import paige.navic.ui.screens.settings.components.SettingSwitchRow
+import paige.navic.ui.screens.settings.components.SettingsGroup
+import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
+import paige.navic.ui.screens.settings.components.SettingsRadioItem
+import paige.navic.ui.screens.settings.components.SettingsToggleItem
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsDownloadQualityScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -70,55 +64,70 @@ fun SettingsDownloadQualityScreen() {
 	val isCellular by connectivityManager.isCellular.collectAsStateWithLifecycle()
 
 	Scaffold(
-		topBar = { NestedTopBar({ Text(stringResource(Res.string.title_download_quality)) }) },
-		contentWindowInsets = WindowInsets.statusBars
+		topBar = { NestedTopBar({ Text(stringResource(Res.string.title_download_quality)) }) }
 	) { innerPadding ->
 		CompositionLocalProvider(
 			LocalMinimumInteractiveComponentSize provides 0.dp
 		) {
 			Column(
-				Modifier
+				modifier = Modifier
 					.padding(innerPadding)
 					.verticalScroll(rememberScrollState())
-					.padding(top = 16.dp, end = 16.dp, start = 16.dp)
+					.padding(horizontal = 16.dp)
 			) {
 				AnimatedVisibility(visible = !preferenceManager.isAdvancedDownloadTranscodingActive) {
-					Column {
-						FormTitle(buildString {
-							append(stringResource(Res.string.title_wifi))
-							if (isOnline && !isCellular) {
-								append(' ' + stringResource(Res.string.info_in_use))
-							}
-						})
-						Form(Modifier.selectableGroup()) {
-							RadioButtons(
-								value = preferenceManager.downloadQualityWifi,
-								onChangeValue = { preferenceManager.downloadQualityWifi = it }
-							)
+					SettingsGroup(
+						modifier = Modifier
+							.selectableGroup()
+							.padding(bottom = SettingsGroupDefaults.GapBetweenGroups),
+						title = {
+							Text(buildString {
+								append(stringResource(Res.string.title_wifi))
+								if (isOnline && !isCellular) {
+									append(' ' + stringResource(Res.string.info_in_use))
+								}
+							})
 						}
-
-						FormTitle(buildString {
-							append(stringResource(Res.string.title_cellular))
-							if (isOnline && isCellular) {
-								append(' ' + stringResource(Res.string.info_in_use))
-							}
-						})
-						Form(Modifier.selectableGroup()) {
-							RadioButtons(
-								value = preferenceManager.downloadQualityCellular,
-								onChangeValue = { preferenceManager.downloadQualityCellular = it }
-							)
-						}
+					) {
+						RadioButtons(
+							value = preferenceManager.downloadQualityWifi,
+							onChangeValue = { preferenceManager.downloadQualityWifi = it }
+						)
 					}
 				}
 
-				FormTitle(stringResource(Res.string.title_advanced))
+				AnimatedVisibility(visible = !preferenceManager.isAdvancedDownloadTranscodingActive) {
+					SettingsGroup(
+						modifier = Modifier
+							.selectableGroup()
+							.padding(bottom = SettingsGroupDefaults.GapBetweenGroups),
+						title = {
+							Text(buildString {
+								append(stringResource(Res.string.title_cellular))
+								if (isOnline && isCellular) {
+									append(' ' + stringResource(Res.string.info_in_use))
+								}
+							})
+						}
+					) {
+						RadioButtons(
+							value = preferenceManager.downloadQualityCellular,
+							onChangeValue = { preferenceManager.downloadQualityCellular = it }
+						)
+					}
+				}
 
-				Form(bottomPadding = 0.dp) {
-					SettingSwitchRow(
-						title = { Text(stringResource(Res.string.option_download_custom_quality)) },
-						value = preferenceManager.isAdvancedDownloadTranscodingActive,
-						onSetValue = { preferenceManager.isAdvancedDownloadTranscodingActive = it }
+				SettingsGroup(
+					modifier = Modifier.padding(bottom = SettingsGroupDefaults.GapBetweenGroups),
+					title = { Text(stringResource(Res.string.title_advanced)) }
+				) {
+					SettingsToggleItem(
+						checked = preferenceManager.isAdvancedDownloadTranscodingActive,
+						onCheckedChange = {
+							preferenceManager.isAdvancedDownloadTranscodingActive = it
+						},
+						content = { Text(stringResource(Res.string.option_download_custom_quality)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
 					)
 				}
 
@@ -126,7 +135,6 @@ fun SettingsDownloadQualityScreen() {
 					CustomOptions()
 				}
 
-				Spacer(Modifier.height(24.dp))
 				Row(
 					modifier = Modifier.padding(horizontal = 8.dp),
 					horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -147,46 +155,31 @@ fun SettingsDownloadQualityScreen() {
 	}
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun RadioButtons(
 	value: StreamingQuality,
 	onChangeValue: (StreamingQuality) -> Unit
 ) {
-	StreamingQuality.entries.forEach { quality ->
-		val interactionSource = remember { MutableInteractionSource() }
+	StreamingQuality.entries.forEachIndexed { index, quality ->
+		val selected = value == quality
 
-		FormRow(
-			modifier = Modifier.selectable(
-				selected = value == quality,
-				interactionSource = interactionSource,
-				onClick = { onChangeValue(quality) },
-				role = Role.RadioButton
-			),
-			horizontalArrangement = Arrangement.spacedBy(14.dp),
-			interactionSource = interactionSource,
-			contentPadding = PaddingValues(16.dp)
-		) {
-			RadioButton(
-				selected = value == quality,
-				onClick = null
-			)
-
-			Column(Modifier.weight(1f)) {
-				Text(stringResource(quality.displayName))
-
+		SettingsRadioItem(
+			selected = selected,
+			onClick = { onChangeValue(quality) },
+			content = { Text(stringResource(quality.displayName)) },
+			supportingContent = {
 				quality.description()?.let { description ->
-					AnimatedVisibility(
-						visible = value == quality
-					) {
-						Text(
-							text = description,
-							style = MaterialTheme.typography.bodyMedium,
-							color = MaterialTheme.colorScheme.onSurfaceVariant
-						)
+					AnimatedVisibility(visible = selected) {
+						Text(description)
 					}
 				}
-			}
-		}
+			},
+			shapes = SegmentedListItemDefaults.segmentedShapes(
+				index = index,
+				count = StreamingQuality.entries.count()
+			)
+		)
 	}
 }
 

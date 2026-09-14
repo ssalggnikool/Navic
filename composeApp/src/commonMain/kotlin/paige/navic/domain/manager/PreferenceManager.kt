@@ -38,6 +38,7 @@ class PreferenceManager(
 	var animationStyle by preference(AnimationStyle.Expressive)
 	var nowPlayingBackgroundStyle by preference(NowPlayingBackgroundStyle.Dynamic)
 	var swipeToSkip by preference(true)
+	var hideIfIdle by preference(false)
 	var gridSize by preference(GridSize.TwoByTwo)
 	var coverArtShape by preference(CoverArtShape.Soft)
 	var artistImageShape by preference(CoverArtShape.Soft)
@@ -45,6 +46,8 @@ class PreferenceManager(
 	var artGridItemSize by preference(150f)
 	var marqueeSpeed by preference(MarqueeSpeed.Slow)
 	var alphabeticalScroll by preference(false)
+	var enableRatings by preference(true)
+	var enableSharing by preference(true)
 	var lyricsAutoscroll by preference(true)
 	var lyricsBeatByBeat by preference(true)
 	var lyricsKeepAlive by preference(true)
@@ -54,6 +57,8 @@ class PreferenceManager(
 	var scrobblePercentage by preference(.5f)
 	var minDurationToScrobble by preference(30f)
 	var replayGainMode by preference(ReplayGainMode.Off)
+	var rgAmpGain by preference(0f)
+	var ampGain by preference(0f)
 	var gaplessPlayback by preference(true)
 	var audioOffload by preference(false)
 
@@ -79,9 +84,10 @@ class PreferenceManager(
 	var nowPlayingSliderStyle by preference(NowPlayingSliderStyle.Squiggly)
 	var nowPlayingCoverArtAction by preference(CoverArtTapAction.ShowLyrics)
 	var customHeaders by preference("")
-	var checkForUpdates by preference(false)
+	var checkForUpdates by preference(true)
 	var explicitContentPlayback by preference(ExplicitContentPlayback.Allowed)
 	var autoFillQueue by preference(false)
+	var shushQueueDuplicateDialog by preference(false)
 
 	// navigation bar settings
 	var bottomBarCollapseMode by preference(BottomBarCollapseMode.OnScroll)
@@ -92,12 +98,6 @@ class PreferenceManager(
 	)
 	var miniPlayerStyle by preference(MiniPlayerStyle.Detached)
 	var miniPlayerProgressStyle by preference(MiniPlayerProgressStyle.Seekable)
-
-	/**
-	 * If we have informed the user (on Android) about
-	 * Google locking down sideloading.
-	 */
-	var showedSideloadingWarning by preference(false)
 
 	// theme related settings
 	var theme by preference(Theme.Dynamic)

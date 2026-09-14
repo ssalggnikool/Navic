@@ -4,12 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
@@ -39,12 +39,15 @@ import paige.navic.domain.manager.EqualiserManager
 import paige.navic.domain.models.settings.EqualiserMode
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Refresh
-import paige.navic.ui.components.common.Form
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.common.VerticalSlider
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.components.layouts.TopBarButton
-import paige.navic.ui.screens.settings.components.SettingSelectionRow
+import paige.navic.ui.screens.settings.components.SettingsChoiceItem
+import paige.navic.ui.screens.settings.components.SettingsGroup
+import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsEqualiserScreen() {
 	val equaliserManager = koinInject<EqualiserManager>()
@@ -79,24 +82,25 @@ fun SettingsEqualiserScreen() {
 			LocalMinimumInteractiveComponentSize provides 0.dp
 		) {
 			Column(
-				Modifier
-					.fillMaxWidth()
+				modifier = Modifier
 					.padding(innerPadding)
 					.verticalScroll(rememberScrollState())
-					.padding(top = 16.dp, end = 16.dp, start = 16.dp),
-				horizontalAlignment = Alignment.CenterHorizontally
+					.padding(horizontal = 16.dp),
+				horizontalAlignment = Alignment.CenterHorizontally,
+				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
-				Form(modifier = Modifier.widthIn(max = 600.dp)) {
-					SettingSelectionRow(
-						title = { Text(stringResource(Res.string.option_equaliser_mode)) },
-						items = EqualiserMode.entries.toImmutableList(),
-						label = { stringResource(it.displayName) },
-						selection = config.mode,
-						onSelect = { mode ->
+				SettingsGroup(modifier = Modifier.widthIn(max = 600.dp)) {
+					SettingsChoiceItem(
+						choices = EqualiserMode.entries.toImmutableList(),
+						selectedChoice = config.mode,
+						onChoiceSelected = { mode ->
 							scope.launch {
 								equaliserManager.setConfig(config.copy(mode = mode))
 							}
-						}
+						},
+						content = { Text(stringResource(Res.string.option_equaliser_mode)) },
+						label = { stringResource(it.displayName) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
 					)
 				}
 
@@ -104,10 +108,12 @@ fun SettingsEqualiserScreen() {
 					Text(stringResource(Res.string.info_equaliser_mode_not_builtin))
 					return@Column
 				}
+
 				if (config.bandCount == 0) {
 					Text(stringResource(Res.string.info_equaliser_unsupported))
 					return@Column
 				}
+
 				Row(Modifier.widthIn(max = 600.dp)) {
 					repeat(config.bandCount) { band ->
 						EqualiserBand(

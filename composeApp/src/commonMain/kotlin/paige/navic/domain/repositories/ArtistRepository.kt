@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import paige.navic.data.database.dao.ArtistDao
+import paige.navic.data.database.dao.DownloadDao
+import paige.navic.data.database.dao.SongDao
+import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.data.database.entities.SyncActionType
 import paige.navic.data.database.mappers.toDomainModel
 import paige.navic.data.database.mappers.toEntity
@@ -20,6 +23,8 @@ import kotlin.time.Clock
 
 class ArtistRepository(
 	private val artistDao: ArtistDao,
+	private val songDao: SongDao,
+	private val downloadDao: DownloadDao,
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
@@ -36,7 +41,13 @@ class ArtistRepository(
 			filters.all { filter ->
 				when (filter) {
 					DomainFilter.Starred -> artist.starredAt != null
-					DomainFilter.Downloaded -> false // not applicable
+					DomainFilter.Downloaded -> songDao
+						.getSongsByArtistId(artist.id)
+						.takeIf { it.isNotEmpty() }
+						?.all {
+							val download = downloadDao.getDownloadById(it.songId)
+							return@all download?.status == DownloadStatus.DOWNLOADED
+						} ?: false
 				}
 			}
 		}.toImmutableList()

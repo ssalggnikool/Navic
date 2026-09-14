@@ -21,38 +21,6 @@
 
 ## Contributing
 
-### Structure overview
-
-This project is structured like most Compose Multiplatform apps are.
-
-#### Modules
-
-| Module       | Description                                                                                       |
-|--------------|---------------------------------------------------------------------------------------------------|
-| `androidApp` | The entry point for Android and some platform specific code for Android.                          |
-| `composeApp` | Almost everything is here.                                                                        |
-| `iosApp`     | The Xcode project for iOS. There is usually no reason to modify this at all.                      |
-
-#### Packages
-
-| Package              | Description                                                    |
-|----------------------|----------------------------------------------------------------|
-| `paige.navic.data`   | General models, types and repositories                         |
-| `paige.navic.di`     | Dependency injection/Koin stuff                                |
-| `paige.navic.ui`     | All of the UI code and components.                             |
-| `paige.navic.util`   | Random helper functions or modifiers. Some platform code too.  |
-
-#### Resources
-
-Strings, fonts and other things are in `composeApp/src/commonMain/composeResources`
-
-SVG icons are in `composeApp/src/commonMain/valkyrieResources`. Run
-`./gradlew :generateValkyrieImageVector` to regenerate code for these
-icons. Access them in code using `Icons.<Category>.<Icon>`
-
-Most icons are sourced from [Material Symbols](https://fonts.google.com/icons)
-**with the rounded variant.**
-
 ### Environment
 
 You will need:

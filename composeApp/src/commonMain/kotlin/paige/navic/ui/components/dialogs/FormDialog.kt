@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.dropUnlessResumed
-import paige.navic.ui.components.common.Form
+import paige.navic.ui.components.common.SegmentedListButtonDefaults
 import paige.navic.ui.navigation.PredictiveBackState
 import paige.navic.ui.navigation.rememberPredictiveBackState
 import paige.navic.ui.theme.defaultFont
@@ -43,6 +43,8 @@ import paige.navic.ui.theme.defaultFont
 @Composable
 fun FormDialog(
 	width: Dp = 300.dp,
+	contentGap: Dp = 12.dp,
+	verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(12.dp),
 	onDismissRequest: () -> Unit,
 	icon: @Composable () -> Unit = {},
 	title: @Composable () -> Unit = {},
@@ -110,7 +112,7 @@ fun FormDialog(
 							.padding(16.dp)
 							.fillMaxWidth(),
 						horizontalAlignment = Alignment.CenterHorizontally,
-						verticalArrangement = Arrangement.spacedBy(12.dp)
+						verticalArrangement = verticalArrangement
 					) {
 						Spacer(Modifier.height(12.dp))
 						CompositionLocalProvider(
@@ -135,10 +137,10 @@ fun FormDialog(
 								content()
 							}
 						}
-						Spacer(Modifier.height(12.dp))
-						Form(
-							bottomPadding = 0.dp,
-							spacing = 4.dp
+						Spacer(Modifier.height(contentGap))
+						Column(
+							modifier = Modifier.fillMaxWidth(),
+							verticalArrangement = Arrangement.spacedBy(SegmentedListButtonDefaults.SegmentedGap)
 						) {
 							buttons()
 						}

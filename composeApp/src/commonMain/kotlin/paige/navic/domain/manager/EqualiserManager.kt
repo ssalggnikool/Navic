@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import paige.navic.domain.models.settings.EqualiserConfig
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 
 class EqualiserManager(
 	private val preferences: DataStore<Preferences>

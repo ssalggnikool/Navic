@@ -13,13 +13,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
@@ -45,7 +43,9 @@ import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Download
 import paige.navic.icons.outlined.ListArrow
 import paige.navic.icons.outlined.Star
-import paige.navic.util.ui.segmentedShapes
+import paige.navic.ui.components.common.SegmentedListItem
+import paige.navic.ui.components.common.SegmentedListItemDefaults
+import paige.navic.ui.theme.defaultFont
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -81,6 +81,7 @@ fun <T> SortSheet(
 				text = stringResource(Res.string.title_sort_by),
 				style = MaterialTheme.typography.headlineMedium,
 				fontWeight = FontWeight.Bold,
+				fontFamily = defaultFont(round = 100f),
 				modifier = Modifier.padding(start = 2.dp, bottom = 16.dp)
 			)
 
@@ -90,29 +91,18 @@ fun <T> SortSheet(
 			) {
 				entries.forEachIndexed { index, sorting ->
 					val isSelected = sorting == selectedSorting
-					val containerColor = if (isSelected) {
-						MaterialTheme.colorScheme.secondaryContainer
-					} else {
-						MaterialTheme.colorScheme.surfaceContainerLowest
-					}
 
 					SegmentedListItem(
 						selected = isSelected,
 						onClick = { onSetSorting(sorting) },
-						shapes = segmentedShapes(index = index, count = entries.size),
-						colors = ListItemDefaults.colors(
-							containerColor = containerColor,
-							selectedContainerColor = containerColor,
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = index,
+							count = entries.size
 						),
 						content = {
 							Text(
 								text = label(sorting),
 								style = MaterialTheme.typography.bodyLarge,
-								color = if (isSelected) {
-									MaterialTheme.colorScheme.onSecondaryContainer
-								} else {
-									MaterialTheme.colorScheme.onSurface
-								}
 							)
 						},
 						trailingContent = {

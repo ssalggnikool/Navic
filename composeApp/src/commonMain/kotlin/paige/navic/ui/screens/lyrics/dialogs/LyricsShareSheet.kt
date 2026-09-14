@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,7 +73,7 @@ import navic.composeapp.generated.resources.action_share_lyrics
 import navic.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalSnackBarState
+import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.models.DomainSong
@@ -81,8 +82,6 @@ import paige.navic.icons.brand.Navic
 import paige.navic.icons.outlined.Check
 import paige.navic.icons.outlined.Picker
 import paige.navic.icons.outlined.Share
-import paige.navic.ui.components.common.Dropdown
-import paige.navic.ui.components.common.FormRow
 import paige.navic.ui.theme.blue
 import paige.navic.ui.theme.pink
 import paige.navic.ui.theme.positive
@@ -275,22 +274,18 @@ fun LyricsShareSheet(
 							isPicker = true
 						)
 
-						Dropdown(
+						// TODO: make a proper colour picker sheet
+						DropdownMenu(
 							expanded = expanded,
 							onDismissRequest = { expanded = false }
 						) {
-							FormRow(
-								color = MaterialTheme.colorScheme.surfaceContainer,
-								horizontalArrangement = Arrangement.Center
-							) {
-								CircularColorPicker(
-									color = { customHsv },
-									onColorChange = { newHsv ->
-										customHsv = newHsv
-										selectedColor = newHsv.toColor()
-									}
-								)
-							}
+							CircularColorPicker(
+								color = { customHsv },
+								onColorChange = { newHsv ->
+									customHsv = newHsv
+									selectedColor = newHsv.toColor()
+								}
+							)
 						}
 					}
 				}

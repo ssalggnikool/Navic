@@ -25,13 +25,13 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.settings.ToolbarPosition
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.ErrorBox
-import paige.navic.ui.components.common.KeepScreenOn
+import paige.navic.ui.util.KeepScreenOn
 import paige.navic.ui.components.layouts.SheetScaffold
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
@@ -42,7 +42,7 @@ import paige.navic.ui.screens.lyrics.components.LyricsScreenPlaceholder
 import paige.navic.ui.screens.lyrics.components.LyricsScreenToolbar
 import paige.navic.ui.screens.lyrics.dialogs.LyricsShareSheet
 import paige.navic.ui.screens.lyrics.viewmodels.LyricsScreenViewModel
-import paige.navic.util.ui.LocalSheetState
+import paige.navic.di.LocalSheetState
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable

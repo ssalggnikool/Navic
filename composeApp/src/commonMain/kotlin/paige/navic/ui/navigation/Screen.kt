@@ -154,10 +154,6 @@ sealed interface Screen : NavKey {
 
 		@Immutable
 		@Serializable
-		data object Acknowledgements : Settings
-
-		@Immutable
-		@Serializable
 		data object DataStorage : Settings
 
 		@Immutable
@@ -168,6 +164,9 @@ sealed interface Screen : NavKey {
 		@Serializable
 		data object Themes : Settings
 
+		@Immutable
+		@Serializable
+		data object Effects: Settings
 		@Immutable
 		@Serializable
 		data object CustomHeaders : Settings

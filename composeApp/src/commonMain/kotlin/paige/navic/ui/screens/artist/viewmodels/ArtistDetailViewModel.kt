@@ -33,7 +33,7 @@ import paige.navic.domain.repositories.DbRepository
 import paige.navic.domain.repositories.SongRepository
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.core.UiState
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 
 @Immutable
 data class ArtistState(

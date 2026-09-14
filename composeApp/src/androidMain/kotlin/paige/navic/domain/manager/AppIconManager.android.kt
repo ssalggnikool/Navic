@@ -7,8 +7,8 @@ import android.widget.Toast
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
+import paige.navic.di.ResourceProvider
 import paige.navic.domain.models.settings.AppIconVariant
-import paige.navic.util.core.ResourceProvider
 
 actual class AppIconManager(
 	private val context: Context,

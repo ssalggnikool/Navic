@@ -19,7 +19,7 @@ import paige.navic.domain.models.DomainFilter
 import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.DomainSongListType
 import paige.navic.ui.core.UiState
-import paige.navic.util.core.sortedByListType
+import paige.navic.util.sortedByListType
 import kotlin.time.Clock
 
 class SongRepository(

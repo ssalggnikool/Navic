@@ -49,13 +49,13 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.ui.components.common.Markdown
 import paige.navic.ui.components.dialogs.LinkConfirmationDialog
 import paige.navic.ui.theme.defaultFont
-import paige.navic.util.core.Logger
-import paige.navic.util.core.PlatformContext
+import paige.navic.util.Logger
+import paige.navic.di.PlatformContext
 
 @Serializable
 data class GitHubRelease(

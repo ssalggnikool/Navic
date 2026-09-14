@@ -18,7 +18,7 @@ import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumListType
 import paige.navic.domain.models.DomainFilter
 import paige.navic.ui.core.UiState
-import paige.navic.util.core.toSqlQuery
+import paige.navic.util.toSqlQuery
 import kotlin.time.Clock
 
 class AlbumRepository(

@@ -10,7 +10,6 @@
     <string name="title_now_playing">Ahora suena</string>
     <string name="title_bottom_app_bar">Barra inferior</string>
     <string name="title_about">Acerca de</string>
-    <string name="title_acknowledgements">Reconocimientos</string>
     <string name="title_delete_playlist">¿Quiere eliminar la lista?</string>
     <string name="title_delete_share">¿Quiere eliminar la compartición?</string>
     <string name="title_create_share">Crear compartición</string>
@@ -190,7 +189,6 @@
     <string name="info_share_expires_never">No caduca nunca</string>
     <string name="info_share_expired">Caducada</string>
     <string name="info_no_queue">No hay nada en la cola</string>
-    <string name="sideloading_warning_title">ATENCIÓN, LEA!</string>
     <string name="title_shares">Comparticiones</string>
     <string name="title_fonts_inbuilt">Incorporadas</string>
     <string name="title_miscellaneous">Varios</string>
@@ -200,11 +198,9 @@
     <string name="action_search_history">Búsquedas recientes</string>
     <string name="info_shared_by">Compartido por %1$s</string>
     <string name="info_share_expires_in">Caduca en %1$s</string>
-    <string name="sideloading_warning_subtitle">¡Google planea eliminar la instalación de aplicaciones desde fuentes externas en TODOS los dispositivos que tengan instalados los Servicios de Google Play!\n</string>
     <string name="info_image_failed_to_load">No se pudo cargar</string>
     <string name="info_lyrics_provider">%1$s proporciona las letras</string>
     <string name="option_replay_gain">ReplayGain</string>
-    <string name="sideloading_warning_link_mask">aquí.</string>
     <string name="info_track_replay_gain">ReplayGain por pista</string>
     <string name="info_album_replay_gain">ReplayGain por álbum</string>
     <string name="info_no_shares">Ninguna compartición</string>
@@ -213,7 +209,6 @@
     <string name="info_no_artists">Ningún artista</string>
     <string name="info_no_genres">Ningún género</string>
     <string name="info_no_playlists_short">Ninguna lista de reproducción</string>
-    <string name="sideloading_warning_description">Aunque aún no se conocen todos los detalles de este cambio, esto podría dar lugar a que se bloquee TODA instalación de aplicaciones desde fuentes externas, a menos que el firmante de la aplicación revele su identidad a Google o públicamente.\n\nSi tiene los conocimientos necesarios para instalar una ROM personalizada en su dispositivo, AHORA ES EL MOMENTO DE HACERLO.\n\nLea más sobre lo que puede hacer y cómo hacer escuchar su voz</string>
     <string name="subtitle_audio_offload">Experimental. Requiere reiniciar la aplicación. Puede entrar en conflicto con la reproducción sin pausas en algunos dispositivos</string>
     <string name="info_track_replay_gain_effective">Valor efectivo de ReplayGain</string>
     <string name="option_audio_offload">Relegación de audio</string>

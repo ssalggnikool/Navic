@@ -55,12 +55,13 @@ import navic.composeapp.generated.resources.option_custom_headers
 import navic.composeapp.generated.resources.subtitle_local_network_denied
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.manager.PermissionManager
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Error
-import paige.navic.ui.components.common.FormButton
+import paige.navic.ui.components.common.SegmentedListButton
+import paige.navic.ui.components.common.SegmentedListButtonDefaults
 import paige.navic.ui.components.dialogs.FormDialog
 import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.navigation.Screen
@@ -239,11 +240,13 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 			title = { Text(stringResource(Res.string.notice_local_network_denied)) },
 			content = { Text(stringResource(Res.string.subtitle_local_network_denied)) },
 			buttons = {
-				FormButton(
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
 					onClick = {
 						localNetworkDenied = false
 						permissionManager.openPermissionsSettings()
-					}
+					},
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 1)
 				) {
 					Text(stringResource(Res.string.action_open_settings))
 				}

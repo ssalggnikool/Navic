@@ -5,7 +5,7 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 
 actual class LinkManager(
 	private val application: Application

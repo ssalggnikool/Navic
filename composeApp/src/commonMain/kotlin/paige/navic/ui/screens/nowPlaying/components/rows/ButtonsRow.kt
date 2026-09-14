@@ -60,7 +60,7 @@ import paige.navic.icons.filled.SkipPrevious
 import paige.navic.icons.outlined.Repeat
 import paige.navic.icons.outlined.Shuffle
 import paige.navic.shared.MediaPlayerViewModel
-import paige.navic.ui.components.common.playPauseIconPainter
+import paige.navic.ui.util.playPauseIconPainter
 
 @Composable
 fun NowPlayingButtonsRow() {

@@ -12,7 +12,7 @@ data class AlbumEntity(
 	val artistName: String,
 	val artistId: String,
 	val year: Int?,
-	val coverArtId: String,
+	val coverArtId: String?,
 	val genre: String?,
 	val genres: List<String>,
 	val songCount: Int,

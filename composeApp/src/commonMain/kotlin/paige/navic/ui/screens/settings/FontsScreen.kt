@@ -15,11 +15,9 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -31,7 +29,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.title_choose_font
-import navic.composeapp.generated.resources.title_fonts_external
 import navic.composeapp.generated.resources.title_fonts_inbuilt
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -40,6 +37,8 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.FontOption
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Check
+import paige.navic.ui.components.common.SegmentedListItem
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.theme.googleSans
 
@@ -111,7 +110,7 @@ private fun LazyListScope.inbuiltFonts(
 }
 
 private fun LazyListScope.externalFonts() {
-	heading(Res.string.title_fonts_external)
+	//heading(Res.string.title_fonts_external)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -125,16 +124,15 @@ private fun FontRow(
 	count: Int,
 	onClick: () -> Unit
 ) {
-	val color = MaterialTheme.colorScheme.surfaceContainer
 	SegmentedListItem(
-		onClick = {
-			onClick()
-		},
+		onClick = onClick,
 		selected = selected,
-		colors = ListItemDefaults.colors(
-			containerColor = color,
+		colors = SegmentedListItemDefaults.segmentedColors(
+			selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+			selectedContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+			selectedSupportingContentColor = MaterialTheme.colorScheme.onSecondaryContainer
 		),
-		shapes = ListItemDefaults.segmentedShapes(
+		shapes = SegmentedListItemDefaults.segmentedShapes(
 			index = index,
 			count = count
 		),

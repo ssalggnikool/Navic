@@ -19,7 +19,7 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_more
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.MoreHoriz
 import paige.navic.shared.MediaPlayerViewModel
@@ -29,7 +29,7 @@ import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.util.ui.rememberColorSchemeFromCoverArt
+import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import kotlin.time.Duration
 
 @Composable

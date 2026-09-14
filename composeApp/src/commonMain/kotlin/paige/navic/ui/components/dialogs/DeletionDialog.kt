@@ -1,12 +1,12 @@
 package paige.navic.ui.components.dialogs
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +40,8 @@ import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.manager.SyncManager
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Delete
-import paige.navic.ui.components.common.FormButton
+import paige.navic.ui.components.common.SegmentedListButton
+import paige.navic.ui.components.common.SegmentedListButtonDefaults
 import paige.navic.ui.core.UiState
 
 enum class DeletionEndpoint(
@@ -125,16 +126,23 @@ fun DeletionDialog(
 			icon = { Icon(Icons.Outlined.Delete, null) },
 			title = { Text(stringResource(endpoint.questionText)) },
 			buttons = {
-				FormButton(
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
 					onClick = { viewModel.delete(endpoint, id) },
-					color = MaterialTheme.colorScheme.error
+					enabled = state !is UiState.Loading,
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2),
+					colors = SegmentedListButtonDefaults.errorColors()
 				) {
 					if (state is UiState.Loading) {
 						CircularProgressIndicator(Modifier.size(20.dp))
 					}
 					Text(stringResource(Res.string.action_delete))
 				}
-				FormButton(onClick = onIdClear) {
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = onIdClear,
+					shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
+				) {
 					Text(stringResource(Res.string.action_cancel))
 				}
 			},

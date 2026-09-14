@@ -2,7 +2,8 @@ package paige.navic.ui.screens.song.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,9 +31,9 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainSong
 import paige.navic.domain.repositories.CollectionRepository
 import paige.navic.ui.core.UiState
-import paige.navic.util.core.effectiveGain
-import paige.navic.util.core.toFileSize
-import paige.navic.util.core.toHoursMinutesSeconds
+import paige.navic.util.effectiveGain
+import paige.navic.util.toFileSize
+import paige.navic.util.toHoursMinutesSeconds
 
 class SongDetailViewModel(
 	songId: String,
@@ -42,8 +43,8 @@ class SongDetailViewModel(
 	val songState: StateFlow<UiState<DomainSong>>
 		field = MutableStateFlow<UiState<DomainSong>>(UiState.Loading())
 
-	val info: StateFlow<Map<StringResource, String?>>
-		field = MutableStateFlow(emptyMap())
+	val info: StateFlow<List<Pair<StringResource, String?>>>
+		field = MutableStateFlow(emptyList())
 
 	init {
 		viewModelScope.launch {
@@ -57,8 +58,8 @@ class SongDetailViewModel(
 		}
 	}
 
-	fun getInfo(song: DomainSong): Map<StringResource, String?> =
-		persistentMapOf(
+	fun getInfo(song: DomainSong): PersistentList<Pair<StringResource, String?>> =
+		persistentListOf(
 			Res.string.info_track_name to song.title,
 			Res.string.info_track_artist to song.artistName,
 			Res.string.info_track_album to song.albumTitle,

@@ -7,8 +7,8 @@ import navic.composeapp.generated.resources.option_quality_lossless
 import navic.composeapp.generated.resources.option_quality_low
 import navic.composeapp.generated.resources.option_quality_medium
 import org.jetbrains.compose.resources.StringResource
-import paige.navic.LocalPlatformContext
-import paige.navic.util.core.PlatformType
+import paige.navic.di.LocalPlatformContext
+import paige.navic.di.PlatformType
 
 enum class StreamingQuality(
 	val displayName: StringResource,

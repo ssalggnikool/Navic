@@ -14,7 +14,7 @@ private var sharedDiskCache: DiskCache? = null
 
 private fun getMemoryCache(context: CoilPlatformContext): MemoryCache {
 	return sharedMemoryCache ?: MemoryCache.Builder()
-		.maxSizePercent(context, 0.25)
+		.maxSizePercent(context, 0.15)
 		.build().also { sharedMemoryCache = it }
 }
 

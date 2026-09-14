@@ -9,7 +9,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -28,26 +27,17 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import navic.composeapp.generated.resources.Res
-import navic.composeapp.generated.resources.action_delete
-import navic.composeapp.generated.resources.action_share
-import navic.composeapp.generated.resources.info_error
 import navic.composeapp.generated.resources.info_share_expired
 import navic.composeapp.generated.resources.info_share_expires_in
 import navic.composeapp.generated.resources.info_shared_by
-import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalSnackBarState
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.models.DomainShare
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Delete
-import paige.navic.icons.outlined.Share
 import paige.navic.ui.components.common.CoverArt
-import paige.navic.ui.components.common.Dropdown
-import paige.navic.ui.components.common.DropdownItem
-import paige.navic.util.core.toHoursMinutesSeconds
+import paige.navic.util.toHoursMinutesSeconds
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
@@ -56,11 +46,9 @@ import kotlin.time.Duration.Companion.seconds
 fun ShareListScreenItem(
 	modifier: Modifier = Modifier,
 	share: DomainShare,
-	onSetDeletionId: (newDeletionId: String) -> Unit
+	onClick: () -> Unit,
+	onSwipeToDelete: () -> Unit
 ) {
-	val shareManager = koinInject<ShareManager>()
-	val snackBarState = LocalSnackBarState.current
-	var expanded by remember { mutableStateOf(false) }
 	var currentTime by remember { mutableStateOf(Clock.System.now()) }
 	val scope = rememberCoroutineScope()
 	val dismissState = rememberSwipeToDismissBoxState()
@@ -76,14 +64,14 @@ fun ShareListScreenItem(
 	SwipeToDismissBox(
 		state = dismissState,
 		onDismiss = {
-			if (it != SwipeToDismissBoxValue.Settled) onSetDeletionId(share.id)
+			if (it != SwipeToDismissBoxValue.Settled) onSwipeToDelete()
 			scope.launch { dismissState.reset() }
 		},
 		backgroundContent = {
 			Box(
 				modifier = Modifier
 					.fillMaxSize()
-					.clip(MaterialTheme.shapes.extraSmall)
+					.clip(MaterialTheme.shapes.small)
 					.background(MaterialTheme.colorScheme.errorContainer)
 					.padding(horizontal = 20.dp)
 			) {
@@ -101,74 +89,33 @@ fun ShareListScreenItem(
 			}
 		}
 	) {
-		Surface {
-			Box {
-				ListItem(
-					modifier = modifier,
-					leadingContent = {
-						CoverArt(
-							coverArtId = share.items.firstOrNull()?.coverArtId,
-							modifier = Modifier.size(60.dp),
-							shape = preferenceManager.coverArtShape.decreasedShape
-						)
-					},
-					content = {
-						Text(share.description)
-					},
-					supportingContent = {
-						Text(stringResource(Res.string.info_shared_by, share.username))
-					},
-					overlineContent = {
-						val expires = share.expiresAt
-						val remaining = expires - currentTime
-						if (remaining.isPositive()) {
-							Text(
-								stringResource(
-									Res.string.info_share_expires_in,
-									remaining.toHoursMinutesSeconds()
-								)
-							)
-						} else {
-							Text(stringResource(Res.string.info_share_expired))
-						}
-					},
-					onClick = {
-						expanded = true
-					},
-					onLongClick = {
-						expanded = true
-					}
+		ListItem(
+			modifier = modifier,
+			leadingContent = {
+				CoverArt(
+					coverArtId = share.items.firstOrNull()?.coverArtId,
+					modifier = Modifier.size(60.dp),
+					shape = preferenceManager.coverArtShape.decreasedShape
 				)
-				Dropdown(
-					expanded = expanded,
-					onDismissRequest = { expanded = false }
-				) {
-					DropdownItem(
-						onClick = {
-							expanded = false
-							scope.launch {
-								try {
-									shareManager.shareString(share.url)
-								} catch (e: Exception) {
-									snackBarState.showSnackbar(
-										e.message ?: getString(Res.string.info_error)
-									)
-								}
-							}
-						},
-						leadingIcon = { Icon(Icons.Outlined.Share, null) },
-						text = { Text(stringResource(Res.string.action_share)) }
+			},
+			content = { Text(share.description) },
+			supportingContent = { Text(stringResource(Res.string.info_shared_by, share.username)) },
+			overlineContent = {
+				val expires = share.expiresAt
+				val remaining = expires - currentTime
+				if (remaining.isPositive()) {
+					Text(
+						stringResource(
+							Res.string.info_share_expires_in,
+							remaining.toHoursMinutesSeconds()
+						)
 					)
-					DropdownItem(
-						onClick = {
-							expanded = false
-							onSetDeletionId(share.id)
-						},
-						leadingIcon = { Icon(Icons.Outlined.Delete, null) },
-						text = { Text(stringResource(Res.string.action_delete)) }
-					)
+				} else {
+					Text(stringResource(Res.string.info_share_expired))
 				}
-			}
-		}
+			},
+			onClick = onClick,
+			onLongClick = onClick
+		)
 	}
 }

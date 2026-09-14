@@ -31,7 +31,7 @@ import navic.composeapp.generated.resources.action_clear_search
 import navic.composeapp.generated.resources.action_navigate_back
 import navic.composeapp.generated.resources.title_search
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.ArrowBack
 import paige.navic.icons.outlined.Close
