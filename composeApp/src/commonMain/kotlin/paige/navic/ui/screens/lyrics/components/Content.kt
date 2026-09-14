@@ -36,7 +36,7 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.lyrics.LyricsResult
 import paige.navic.shared.MediaPlayerViewModel
-import paige.navic.util.core.calculateWordProgress
+import paige.navic.util.calculateWordProgress
 import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds

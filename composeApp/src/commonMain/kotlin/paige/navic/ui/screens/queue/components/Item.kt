@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -35,7 +33,7 @@ import navic.composeapp.generated.resources.info_explicit
 import navic.composeapp.generated.resources.info_not_available_offline
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainExplicitStatus
 import paige.navic.domain.models.DomainSong
@@ -47,12 +45,13 @@ import paige.navic.icons.outlined.Lock
 import paige.navic.icons.outlined.Offline
 import paige.navic.ui.components.common.CoverArt
 import paige.navic.ui.components.common.MarqueeText
+import paige.navic.ui.components.common.SegmentedListItem
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.common.Waveform
 import paige.navic.ui.navigation.Screen
-import paige.navic.util.core.buildSongInfoString
-import paige.navic.util.ui.DraggableListState
-import paige.navic.util.ui.dragHandle
-import paige.navic.util.ui.segmentedShapes
+import paige.navic.ui.util.DraggableListState
+import paige.navic.ui.util.buildSongInfoString
+import paige.navic.ui.util.dragHandle
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -82,19 +81,7 @@ fun QueueScreenItem(
 	val dismissState = rememberSwipeToDismissBoxState()
 	val scope = rememberCoroutineScope()
 
-	val color = if (isSelected)
-		MaterialTheme.colorScheme.surfaceContainerHighest
-	else MaterialTheme.colorScheme.surfaceContainerHigh
-
-	val contentColor = if (isSelected)
-		MaterialTheme.colorScheme.primary
-	else MaterialTheme.colorScheme.onSurface
-
-	val supportingContentColor = if (isSelected)
-		MaterialTheme.colorScheme.primary.copy(alpha = .7f)
-	else MaterialTheme.colorScheme.onSurfaceVariant
-
-	val itemShape = segmentedShapes(
+	val itemShape = SegmentedListItemDefaults.segmentedShapes(
 		index = index,
 		count = count,
 		dismissDirection = dismissState.dismissDirection
@@ -139,13 +126,12 @@ fun QueueScreenItem(
 				SegmentedListItem(
 					onClick = onClick,
 					enabled = !isExplicit,
-					colors = ListItemDefaults.colors(
-						containerColor = color,
-						selectedContainerColor = color,
-						disabledContainerColor = color,
-						draggedContainerColor = color,
-						contentColor = contentColor,
-						supportingContentColor = supportingContentColor
+					selected = isSelected,
+					colors = SegmentedListItemDefaults.segmentedColors(
+						selectedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+						selectedContentColor = MaterialTheme.colorScheme.primary,
+						selectedSupportingContentColor = MaterialTheme.colorScheme.primary
+							.copy(alpha = .7f)
 					),
 					shapes = itemShape,
 					verticalAlignment = Alignment.CenterVertically,

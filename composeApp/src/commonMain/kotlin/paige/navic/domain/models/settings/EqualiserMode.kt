@@ -1,6 +1,5 @@
 package paige.navic.domain.models.settings
 
-import kotlinx.serialization.Serializable
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.option_equaliser_mode_builtin
 import navic.composeapp.generated.resources.option_equaliser_mode_disabled

@@ -44,5 +44,5 @@ data class DomainSong(
 	val explicitStatus: DomainExplicitStatus,
 	val artists: List<DomainSongArtist>,
 	val albumArtists: List<DomainSongArtist>,
-	val isExternal: Boolean
+	val isExternal: Boolean = false
 )

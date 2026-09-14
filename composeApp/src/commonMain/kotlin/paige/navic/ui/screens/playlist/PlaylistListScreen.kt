@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,8 +44,9 @@ import navic.composeapp.generated.resources.title_playlists
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import paige.navic.LocalBottomBarScrollManager
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalPlatformContext
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.models.settings.BottomBarCollapseMode
@@ -68,8 +70,8 @@ import paige.navic.ui.screens.playlist.components.playlistListScreenContent
 import paige.navic.ui.screens.playlist.dialogs.PlaylistCreateDialog
 import paige.navic.ui.screens.playlist.viewmodels.PlaylistListViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
-import paige.navic.util.core.isLandscape
-import paige.navic.util.ui.withoutTop
+import paige.navic.ui.util.withoutTop
+import paige.navic.ui.viewmodel.RootViewModel
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -93,6 +95,7 @@ fun PlaylistListScreen(
 	val selectedPlaylist by viewModel.selectedPlaylist.collectAsState()
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
+	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
 
 	val scrollManager = LocalBottomBarScrollManager.current
 
@@ -116,8 +119,19 @@ fun PlaylistListScreen(
 			selectedReversed = selectedReversed,
 			onSetReversed = { viewModel.setReversed(it) },
 			selectedViewMode = selectedViewMode,
-			onSetViewMode = { preferenceManager.playlistListViewMode = it }
+			onSetViewMode = { preferenceManager.playlistListViewMode = it },
+			selectedFilters = selectedFilters,
+			onToggleFilter = { viewModel.toggleFilter(it) }
 		)
+	}
+
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				viewModel.gridState.animateScrollToItem(0)
+			}
+		}
 	}
 
 	Scaffold(

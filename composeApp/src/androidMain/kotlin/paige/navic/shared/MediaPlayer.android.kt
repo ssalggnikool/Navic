@@ -24,9 +24,24 @@ import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.BaseRenderer
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.RenderersFactory
+import androidx.media3.exoplayer.audio.DefaultAudioSink
+import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.extractor.ExtractorsFactory
+import androidx.media3.extractor.flac.FlacExtractor
+import androidx.media3.extractor.mkv.MatroskaExtractor
+import androidx.media3.extractor.mp3.Mp3Extractor
+import androidx.media3.extractor.mp4.FragmentedMp4Extractor
+import androidx.media3.extractor.mp4.Mp4Extractor
+import androidx.media3.extractor.ogg.OggExtractor
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory
+import androidx.media3.extractor.ts.AdtsExtractor
+import androidx.media3.extractor.wav.WavExtractor
 import androidx.media3.session.CommandButton
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaController
@@ -53,7 +68,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.data.database.dao.AlbumDao
 import paige.navic.data.database.mappers.toDomainModel
+import paige.navic.di.ResourceProvider
 import paige.navic.domain.manager.AndroidScrobbleManager
+import paige.navic.domain.manager.AudioGainManager
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.EqualiserManager
@@ -70,10 +87,9 @@ import paige.navic.domain.models.settings.EqualiserMode
 import paige.navic.domain.models.settings.ReplayGainMode
 import paige.navic.domain.repositories.PlayerStateRepository
 import paige.navic.domain.repositories.SongRepository
+import paige.navic.exoplayer.AudioGainProcessor
 import paige.navic.ui.core.PlayerUiState
-import paige.navic.util.core.Logger
-import paige.navic.util.core.ResourceProvider
-import paige.navic.util.core.effectiveGain
+import paige.navic.util.Logger
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -84,6 +100,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
 	private var mediaSession: MediaSession? = null
+	private val audioGainProcessor: AudioGainProcessor by inject()
 	private val serviceScope = MainScope()
 	private var scrobbleManager: AndroidScrobbleManager? = null
 	private val resourceProvider: ResourceProvider by inject()
@@ -120,9 +137,37 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 		val httpDataSourceFactory = DefaultHttpDataSource.Factory()
 			.setDefaultRequestProperties(preferenceManager.customHeadersMap())
 		val dataSourceFactory = DefaultDataSource.Factory(this, httpDataSourceFactory)
-		val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
 
-		val player = ExoPlayer.Builder(this)
+		val extractorsFactory = ExtractorsFactory {
+			arrayOf(
+				FlacExtractor(),
+				WavExtractor(),
+				FragmentedMp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+				Mp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+				OggExtractor(),
+				MatroskaExtractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+				AdtsExtractor(AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
+				Mp3Extractor(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING)
+			)
+		}
+
+		val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory, extractorsFactory)
+
+		val audioRenderer = RenderersFactory { handler, _, audioListener, _, _ ->
+			arrayOf<BaseRenderer>(
+				MediaCodecAudioRenderer(
+					applicationContext,
+					MediaCodecSelector.DEFAULT,
+					handler,
+					audioListener,
+					DefaultAudioSink.Builder(applicationContext)
+						.setAudioProcessors(arrayOf(audioGainProcessor))
+						.build()
+				)
+			)
+		}
+
+		val player = ExoPlayer.Builder(this, audioRenderer)
 			.setLoadControl(loadControl)
 			.setMediaSourceFactory(mediaSourceFactory)
 			.setHandleAudioBecomingNoisy(true)
@@ -407,12 +452,14 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	}
 }
 
+@UnstableApi
 class AndroidMediaPlayerViewModel(
 	stateRepository: PlayerStateRepository,
 	songRepository: SongRepository,
 	downloadManager: DownloadManager,
 	connectivityManager: ConnectivityManager,
 	preferenceManager: PreferenceManager,
+	private val audioGainManager: AudioGainManager,
 	private val application: Application,
 	private val albumDao: AlbumDao,
 	private val platformContext: CoilPlatformContext,
@@ -478,21 +525,26 @@ class AndroidMediaPlayerViewModel(
 
 					override fun onIsPlayingChanged(isPlaying: Boolean) {
 						if (isPlaying) startProgressLoop()
+
+						val currentSong = _uiState.value.currentSong
+						val displayArtist = currentSong?.artists?.joinToString { it.name }
+							?.ifBlank { currentSong.artistName }
+
 						val intent =
 							Intent("${application.packageName}.NOW_PLAYING_UPDATED").apply {
 								setPackage(application.packageName)
 								putExtra("isPlaying", isPlaying)
 								putExtra(
 									"title",
-									_uiState.value.currentSong?.title ?: "Unknown song"
+									currentSong?.title ?: "Unknown song"
 								)
 								putExtra(
 									"artist",
-									_uiState.value.currentSong?.artistName ?: "Unknown artist"
+									displayArtist ?: "Unknown artist"
 								)
 								putExtra(
 									"artUrl",
-									_uiState.value.currentSong?.coverArtId?.let {
+									currentSong?.coverArtId?.let {
 										sessionManager.getCoverArtUrl(it)
 									})
 							}
@@ -626,25 +678,34 @@ class AndroidMediaPlayerViewModel(
 				repeatMode = controller.repeatMode
 			)
 		}
-		applyReplayGain(currentSong)
+		applyAudioGain()
 		updateProgress()
 	}
 
-	private fun applyReplayGain(currentSong: DomainSong?) {
+	private fun applyAudioGain() {
+		audioGainManager.setAmplifierValues(preferenceManager.rgAmpGain, preferenceManager.ampGain)
+
 		if (preferenceManager.replayGainMode != ReplayGainMode.Off) {
-			(_uiState.value.currentSong)?.replayGain?.let { replayGain ->
+			val currentSong = _uiState.value.currentSong
+			val replayGain = currentSong?.replayGain
+
+			if (replayGain != null) {
+				audioGainManager.setReplayGainMetadata(replayGain)
+
 				if (preferenceManager.replayGainMode != ReplayGainMode.Dynamic) {
-					controller?.volume = replayGain.effectiveGain(preferenceManager.replayGainMode)
+					audioGainManager.applyGainMode(preferenceManager.replayGainMode)
 				} else {
-					if (_uiState.value.queue.all { it.albumId == currentSong?.albumId }) {
-						controller?.volume = replayGain.effectiveGain(ReplayGainMode.Album)
+					if (_uiState.value.queue.all { it.albumId == currentSong.albumId }) {
+						audioGainManager.applyGainMode(ReplayGainMode.Album)
 					} else {
-						controller?.volume = replayGain.effectiveGain(ReplayGainMode.Track)
+						audioGainManager.applyGainMode(ReplayGainMode.Track)
 					}
 				}
+			} else {
+				audioGainManager.setReplayGainMetadata(null)
 			}
 		} else {
-			controller?.volume = 1f
+			audioGainManager.resetGain()
 		}
 	}
 
@@ -1079,10 +1140,14 @@ class AndroidMediaPlayerViewModel(
 	}
 
 	private fun DomainSong.toMediaItem(): MediaItem {
+		val displayArtist = artists.joinToString { it.name }.ifBlank { artistName }
+		val albumArtistName = albumArtists.joinToString { it.name }.ifBlank { artistName }
+
 		val metadataBuilder = MediaMetadata.Builder()
 			.setTitle(title)
-			.setSubtitle(artistName)
-			.setArtist(artistName)
+			.setSubtitle(displayArtist)
+			.setArtist(displayArtist)
+			.setAlbumArtist(albumArtistName)
 			.setAlbumTitle(albumTitle)
 			.setDurationMs(duration.inWholeMilliseconds)
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)

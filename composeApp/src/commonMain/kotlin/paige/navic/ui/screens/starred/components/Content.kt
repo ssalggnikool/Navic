@@ -49,7 +49,7 @@ import navic.composeapp.generated.resources.title_songs
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.data.database.entities.DownloadEntity
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.domain.manager.DownloadManager
@@ -191,7 +191,7 @@ fun StarredScreenContent(
 							backStack.add(
 								Screen.SongList(
 									nested = true,
-									listType = DomainSongListType.Starred
+									listType = DomainSongListType.FrequentlyPlayed
 								)
 							)
 						})
@@ -242,7 +242,7 @@ fun StarredScreenContent(
 			ArtCarousel(
 				stringResource(Res.string.title_albums),
 				albums.toImmutableList(),
-				Screen.AlbumList(true, DomainAlbumListType.Starred)
+				Screen.AlbumList(true, DomainAlbumListType.AlphabeticalByArtist)
 			) { album ->
 				val albumDownloadStatus by downloadManager
 					.getCollectionDownloadStatus(album.songs.map { it.id })
@@ -294,7 +294,7 @@ fun StarredScreenContent(
 			ArtCarousel(
 				stringResource(Res.string.title_artists),
 				artists.toImmutableList(),
-				Screen.ArtistList(true, DomainArtistListType.Starred)
+				Screen.ArtistList(true, DomainArtistListType.AlphabeticalByName)
 			) { artist ->
 				ArtCarouselItem(
 					coverArtId = artist.coverArtId,

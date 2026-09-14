@@ -2,13 +2,13 @@ package paige.navic.ui.screens.radio.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -28,7 +28,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Radio
-import paige.navic.ui.components.common.FormButton
+import paige.navic.ui.components.common.SegmentedListButton
+import paige.navic.ui.components.common.SegmentedListButtonDefaults
 import paige.navic.ui.components.dialogs.FormDialog
 import paige.navic.ui.core.UiState
 import paige.navic.ui.screens.radio.viewmodels.RadioCreateDialogViewModel
@@ -57,30 +58,28 @@ fun RadioCreateDialog(
 		icon = { Icon(Icons.Outlined.Radio, null) },
 		title = { Text(stringResource(Res.string.title_create_radio)) },
 		buttons = {
-			FormButton(
-				onClick = {
-					viewModel.create()
-				},
+			SegmentedListButton(
+				modifier = Modifier.fillMaxWidth(),
+				onClick = viewModel::create,
 				enabled = state !is UiState.Loading
 					&& viewModel.name.text.isNotBlank()
 					&& viewModel.streamUrl.text.isNotBlank(),
-				color = MaterialTheme.colorScheme.primary
+				shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2),
+				colors = SegmentedListButtonDefaults.primaryColors()
 			) {
-				if (state !is UiState.Loading) {
-					Text(stringResource(Res.string.action_ok))
-				} else {
-					CircularProgressIndicator(
-						modifier = Modifier.size(20.dp)
-					)
+				if (state is UiState.Loading) {
+					CircularProgressIndicator(Modifier.size(20.dp))
 				}
+				Text(stringResource(Res.string.action_ok))
 			}
-			FormButton(
-				onClick = {
-					onDismissRequest()
-				},
+			SegmentedListButton(
+				modifier = Modifier.fillMaxWidth(),
+				onClick = onDismissRequest,
 				enabled = state !is UiState.Loading,
-				content = { Text(stringResource(Res.string.action_cancel)) }
-			)
+				shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
+			) {
+				Text(stringResource(Res.string.action_cancel))
+			}
 		},
 		content = {
 			(state as? UiState.Error)?.error?.let {

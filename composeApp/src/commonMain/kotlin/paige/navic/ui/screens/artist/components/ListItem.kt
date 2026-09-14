@@ -20,7 +20,7 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.count_albums
 import org.jetbrains.compose.resources.pluralStringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainArtist

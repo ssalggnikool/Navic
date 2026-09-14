@@ -38,8 +38,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalBottomBarScrollManager
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalPlatformContext
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
@@ -65,9 +65,9 @@ import paige.navic.ui.screens.collection.components.collectionDetailScreenMoreBy
 import paige.navic.ui.screens.collection.viewmodels.CollectionDetailViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.util.core.isLandscape
-import paige.navic.util.ui.rememberColorSchemeFromCoverArt
-import paige.navic.util.ui.withoutTop
+import paige.navic.di.isLandscape
+import paige.navic.ui.util.rememberColorSchemeFromCoverArt
+import paige.navic.ui.util.withoutTop
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

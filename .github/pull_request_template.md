@@ -11,6 +11,20 @@ Closes:
 
 ## Screenshots (if applicable)
 
+<!--
+Please make the screenshots use <img> and set the width to 400 so that
+the screenshots don't appear huge on the pull request page. For example,
+this:
+
+![Image](https://github.com/user-attachments/assets/b18ff82b-cb63-45d6-9d8a-f4de9510918f)
+
+should be this:
+
+<img width="400" src="https://github.com/user-attachments/assets/b18ff82b-cb63-45d6-9d8a-f4de9510918f">
+
+(You don't need to do this, but it would be appreciated)
+ -->
+
 ## Checklist
 
 <!-- Use [x] to tick the boxes. -->

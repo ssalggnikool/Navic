@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,9 +30,10 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalBottomBarScrollManager
-import paige.navic.LocalNavStack
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalNavStack
+import paige.navic.di.LocalPlatformContext
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainArtist
@@ -52,7 +54,7 @@ import paige.navic.ui.screens.artist.components.ArtistListScreenContent
 import paige.navic.ui.screens.artist.components.ArtistListScreenSortButton
 import paige.navic.ui.screens.artist.viewmodels.ArtistListViewModel
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
-import paige.navic.util.core.isLandscape
+import paige.navic.ui.viewmodel.RootViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -76,6 +78,8 @@ fun ArtistListScreen(
 	val artistsState by viewModel.artistsState.collectAsState()
 	val selectedArtist by viewModel.selectedArtist.collectAsState()
 	val selectedArtistAlbums by viewModel.selectedArtistAlbums.collectAsState()
+	val selectedSorting by viewModel.listType.collectAsState()
+	val selectedFilters by viewModel.selectedFilters.collectAsState()
 	val starred by viewModel.starred.collectAsState()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -84,9 +88,22 @@ fun ArtistListScreen(
 	val actions: @Composable RowScope.() -> Unit = {
 		ArtistListScreenSortButton(
 			nested = nested,
+			selectedSorting = selectedSorting,
+			onSetSorting = { viewModel.setListType(it) },
 			selectedViewMode = selectedViewMode,
-			onSetViewMode = { preferenceManager.artistListViewMode = it }
+			onSetViewMode = { preferenceManager.artistListViewMode = it },
+			selectedFilters = selectedFilters,
+			onToggleFilter = { viewModel.toggleFilter(it) }
 		)
+	}
+
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				viewModel.gridState.animateScrollToItem(0)
+			}
+		}
 	}
 
 	Scaffold(
@@ -120,6 +137,7 @@ fun ArtistListScreen(
 			ArtistListScreenContent(
 				state = artistsState,
 				starred = starred,
+				selectedSorting = selectedSorting,
 				selectedArtist = selectedArtist,
 				selectedArtistAlbums = selectedArtistAlbums,
 				selectedViewMode = selectedViewMode,

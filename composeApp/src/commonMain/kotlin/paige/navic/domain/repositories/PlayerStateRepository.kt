@@ -15,12 +15,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import paige.navic.ui.core.PlayerUiState
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 
 class PlayerStateRepository(
 	private val preferences: DataStore<Preferences>
 ) {
-	private val json = Json
+	private val json = Json {
+		ignoreUnknownKeys = true
+	}
 	private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
 	val state = preferenceStateFlow {

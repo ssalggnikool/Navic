@@ -42,13 +42,14 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Error
 import paige.navic.ui.theme.defaultFont
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable
 fun CoverArt(
 	modifier: Modifier = Modifier,
 	coverArtId: String?,
+	contentScale: ContentScale = if (coverArtId?.startsWith("ar-") == true) ContentScale.Crop else ContentScale.Fit,
 	contentDescription: String? = null,
 	onClick: (() -> Unit)? = null,
 	onLongClick: (() -> Unit)? = null,
@@ -107,7 +108,7 @@ fun CoverArt(
 		model = model,
 		contentDescription = contentDescription,
 		modifier = commonModifier,
-		contentScale = ContentScale.Crop,
+		contentScale = contentScale,
 		error = {
 			LaunchedEffect(it.result.throwable) {
 				Logger.w(

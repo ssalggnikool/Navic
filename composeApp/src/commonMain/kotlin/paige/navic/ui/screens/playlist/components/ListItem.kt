@@ -23,7 +23,7 @@ import navic.composeapp.generated.resources.notice_deleted_download
 import navic.composeapp.generated.resources.notice_download_started
 import org.jetbrains.compose.resources.pluralStringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
@@ -34,7 +34,7 @@ import paige.navic.ui.components.common.MarqueeText
 import paige.navic.ui.components.sheets.CollectionSheet
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
-import paige.navic.util.core.appendBulletPoint
+import paige.navic.ui.util.appendBulletPoint
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

@@ -8,8 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainPlaylist
 import paige.navic.domain.models.DomainSong
@@ -41,6 +42,7 @@ fun CollectionDetailScreenSongRowDropdown(
 	onSetRating: (Int) -> Unit
 ) {
 	val player = koinInject<MediaPlayerViewModel>()
+	val preferenceManager = koinInject<PreferenceManager>()
 	val backStack = LocalNavStack.current
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 
@@ -57,14 +59,14 @@ fun CollectionDetailScreenSongRowDropdown(
 			},
 			onShare = onShare,
 			onPlayNext = {
-				if (player.uiState.value.queue.any { it.id == song.id }) {
+				if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 					isPlayNextPending = true
 				} else {
 					onPlayNext()
 				}
 			},
 			onAddToQueue = {
-				if (player.uiState.value.queue.any { it.id == song.id }) {
+				if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 					isPlayNextPending = false
 				} else {
 					onAddToQueue()

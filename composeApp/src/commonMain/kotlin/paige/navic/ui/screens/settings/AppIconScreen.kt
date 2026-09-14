@@ -4,13 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
@@ -28,8 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.info_app_icon
@@ -42,10 +39,13 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.AppIconVariant
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Info
-import paige.navic.ui.components.common.Form
-import paige.navic.ui.components.common.FormRow
+import paige.navic.ui.components.common.SegmentedListItem
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
+import paige.navic.ui.screens.settings.components.SettingsGroup
+import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsAppIconScreen() {
 	val appIconManager = koinInject<AppIconManager>()
@@ -59,46 +59,49 @@ fun SettingsAppIconScreen() {
 			LocalMinimumInteractiveComponentSize provides 0.dp
 		) {
 			Column(
-				Modifier
+				modifier = Modifier
 					.padding(innerPadding)
 					.verticalScroll(rememberScrollState())
-					.padding(16.dp)
+					.padding(horizontal = 16.dp),
+				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
-				Form(Modifier.selectableGroup()) {
-					AppIconVariant.entries.forEach { variant ->
-						FormRow(
+				SettingsGroup(
+					modifier = Modifier.selectableGroup()
+				) {
+					AppIconVariant.entries.forEachIndexed { index, variant ->
+						val selected = preferenceManager.appIconVariant == variant
+						SegmentedListItem(
+							selected = selected,
 							onClick = {
-								if (!changed && preferenceManager.appIconVariant != variant) {
+								if (!changed && !selected) {
 									changed = true
 									appIconManager.setVariant(variant)
 								}
 							},
-							modifier = Modifier.semantics {
-								selected = preferenceManager.appIconVariant == variant
-							},
-							horizontalArrangement = Arrangement.spacedBy(14.dp),
-						) {
-							RadioButton(
-								selected = preferenceManager.appIconVariant == variant,
-								onClick = null
-							)
-							Column(Modifier.weight(1f)) {
-								Text(variant.name)
+							content = { Text(variant.name) },
+							supportingContent = {
 								Text(
 									text = stringResource(
 										Res.string.subtitle_app_icon_designer,
 										variant.designer
-									),
-									style = MaterialTheme.typography.bodyMedium,
-									color = MaterialTheme.colorScheme.onSurfaceVariant
+									)
 								)
-							}
-							AppIconItemPreview(variant)
-						}
+							},
+							leadingContent = {
+								RadioButton(
+									selected = selected,
+									onClick = null
+								)
+							},
+							trailingContent = { AppIconItemPreview(variant) },
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = index,
+								count = AppIconVariant.entries.count()
+							)
+						)
 					}
 				}
 
-				Spacer(Modifier.height(24.dp))
 				Row(
 					modifier = Modifier.padding(horizontal = 8.dp),
 					horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -134,6 +137,7 @@ fun AppIconItemPreview(variant: AppIconVariant, modifier: Modifier = Modifier) {
 			contentDescription = null,
 			modifier = iconModifier
 		)
+
 		is Painter -> Image(
 			painter = icon,
 			contentDescription = null,

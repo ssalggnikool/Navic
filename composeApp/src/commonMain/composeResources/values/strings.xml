@@ -17,7 +17,6 @@
 	<string name="title_danger_zone">Danger zone</string>
 	<string name="title_developer">Developer options</string>
 	<string name="title_about">About</string>
-	<string name="title_acknowledgements">Acknowledgements</string>
 	<string name="title_delete_playlist">Delete playlist?</string>
 	<string name="title_delete_share">Delete share?</string>
 	<string name="title_create_share">Create share</string>
@@ -64,6 +63,7 @@
 	<string name="title_github">GitHub</string>
 	<string name="title_codeberg">Codeberg</string>
 	<string name="title_link_confirmation">Leaving Navic</string>
+	<string name="title_audio_effects">Audio effects</string>
 
 	<string name="subtitle_appearance">Themes, colours, layout, app icon</string>
 	<string name="subtitle_now_playing">Customise the now playing &amp; lyrics views</string>
@@ -89,6 +89,9 @@
 	<string name="subtitle_equaliser">Tune &amp; enhance audio</string>
 	<string name="subtitle_equaliser_disabled">Not available when audio offload is enabled</string>
 	<string name="subtitle_configure_lyric_providers">Choose where to fetch lyrics from</string>
+	<string name="subtitle_audio_effects">Adjust how the music sounds</string>
+	<string name="subtitle_enable_ratings">Enable 5-star ratings for music</string>
+	<string name="subtitle_enable_sharing">Enable sharing links to music &amp; listing shares</string>
 
 	<string name="option_off">Off</string>
 	<string name="option_now_playing_background_style">Background style</string>
@@ -102,6 +105,7 @@
 	<string name="option_now_playing_slider_style_slim">Slim</string>
 	<string name="option_now_playing_slider_style_yoyo">Yoyo</string>
 	<string name="option_swipe_to_skip">Swipe to change songs</string>
+	<string name="option_hide_bottom_bar_if_idle">Hide if idle</string>
 	<string name="option_artwork_shape">Album/song artwork shapes</string>
 	<string name="option_artist_image_shape">Artist image shape</string>
 	<string name="option_auto_fill_queue">Auto-fill queue</string>
@@ -144,6 +148,12 @@
 	<string name="option_choose_theme">Application theme</string>
 	<string name="option_choose_app_icon">Application icon</string>
 	<string name="option_replay_gain">ReplayGain</string>
+	<string name="option_replaygain_mode">ReplayGain mode</string>
+	<string name="option_title_preamp">Preamp options</string>
+	<string name="option_preamp_with_rg">With ReplayGain tags</string>
+	<string name="option_preamp_without_rg">Without ReplayGain tags</string>
+	<string name="option_preamp_tip">Setting either of the preamp options to a very high value might cause audio distortion.</string>
+	<string name="option_dynamic_replaygain_tip">Setting ReplayGain to Dynamic will use the album gain if an album is playing. Otherwise, the track gain will be used instead.</string>
 	<string name="option_gapless_playback">Gapless playback</string>
 	<string name="option_audio_offload">Audio offload</string>
 	<string name="option_live_status">Live status</string>
@@ -194,6 +204,8 @@
 	<string name="option_list_view_mode">View mode</string>
 	<string name="option_list_view_mode_grid">Grid</string>
 	<string name="option_list_view_mode_list">List</string>
+	<string name="option_enable_ratings">Enable ratings</string>
+	<string name="option_enable_sharing">Enable sharing</string>
 
 	<string name="info_status_idle">Idle</string>
 	<string name="info_status_calculating">Calculating...</string>
@@ -371,6 +383,8 @@
 	<string name="action_reset">Reset</string>
 	<string name="action_configure_lyric_providers">Configure lyric providers</string>
 	<string name="action_visit_site">Visit site</string>
+	<string name="action_scroll_down">Scroll down</string>
+	<string name="action_reset_dont_show_agains">Reset "don't show again" dialogs</string>
 	<string name="subtitle_rebuild_database">Wipes all local metadata and forces a fresh sync</string>
 
 	<string name="notice_deleted_playlist">Playlist deleted.</string>
@@ -467,9 +481,4 @@
 	<string name="info_equaliser_unsupported">Your device does not support this feature.</string>
 	<string name="info_equaliser_mode_not_builtin">Please adjust the external equaliser using its dedicated app.</string>
 	<string name="info_lyric_provider_disclaimer">Enabling LRCLIB and/or LyricsPlus will make requests to external and unaffiliated web services.</string>
-
-	<string name="sideloading_warning_title">STOP, READ!</string>
-	<string name="sideloading_warning_subtitle">Google is planning to kill sideloading for ALL devices with Google Play Services installed!\n</string>
-	<string name="sideloading_warning_description">This will result in ALL sideloading being blocked unless the app signer doxxes themselves to Google and/or publicly.\n\nIf you are knowledgeable enough to install a custom ROM on your device, NOW IS THE TIME TO DO IT.\n\nPlease read more about what you can do and how to have your voice heard at</string>
-	<string name="sideloading_warning_link_mask">keepandroidopen.org</string>
 </resources>

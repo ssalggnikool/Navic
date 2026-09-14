@@ -16,8 +16,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalBottomBarScrollManager
-import paige.navic.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbumListType
 import paige.navic.domain.models.DomainSong
@@ -35,7 +33,9 @@ import paige.navic.ui.screens.album.viewmodels.AlbumListViewModel
 import paige.navic.ui.screens.genre.components.GenreDetailScreenContent
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.screens.song.viewmodels.SongListViewModel
-import paige.navic.util.core.isLandscape
+import paige.navic.di.isLandscape
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalPlatformContext
 import kotlin.time.Duration
 
 @Composable
@@ -109,14 +109,14 @@ fun GenreDetailScreen(
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
 				onPlaySongNext = { song ->
-					if (player.uiState.value.queue.any { it.id == song.id }) {
+					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 						songToQueue = song
 					} else {
 						player.playNextSingle(song)
 					}
 				},
 				onAddSongToQueue = { song ->
-					if (player.uiState.value.queue.any { it.id == song.id }) {
+					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 						songToQueue = song
 					} else {
 						player.addToQueueSingle(song)

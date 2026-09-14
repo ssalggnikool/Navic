@@ -32,7 +32,7 @@ import paige.navic.ui.components.layouts.horizontalSection
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.album.components.AlbumListScreenGridItem
-import paige.navic.util.ui.withoutTop
+import paige.navic.ui.util.withoutTop
 
 @Composable
 fun GenreDetailScreenContent(

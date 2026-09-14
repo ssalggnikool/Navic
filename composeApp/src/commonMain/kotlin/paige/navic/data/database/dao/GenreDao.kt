@@ -8,7 +8,7 @@ import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 import paige.navic.data.database.entities.GenreEntity
 import paige.navic.data.database.relations.GenreWithAlbums
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 
 @Dao
 interface GenreDao {

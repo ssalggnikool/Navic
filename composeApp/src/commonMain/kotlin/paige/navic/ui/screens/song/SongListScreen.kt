@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,8 +30,9 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalBottomBarScrollManager
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalPlatformContext
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.DomainSongListType
@@ -46,8 +49,8 @@ import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.screens.song.components.SongListScreenSortButton
 import paige.navic.ui.screens.song.components.songListScreenContent
 import paige.navic.ui.screens.song.viewmodels.SongListViewModel
-import paige.navic.util.core.isLandscape
-import paige.navic.util.ui.withoutTop
+import paige.navic.ui.util.withoutTop
+import paige.navic.ui.viewmodel.RootViewModel
 import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -72,6 +75,7 @@ fun SongListScreen(
 	val selectedSong by viewModel.selectedSong.collectAsStateWithLifecycle()
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
+	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
 	val starred by viewModel.starred.collectAsStateWithLifecycle()
 	val selectedSongRating by viewModel.selectedSongRating.collectAsStateWithLifecycle()
 	val allDownloads by viewModel.allDownloads.collectAsStateWithLifecycle()
@@ -87,8 +91,20 @@ fun SongListScreen(
 			selectedSorting = selectedSorting,
 			onSetSorting = { viewModel.setSorting(it) },
 			selectedReversed = selectedReversed,
-			onSetReversed = { viewModel.setReversed(it) }
+			onSetReversed = { viewModel.setReversed(it) },
+			selectedFilters = selectedFilters,
+			onToggleFilter = { viewModel.toggleFilter(it) }
 		)
+	}
+
+	val rootViewModel = koinViewModel<RootViewModel>()
+	val listState = rememberLazyListState()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				listState.animateScrollToItem(0)
+			}
+		}
 	}
 
 	Scaffold(
@@ -129,7 +145,8 @@ fun SongListScreen(
 				contentPadding = innerPadding.withoutTop(),
 				verticalArrangement = if ((songsState as? UiState.Success)?.data?.isEmpty() == true)
 					Arrangement.Center
-				else Arrangement.spacedBy(12.dp)
+				else Arrangement.spacedBy(12.dp),
+				state = listState
 			) {
 				songListScreenContent(
 					state = songsState,
@@ -143,14 +160,14 @@ fun SongListScreen(
 					},
 					onSetStarred = { viewModel.starSong(it) },
 					onPlayNext = { song ->
-						if (player.uiState.value.queue.any { it.id == song.id }) {
+						if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 							songToQueue = song
 						} else {
 							player.playNextSingle(song)
 						}
 					},
 					onAddToQueue = { song ->
-						if (player.uiState.value.queue.any { it.id == song.id }) {
+						if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 							songToQueue = song
 						} else {
 							player.addToQueueSingle(song)

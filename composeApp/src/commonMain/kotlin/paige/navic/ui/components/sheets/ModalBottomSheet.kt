@@ -18,8 +18,8 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import paige.navic.util.ui.SheetHideMotionSpec
-import paige.navic.util.ui.SheetShowMotionSpec
+import paige.navic.ui.util.SheetHideMotionSpec
+import paige.navic.ui.util.SheetShowMotionSpec
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

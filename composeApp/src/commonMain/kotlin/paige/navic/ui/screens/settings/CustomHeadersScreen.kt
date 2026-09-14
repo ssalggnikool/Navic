@@ -5,6 +5,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -24,6 +26,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -38,10 +41,9 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Add
 import paige.navic.icons.outlined.Delete
-import paige.navic.ui.components.common.Form
-import paige.navic.ui.components.common.FormRow
-import paige.navic.ui.components.common.FormTitle
 import paige.navic.ui.components.layouts.NestedTopBar
+import paige.navic.ui.screens.settings.components.SettingsGroup
+import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.theme.defaultFont
 import kotlin.random.Random
 
@@ -82,15 +84,14 @@ fun SettingsCustomHeadersScreen() {
 			LocalMinimumInteractiveComponentSize provides 0.dp
 		) {
 			Column(
-				Modifier
+				modifier = Modifier
 					.padding(innerPadding)
 					.verticalScroll(rememberScrollState())
-					.padding(top = 16.dp, end = 16.dp, start = 16.dp)
+					.padding(horizontal = 16.dp),
+				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
-				FormTitle(stringResource(Res.string.option_custom_headers))
-				Form(
-					Modifier.animateContentSize().fillMaxWidth(),
-					bottomPadding = 8.dp
+				SettingsGroup(
+					modifier = Modifier.animateContentSize()
 				) {
 					headers.forEachIndexed { index, header ->
 						AnimatedVisibility(
@@ -143,44 +144,51 @@ private fun HeaderRow(
 	onSetValue: (String) -> Unit,
 	onDelete: () -> Unit
 ) {
-	FormRow(
-		horizontalArrangement = Arrangement.spacedBy(8.dp)
+	Surface(
+		color = MaterialTheme.colorScheme.surfaceContainer,
+		shape = MaterialTheme.shapes.large
 	) {
-		Column(
-			Modifier.weight(1f),
-			verticalArrangement = Arrangement.spacedBy(8.dp)
+		Row(
+			modifier = Modifier.padding(14.dp),
+			horizontalArrangement = Arrangement.spacedBy(8.dp),
+			verticalAlignment = Alignment.CenterVertically
 		) {
-			TextField(
-				value = key,
-				onValueChange = onSetKey,
-				placeholder = { Text("Key") },
-				modifier = Modifier.fillMaxWidth(),
-				singleLine = true,
-				colors = TextFieldDefaults.colors(
-					focusedIndicatorColor = Color.Transparent,
-					unfocusedIndicatorColor = Color.Transparent
-				),
+			Column(
+				modifier = Modifier.weight(1f),
+				verticalArrangement = Arrangement.spacedBy(8.dp)
+			) {
+				TextField(
+					value = key,
+					onValueChange = onSetKey,
+					placeholder = { Text("Key") },
+					modifier = Modifier.fillMaxWidth(),
+					singleLine = true,
+					colors = TextFieldDefaults.colors(
+						focusedIndicatorColor = Color.Transparent,
+						unfocusedIndicatorColor = Color.Transparent
+					),
+					shape = MaterialTheme.shapes.medium
+				)
+				TextField(
+					value = value,
+					onValueChange = onSetValue,
+					placeholder = { Text("Value") },
+					modifier = Modifier.fillMaxWidth(),
+					singleLine = true,
+					colors = TextFieldDefaults.colors(
+						focusedIndicatorColor = Color.Transparent,
+						unfocusedIndicatorColor = Color.Transparent
+					),
+					shape = MaterialTheme.shapes.medium
+				)
+			}
+			FilledTonalButton(
+				onClick = onDelete,
+				contentPadding = PaddingValues(horizontal = 0.dp, vertical = 16.dp),
 				shape = MaterialTheme.shapes.medium
-			)
-			TextField(
-				value = value,
-				onValueChange = onSetValue,
-				placeholder = { Text("Value") },
-				modifier = Modifier.fillMaxWidth(),
-				singleLine = true,
-				colors = TextFieldDefaults.colors(
-					focusedIndicatorColor = Color.Transparent,
-					unfocusedIndicatorColor = Color.Transparent
-				),
-				shape = MaterialTheme.shapes.medium
-			)
-		}
-		FilledTonalButton(
-			onClick = onDelete,
-			contentPadding = PaddingValues(horizontal = 0.dp, vertical = 16.dp),
-			shape = MaterialTheme.shapes.medium
-		) {
-			Icon(Icons.Outlined.Delete, stringResource(Res.string.action_delete))
+			) {
+				Icon(Icons.Outlined.Delete, stringResource(Res.string.action_delete))
+			}
 		}
 	}
 }

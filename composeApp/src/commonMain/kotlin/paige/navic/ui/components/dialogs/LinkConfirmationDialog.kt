@@ -21,7 +21,8 @@ import navic.composeapp.generated.resources.title_link_confirmation
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.LinkManager
-import paige.navic.ui.components.common.FormButton
+import paige.navic.ui.components.common.SegmentedListButton
+import paige.navic.ui.components.common.SegmentedListButtonDefaults
 
 @Composable
 fun LinkConfirmationDialog(
@@ -57,16 +58,20 @@ fun LinkConfirmationDialog(
 			}
 		},
 		buttons = {
-			FormButton(
+			SegmentedListButton(
+				modifier = Modifier.fillMaxWidth(),
 				onClick = {
 					linkManager.openLink(linkToOpen)
 					onDismissRequest()
-				}
+				},
+				shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2)
 			) {
 				Text(stringResource(Res.string.action_visit_site))
 			}
-			FormButton(
-				onClick = onDismissRequest
+			SegmentedListButton(
+				modifier = Modifier.fillMaxWidth(),
+				onClick = onDismissRequest,
+				shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
 			) {
 				Text(stringResource(Res.string.action_cancel))
 			}

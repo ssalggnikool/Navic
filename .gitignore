@@ -3,6 +3,8 @@
 .gradle
 
 **/build/
+**/release/
+**/debug/
 /captures
 /local.properties
 
@@ -10,4 +12,3 @@
 xcuserdata/
 prepare/
 *.mobileprovision
-acknowledgements.json

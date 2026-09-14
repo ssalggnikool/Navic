@@ -7,7 +7,7 @@ import androidx.room3.Query
 import androidx.room3.Transaction
 import androidx.room3.Upsert
 import paige.navic.data.database.entities.SongEntity
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 
 @Dao
 interface SongDao {
@@ -53,6 +53,9 @@ interface SongDao {
 
 	@Query("SELECT * FROM SongEntity WHERE title LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchSongsList(query: String): List<SongEntity>
+
+	@Query("SELECT * FROM SongEntity WHERE artistId = :artistId")
+	suspend fun getSongsByArtistId(artistId: String): List<SongEntity>
 
 	@Transaction
 	suspend fun updateSongsByAlbumId(albumId: String, remoteSongs: List<SongEntity>) {
