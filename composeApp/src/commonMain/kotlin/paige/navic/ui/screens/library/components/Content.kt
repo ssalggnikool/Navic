@@ -201,7 +201,7 @@ fun LibraryScreenContent(
 			GenreListScreenCard(genre = genreWithAlbums)
 		}
 
-		item(span = { GridItemSpan(2) }) {
+		item(span = { GridItemSpan(maxLineSpan) }) {
 			val backStack = LocalNavStack.current
 			StatisticsOverviewCard(
 				statsState = statsState,

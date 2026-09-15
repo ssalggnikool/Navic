@@ -19,7 +19,6 @@ import paige.navic.data.database.mappers.toDomainModel
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainArtist
 import paige.navic.domain.models.DomainSong
-
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -65,7 +64,7 @@ class StatisticsViewModel(
 				SongStats(
 					song = song.toDomainModel(),
 					playCount = song.playCount,
-					listeningTime = (song.duration * song.playCount)
+					listeningTime = song.duration * song.playCount
 				)
 			}
 		},

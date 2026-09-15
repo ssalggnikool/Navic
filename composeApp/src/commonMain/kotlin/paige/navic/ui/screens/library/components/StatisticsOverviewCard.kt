@@ -147,7 +147,10 @@ private fun StatPageContent(
 ) {
 	val colorScheme = rememberColorSchemeFromCoverArt(coverArtId)
 	val barColor = colorScheme.primary
-	val ratio = if (totalDuration > Duration.ZERO) (duration.inWholeMilliseconds.toFloat() / totalDuration.inWholeMilliseconds.toFloat()) else 0f
+	val ratio = when {
+		totalDuration > Duration.ZERO -> (duration.inWholeMilliseconds / totalDuration.inWholeMilliseconds).toFloat()
+		else -> 0f
+	}
 
 	Row(
 		modifier = Modifier.fillMaxWidth(),
@@ -157,7 +160,7 @@ private fun StatPageContent(
 		CoverArt(
 			coverArtId = coverArtId,
 			modifier = Modifier.size(64.dp),
-			shape = RoundedCornerShape(12.dp)
+			shape = preferenceManager.coverArtShape.decreasedShape
 		)
 
 		Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -190,19 +193,19 @@ private fun StatPageContent(
 						modifier = Modifier
 							.fillMaxWidth()
 							.height(8.dp)
-							.clip(CircleShape)
+							.clip(ContinuousCapsule)
 							.background(MaterialTheme.colorScheme.surfaceVariant)
 					) {
 						Box(
 							modifier = Modifier
 								.fillMaxWidth(ratio.coerceIn(0.05f, 1f))
 								.fillMaxHeight()
-								.clip(CircleShape)
+								.clip(ContinuousCapsule)
 								.background(barColor)
 						)
 					}
 					Text(
-						text = stringResource(Res.string.info_listening_stats_ratio, (ratio * 100).toInt()),
+						text = stringResource(Res.string.info_listening_stats_ratio, ratio.toInt() * 100),
 						style = MaterialTheme.typography.labelSmall,
 						color = MaterialTheme.colorScheme.onSurfaceVariant
 					)

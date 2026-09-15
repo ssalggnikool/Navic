@@ -86,11 +86,11 @@ fun StatisticsScreen(
 			topBar = {
 				if (!nested) {
 					RootTopBar(
-						{ Text(stringResource(Res.string.title_statistics)) },
-						scrollBehavior
+						title = { Text(stringResource(Res.string.title_statistics)) },
+						scrollBehavior = scrollBehavior
 					)
 				} else {
-					NestedTopBar({ Text(stringResource(Res.string.title_statistics)) })
+					NestedTopBar(title = { Text(stringResource(Res.string.title_statistics)) })
 				}
 			},
 			bottomBar = {
@@ -120,13 +120,12 @@ fun StatisticsScreen(
 							.let {
 								if (!nested) it.nestedScroll(scrollBehavior.nestedScrollConnection) else it
 							}
-							.verticalScroll(rememberScrollState())
-							.padding(16.dp),
+							.verticalScroll(rememberScrollState()),
 						verticalArrangement = Arrangement.spacedBy(24.dp)
 					) {
 						// Summary Cards
 						Row(
-							modifier = Modifier.fillMaxWidth(),
+							modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
 							horizontalArrangement = Arrangement.spacedBy(12.dp)
 						) {
 							StatSummaryCard(
@@ -143,7 +142,10 @@ fun StatisticsScreen(
 
 						// Top Artists Chart
 						if (state.topArtists.isNotEmpty()) {
-							Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+							Column(
+								modifier = Modifier.padding(horizontal = 16.dp),
+								verticalArrangement = Arrangement.spacedBy(16.dp)
+							) {
 								Text(
 									text = stringResource(Res.string.title_top_artists),
 									style = MaterialTheme.typography.titleLarge,
@@ -197,7 +199,7 @@ fun StatisticsScreen(
 							)
 						}
 
-						Spacer(Modifier.height(contentPadding.calculateBottomPadding() + 32.dp))
+						Spacer(Modifier.height(contentPadding.calculateBottomPadding()))
 					}
 				}
 			}
@@ -211,11 +213,10 @@ fun StatSummaryCard(
 	label: String,
 	value: String
 ) {
-	Card(
+	Surface(
 		modifier = modifier,
-		colors = CardDefaults.cardColors(
-			containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-		)
+		color = MaterialTheme.colorScheme.surfaceContainerHigh,
+		shape = MaterialTheme.shapes.medium
 	) {
 		Column(Modifier.padding(16.dp)) {
 			Text(
@@ -228,7 +229,8 @@ fun StatSummaryCard(
 			Text(
 				text = value,
 				style = MaterialTheme.typography.headlineMedium,
-				fontWeight = FontWeight.Bold
+				fontWeight = FontWeight.Bold,
+				fontFamily = defaultFont(round = 100f)
 			)
 		}
 	}
@@ -291,14 +293,14 @@ fun ArtistStatsRow(
 				modifier = Modifier
 					.fillMaxWidth()
 					.height(12.dp)
-					.clip(RoundedCornerShape(6.dp))
+					.clip(ContinuousCapsule)
 					.background(MaterialTheme.colorScheme.surfaceVariant)
 			) {
 				Box(
 					modifier = Modifier
 						.fillMaxWidth(ratio)
 						.fillMaxHeight()
-						.clip(RoundedCornerShape(6.dp))
+						.clip(ContinuousCapsule)
 						.background(barColor)
 				)
 			}
