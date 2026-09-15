@@ -339,6 +339,7 @@
 	<string name="action_cancel">Cancel</string>
 	<string name="action_refresh">Refresh</string>
 	<string name="action_share">Share</string>
+	<string name="action_save">Save</string>
 	<string name="action_track_info">View track info</string>
 	<string name="action_view_album">View album</string>
 	<string name="action_view_playlist">View playlist</string>
@@ -410,6 +411,7 @@
 	<string name="notice_download_started">Download started.</string>
 	<string name="notice_copied">Copied to clipboard.</string>
 	<string name="notice_expiry">Expires in %1$s</string>
+	<string name="notice_image_saved">Image saved.</string>
 	<string name="notice_loading_lyrics">Loading lyrics...\nThis might take a while.</string>
 	<string name="notice_login_suggestion">Did you mean...</string>
 	<string name="notice_queue_duplicate">This song is already in the queue. Do you want to add it again?</string>

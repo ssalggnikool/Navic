@@ -14,15 +14,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ContainedLoadingIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,22 +41,12 @@ import coil3.SingletonImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import kotlinx.coroutines.launch
-import navic.composeapp.generated.resources.Res
-import navic.composeapp.generated.resources.action_more
-import navic.composeapp.generated.resources.action_share
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.manager.ShareManager
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.MoreVert
 import paige.navic.ui.components.common.CoverArt
-import paige.navic.ui.components.layouts.NestedTopBar
-import paige.navic.ui.components.layouts.NestedTopBarButtonDefaults
-import paige.navic.ui.components.layouts.NestedTopBarDefaults
-import paige.navic.ui.components.layouts.TopBarButton
+import paige.navic.ui.screens.imageView.components.ImageViewScreenTopBar
 import paige.navic.ui.util.EmphasizedDecelerateEasing
 import paige.navic.ui.util.toImageBitmap
 import kotlin.math.abs
@@ -76,14 +61,9 @@ fun ImageViewScreen(
 	sharedTransitionKey: String
 ) {
 	val backStack = LocalNavStack.current
-	val shareManager = koinInject<ShareManager>()
 
 	val containerColor = Color.Black
 	val contentColor = Color.White
-	val buttonColors = NestedTopBarButtonDefaults.colors(
-		containerColor = containerColor,
-		contentColor = contentColor
-	)
 
 	val swipeThreshold = 100f
 	val scope = rememberCoroutineScope()
@@ -107,7 +87,7 @@ fun ImageViewScreen(
 			.build()
 	}
 	var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-	var loadingShare by rememberSaveable { mutableStateOf(false) }
+	var loading by rememberSaveable { mutableStateOf(false) }
 
 	LaunchedEffect(model) {
 		val result = loader.execute(model)
@@ -131,41 +111,10 @@ fun ImageViewScreen(
 
 	Scaffold(
 		topBar = {
-			NestedTopBar(
-				title = {},
-				colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-				navigationAction = { NestedTopBarDefaults.NavigationAction(colors = buttonColors) },
-				actions = {
-					Box {
-						var expanded by rememberSaveable { mutableStateOf(false) }
-						TopBarButton(
-							onClick = { expanded = true },
-							colors = buttonColors
-						) {
-							Icon(
-								imageVector = Icons.Outlined.MoreVert,
-								contentDescription = stringResource(Res.string.action_more)
-							)
-						}
-						DropdownMenu(
-							expanded = expanded,
-							onDismissRequest = { expanded = false }
-						) {
-							DropdownMenuItem(
-								text = { Text(stringResource(Res.string.action_share)) },
-								enabled = bitmap != null,
-								onClick = {
-									expanded = false
-									scope.launch {
-										loadingShare = true
-										shareManager.shareImage(bitmap!!, "$title.png")
-										loadingShare = false
-									}
-								}
-							)
-						}
-					}
-				}
+			ImageViewScreenTopBar(
+				bitmap = bitmap,
+				title = title,
+				onSetLoading = { loading = it }
 			)
 		}
 	) { _ ->
@@ -212,7 +161,7 @@ fun ImageViewScreen(
 						shape = RectangleShape
 					)
 				}
-				if (loadingShare) {
+				if (loading) {
 					Box(Modifier.matchParentSize().background(Color.Black.copy(alpha = 0.5f)))
 					ContainedLoadingIndicator(Modifier.size(48.dp))
 					NavigationBackHandler(

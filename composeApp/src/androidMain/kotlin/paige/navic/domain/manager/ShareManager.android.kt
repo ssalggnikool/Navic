@@ -1,8 +1,12 @@
 package paige.navic.domain.manager
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.core.content.FileProvider
@@ -48,6 +52,26 @@ actual class ShareManager(
 		val chooser = Intent.createChooser(intent, "Share Image")
 		chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		context.startActivity(chooser)
+	}
+
+	actual suspend fun saveImage(bitmap: ImageBitmap, fileName: String) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			val androidBitmap = bitmap.asAndroidBitmap()
+			val resolver = context.contentResolver
+			val contentValues = ContentValues().apply {
+				put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+				put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+				put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+			}
+			val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)!!
+			val out = resolver.openOutputStream(uri)!!
+			withContext(dispatcher) {
+				androidBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+			}
+		} else {
+			// older sdks needs file management perms (I don't feel like accounting for that)
+			shareImage(bitmap, fileName)
+		}
 	}
 
 	actual suspend fun shareString(string: String) {
