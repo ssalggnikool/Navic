@@ -68,6 +68,13 @@ import paige.navic.ui.screens.stats.viewmodels.StatisticsViewModel
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.util.toSummaryString
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import paige.navic.domain.models.DomainAlbumListType
+import paige.navic.domain.models.DomainArtist
+import paige.navic.ui.components.sheets.ArtistSheet
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
@@ -80,6 +87,8 @@ fun StatisticsScreen(
 	val starredSongs by viewModel.starredSongs.collectAsStateWithLifecycle()
 	val backStack = LocalNavStack.current
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+	var selectedArtist by remember { mutableStateOf<DomainArtist?>(null) }
 
 	NavicTheme {
 		Scaffold(
@@ -216,14 +225,16 @@ fun StatisticsScreen(
 						TopArtistItem(
 							stats = stats,
 							ratio = stats.playCount / maxPlays,
-							onClick = { backStack.add(Screen.ArtistDetail(stats.artist.id)) }
+							onClick = { backStack.add(Screen.ArtistDetail(stats.artist.id)) },
+							onLongClick = { selectedArtist = stats.artist }
 						)
 					}
 
 					item(span = { GridItemSpan(maxLineSpan) }) {
 						ArtCarousel(
 							title = stringResource(Res.string.title_top_albums),
-							items = state.topAlbums.toImmutableList()
+							items = state.topAlbums.toImmutableList(),
+							destination = Screen.AlbumList(true, DomainAlbumListType.Frequent)
 						) { album ->
 							ArtCarouselItem(
 								coverArtId = album.album.coverArtId,
@@ -265,6 +276,13 @@ fun StatisticsScreen(
 					}
 				}
 			}
+		}
+
+		selectedArtist?.let {
+			ArtistSheet(
+				onDismissRequest = { selectedArtist = null },
+				artist = it
+			)
 		}
 	}
 }

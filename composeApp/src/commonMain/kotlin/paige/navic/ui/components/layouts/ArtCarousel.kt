@@ -1,6 +1,7 @@
 package paige.navic.ui.components.layouts
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -106,18 +109,24 @@ fun ArtCarouselItem(
 	Column(
 		modifier = Modifier
 			.width(150.dp)
+			.clip(MaterialTheme.shapes.large)
+			.combinedClickable(
+				onClick = {
+					focusManager.clearFocus(true)
+					onClick()
+				},
+				onLongClick = onSelect
+			)
+			.semantics {
+				this.contentDescription = contentDescription ?: title
+			}
 	) {
 		CoverArt(
 			coverArtId = coverArtId,
-			contentDescription = contentDescription,
+			contentDescription = null,
 			modifier = Modifier
 				.fillMaxWidth()
-				.clip(MaterialTheme.shapes.large),
-			onClick = {
-				focusManager.clearFocus(true)
-				onClick()
-			},
-			onLongClick = onSelect
+				.clip(MaterialTheme.shapes.large)
 		)
 
 		Text(
@@ -153,7 +162,7 @@ fun ArtCarouselItem(
 				color = MaterialTheme.colorScheme.primary,
 				modifier = Modifier
 					.fillMaxWidth()
-					.padding(start = 4.dp, end = 4.dp),
+					.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
