@@ -1,17 +1,13 @@
 package paige.navic.ui.screens.stats
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -48,7 +44,6 @@ import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.ui.components.layouts.ArtCarousel
 import paige.navic.ui.components.layouts.ArtCarouselItem
 import paige.navic.ui.components.layouts.NestedTopBar
-import paige.navic.ui.components.layouts.PullToRefreshBox
 import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.layouts.RootTopBar
 import paige.navic.ui.navigation.Screen
@@ -84,35 +79,28 @@ fun StatisticsScreen(
 			},
 			bottomBar = {
 				val scrollManager = LocalBottomBarScrollManager.current
-				val preferVisible = preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
+				val preferVisible =
+					preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 				if (!nested || (!platformContext.isLandscape() && preferVisible)) {
 					RootBottomBar(scrolled = scrollManager.isTriggered)
 				}
 			}
 		) { contentPadding ->
-			PullToRefreshBox(
-				modifier = Modifier
-					.padding(top = contentPadding.calculateTopPadding())
-					.background(MaterialTheme.colorScheme.surface),
-				finished = !state.isLoading,
-				onRefresh = {},
-				key = state
-			) {
-				if (state.isLoading) {
-					Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-						CircularProgressIndicator()
-					}
-				} else {
-					Column(
-						modifier = Modifier
-							.fillMaxSize()
-							.let {
-								if (!nested) it.nestedScroll(scrollBehavior.nestedScrollConnection) else it
-							}
-							.verticalScroll(rememberScrollState()),
-						verticalArrangement = Arrangement.spacedBy(24.dp)
-					) {
-						// Summary Cards
+			if (state.isLoading) {
+				Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+					CircularProgressIndicator()
+				}
+			} else {
+				LazyColumn(
+					modifier = Modifier
+						.fillMaxSize()
+						.let {
+							if (!nested) it.nestedScroll(scrollBehavior.nestedScrollConnection) else it
+						},
+					verticalArrangement = Arrangement.spacedBy(24.dp),
+					contentPadding = contentPadding
+				) {
+					item {
 						Row(
 							modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
 							horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -128,9 +116,10 @@ fun StatisticsScreen(
 								value = state.totalDuration.toSummaryString()
 							)
 						}
+					}
 
-						// Top Artists Chart
-						if (state.topArtists.isNotEmpty()) {
+					if (state.topArtists.isNotEmpty()) {
+						item {
 							Column(
 								modifier = Modifier.padding(horizontal = 16.dp),
 								verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -150,8 +139,9 @@ fun StatisticsScreen(
 								}
 							}
 						}
+					}
 
-						// Top Albums Carousel
+					item {
 						ArtCarousel(
 							title = stringResource(Res.string.title_top_albums),
 							items = state.topAlbums.toImmutableList()
@@ -164,12 +154,13 @@ fun StatisticsScreen(
 								duration = album.listeningTime,
 								contentDescription = null,
 								onClick = {
-									backStack.add(Screen.CollectionDetail(album.album.id, "library"))
+									backStack.add(Screen.CollectionDetail(album.album.id, "stats"))
 								}
 							)
 						}
+					}
 
-						// Top Songs List
+					item {
 						ArtCarousel(
 							title = stringResource(Res.string.title_top_songs),
 							items = state.topSongs.toImmutableList(),
@@ -183,12 +174,15 @@ fun StatisticsScreen(
 								duration = song.listeningTime,
 								contentDescription = null,
 								onClick = {
-									backStack.add(Screen.SongDetailScreen(song.song.id, song.song.coverArtId))
+									backStack.add(
+										Screen.SongDetailScreen(
+											song.song.id,
+											song.song.coverArtId
+										)
+									)
 								}
 							)
 						}
-
-						Spacer(Modifier.height(contentPadding.calculateBottomPadding()))
 					}
 				}
 			}
