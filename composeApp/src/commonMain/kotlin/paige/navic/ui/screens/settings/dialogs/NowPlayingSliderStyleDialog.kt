@@ -17,7 +17,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -47,7 +46,7 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.NowPlayingSliderStyle
 import paige.navic.ui.components.common.SlimSlider
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingSliderStyleDialog(
 	presented: Boolean,
@@ -57,6 +56,7 @@ fun NowPlayingSliderStyleDialog(
 
 	var sliderValue by rememberSaveable { mutableFloatStateOf(0.6767f) }
 	val preferenceManager = koinInject<PreferenceManager>()
+	val interactionSource = remember { MutableInteractionSource() }
 
 	AlertDialog(
 		title = {
@@ -85,6 +85,7 @@ fun NowPlayingSliderStyleDialog(
 									Slider(
 										value = sliderValue,
 										onValueChange = { sliderValue = it },
+										interactionSource = interactionSource,
 										modifier = Modifier.requiredWidth(200.dp).scale(.5f)
 									)
 								}
@@ -93,6 +94,7 @@ fun NowPlayingSliderStyleDialog(
 									WavySlider(
 										value = sliderValue,
 										onValueChange = { sliderValue = it },
+										interactionSource = interactionSource,
 										modifier = Modifier.requiredWidth(200.dp).scale(.5f),
 										track = { sliderState ->
 											SliderDefaults.Track(
@@ -111,6 +113,7 @@ fun NowPlayingSliderStyleDialog(
 									WavySlider(
 										value = sliderValue,
 										onValueChange = { sliderValue = it },
+										interactionSource = interactionSource,
 										modifier = Modifier.requiredWidth(200.dp).scale(.5f),
 										track = { sliderState ->
 											SliderDefaults.Track(
@@ -124,10 +127,11 @@ fun NowPlayingSliderStyleDialog(
 										},
 										thumb = { sliderState ->
 											SliderDefaults.Thumb(
-												interactionSource = remember { MutableInteractionSource() },
-												sliderState = sliderState,
-												thumbSize = DpSize(16.dp, 16.dp),
-												modifier = Modifier.clip(CircleShape)
+												interactionSource = interactionSource,
+												isVertical = sliderState.isVertical,
+												modifier = Modifier.clip(CircleShape),
+												enabled = true,
+												thumbSize = DpSize(16.dp, 16.dp)
 											)
 										}
 									)

@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import paige.navic.util.toSummaryString
 import kotlin.time.Duration
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> ArtCarousel(
 	title: String,
@@ -155,7 +152,7 @@ fun ArtCarouselItem(
 		if (playCount != null && playCount > 0) {
 			val playsText = pluralStringResource(Res.plurals.count_plays, playCount, playCount)
 			val timeText = duration?.toSummaryString()
-			
+
 			Text(
 				text = if (timeText != null) "$playsText • $timeText" else playsText,
 				style = MaterialTheme.typography.labelSmall,

@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -91,7 +90,7 @@ import paige.navic.ui.util.buildSongInfoString
 import paige.navic.ui.util.label
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongSheet(
 	onDismissRequest: () -> Unit,
@@ -155,7 +154,7 @@ fun SongSheet(
 			Spacer(Modifier.height(16.dp))
 
 			ListItem(
-				headlineContent = {
+				content = {
 					MarqueeText(
 						text = buildAnnotatedString {
 							append(song.title)

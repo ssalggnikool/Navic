@@ -1,6 +1,5 @@
 package paige.navic.di
 
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
@@ -8,10 +7,7 @@ import androidx.compose.runtime.remember
 import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
 
-@OptIn(
-	ExperimentalMaterial3WindowSizeClassApi::class,
-	ExperimentalMaterial3ExpressiveApi::class
-)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 actual fun rememberPlatformContext(): PlatformContext {
 	val sizeClass = calculateWindowSizeClass()

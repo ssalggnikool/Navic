@@ -1,6 +1,5 @@
 package paige.navic.ui.screens.playlist.components
 
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -18,7 +17,6 @@ import paige.navic.icons.outlined.Sort
 import paige.navic.ui.components.layouts.TopBarButton
 import paige.navic.ui.components.sheets.SortSheet
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlaylistListScreenSortButton(
 	nested: Boolean,
@@ -38,14 +36,14 @@ fun PlaylistListScreenSortButton(
 			expanded = true
 		}) {
 			Icon(
-				Icons.Outlined.Sort,
+				imageVector = Icons.Outlined.Sort,
 				contentDescription = null
 			)
 		}
 	} else {
-		TopBarButton({ expanded = true }) {
+		TopBarButton(onClick = { expanded = true }) {
 			Icon(
-				Icons.Outlined.Sort,
+				imageVector = Icons.Outlined.Sort,
 				contentDescription = null
 			)
 		}

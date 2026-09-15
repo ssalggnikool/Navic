@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +40,6 @@ import paige.navic.ui.util.dragHandle
 import paige.navic.ui.util.draggableItems
 import paige.navic.ui.util.rememberDraggableListState
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavtabsDialog(
 	presented: Boolean,
@@ -102,7 +100,6 @@ fun NavtabsDialog(
 	}
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NavtabRow(
 	tab: NavbarTab,

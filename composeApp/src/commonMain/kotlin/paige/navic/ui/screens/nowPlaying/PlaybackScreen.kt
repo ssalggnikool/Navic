@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -36,7 +35,6 @@ import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.util.rememberDraggableListState
 import kotlin.math.round
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlaybackSpeedScreen() {
 	val player = koinInject<MediaPlayerViewModel>()
