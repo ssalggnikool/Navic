@@ -26,6 +26,19 @@ fun Duration.toHoursMinutesSeconds(): String {
 }
 
 /**
+ * Formats a `Duration` as a summary string, ex. 12h 30m
+ */
+fun Duration.toSummaryString(): String {
+	val hours = inWholeHours
+	val minutes = inWholeMinutes % 60
+	return if (hours > 0) {
+		"${hours}h ${minutes}m"
+	} else {
+		"${minutes}m"
+	}
+}
+
+/**
  * Formats a `Long` as a human-readable file size
  * string, e.g. 1 GB
  */

@@ -44,6 +44,7 @@ import paige.navic.ui.screens.library.components.LibraryScreenContent
 import paige.navic.ui.screens.playlist.dialogs.PlaylistCreateDialog
 import paige.navic.ui.screens.playlist.viewmodels.PlaylistListViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
+import paige.navic.ui.screens.stats.viewmodels.StatisticsViewModel
 import paige.navic.ui.viewmodel.RootViewModel
 import kotlin.time.Duration
 
@@ -81,6 +82,11 @@ fun LibraryScreen() {
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val genresState by genresViewModel.genresState.collectAsStateWithLifecycle()
+
+	val statsViewModel = koinViewModel<StatisticsViewModel>(
+		viewModelStoreOwner = persistentViewModelStoreOwner
+	)
+	val statsState by statsViewModel.state.collectAsStateWithLifecycle()
 
 	val loginManager = koinInject<LoginManager>()
 	val loginState by loginManager.loginState.collectAsStateWithLifecycle()
@@ -185,7 +191,8 @@ fun LibraryScreen() {
 					)
 				},
 
-				genresState = genresState
+				genresState = genresState,
+				statsState = statsState
 			)
 		}
 	}

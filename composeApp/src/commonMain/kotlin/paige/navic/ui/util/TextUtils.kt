@@ -22,6 +22,8 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.info_explicit
 import navic.composeapp.generated.resources.info_external_song
 import navic.composeapp.generated.resources.info_external_song_description
+import navic.composeapp.generated.resources.count_plays
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.models.DomainSong
@@ -93,7 +95,8 @@ fun buildSongInfoString(
 	onClickArtist: (artistId: String) -> Unit,
 	showExternal: Boolean = true,
 	showAlbum: Boolean = true,
-	showYear: Boolean = true
+	showYear: Boolean = true,
+	showPlayCount: Boolean = false
 ): AnnotatedString {
 	val snackBarState = LocalSnackBarState.current
 	val extSnackBarText = stringResource(Res.string.info_external_song_description)
@@ -137,5 +140,10 @@ fun buildSongInfoString(
 			artists = song.artists,
 			onClick = onClickArtist
 		)
+
+		if (showPlayCount && song.playCount > 0) {
+			appendBulletPoint()
+			append(pluralStringResource(Res.plurals.count_plays, song.playCount, song.playCount))
+		}
 	}
 }
