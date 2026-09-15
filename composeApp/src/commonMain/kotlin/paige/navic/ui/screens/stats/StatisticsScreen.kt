@@ -2,29 +2,40 @@ package paige.navic.ui.screens.stats
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
 import navic.composeapp.generated.resources.Res
+import navic.composeapp.generated.resources.info_starred_songs
 import navic.composeapp.generated.resources.info_total_listening_time
 import navic.composeapp.generated.resources.info_total_plays
 import navic.composeapp.generated.resources.title_statistics
@@ -41,14 +52,18 @@ import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainSongListType
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Headphones
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Note
 import paige.navic.ui.components.layouts.ArtCarousel
 import paige.navic.ui.components.layouts.ArtCarouselItem
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.layouts.RootTopBar
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.stats.components.ArtistStatsRow
 import paige.navic.ui.screens.stats.components.StatSummaryCard
+import paige.navic.ui.screens.stats.components.TopArtistItem
 import paige.navic.ui.screens.stats.viewmodels.StatisticsViewModel
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.util.toSummaryString
@@ -62,6 +77,7 @@ fun StatisticsScreen(
 	val preferenceManager = koinInject<PreferenceManager>()
 	val viewModel = koinViewModel<StatisticsViewModel>()
 	val state by viewModel.state.collectAsStateWithLifecycle()
+	val starredSongs by viewModel.starredSongs.collectAsStateWithLifecycle()
 	val backStack = LocalNavStack.current
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -91,57 +107,120 @@ fun StatisticsScreen(
 					CircularProgressIndicator()
 				}
 			} else {
-				LazyColumn(
+				LazyVerticalGrid(
 					modifier = Modifier
 						.fillMaxSize()
 						.let {
 							if (!nested) it.nestedScroll(scrollBehavior.nestedScrollConnection) else it
 						},
-					verticalArrangement = Arrangement.spacedBy(24.dp),
-					contentPadding = contentPadding
+					contentPadding = contentPadding,
+					columns = GridCells.Fixed(2),
+					horizontalArrangement = Arrangement.spacedBy(8.dp)
 				) {
+					item(span = { GridItemSpan(maxLineSpan) }) {
+						val color = MaterialTheme.colorScheme.primary
+						val contentColor = MaterialTheme.colorScheme.onPrimary
+						StatSummaryCard(
+							color = color,
+							contentColor = contentColor,
+							horizontal = true,
+							label = stringResource(Res.string.info_total_listening_time),
+							value = state.totalDuration.toSummaryString(),
+							icon = {
+								Surface(
+									color = contentColor,
+									contentColor = color,
+									shape = MaterialShapes.Cookie9Sided.toShape()
+								) {
+									Icon(
+										imageVector = Icons.Filled.Headphones,
+										contentDescription = null,
+										modifier = Modifier.padding(16.dp).size(32.dp)
+									)
+								}
+							},
+							modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+						)
+					}
+
 					item {
-						Row(
-							modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-							horizontalArrangement = Arrangement.spacedBy(12.dp)
-						) {
-							StatSummaryCard(
-								modifier = Modifier.weight(1f),
-								label = stringResource(Res.string.info_total_plays),
-								value = state.totalPlays.toString()
-							)
-							StatSummaryCard(
-								modifier = Modifier.weight(1f),
-								label = stringResource(Res.string.info_total_listening_time),
-								value = state.totalDuration.toSummaryString()
-							)
-						}
+						val color = MaterialTheme.colorScheme.primaryContainer
+						val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+						StatSummaryCard(
+							color = color,
+							contentColor = contentColor,
+							label = stringResource(Res.string.info_total_plays),
+							value = state.totalPlays.toString(),
+							icon = {
+								Surface(
+									color = contentColor,
+									contentColor = color,
+									shape = MaterialShapes.Clover4Leaf.toShape()
+								) {
+									Icon(
+										imageVector = Icons.Outlined.Note,
+										contentDescription = null,
+										modifier = Modifier.padding(12.dp)
+									)
+								}
+							},
+							modifier = Modifier.padding(start = 16.dp)
+						)
+					}
+
+					item {
+						val color = MaterialTheme.colorScheme.onTertiaryContainer
+						val contentColor = MaterialTheme.colorScheme.tertiaryContainer
+						StatSummaryCard(
+							color = color,
+							contentColor = contentColor,
+							label = stringResource(Res.string.info_starred_songs)
+								.toLowerCase(LocalLocale.current),
+							value = starredSongs.count().toString(),
+							icon = {
+								Surface(
+									color = contentColor,
+									contentColor = color,
+									shape = MaterialShapes.VerySunny.toShape()
+								) {
+									Icon(
+										imageVector = Icons.Filled.Star,
+										contentDescription = null,
+										modifier = Modifier.padding(12.dp)
+									)
+								}
+							},
+							modifier = Modifier.padding(end = 16.dp)
+						)
 					}
 
 					if (state.topArtists.isNotEmpty()) {
-						item {
-							Column(
-								modifier = Modifier.padding(horizontal = 16.dp),
-								verticalArrangement = Arrangement.spacedBy(16.dp)
-							) {
-								Text(
-									text = stringResource(Res.string.title_top_artists),
-									style = MaterialTheme.typography.titleLarge,
-									fontWeight = FontWeight.SemiBold
-								)
-								val maxPlays = state.topArtists.first().playCount.toFloat()
-								state.topArtists.forEach { stats ->
-									ArtistStatsRow(
-										stats = stats,
-										ratio = stats.playCount / maxPlays,
-										onClick = { backStack.add(Screen.ArtistDetail(stats.artist.id)) }
-									)
-								}
-							}
+						item(span = { GridItemSpan(maxLineSpan) }) {
+							Text(
+								text = stringResource(Res.string.title_top_artists),
+								style = MaterialTheme.typography.titleMediumEmphasized,
+								fontWeight = FontWeight(600),
+								modifier = Modifier
+									.heightIn(min = 32.dp)
+									.padding(top = 12.dp, start = 16.dp)
+									.semantics { heading() }
+							)
 						}
 					}
+					items(
+						items = state.topArtists,
+						key = { it.artist.id },
+						span = { GridItemSpan(maxLineSpan) }
+					) { stats ->
+						val maxPlays = state.topArtists.first().playCount.toFloat()
+						TopArtistItem(
+							stats = stats,
+							ratio = stats.playCount / maxPlays,
+							onClick = { backStack.add(Screen.ArtistDetail(stats.artist.id)) }
+						)
+					}
 
-					item {
+					item(span = { GridItemSpan(maxLineSpan) }) {
 						ArtCarousel(
 							title = stringResource(Res.string.title_top_albums),
 							items = state.topAlbums.toImmutableList()
@@ -160,7 +239,7 @@ fun StatisticsScreen(
 						}
 					}
 
-					item {
+					item(span = { GridItemSpan(maxLineSpan) }) {
 						ArtCarousel(
 							title = stringResource(Res.string.title_top_songs),
 							items = state.topSongs.toImmutableList(),

@@ -55,6 +55,11 @@ class StatisticsViewModel(
 	private val albumDao: AlbumDao
 ) : ViewModel() {
 
+	val starredSongs: StateFlow<List<DomainSong>> = songDao
+		.getStarredSongs()
+		.map { list -> list.map { song -> song.toDomainModel() } }
+		.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
 	@OptIn(ExperimentalCoroutinesApi::class)
 	val state: StateFlow<StatisticsState> = combine(
 		songDao.getTotalPlayCount().map { it ?: 0 },
