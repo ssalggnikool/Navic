@@ -6,7 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -17,8 +16,8 @@ import kotlinx.collections.immutable.toPersistentList
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_more
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.di.LocalNavStack
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumInfo
 import paige.navic.domain.models.DomainSongCollection
@@ -62,8 +61,8 @@ fun CollectionDetailScreenTopBar(
 		},
 		actions = {
 			Box {
-				var expanded by remember { mutableStateOf(false) }
-				TopBarButton({
+				var expanded by rememberSaveable { mutableStateOf(false) }
+				TopBarButton(onClick = {
 					expanded = true
 					refreshCollection()
 				}) {

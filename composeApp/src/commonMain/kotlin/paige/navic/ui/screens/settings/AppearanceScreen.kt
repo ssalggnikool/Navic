@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -35,6 +34,7 @@ import navic.composeapp.generated.resources.option_choose_app_icon
 import navic.composeapp.generated.resources.option_choose_theme
 import navic.composeapp.generated.resources.option_cover_art_size
 import navic.composeapp.generated.resources.option_dynamic_theming
+import navic.composeapp.generated.resources.option_enable_predictive_back_animations
 import navic.composeapp.generated.resources.option_enable_ratings
 import navic.composeapp.generated.resources.option_grid_items_per_row
 import navic.composeapp.generated.resources.option_use_marquee_text
@@ -55,6 +55,7 @@ import paige.navic.domain.models.settings.MarqueeSpeed
 import paige.navic.ui.components.common.SegmentedListItem
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
+import paige.navic.ui.components.layouts.NestedTopBarDefaults
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.settings.components.SettingsChoiceItem
 import paige.navic.ui.screens.settings.components.SettingsGroup
@@ -65,7 +66,6 @@ import paige.navic.ui.screens.settings.dialogs.ArtworkShapeDialog
 import paige.navic.ui.screens.settings.dialogs.GridSizeDialog
 import paige.navic.ui.screens.settings.dialogs.GridSizePreview
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsAppearanceScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -74,6 +74,7 @@ fun SettingsAppearanceScreen() {
 	val platformContext = LocalPlatformContext.current
 
 	val isCompact = platformContext.sizeClass.widthSizeClass <= WindowWidthSizeClass.Compact
+	val hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 
 	var showArtworkShapeDialog by rememberSaveable { mutableStateOf(false) }
 	var showArtistImageShapeDialog by rememberSaveable { mutableStateOf(false) }
@@ -83,7 +84,11 @@ fun SettingsAppearanceScreen() {
 		topBar = {
 			NestedTopBar(
 				title = { Text(stringResource(Res.string.title_appearance)) },
-				hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+				navigationAction = {
+					if (!hideBack) {
+						NestedTopBarDefaults.NavigationAction()
+					}
+				}
 			)
 		}
 	) { innerPadding ->
@@ -211,20 +216,26 @@ fun SettingsAppearanceScreen() {
 						supportingContent = { Text(stringResource(Res.string.subtitle_dynamic_theming)) },
 						checked = preferenceManager.dynamicTheming,
 						onCheckedChange = { preferenceManager.dynamicTheming = it },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 6)
 					)
 					SettingsToggleItem(
 						content = { Text(stringResource(Res.string.option_alphabetical_scroll)) },
 						checked = preferenceManager.alphabeticalScroll,
 						onCheckedChange = { preferenceManager.alphabeticalScroll = it },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
+					)
+					SettingsToggleItem(
+						content = { Text(stringResource(Res.string.option_enable_predictive_back_animations)) },
+						checked = preferenceManager.enablePredictiveBackAnimations,
+						onCheckedChange = { preferenceManager.enablePredictiveBackAnimations = it },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 6)
 					)
 					SettingsToggleItem(
 						content = { Text(stringResource(Res.string.option_enable_ratings)) },
 						supportingContent = { Text(stringResource(Res.string.subtitle_enable_ratings)) },
 						checked = preferenceManager.enableRatings,
 						onCheckedChange = { preferenceManager.enableRatings = it },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 6)
 					)
 					SettingsChoiceItem(
 						content = { Text(stringResource(Res.string.option_use_marquee_text)) },
@@ -232,7 +243,7 @@ fun SettingsAppearanceScreen() {
 						selectedChoice = preferenceManager.marqueeSpeed,
 						onChoiceSelected = { preferenceManager.marqueeSpeed = it },
 						label = { it.name },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 6)
 					)
 					SettingsChoiceItem(
 						content = { Text(stringResource(Res.string.option_animation_style)) },
@@ -240,7 +251,7 @@ fun SettingsAppearanceScreen() {
 						selectedChoice = preferenceManager.animationStyle,
 						onChoiceSelected = { preferenceManager.animationStyle = it },
 						label = { it.name },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
 					)
 				}
 			}

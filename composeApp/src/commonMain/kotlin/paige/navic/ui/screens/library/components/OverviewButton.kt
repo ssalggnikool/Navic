@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,7 +28,6 @@ import paige.navic.di.LocalNavStack
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.defaultFont
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyGridScope.libraryScreenOverviewButton(
 	icon: ImageVector,
 	label: StringResource,

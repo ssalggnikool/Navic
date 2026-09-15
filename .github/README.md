@@ -43,7 +43,7 @@ You can help translate Navic by contributing on [Weblate](https://hosted.weblate
 
 ## Contributing
 
-See [CONTRIBUTING.md](.github/CONTRIBUTING.md) to see how you can help out!
+See [CONTRIBUTING.md](CONTRIBUTING.md) to see how you can help out!
 
 ## Star History
 

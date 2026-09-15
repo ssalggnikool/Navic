@@ -204,6 +204,7 @@
 	<string name="option_list_view_mode_grid">Grid</string>
 	<string name="option_list_view_mode_list">List</string>
 	<string name="option_enable_ratings">Enable ratings</string>
+	<string name="option_enable_predictive_back_animations">Enable predictive back animations</string>
 
 	<string name="info_status_idle">Idle</string>
 	<string name="info_status_calculating">Calculating...</string>
@@ -248,7 +249,11 @@
 	<string name="option_mini_player_progress_style_hidden">Hidden</string>
 	<string name="option_mini_player_progress_style_visible">Visible</string>
 	<string name="option_mini_player_progress_style_seekable">Seekable</string>
-	
+
+	<string name="option_queue_info_type">Queue information</string>
+	<string name="option_queue_info_type_remining">Show songs/time remaining</string>
+	<string name="option_queue_info_type_full">Show songs/time of the whole queue</string>
+
 	<string name="theme_dynamic">Dynamic</string>
 	<string name="theme_seeded">Tinted</string>
 	<string name="theme_ios">Cupertino</string>
@@ -262,6 +267,11 @@
 	<plurals name="count_songs">
 		<item quantity="one">%1$d song</item>
 		<item quantity="other">%1$d songs</item>
+	</plurals>
+
+	<plurals name="count_remaining_songs">
+		<item quantity="one">%1$d song left</item>
+		<item quantity="other">%1$d songs left</item>
 	</plurals>
 
 	<plurals name="count_albums">
@@ -327,6 +337,7 @@
 	<string name="action_cancel">Cancel</string>
 	<string name="action_refresh">Refresh</string>
 	<string name="action_share">Share</string>
+	<string name="action_save">Save</string>
 	<string name="action_track_info">View track info</string>
 	<string name="action_view_album">View album</string>
 	<string name="action_view_playlist">View playlist</string>
@@ -398,6 +409,7 @@
 	<string name="notice_download_started">Download started.</string>
 	<string name="notice_copied">Copied to clipboard.</string>
 	<string name="notice_expiry">Expires in %1$s</string>
+	<string name="notice_image_saved">Image saved.</string>
 	<string name="notice_loading_lyrics">Loading lyrics...\nThis might take a while.</string>
 	<string name="notice_login_suggestion">Did you mean...</string>
 	<string name="notice_queue_duplicate">This song is already in the queue. Do you want to add it again?</string>
@@ -479,4 +491,5 @@
 	<string name="info_equaliser_unsupported">Your device does not support this feature.</string>
 	<string name="info_equaliser_mode_not_builtin">Please adjust the external equaliser using its dedicated app.</string>
 	<string name="info_lyric_provider_disclaimer">Enabling LRCLIB and/or LyricsPlus will make requests to external and unaffiliated web services.</string>
+	<string name="info_duration_left">%1$s left</string>
 </resources>
