@@ -1,50 +1,40 @@
 package paige.navic.ui.screens.stats
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kyant.capsule.ContinuousCapsule
 import kotlinx.collections.immutable.toImmutableList
 import navic.composeapp.generated.resources.Res
-import navic.composeapp.generated.resources.count_plays
 import navic.composeapp.generated.resources.info_total_listening_time
 import navic.composeapp.generated.resources.info_total_plays
 import navic.composeapp.generated.resources.title_statistics
 import navic.composeapp.generated.resources.title_top_albums
 import navic.composeapp.generated.resources.title_top_artists
 import navic.composeapp.generated.resources.title_top_songs
-import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -55,7 +45,6 @@ import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainSongListType
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
-import paige.navic.ui.components.common.CoverArt
 import paige.navic.ui.components.layouts.ArtCarousel
 import paige.navic.ui.components.layouts.ArtCarouselItem
 import paige.navic.ui.components.layouts.NestedTopBar
@@ -63,11 +52,10 @@ import paige.navic.ui.components.layouts.PullToRefreshBox
 import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.layouts.RootTopBar
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.stats.viewmodels.ArtistStats
+import paige.navic.ui.screens.stats.components.ArtistStatsRow
+import paige.navic.ui.screens.stats.components.StatSummaryCard
 import paige.navic.ui.screens.stats.viewmodels.StatisticsViewModel
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.ui.theme.defaultFont
-import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import paige.navic.util.toSummaryString
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -203,107 +191,6 @@ fun StatisticsScreen(
 						Spacer(Modifier.height(contentPadding.calculateBottomPadding()))
 					}
 				}
-			}
-		}
-	}
-}
-
-@Composable
-fun StatSummaryCard(
-	modifier: Modifier = Modifier,
-	label: String,
-	value: String
-) {
-	Surface(
-		modifier = modifier,
-		color = MaterialTheme.colorScheme.surfaceContainerHigh,
-		shape = MaterialTheme.shapes.medium
-	) {
-		Column(Modifier.padding(16.dp)) {
-			Text(
-				text = label,
-				style = MaterialTheme.typography.labelMedium,
-				color = MaterialTheme.colorScheme.primary,
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis
-			)
-			Text(
-				text = value,
-				style = MaterialTheme.typography.headlineMedium,
-				fontWeight = FontWeight.Bold,
-				fontFamily = defaultFont(round = 100f)
-			)
-		}
-	}
-}
-
-@Composable
-fun ArtistStatsRow(
-	stats: ArtistStats,
-	ratio: Float,
-	onClick: () -> Unit
-) {
-	val artist = stats.artist
-	val colorScheme = rememberColorSchemeFromCoverArt(artist.coverArtId)
-	val barColor = colorScheme.primary
-
-	Row(
-		modifier = Modifier
-			.fillMaxWidth()
-			.clip(MaterialTheme.shapes.medium)
-			.clickable(onClick = onClick)
-			.padding(vertical = 4.dp),
-		verticalAlignment = Alignment.CenterVertically,
-		horizontalArrangement = Arrangement.spacedBy(12.dp)
-	) {
-		CoverArt(
-			coverArtId = artist.coverArtId,
-			modifier = Modifier.size(56.dp),
-			shape = RoundedCornerShape(12.dp)
-		)
-
-		Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-			Row(
-				modifier = Modifier.fillMaxWidth(),
-				horizontalArrangement = Arrangement.SpaceBetween,
-				verticalAlignment = Alignment.Bottom
-			) {
-				Text(
-					text = artist.name,
-					style = MaterialTheme.typography.bodyLarge,
-					fontWeight = FontWeight.Medium,
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis,
-					modifier = Modifier.weight(1f)
-				)
-				Column(horizontalAlignment = Alignment.End) {
-					Text(
-						text = stats.listeningTime.toSummaryString(),
-						style = MaterialTheme.typography.titleMedium,
-						fontWeight = FontWeight.Bold,
-						color = barColor
-					)
-					Text(
-						text = pluralStringResource(Res.plurals.count_plays, stats.playCount, stats.playCount),
-						style = MaterialTheme.typography.labelSmall,
-						color = MaterialTheme.colorScheme.onSurfaceVariant
-					)
-				}
-			}
-			Box(
-				modifier = Modifier
-					.fillMaxWidth()
-					.height(12.dp)
-					.clip(ContinuousCapsule)
-					.background(MaterialTheme.colorScheme.surfaceVariant)
-			) {
-				Box(
-					modifier = Modifier
-						.fillMaxWidth(ratio)
-						.fillMaxHeight()
-						.clip(ContinuousCapsule)
-						.background(barColor)
-				)
 			}
 		}
 	}
