@@ -26,6 +26,9 @@ dependencyResolutionManagement {
 				includeGroupAndSubgroups("com.google")
 			}
 		}
+		maven {
+			url = uri("https://raw.githack.com/Nightdavisao/maven-repo/main")
+		}
 		mavenCentral()
 	}
 }
