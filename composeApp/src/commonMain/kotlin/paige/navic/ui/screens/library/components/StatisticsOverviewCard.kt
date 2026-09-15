@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousCapsule
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.count_plays
 import navic.composeapp.generated.resources.info_listening_stats_ratio
@@ -35,6 +35,8 @@ import navic.composeapp.generated.resources.title_top_artists
 import navic.composeapp.generated.resources.title_top_songs
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
+import paige.navic.domain.manager.PreferenceManager
 import paige.navic.ui.components.common.CoverArt
 import paige.navic.ui.screens.stats.viewmodels.StatisticsState
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
@@ -48,7 +50,7 @@ fun StatisticsOverviewCard(
 	onClick: () -> Unit,
 ) {
 	val pagerState = rememberPagerState { 3 }
-	
+
 	Column(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -77,9 +79,9 @@ fun StatisticsOverviewCard(
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			repeat(3) { iteration ->
-				val color = if (pagerState.currentPage == iteration) 
-					MaterialTheme.colorScheme.primary 
-				else 
+				val color = if (pagerState.currentPage == iteration)
+					MaterialTheme.colorScheme.primary
+				else
 					MaterialTheme.colorScheme.surfaceVariant
 				Box(
 					modifier = Modifier
@@ -151,6 +153,7 @@ private fun StatPageContent(
 		totalDuration > Duration.ZERO -> (duration.inWholeMilliseconds / totalDuration.inWholeMilliseconds).toFloat()
 		else -> 0f
 	}
+	val preferenceManager = koinInject<PreferenceManager>()
 
 	Row(
 		modifier = Modifier.fillMaxWidth(),
@@ -177,10 +180,10 @@ private fun StatPageContent(
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
-			
+
 			val playsText = pluralStringResource(Res.plurals.count_plays, playCount, playCount)
 			val timeText = duration.toSummaryString()
-			
+
 			Text(
 				text = "$playsText • $timeText",
 				style = MaterialTheme.typography.bodySmall,
@@ -205,7 +208,10 @@ private fun StatPageContent(
 						)
 					}
 					Text(
-						text = stringResource(Res.string.info_listening_stats_ratio, ratio.toInt() * 100),
+						text = stringResource(
+							Res.string.info_listening_stats_ratio,
+							ratio.toInt() * 100
+						),
 						style = MaterialTheme.typography.labelSmall,
 						color = MaterialTheme.colorScheme.onSurfaceVariant
 					)
