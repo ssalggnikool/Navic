@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +25,6 @@ fun SettingsGroup(
 	Column(modifier = modifier.fillMaxWidth()) {
 		if (title != null) {
 			Box(modifier = Modifier.padding(start = 12.dp)) {
-				@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 				CompositionLocalProvider(
 					LocalTextStyle provides MaterialTheme.typography.titleSmallEmphasized.copy(
 						fontFamily = defaultFont(grade = 100, round = 100f)

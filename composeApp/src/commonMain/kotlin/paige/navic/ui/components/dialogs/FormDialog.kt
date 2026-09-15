@@ -17,7 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -54,7 +53,6 @@ fun FormDialog(
 ) {
 	var predictiveBackState by remember { mutableStateOf<PredictiveBackState?>(null) }
 
-	@OptIn(ExperimentalMaterial3Api::class)
 	BasicAlertDialog(
 		modifier = Modifier
 			.fillMaxSize()

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -55,7 +54,6 @@ object NestedTopBarDefaults {
 	}
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NestedTopBar(
 	title: @Composable () -> Unit,

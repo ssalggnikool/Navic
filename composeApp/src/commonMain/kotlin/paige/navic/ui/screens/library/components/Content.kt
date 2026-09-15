@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,7 +41,6 @@ import paige.navic.ui.screens.genre.components.GenreListScreenCard
 import paige.navic.ui.screens.playlist.components.PlaylistListScreenGridItem
 import paige.navic.ui.util.withoutTop
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreenContent(
 	state: LazyGridState,
