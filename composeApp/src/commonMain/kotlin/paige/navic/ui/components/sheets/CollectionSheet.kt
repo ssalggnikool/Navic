@@ -48,6 +48,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.SessionManager
+import paige.navic.domain.manager.canUserShare
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumInfo
 import paige.navic.domain.models.DomainPlaylist
@@ -94,6 +96,8 @@ fun CollectionSheet(
 	onSetRating: ((Int) -> Unit)? = null
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
+	val sessionManager = koinInject<SessionManager>()
+
 	val contentPadding = PaddingValues(horizontal = 16.dp)
 	val colors = ListItemDefaults.colors(
 		containerColor = Color.Transparent,
@@ -175,7 +179,7 @@ fun CollectionSheet(
 				)
 			}
 
-			if (onShare != null && preferenceManager.enableSharing) {
+			if (onShare != null && sessionManager.canUserShare()) {
 				ListItem(
 					content = { Text(stringResource(Res.string.action_share)) },
 					leadingContent = { Icon(Icons.Outlined.Share, null) },

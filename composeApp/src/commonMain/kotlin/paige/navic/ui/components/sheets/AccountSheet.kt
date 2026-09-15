@@ -46,9 +46,10 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.LoginManager
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SleepTimerMode
+import paige.navic.domain.manager.canUserShare
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Bedtime
 import paige.navic.icons.outlined.Logout
@@ -67,7 +68,8 @@ fun AccountSheet(
 ) {
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
-	val preferenceManager = koinInject<PreferenceManager>()
+	val sessionManager = koinInject<SessionManager>()
+
 	val settings = koinInject<Settings>()
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -145,10 +147,10 @@ fun AccountSheet(
 
 			Spacer(Modifier.height(9.dp))
 
-			val enableSharing = preferenceManager.enableSharing
-			val count = if (enableSharing) 3 else 2
+			val isSharingAllowed = sessionManager.canUserShare()
+			val count = if (isSharingAllowed) 3 else 2
 
-			if (enableSharing) {
+			if (isSharingAllowed) {
 				SegmentedListItem(
 					shapes = SegmentedListItemDefaults.segmentedShapes(
 						index = 0,
