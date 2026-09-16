@@ -1,5 +1,6 @@
 package paige.navic.ui.components.common
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 /**
  * wrapper for `androidx.compose.material3.TooltipBox` but simpler to use
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TooltipBox(
 	text: String,

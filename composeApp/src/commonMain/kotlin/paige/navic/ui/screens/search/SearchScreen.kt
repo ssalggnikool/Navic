@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.insert
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -114,7 +112,6 @@ enum class SearchCategory(val res: StringResource) {
 }
 
 // TODO: clean this up, holy shit
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
 	nested: Boolean
@@ -460,7 +457,7 @@ fun SearchScreen(
 											query.clearText()
 											query.edit { insert(0, historyItem) }
 										},
-										headlineContent = { Text(historyItem) },
+										content = { Text(historyItem) },
 										leadingContent = {
 											Icon(
 												imageVector = Icons.Outlined.History,

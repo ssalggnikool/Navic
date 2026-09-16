@@ -86,9 +86,7 @@ fun PlaylistUpdateDialog(
 							},
 							role = Role.Checkbox
 						),
-					headlineContent = {
-						Text(playlist.name)
-					},
+					content = { Text(playlist.name) },
 					leadingContent = {
 						Checkbox(
 							checked = isSelected,

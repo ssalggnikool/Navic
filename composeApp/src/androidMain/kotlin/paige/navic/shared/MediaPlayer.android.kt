@@ -264,7 +264,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	}
 
 	override fun onTaskRemoved(rootIntent: Intent?) {
-		onDestroy()
+		pauseAllPlayersAndStopSelf()
 	}
 
 	override fun onDestroy() {

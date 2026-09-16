@@ -12,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -75,7 +74,7 @@ import paige.navic.ui.components.common.MarqueeText
 import paige.navic.ui.components.common.RatingRow
 import paige.navic.ui.components.dialogs.LinkConfirmationDialog
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionSheet(
 	onDismissRequest: () -> Unit,
@@ -129,7 +128,7 @@ fun CollectionSheet(
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
 			},
-			headlineContent = { MarqueeText(collection?.name.orEmpty()) },
+			content = { MarqueeText(collection?.name.orEmpty()) },
 			supportingContent = {
 				MarqueeText(
 					listOfNotNull(

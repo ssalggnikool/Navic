@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -26,7 +25,6 @@ import navic.composeapp.generated.resources.action_ok
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.domain.models.settings.CoverArtShape
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ArtworkShapeDialog(
 	title: @Composable () -> Unit,
