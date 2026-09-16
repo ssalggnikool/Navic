@@ -93,9 +93,9 @@ class SyncManager(
 		syncState.value = SyncState(isSyncing = false)
 	}
 
-	fun enqueueAction(actionType: SyncActionType, itemId: String) {
+	fun enqueueAction(actionType: SyncActionType, itemId: String, time: Instant = Clock.System.now()) {
 		scope.launch {
-			syncDao.enqueue(SyncActionEntity(actionType = actionType, itemId = itemId))
+			syncDao.enqueue(SyncActionEntity(actionType = actionType, itemId = itemId, time = time))
 			if (!syncMutex.isLocked) {
 				syncMutex.withLock { processQueue() }
 			}
