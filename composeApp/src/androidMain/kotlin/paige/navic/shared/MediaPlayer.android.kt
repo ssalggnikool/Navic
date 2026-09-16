@@ -461,7 +461,6 @@ class AndroidMediaPlayerViewModel(
 	private val audioGainManager: AudioGainManager,
 	private val application: Application,
 	private val albumDao: AlbumDao,
-	private val imageLoader: ImageLoader,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
 ) : MediaPlayerViewModel(
@@ -1150,30 +1149,6 @@ class AndroidMediaPlayerViewModel(
 			.setAlbumTitle(albumTitle)
 			.setDurationMs(duration.inWholeMilliseconds)
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
-
-		val artworkData = coverArtId?.let { coverId ->
-			val diskCache = imageLoader.diskCache
-			val snapshot = diskCache?.openSnapshot(coverId) ?: return@let null
-
-			val bytes = try {
-				snapshot.use { it.data.toFile().readBytes() }
-			} catch (ex: Exception) {
-				Logger.w("MediaPlayer", "could not read artwork data", ex)
-				null
-			}
-
-			snapshot.close()
-
-			return@let bytes
-		}
-
-		if (artworkData != null) {
-			metadataBuilder.setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
-		} else {
-			metadataBuilder.setArtworkUri(
-				coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
-			)
-		}
 
 		val metadata = metadataBuilder.build()
 
