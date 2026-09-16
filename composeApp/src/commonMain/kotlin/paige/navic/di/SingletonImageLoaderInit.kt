@@ -2,7 +2,6 @@ package paige.navic.di
 
 import coil3.ImageLoader
 import coil3.disk.DiskCache
-import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import coil3.serviceLoaderEnabled
