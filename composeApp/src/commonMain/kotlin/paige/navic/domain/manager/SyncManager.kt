@@ -149,7 +149,8 @@ class SyncManager(
 					SyncActionType.DELETE_PLAYLIST -> sessionManager.api.deletePlaylist(action.itemId)
 					SyncActionType.SCROBBLE -> sessionManager.api.scrobble(
 						action.itemId,
-						submission = true
+						submission = true,
+						time = action.time // i'm sorry for you if this defaults to "now"
 					)
 
 					SyncActionType.STAR_0 -> sessionManager.api.setRating(action.itemId, 0)
