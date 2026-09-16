@@ -27,7 +27,7 @@ dependencyResolutionManagement {
 			}
 		}
 		maven {
-			url = uri("https://raw.githack.com/Nightdavisao/maven-repo/main")
+			url = uri("https://raw.githubusercontent.com/Nightdavisao/maven-repo/refs/heads/main/")
 		}
 		mavenCentral()
 	}
