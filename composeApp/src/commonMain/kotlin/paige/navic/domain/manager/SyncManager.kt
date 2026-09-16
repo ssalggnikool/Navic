@@ -150,7 +150,7 @@ class SyncManager(
 					SyncActionType.SCROBBLE -> sessionManager.api.scrobble(
 						action.itemId,
 						submission = true,
-						time = action.time ?: Clock.System.now() // i'm sorry for you if this defaults to "now"
+						time = action.time // i'm sorry for you if this defaults to "now"
 					)
 
 					SyncActionType.STAR_0 -> sessionManager.api.setRating(action.itemId, 0)
