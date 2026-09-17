@@ -343,8 +343,8 @@ class DbRepository(
 
 		artists.chunked(dbChunkSize).forEach { chunk ->
 			artistDao.insertArtists(chunk)
-			artistDao.deleteObsoleteArtists(chunk.map { it.artistId }.toSet())
 		}
+		artistDao.deleteObsoleteArtists(artists.map { it.artistId }.toSet())
 
 		Logger.i("DbRepository", "- Artists Synced: ${artists.size} artists found")
 	}

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -50,7 +49,6 @@ import paige.navic.ui.screens.share.viewmodels.ShareDialogViewModel
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ShareDialog(
 	id: String?,

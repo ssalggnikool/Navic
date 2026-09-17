@@ -2,7 +2,6 @@ package paige.navic.ui.screens.playlist.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,7 +35,6 @@ import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
 import paige.navic.ui.util.appendBulletPoint
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlaylistListScreenListItem(
 	modifier: Modifier = Modifier,

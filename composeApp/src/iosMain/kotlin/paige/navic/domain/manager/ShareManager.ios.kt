@@ -66,5 +66,10 @@ actual class ShareManager {
 		share(image)
 	}
 
+	actual suspend fun saveImage(bitmap: ImageBitmap, fileName: String) {
+		shareImage(bitmap, fileName)
+		// I don't feel like implementing this
+	}
+
 	actual suspend fun shareString(string: String) = share(string)
 }

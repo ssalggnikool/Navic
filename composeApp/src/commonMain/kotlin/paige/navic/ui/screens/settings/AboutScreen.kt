@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -36,12 +35,12 @@ import paige.navic.ui.components.common.SegmentedListItem
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.dialogs.LinkConfirmationDialog
 import paige.navic.ui.components.layouts.NestedTopBar
+import paige.navic.ui.components.layouts.NestedTopBarDefaults
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.screens.settings.components.SettingsNavItem
 import paige.navic.ui.screens.settings.components.SettingsToggleItem
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsAboutScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -55,8 +54,12 @@ fun SettingsAboutScreen() {
 	Scaffold(
 		topBar = {
 			NestedTopBar(
-				{ Text(stringResource(Res.string.title_about)) },
-				hideBack = hideBack
+				title = { Text(stringResource(Res.string.title_about)) },
+				navigationAction = {
+					if (!hideBack) {
+						NestedTopBarDefaults.NavigationAction()
+					}
+				}
 			)
 		}
 	) { innerPadding ->

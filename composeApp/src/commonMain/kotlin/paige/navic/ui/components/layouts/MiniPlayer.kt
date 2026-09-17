@@ -27,8 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -55,6 +53,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -88,7 +87,6 @@ import paige.navic.ui.screens.settings.viewmodels.NavtabsViewModel
 import paige.navic.ui.util.playPauseIconPainter
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MiniPlayer(
 	modifier: Modifier = Modifier,
@@ -111,6 +109,7 @@ fun MiniPlayer(
 	val song = playerState.currentSong
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
+	val imageLoader = koinInject<ImageLoader>()
 	val sessionManager = koinInject<SessionManager>()
 	val model = remember(song?.coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
@@ -231,6 +230,7 @@ fun MiniPlayer(
 						Box(contentAlignment = Alignment.Center) {
 							AsyncImage(
 								model = model,
+								imageLoader = imageLoader,
 								contentDescription = null,
 								contentScale = ContentScale.Fit,
 								modifier = Modifier

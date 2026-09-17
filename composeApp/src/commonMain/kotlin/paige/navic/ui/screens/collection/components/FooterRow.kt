@@ -2,7 +2,6 @@ package paige.navic.ui.screens.collection.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +13,6 @@ import org.jetbrains.compose.resources.pluralStringResource
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.ui.theme.defaultFont
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CollectionDetailScreenFooterRow(
 	collection: DomainSongCollection

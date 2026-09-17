@@ -39,14 +39,14 @@ fun ArtistListScreenSortButton(
 			expanded = true
 		}) {
 			Icon(
-				Icons.Outlined.Sort,
+				imageVector = Icons.Outlined.Sort,
 				contentDescription = null
 			)
 		}
 	} else {
-		TopBarButton({ expanded = true }) {
+		TopBarButton(onClick = { expanded = true }) {
 			Icon(
-				Icons.Outlined.Sort,
+				imageVector = Icons.Outlined.Sort,
 				contentDescription = null
 			)
 		}

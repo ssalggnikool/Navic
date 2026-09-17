@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.plus
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,7 +53,7 @@ import paige.navic.ui.screens.nowPlaying.components.controls.NowPlayingArtworkPa
 import paige.navic.ui.screens.nowPlaying.components.rows.NowPlayingControlsRow
 import paige.navic.ui.screens.nowPlaying.viewmodels.NowPlayingViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()

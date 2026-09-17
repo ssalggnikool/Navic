@@ -1,6 +1,6 @@
 package paige.navic.domain.manager
 
-import coil3.SingletonImageLoader
+import coil3.ImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.size.Size
@@ -45,6 +45,7 @@ import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
 	private val coilPlatformContext: CoilPlatformContext,
+	private val imageLoader: ImageLoader,
 	private val downloadDao: DownloadDao,
 	private val albumDao: AlbumDao,
 	private val storageManager: StorageManager,
@@ -300,7 +301,7 @@ class DownloadManager(
 			.memoryCachePolicy(CachePolicy.DISABLED)
 			.build()
 
-		SingletonImageLoader.get(coilPlatformContext).execute(imageRequest)
+		imageLoader.execute(imageRequest)
 		Logger.i("DownloadManager", "cached cover art for $coverId")
 	}
 

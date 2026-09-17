@@ -6,7 +6,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LyricsScreenKaraokeText(
 	text: String,

@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -106,6 +107,7 @@ fun LyricsShareSheet(
 	)
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
+	val imageLoader = koinInject<ImageLoader>()
 	val sessionManager = koinInject<SessionManager>()
 	val model = remember(song.coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
@@ -188,6 +190,7 @@ fun LyricsShareSheet(
 					) {
 						AsyncImage(
 							model = model,
+							imageLoader = imageLoader,
 							contentDescription = null,
 							contentScale = ContentScale.Crop,
 							modifier = Modifier

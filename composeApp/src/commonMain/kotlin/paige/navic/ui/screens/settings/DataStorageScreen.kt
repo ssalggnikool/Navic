@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -39,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import coil3.SingletonImageLoader
+import coil3.ImageLoader
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -98,6 +97,7 @@ import paige.navic.ui.components.common.SegmentedListItem
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.dialogs.BulkDownloadDialog
 import paige.navic.ui.components.layouts.NestedTopBar
+import paige.navic.ui.components.layouts.NestedTopBarDefaults
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.settings.components.SettingsChoiceItem
 import paige.navic.ui.screens.settings.components.SettingsGroup
@@ -106,19 +106,17 @@ import paige.navic.ui.screens.settings.components.SettingsNavItem
 import paige.navic.ui.screens.settings.viewmodels.SettingsDataStorageViewModel
 import kotlin.time.Clock
 import kotlin.time.Instant
-import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsDataStorageScreen() {
 	val viewModel = koinViewModel<SettingsDataStorageViewModel>()
 
 	val platformContext = LocalPlatformContext.current
+	val hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()
 	val scope = rememberCoroutineScope()
-	val coilPlatformContext = LocalCoilPlatformContext.current
-	val imageLoader = SingletonImageLoader.get(coilPlatformContext)
+	val imageLoader = koinInject<ImageLoader>()
 
 	val syncState by viewModel.syncState.collectAsStateWithLifecycle()
 	val pendingActionCount by viewModel.pendingActionCount.collectAsStateWithLifecycle()
@@ -208,7 +206,11 @@ fun SettingsDataStorageScreen() {
 		topBar = {
 			NestedTopBar(
 				title = { Text(stringResource(Res.string.title_data_storage)) },
-				hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+				navigationAction = {
+					if (!hideBack) {
+						NestedTopBarDefaults.NavigationAction()
+					}
+				}
 			)
 		}
 	) { innerPadding ->

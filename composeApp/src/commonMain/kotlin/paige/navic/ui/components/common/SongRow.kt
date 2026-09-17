@@ -100,7 +100,7 @@ fun SongRow(
 				onLongClick = onLongClick,
 				enabled = !isExplicit
 			),
-		headlineContent = {
+		content = {
 			Text(
 				text = buildAnnotatedString {
 					append(song.title)
