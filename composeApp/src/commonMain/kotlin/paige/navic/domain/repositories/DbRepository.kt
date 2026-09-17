@@ -23,6 +23,7 @@ import navic.composeapp.generated.resources.info_syncing_genres
 import navic.composeapp.generated.resources.info_syncing_playlists
 import navic.composeapp.generated.resources.info_syncing_radios
 import navic.composeapp.generated.resources.info_syncing_saved
+import navic.composeapp.generated.resources.title_sync_control
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import paige.navic.data.database.dao.AlbumDao
@@ -40,6 +41,8 @@ import paige.navic.data.database.entities.PlaylistSongCrossRef
 import paige.navic.data.database.entities.SongEntity
 import paige.navic.data.database.mappers.toDomainModel
 import paige.navic.data.database.mappers.toEntity
+import paige.navic.domain.manager.NotificationIds
+import paige.navic.domain.manager.NotificationManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.models.DomainArtist
 import paige.navic.util.Logger
@@ -56,7 +59,8 @@ class DbRepository(
 	private val radioDao: RadioDao,
 	private val lyricDao: LyricDao,
 	private val syncDao: SyncActionDao,
-	private val sessionManager: SessionManager
+	private val sessionManager: SessionManager,
+	private val notificationManager: NotificationManager
 ) {
 	private val concurrentRequestLimit = Semaphore(20)
 
@@ -87,15 +91,24 @@ class DbRepository(
 	suspend fun syncEverything(
 		onProgress: (Float, StringResource) -> Unit = { _, _ -> }
 	): Result<Unit> = runDbOp {
-		val progressCallback = suspend { progress: Float, message: StringResource ->
-			Logger.i("DbRepository", "$progress ${getString(message)}")
-			onProgress(progress, message)
-		}
+		coroutineScope {
+			val progressCallback = { progress: Float, message: StringResource ->
+				Logger.i("DbRepository", "$progress $message")
+				onProgress(progress, message)
 
-		progressCallback(0.0f, Res.string.info_syncing)
+				launch {
+					notificationManager.showProgressNotification(
+						id = NotificationIds.SYNC_LIBRARY,
+						title = getString(Res.string.title_sync_control),
+						message = getString(message),
+						progress = progress,
+						indeterminate = progress <= 0f || progress >= 1f
+					)
+				}
+			}
 
-		progressCallback(0.01f, Res.string.info_syncing_genres)
-		syncGenres().getOrThrow()
+			try {
+				progressCallback(0.0f, Res.string.info_syncing)
 
 		progressCallback(0.02f, Res.string.info_syncing_radios)
 		try {
@@ -107,49 +120,44 @@ class DbRepository(
 				tr = ex
 			)
 		}
+				progressCallback(0.01f, Res.string.info_syncing_genres)
+				syncGenres().getOrThrow()
 
-		progressCallback(0.04f, Res.string.info_syncing_artists)
-		syncArtists().getOrThrow()
+				progressCallback(0.02f, Res.string.info_syncing_radios)
+				syncRadios().getOrThrow()
 
-		progressCallback(0.07f, Res.string.info_syncing_playlists)
-		val playlists = syncPlaylists().getOrThrow()
+				progressCallback(0.04f, Res.string.info_syncing_artists)
+				syncArtists().getOrThrow()
 
-		val validAlbumIds = mutableSetOf<String>()
-		val validSongIds = mutableSetOf<String>()
+				progressCallback(0.07f, Res.string.info_syncing_playlists)
+				val playlists = syncPlaylists().getOrThrow()
 
-		val libraryResult = syncLibrarySongs { localProgress, message ->
-			val globalProgress = 0.10f + (localProgress * 0.65f)
-			progressCallback(globalProgress, message)
-		}.getOrThrow()
+				syncLibrarySongs { localProgress, message ->
+					val globalProgress = 0.10f + (localProgress * 0.65f)
+					progressCallback(globalProgress, message)
+				}.getOrThrow()
 
-		validAlbumIds.addAll(libraryResult.first)
-		validSongIds.addAll(libraryResult.second)
+				val totalPlaylists = playlists.size
+				if (totalPlaylists > 0) {
+					val completedPlaylists = AtomicInt(0)
 
-		val totalPlaylists = playlists.size
-		if (totalPlaylists > 0) {
-			val completedPlaylists = AtomicInt(0)
-
-			coroutineScope {
-				playlists.map { playlist ->
-					async {
-						concurrentRequestLimit.withPermit {
-							val playlistSongIds =
+					playlists.map { playlist ->
+						async {
+							concurrentRequestLimit.withPermit {
 								syncPlaylistSongs(playlist.playlistId).getOrThrow()
-							validSongIds.addAll(playlistSongIds)
-
-							val done = completedPlaylists.incrementAndGet()
-							val globalProgress = 0.75f + (0.25f * (done.toFloat() / totalPlaylists))
-							progressCallback(globalProgress, Res.string.info_syncing_playlists)
+								val done = completedPlaylists.incrementAndGet()
+								val globalProgress = 0.75f + (0.25f * (done.toFloat() / totalPlaylists))
+								progressCallback(globalProgress, Res.string.info_syncing_playlists)
+							}
 						}
-					}
-				}.awaitAll()
+					}.awaitAll()
+				}
+
+				progressCallback(1.0f, Res.string.info_syncing_finished)
+			} finally {
+				notificationManager.cancelNotification(NotificationIds.SYNC_LIBRARY)
 			}
 		}
-
-		albumDao.deleteObsoleteAlbums(validAlbumIds)
-		songDao.deleteObsoleteSongs(validSongIds)
-
-		progressCallback(1.0f, Res.string.info_syncing_finished)
 	}
 
 	suspend fun syncLibrarySongs(

@@ -7,6 +7,7 @@ import android.util.Log
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.component.KoinComponent
 import org.koin.dsl.module
 import paige.navic.androidApp.di.AndroidResourceProvider
 import paige.navic.di.ActivityProvider
@@ -14,48 +15,48 @@ import paige.navic.di.ResourceProvider
 import paige.navic.di.initKoin
 import kotlin.system.exitProcess
 
-class Application : android.app.Application() {
-	override fun onCreate() {
-		super.onCreate()
+class Application : android.app.Application(), KoinComponent {
+    override fun onCreate() {
+        super.onCreate()
 
-		if (isCrashProcess()) {
-			return
-		}
+        if (isCrashProcess()) {
+            return
+        }
 
-		Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
-			try {
-				val intent = Intent(this, CrashActivity::class.java).apply {
-					putExtra("stacktrace", Log.getStackTraceString(throwable))
-					flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-				}
-				startActivity(intent)
-			} catch (e: Exception) {
-				Log.e("Application", "failed to start CrashActivity", e)
-			} finally {
-				exitProcess(1)
-			}
-		}
+        Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
+            try {
+                val intent = Intent(this, CrashActivity::class.java).apply {
+                    putExtra("stacktrace", Log.getStackTraceString(throwable))
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e("Application", "failed to start CrashActivity", e)
+            } finally {
+                exitProcess(1)
+            }
+        }
 
-		initKoin {
-			modules(module(createdAtStart = true) {
-				singleOf(::ActivityProvider)
-				single<ResourceProvider> {
-					AndroidResourceProvider()
-				}
-			})
-			androidContext(this@Application)
-			androidLogger()
-		}
-	}
+        initKoin {
+            modules(module(createdAtStart = true) {
+                singleOf(::ActivityProvider)
+                single<ResourceProvider> {
+                    AndroidResourceProvider()
+                }
+            })
+            androidContext(this@Application)
+            androidLogger()
+        }
+    }
 
-	private fun isCrashProcess(): Boolean {
-		val processName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-			getProcessName()
-		} else {
-			val pid = android.os.Process.myPid()
-			val am = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-			am.runningAppProcesses?.find { it.pid == pid }?.processName
-		}
-		return processName?.endsWith(":crash") == true
-	}
+    private fun isCrashProcess(): Boolean {
+        val processName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            getProcessName()
+        } else {
+            val pid = android.os.Process.myPid()
+            val am = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+            am.runningAppProcesses?.find { it.pid == pid }?.processName
+        }
+        return processName?.endsWith(":crash") == true
+    }
 }

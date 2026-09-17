@@ -30,6 +30,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
+import org.jetbrains.compose.resources.getString
 import paige.navic.data.database.dao.AlbumDao
 import paige.navic.data.database.dao.DownloadDao
 import paige.navic.data.database.dao.LyricDao
@@ -41,6 +42,9 @@ import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.repositories.LyricsRepository
 import paige.navic.util.Logger
 import paige.navic.di.PlatformType
+import navic.composeapp.generated.resources.Res
+import navic.composeapp.generated.resources.info_progress
+import navic.composeapp.generated.resources.title_library_download
 import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
@@ -53,7 +57,8 @@ class DownloadManager(
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager,
 	private val connectivityManager: ConnectivityManager,
-	private val platformType: PlatformType
+	private val platformType: PlatformType,
+	private val notificationManager: NotificationManager
 ) {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 	private val client = HttpClient {
@@ -135,6 +140,14 @@ class DownloadManager(
 				isDownloadingLibrary.value = true
 				libraryDownloadProgress.value = 0f
 
+				notificationManager.showProgressNotification(
+					id = NotificationIds.DOWNLOAD_LIBRARY,
+					title = getString(Res.string.title_library_download),
+					message = getString(Res.string.info_progress),
+					progress = 0f,
+					indeterminate = true
+				)
+
 				val songsToDownload = songs.filter { !isDownloaded(it.id) }
 				val totalToDownload = songsToDownload.size
 
@@ -158,8 +171,16 @@ class DownloadManager(
 
 							progressMutex.withLock {
 								processedCount++
-								libraryDownloadProgress.value =
-									processedCount.toFloat() / totalToDownload.toFloat()
+								val progress = processedCount.toFloat() / totalToDownload.toFloat()
+								libraryDownloadProgress.value = progress
+
+								notificationManager.showProgressNotification(
+									id = NotificationIds.DOWNLOAD_LIBRARY,
+									title = getString(Res.string.title_library_download),
+									message = getString(Res.string.info_progress),
+									progress = progress,
+									indeterminate = false
+								)
 							}
 						}
 					}
@@ -171,6 +192,8 @@ class DownloadManager(
 			} catch (_: CancellationException) {
 				isDownloadingLibrary.value = false
 				libraryDownloadProgress.value = 0f
+			} finally {
+				notificationManager.cancelNotification(NotificationIds.DOWNLOAD_LIBRARY)
 			}
 		}
 	}
