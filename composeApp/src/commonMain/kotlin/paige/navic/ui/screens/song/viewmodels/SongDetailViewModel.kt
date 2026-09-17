@@ -26,6 +26,7 @@ import navic.composeapp.generated.resources.info_track_replay_gain
 import navic.composeapp.generated.resources.info_track_replay_gain_effective
 import navic.composeapp.generated.resources.info_track_sampling_rate
 import navic.composeapp.generated.resources.info_track_year
+import navic.composeapp.generated.resources.title_statistics
 import org.jetbrains.compose.resources.StringResource
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainSong
@@ -83,6 +84,7 @@ class SongDetailViewModel(
 			Res.string.info_album_replay_gain to song.replayGain?.albumGain?.let { "$it dB" },
 			Res.string.info_track_replay_gain_effective to song.replayGain?.effectiveGain(
 				preferenceManager.replayGainMode
-			)?.toString()
+			)?.toString(),
+			Res.string.title_statistics to song.playCount.toString()
 		)
 }
