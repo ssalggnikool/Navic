@@ -134,7 +134,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 				setSmallIcon(resourceProvider.icNavic)
 			}
 
-		val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.getKtorHttpClient())
+		val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.api.httpClient)
 		val dataSourceFactory = DefaultDataSource.Factory(this, httpDataSourceFactory)
 
 		val extractorsFactory = ExtractorsFactory {
@@ -1178,13 +1178,4 @@ class AndroidMediaPlayerViewModel(
 
 		return builder.build()
 	}
-}
-
-// hack: this is using kotlin/java reflection and should be removed later
-fun SessionManager.getKtorHttpClient(): HttpClient {
-	val apiInstance = this.api
-	val field = apiInstance.javaClass.getDeclaredField("httpClient").apply {
-		isAccessible = true
-	}
-	return field.get(apiInstance) as HttpClient
 }
