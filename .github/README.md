@@ -2,7 +2,7 @@
 
 <img title="Navic" alt="Navic" height="140" src="https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/wordmark.png">
 
-A modern Navidrome client for Android and iOS.
+A modern (Open)Subsonic music streaming app for Android and iOS.
 
 [![Add to Obtainium](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/obtainium.svg)][ADD_TO_OBTAINIUM]
 [![AltSource provides links for most sideloading apps, like Feather](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/altsource.svg)][ALTSOURCE]
@@ -21,13 +21,21 @@ A modern Navidrome client for Android and iOS.
 
 ## Features
 
-* Customisable: large selection of settings and tweaks
-* Secure & private: minimal permissions, zero telemetry, and zero analytics
-* Integrated: shows up on the lock screen + quick settings
-* Lightweight & fast: zero bloat
-* Feature rich: covers almost the entirety of the Subsonic API
-* Works offline: syncs your entire library locally, and allows you to download songs
-* Basic Android Auto support
+* **Modern**: actually decent UI (unlike a lot of players) with Material 3 Expressive design
+* **Highly customisable**: almost everything is a setting!
+* **Works everywhere**: access library offline & scrobble offline
+* **Powerful playback**: equaliser, ReplayGain\*, transcoding\* & more
+* **Lyrics support**: multiple lyric providers & word-by-word lyrics\*
+* **Radio stations**: stream & add internet radio stations
+* **Home widgets**: a couple of home screen widgets are inbuilt
+* **Share music**: share links to music to your friends
+* **Android Auto**: control music playback through Android Auto
+* **Pretty lightweight**: Navic is fast and small (~10MB)
+* **Compatible**: supports older devices and most Subsonic
+  servers ([LMS](https://github.com/epoupon/lms), [gonic](https://github.com/sentriz/gonic), [Navidrome](https://navidrome.org),
+  etc.)
+
+<sub>*may need an OpenSubsonic-compatible server to work fully</sub>
 
 ## Screenshots
 

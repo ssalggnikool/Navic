@@ -20,8 +20,8 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.notice_deleted_download
 import navic.composeapp.generated.resources.notice_download_started
 import org.koin.compose.koinInject
-import paige.navic.di.LocalNavStack
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SnackBarManager
@@ -69,7 +69,7 @@ fun AlbumListScreenListItem(
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
 			},
-			content = { MarqueeText(album.name) },
+			content = { MarqueeText(album.name ?: "[unknown album]") },
 			supportingContent = {
 				MarqueeText(
 					buildAnnotatedString {

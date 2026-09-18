@@ -37,7 +37,7 @@ import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
-import coil3.SingletonImageLoader
+import coil3.ImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import kotlinx.coroutines.launch
@@ -76,7 +76,7 @@ fun ImageViewScreen(
 	}
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
-	val loader = SingletonImageLoader.get(coilPlatformContext)
+	val loader = koinInject<ImageLoader>()
 	val model = remember(coverArtUri) {
 		ImageRequest.Builder(coilPlatformContext)
 			.data(coverArtUri)

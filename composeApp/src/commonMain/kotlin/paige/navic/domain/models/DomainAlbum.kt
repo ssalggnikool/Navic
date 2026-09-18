@@ -9,8 +9,8 @@ import kotlin.time.Instant
 @Serializable
 data class DomainAlbum(
 	override val id: String,
-	override val name: String,
-	val artistName: String,
+	override val name: String?,
+	val artistName: String?,
 	val artistId: String,
 	val year: Int?,
 	override val coverArtId: String?,

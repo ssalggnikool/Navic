@@ -1,6 +1,6 @@
 package paige.navic.domain.manager
 
-import coil3.SingletonImageLoader
+import coil3.ImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.size.Size
@@ -37,6 +37,7 @@ import paige.navic.data.database.dao.LyricDao
 import paige.navic.data.database.entities.DownloadEntity
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.data.database.entities.LyricEntity
+import paige.navic.di.PlatformType
 import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.repositories.LyricsRepository
@@ -49,6 +50,7 @@ import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
 	private val coilPlatformContext: CoilPlatformContext,
+	private val imageLoader: ImageLoader,
 	private val downloadDao: DownloadDao,
 	private val albumDao: AlbumDao,
 	private val storageManager: StorageManager,
@@ -323,7 +325,7 @@ class DownloadManager(
 			.memoryCachePolicy(CachePolicy.DISABLED)
 			.build()
 
-		SingletonImageLoader.get(coilPlatformContext).execute(imageRequest)
+		imageLoader.execute(imageRequest)
 		Logger.i("DownloadManager", "cached cover art for $coverId")
 	}
 
@@ -419,7 +421,10 @@ class DownloadManager(
 
 		request.execute { response ->
 			Logger.i("DownloadManager", "writing download for ${song.id}")
-			val path = storageManager.getDownloadPath(song.id, extension)
+			val path = storageManager.getDownloadPath(
+				song.id,
+				extension ?: "mp3" // TODO: idk how to handle this being null lol
+			)
 			storageManager.saveFile(path, response.bodyAsChannel())
 			Logger.i("DownloadManager", "wrote download for ${song.id}")
 

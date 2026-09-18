@@ -64,7 +64,7 @@ fun CollectionDetailScreenHeadingRow(
 				dropUnlessResumed {
 					backStack.add(Screen.ImageView(
 						coverArtId = coverArtId,
-						title = collection.name,
+						title = collection.name ?: "[unknown album]",
 						sharedTransitionKey = sharedTransitionKey
 					))
 				}
@@ -78,7 +78,7 @@ fun CollectionDetailScreenHeadingRow(
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			Text(
-				collection.name,
+				collection.name ?: "[unknown album]",
 				style = MaterialTheme.typography.headlineSmall,
 				textAlign = TextAlign.Center,
 				modifier = Modifier

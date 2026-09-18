@@ -50,7 +50,7 @@ import androidx.media3.session.MediaSessionService
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
 import androidx.media3.session.SessionToken
-import coil3.imageLoader
+import coil3.ImageLoader
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
@@ -94,7 +94,6 @@ import paige.navic.util.Logger
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import coil3.PlatformContext as CoilPlatformContext
 
 @OptIn(UnstableApi::class)
 class PlaybackService : MediaSessionService(), KoinComponent {
@@ -462,6 +461,7 @@ class AndroidMediaPlayerViewModel(
 	private val audioGainManager: AudioGainManager,
 	private val application: Application,
 	private val albumDao: AlbumDao,
+	private val imageLoader: ImageLoader,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
 ) : MediaPlayerViewModel(
@@ -1150,6 +1150,30 @@ class AndroidMediaPlayerViewModel(
 			.setAlbumTitle(albumTitle)
 			.setDurationMs(duration.inWholeMilliseconds)
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
+
+		val artworkData = coverArtId?.let { coverId ->
+			val diskCache = imageLoader.diskCache
+			val snapshot = diskCache?.openSnapshot(coverId) ?: return@let null
+
+			val bytes = try {
+				snapshot.use { it.data.toFile().readBytes() }
+			} catch (ex: Exception) {
+				Logger.w("MediaPlayer", "could not read artwork data", ex)
+				null
+			}
+
+			snapshot.close()
+
+			return@let bytes
+		}
+
+		if (artworkData != null) {
+			metadataBuilder.setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+		} else {
+			metadataBuilder.setArtworkUri(
+				coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
+			)
+		}
 
 		val metadata = metadataBuilder.build()
 

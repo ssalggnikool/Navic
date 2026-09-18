@@ -15,8 +15,8 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.title_more_by_artist
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.di.LocalNavStack
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.ui.components.layouts.ArtCarousel
@@ -57,7 +57,7 @@ fun LazyListScope.collectionDetailScreenMoreByArtistRow(
 				.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 			ArtCarouselItem(
 				coverArtId = album.coverArtId,
-				title = album.name,
+				title = album.name ?: "[unknown album]",
 				contentDescription = album.name,
 				onSelect = { onSelect(album) },
 				onClick = dropUnlessResumed {

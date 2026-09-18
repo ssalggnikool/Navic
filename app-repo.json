@@ -8,16 +8,17 @@
       "name": "Navic",
       "bundleIdentifier": "paige.Navic",
       "developerName": "Paige",
-      "localizedDescription": "Navidrome client for Android and iOS with Material 3 Expressive design ",
-      "subtitle": "Material 3 expressive Navidrome client",
+      "localizedDescription": "Subsonic music streaming app for Android and iOS",
+      "subtitle": "Subsonic music streaming app",
       "tintColor": "ffffff",
       "iconURL": "https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/icons/ios.png",
       "versions": [
         {
-          "version": "1.0.0-alpha55",
-          "date": "2026-09-12T23:43:57Z",
-          "size": 19482674,
-          "downloadURL": "https://github.com/ssalggnikool/Navic/releases/download/v1.0.0-alpha55/Navic.ipa"
+          "version": "1.0.0",
+          "buildVersion": "56",
+          "date": "2026-09-17T16:52:29Z",
+          "size": 21399507,
+          "downloadURL": "https://github.com/ssalggnikool/Navic/releases/download/v1.0.0-alpha56/Navic.ipa"
         }
       ],
       "appPermissions": {},
@@ -27,10 +28,11 @@
         "https://github.com/NavicApp/Branding/blob/main/screenshots/lyrics.png?raw=true",
         "https://github.com/NavicApp/Branding/blob/main/screenshots/player.png?raw=true"
       ],
-      "version": "1.0.0-alpha55",
-      "versionDate": "2026-09-12T23:43:57Z",
-      "size": 19482674,
-      "downloadURL": "https://github.com/ssalggnikool/Navic/releases/download/v1.0.0-alpha55/Navic.ipa"
+      "version": "1.0.0",
+      "buildVersion": "56",
+      "versionDate": "2026-09-17T16:52:29Z",
+      "size": 21399507,
+      "downloadURL": "https://github.com/ssalggnikool/Navic/releases/download/v1.0.0-alpha56/Navic.ipa"
     }
   ]
 }

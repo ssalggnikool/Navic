@@ -48,9 +48,9 @@ import navic.composeapp.generated.resources.title_songs
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.di.LocalNavStack
 import paige.navic.data.database.entities.DownloadEntity
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumListType
@@ -247,7 +247,7 @@ fun StarredScreenContent(
 					.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 				ArtCarouselItem(
 					coverArtId = album.coverArtId,
-					title = album.name,
+					title = album.name ?: "[unknown album]",
 					subtitle = album.artistName,
 					contentDescription = null,
 					onSelect = { onSelectAlbum(album) },

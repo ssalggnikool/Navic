@@ -27,6 +27,11 @@ fun initializeSingletonImageLoader(context: CoilPlatformContext): ImageLoader {
 		.build()
 }
 
+/**
+ * image loader which doesn't animate GIFs
+ *
+ * only used in `BlendBackground.kt` right now
+ */
 fun getStaticImageLoader(context: CoilPlatformContext): ImageLoader {
 	return ImageLoader.Builder(context)
 		.serviceLoaderEnabled(false)

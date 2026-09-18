@@ -7,5 +7,6 @@ import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 
 val appModule = module {
 	single { Settings() }
+	single { initializeSingletonImageLoader(get()) }
 	singleOf(::PersistentViewModelStoreOwner)
 }
