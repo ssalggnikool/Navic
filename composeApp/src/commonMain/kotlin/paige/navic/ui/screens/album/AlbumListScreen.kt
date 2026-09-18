@@ -136,7 +136,7 @@ fun AlbumListScreen(
 			key = albumsState
 		) {
 			val grouped = remember(albumsState.data) {
-				albumsState.data.orEmpty().groupBy { it.name.firstOrNull()?.uppercaseChar() ?: '#' }
+				albumsState.data.orEmpty().groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
 					.toList()
 					.sortedBy { it.first }
 			}

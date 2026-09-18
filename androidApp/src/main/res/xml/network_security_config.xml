@@ -2,7 +2,7 @@
 <network-security-config xmlns:tools="http://schemas.android.com/tools">
 	<!--
 		cleartextTrafficPermitted is needed for people who are
-		using Navidrome instances that are on LAN/use http
+		using Subsonic instances that are on LAN/use http
 	-->
 	<base-config
 		cleartextTrafficPermitted="true"

@@ -33,12 +33,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withLink
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -47,9 +42,7 @@ import kotlinx.coroutines.launch
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_log_in
 import navic.composeapp.generated.resources.action_open_settings
-import navic.composeapp.generated.resources.info_login_description_end
-import navic.composeapp.generated.resources.info_login_description_middle
-import navic.composeapp.generated.resources.info_login_description_start
+import navic.composeapp.generated.resources.info_login_description
 import navic.composeapp.generated.resources.notice_local_network_denied
 import navic.composeapp.generated.resources.option_custom_headers
 import navic.composeapp.generated.resources.subtitle_local_network_denied
@@ -77,22 +70,6 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 	val passwordState = viewModel.passwordState
 
 	val isBusy = loginState is LoginUiState.Loading || loginState is LoginUiState.Syncing
-
-	val linkColor = MaterialTheme.colorScheme.primary
-	val startText = stringResource(Res.string.info_login_description_start)
-	val middleText = stringResource(Res.string.info_login_description_middle)
-	val endText = stringResource(Res.string.info_login_description_end)
-	val noticeText = remember {
-		buildAnnotatedString {
-			append("$startText ")
-			withLink(LinkAnnotation.Url(url = "https://www.navidrome.org/")) {
-				withStyle(SpanStyle(color = linkColor)) {
-					append(middleText)
-				}
-			}
-			append(" $endText")
-		}
-	}
 
 	val haptics = LocalHapticFeedback.current
 	val backStack = LocalNavStack.current
@@ -163,7 +140,7 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 					modifier = Modifier.padding(horizontal = 16.dp)
 				)
 				Text(
-					text = noticeText,
+					text = stringResource(Res.string.info_login_description),
 					modifier = Modifier.padding(horizontal = 16.dp)
 				)
 

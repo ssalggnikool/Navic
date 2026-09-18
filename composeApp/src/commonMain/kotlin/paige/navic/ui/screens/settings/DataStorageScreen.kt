@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import coil3.SingletonImageLoader
+import coil3.ImageLoader
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -106,7 +106,6 @@ import paige.navic.ui.screens.settings.components.SettingsNavItem
 import paige.navic.ui.screens.settings.viewmodels.SettingsDataStorageViewModel
 import kotlin.time.Clock
 import kotlin.time.Instant
-import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable
 fun SettingsDataStorageScreen() {
@@ -117,8 +116,7 @@ fun SettingsDataStorageScreen() {
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()
 	val scope = rememberCoroutineScope()
-	val coilPlatformContext = LocalCoilPlatformContext.current
-	val imageLoader = SingletonImageLoader.get(coilPlatformContext)
+	val imageLoader = koinInject<ImageLoader>()
 
 	val syncState by viewModel.syncState.collectAsStateWithLifecycle()
 	val pendingActionCount by viewModel.pendingActionCount.collectAsStateWithLifecycle()

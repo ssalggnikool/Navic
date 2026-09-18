@@ -53,7 +53,6 @@ import androidx.navigation3.ui.NavDisplay.popTransitionSpec
 import androidx.navigation3.ui.NavDisplay.predictivePopTransitionSpec
 import androidx.navigation3.ui.NavDisplay.transitionSpec
 import androidx.savedstate.serialization.SavedStateConfiguration
-import coil3.SingletonImageLoader
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.modules.SerializersModule
@@ -66,7 +65,6 @@ import paige.navic.di.LocalPlatformContext
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.di.LocalSnackBarState
 import paige.navic.di.PlatformType
-import paige.navic.di.initializeSingletonImageLoader
 import paige.navic.di.rememberPlatformContext
 import paige.navic.domain.manager.BottomBarScrollManager
 import paige.navic.domain.manager.PreferenceManager
@@ -133,13 +131,6 @@ private val config = SavedStateConfiguration {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun App() {
-	// TODO: inject image loader and stop using this cursed singleton thing
-	runCatching {
-		SingletonImageLoader.setSafe { platformContext ->
-			initializeSingletonImageLoader(platformContext)
-		}
-	}
-
 	val platformContext = rememberPlatformContext()
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
