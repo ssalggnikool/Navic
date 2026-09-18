@@ -43,8 +43,7 @@ import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.repositories.LyricsRepository
 import paige.navic.util.Logger
 import navic.composeapp.generated.resources.Res
-import navic.composeapp.generated.resources.info_progress
-import navic.composeapp.generated.resources.title_library_download
+import navic.composeapp.generated.resources.info_status_downloading
 import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
@@ -74,6 +73,32 @@ class DownloadManager(
 	private val activeDownloads = mutableMapOf<String, Job>()
 	private val downloadSemaphore =
 		Semaphore(10)// idk a good number, maybe u should be able to choose
+
+	private val downloadProgressMutex = Mutex()
+	private var totalSongsToDownload = 0
+	private var completedSongsDownloaded = 0
+
+	private suspend fun updateDownloadNotification() {
+		if (totalSongsToDownload == 0) return
+
+		if (completedSongsDownloaded >= totalSongsToDownload) {
+			notificationManager.cancelNotification(NotificationIds.DOWNLOAD_LIBRARY)
+			totalSongsToDownload = 0
+			completedSongsDownloaded = 0
+		} else {
+			val progress = completedSongsDownloaded.toFloat() / totalSongsToDownload.toFloat()
+			val titleStr = getString(Res.string.info_status_downloading)
+			val msgStr = "$completedSongsDownloaded / $totalSongsToDownload"
+
+			notificationManager.showProgressNotification(
+				id = NotificationIds.DOWNLOAD_LIBRARY,
+				title = "$titleStr (${(progress * 100).toInt()}%)",
+				message = msgStr,
+				progress = progress,
+				indeterminate = false
+			)
+		}
+	}
 
 	private var libraryDownloadJob: Job? = null
 
@@ -109,10 +134,24 @@ class DownloadManager(
 	}
 
 	fun downloadSong(song: DomainSong): Job {
+		return downloadSongInternal(song, incrementCounter = true)
+	}
+
+	private fun downloadSongInternal(song: DomainSong, incrementCounter: Boolean): Job {
 		val job = scope.launch(Dispatchers.IO) {
 			val alreadyActive =
 				activeDownloadsMutex.withLock { activeDownloads.containsKey(song.id) }
-			if (alreadyActive) return@launch
+			if (alreadyActive || isDownloaded(song.id)) return@launch
+
+			if (incrementCounter) {
+				downloadProgressMutex.withLock {
+					if (totalSongsToDownload == 0) {
+						completedSongsDownloaded = 0
+					}
+					totalSongsToDownload++
+					updateDownloadNotification()
+				}
+			}
 
 			try {
 				activeDownloadsMutex.withLock { activeDownloads[song.id] = coroutineContext[Job]!! }
@@ -120,6 +159,17 @@ class DownloadManager(
 				downloadSemaphore.withPermit {
 					executeDownloadProcess(song)
 				}
+
+				downloadProgressMutex.withLock {
+					completedSongsDownloaded++
+					updateDownloadNotification()
+				}
+			} catch (e: Exception) {
+				downloadProgressMutex.withLock {
+					completedSongsDownloaded++
+					updateDownloadNotification()
+				}
+				throw e
 			} finally {
 				activeDownloadsMutex.withLock { activeDownloads.remove(song.id) }
 			}
@@ -141,14 +191,6 @@ class DownloadManager(
 				isDownloadingLibrary.value = true
 				libraryDownloadProgress.value = 0f
 
-				notificationManager.showProgressNotification(
-					id = NotificationIds.DOWNLOAD_LIBRARY,
-					title = getString(Res.string.title_library_download),
-					message = getString(Res.string.info_progress),
-					progress = 0f,
-					indeterminate = true
-				)
-
 				val songsToDownload = songs.filter { !isDownloaded(it.id) }
 				val totalToDownload = songsToDownload.size
 
@@ -156,6 +198,14 @@ class DownloadManager(
 					isDownloadingLibrary.value = false
 					libraryDownloadProgress.value = 1f
 					return@launch
+				}
+
+				downloadProgressMutex.withLock {
+					if (totalSongsToDownload == 0) {
+						completedSongsDownloaded = 0
+					}
+					totalSongsToDownload += totalToDownload
+					updateDownloadNotification()
 				}
 
 				val downloadQueue = Channel<DomainSong>(Channel.UNLIMITED)
@@ -168,20 +218,12 @@ class DownloadManager(
 				val workers = List(10) {
 					launch {
 						for (song in downloadQueue) {
-							downloadSong(song).join()
+							downloadSongInternal(song, incrementCounter = false).join()
 
 							progressMutex.withLock {
 								processedCount++
 								val progress = processedCount.toFloat() / totalToDownload.toFloat()
 								libraryDownloadProgress.value = progress
-
-								notificationManager.showProgressNotification(
-									id = NotificationIds.DOWNLOAD_LIBRARY,
-									title = getString(Res.string.title_library_download),
-									message = getString(Res.string.info_progress),
-									progress = progress,
-									indeterminate = false
-								)
 							}
 						}
 					}
@@ -193,8 +235,6 @@ class DownloadManager(
 			} catch (_: CancellationException) {
 				isDownloadingLibrary.value = false
 				libraryDownloadProgress.value = 0f
-			} finally {
-				notificationManager.cancelNotification(NotificationIds.DOWNLOAD_LIBRARY)
 			}
 		}
 	}
@@ -206,6 +246,12 @@ class DownloadManager(
 		libraryDownloadProgress.value = 0f
 
 		scope.launch(Dispatchers.IO) {
+			downloadProgressMutex.withLock {
+				totalSongsToDownload = 0
+				completedSongsDownloaded = 0
+				notificationManager.cancelNotification(NotificationIds.DOWNLOAD_LIBRARY)
+			}
+
 			val jobsToCancel = activeDownloadsMutex.withLock {
 				val copy = activeDownloads.toMap()
 				activeDownloads.clear()
