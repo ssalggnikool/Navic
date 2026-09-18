@@ -238,7 +238,7 @@ fun StatisticsScreen(
 						) { album ->
 							ArtCarouselItem(
 								coverArtId = album.album.coverArtId,
-								title = album.album.name,
+								title = album.album.name ?: "[unknown album]",,
 								subtitle = album.album.artistName,
 								playCount = album.playCount,
 								duration = album.listeningTime,
