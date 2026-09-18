@@ -11,11 +11,9 @@ import org.koin.core.component.get
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import paige.navic.androidApp.di.AndroidResourceProvider
-import paige.navic.di.ActivityProvider
 import paige.navic.di.ResourceProvider
 import paige.navic.di.initKoin
 import paige.navic.util.android.ActivityProvider
-import paige.navic.util.core.ResourceProvider
 import kotlin.system.exitProcess
 
 class Application : android.app.Application(), KoinComponent {
