@@ -16,7 +16,6 @@
     <string name="title_danger_zone">Zona Bahaya</string>
     <string name="title_developer">Opsi Developer</string>
     <string name="title_about">Tentang</string>
-    <string name="title_acknowledgements">Penghargaan</string>
     <string name="title_delete_playlist">Hapus daftar putar?</string>
     <string name="title_delete_share">Hapus tautan berbagi?</string>
     <string name="title_all">Semua</string>
@@ -43,14 +42,12 @@
     <string name="info_syncing_radios">Menyinkronkan radio...</string>
     <string name="info_explicit">Eksplisit</string>
     <string name="info_track_album">Album</string>
-    <string name="sideloading_warning_subtitle">Google berencana untuk menghentikan sideloading untuk SEMUA perangkat yang telah memasang Google Play Services!\n</string>
     <string name="action_view_on_lastfm">Lihat di last.fm</string>
     <string name="option_sort_starred">Berbintang</string>
     <string name="option_offline_mode_no_wifi">Tidak ada Wi-Fi</string>
     <string name="info_track_sampling_rate">Tingkat pengambilan sampel</string>
     <string name="subtitle_playlist">Daftar Putar</string>
     <string name="action_log_out">Keluar</string>
-    <string name="title_source">Kode sumber</string>
     <string name="option_artwork_shape">Bentuk sampul</string>
     <string name="title_choose_font">Font aplikasi</string>
     <plurals name="count_playlists">
@@ -69,7 +66,6 @@
     <string name="action_add_all_to_playlist">Tambahkan Semua ke Daftar Putar</string>
     <string name="action_update_app">Memperbarui</string>
     <string name="option_choose_theme">Tema aplikasi</string>
-    <string name="info_sync_hours_ago">%1$d jam yang lalu</string>
     <string name="title_songs">Lagu-lagu</string>
     <string name="info_lyrics_provider">Lirik disediakan oleh %1$s</string>
     <string name="action_search_history">Pencarian Terbaru</string>
@@ -96,7 +92,6 @@
     <string name="info_status_calculating">Menghitung...</string>
     <string name="action_cancel_download">Batalkan unduhan</string>
     <string name="subtitle_check_for_updates">Disarankan untuk tetap mengaktifkannya, karena beberapa pembaruan menyediakan perbaikan bug penting</string>
-    <string name="theme_subtitle_dynamic">Tersedia di Android 12 dan versi yang lebih baru</string>
     <string name="option_playback_speed">Kecepatan pemutaran</string>
     <string name="action_repeat">Mengulang</string>
     <string name="option_sort_rating">Peringkat</string>
@@ -123,7 +118,6 @@
     <string name="subtitle_streaming_quality">Sesuaikan kualitas musik yang diputar</string>
     <string name="option_check_for_updates">Periksa pembaruan</string>
     <string name="option_lyrics_autoscroll">Lirik bergulir otomatis</string>
-    <string name="info_sync_mins_ago">%1$d m yang lalu</string>
     <string name="theme_mode_dark">Gelap</string>
     <string name="title_similar_artists">Artis serupa</string>
     <string name="subtitle_gapless_playback">Eksperimental. Membutuhkan restart aplikasi. Dapat bertentangan dengan fitur audio offload pada beberapa perangkat</string>
@@ -143,7 +137,6 @@
     <string name="option_image_cache_size">Ukuran cache gambar</string>
     <string name="info_streaming_quality">Preset berkualitas lebih tinggi akan menggunakan lebih banyak data. Transcoding dapat sangat memengaruhi waktu pemuatan dan menyebabkan lirik menjadi tidak sinkron. Pilih Lossless jika Anda mengalami masalah apa pun.</string>
     <string name="option_playlist_name">Nama</string>
-    <string name="sideloading_warning_link_mask">Di Sini.</string>
     <string name="title_advanced">Transkode Tingkat Lanjut</string>
     <string name="title_wifi">Wi-Fi</string>
     <string name="option_lyrics_keep_alive">Tetap nyalakan layar dalam tampilan lirik</string>
@@ -168,7 +161,6 @@
     <string name="notice_deleted_playlist">Daftar putar dihapus.</string>
     <string name="subtitle_developer">Debugging, pengujian</string>
     <string name="action_share_lyrics">Bagikan Lirik</string>
-    <string name="subtitle_max_bitrates">Kecepatan Bit Maksimum</string>
     <string name="option_bottom_bar_visibility_mode">Mode visibilitas</string>
     <string name="option_now_playing_toolbar_position">Posisi bilah alat</string>
     <string name="option_account_password">Kata sandi</string>
@@ -181,7 +173,6 @@
     <string name="action_navigate_back">Kembali</string>
     <string name="action_add_to_queue">Tambahkan ke Antrian</string>
     <string name="theme_dynamic">Dinamis</string>
-    <string name="option_lyrics_priority">Konfigurasi penyedia lirik</string>
     <string name="option_bottom_bar_collapse_mode">Mode runtuh</string>
     <plurals name="count_rate_stars">
         <item quantity="other">Beri peringkat %1$d bintang</item>
@@ -192,7 +183,6 @@
     <string name="info_no_albums">Tidak ada album</string>
     <string name="action_disable_sleep_timer">Matikan pengatur waktu</string>
     <string name="action_play">Putar</string>
-    <string name="theme_subtitle_apple_music">Tema dengan aksen merah/merah muda</string>
     <string name="action_remove_from_playlist">Hapus dari Daftar Putar</string>
     <string name="notice_deleted_share">Berbagi telah dihapus.</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">Semua layar</string>
@@ -220,11 +210,9 @@
     <string name="theme_spotify">Menyoroti</string>
     <string name="info_error">Terjadi kesalahan.</string>
     <string name="option_now_playing_song_info">Tampilkan informasi teknis lagu</string>
-    <string name="title_chat">Mengobrol</string>
     <string name="info_album_replay_gain">Album ReplayGain</string>
     <string name="info_no_shares">Tidak ada saham</string>
     <string name="title_create_radio">Buat radio</string>
-    <string name="option_enable_custom_bitrates">Aktifkan Bitrate Kustom</string>
     <string name="title_create_playlist">Buat daftar putar</string>
     <string name="action_clear_search">Jernih</string>
     <string name="option_sort_ascending">Naik</string>
@@ -257,19 +245,15 @@
     <string name="option_now_playing_background_style">Gaya latar belakang</string>
     <string name="option_offline_mode_forced">Dipaksa</string>
     <string name="info_share_expires_never">Tidak pernah kedaluwarsa</string>
-    <string name="info_sync_date_format">%1$d %2$s</string>
     <string name="info_unknown_year">Tahun Tidak Diketahui</string>
     <string name="title_miscellaneous">Aneka ragam</string>
     <string name="info_track_name">Nama</string>
-    <string name="info_bitrate_default_zero">Jika dibiarkan kosong, nilai defaultnya adalah 0. Biarkan server yang memilih.</string>
     <string name="info_syncing_artists">Menyinkronkan artis...</string>
     <string name="info_track_disc_number">Nomor cakram</string>
     <string name="title_update">Pembaruan tersedia</string>
-    <string name="theme_subtitle_seeded">Satu warna untuk semua</string>
     <string name="option_sort_newest">Baru ditambahkan</string>
     <string name="option_scrobble_percentage">Persentase scrobble</string>
     <string name="info_error_hide">Sembunyikan detail</string>
-    <string name="sideloading_warning_description">Meskipun detail pasti dari perubahan ini belum sepenuhnya diketahui, hal ini dapat mengakibatkan SEMUA pemasangan aplikasi dari sumber luar (sideloading) diblokir kecuali jika penanda tangan aplikasi tersebut membocorkan identitasnya kepada Google dan/atau secara publik.\n\nJika Anda cukup berpengalaman untuk memasang ROM kustom di perangkat Anda, SEKARANGLAH SAATNYA UNTUK MELAKUKANNYA.\n\nSilakan baca lebih lanjut tentang apa yang dapat Anda lakukan dan bagaimana agar suara Anda didengar</string>
     <string name="option_sort_alphabetical_by_artist">Diurutkan berdasarkan abjad menurut nama artis</string>
     <string name="action_sleep_timer">Pengatur waktu tidur</string>
     <string name="option_share_expires">Berakhir</string>
@@ -282,7 +266,6 @@
     <string name="info_unknown_album">Album Tidak Dikenal</string>
     <string name="option_mini_player_progress_style_seekable">Dapat dicari</string>
     <string name="option_sort_by_year">Per tahun</string>
-    <string name="theme_subtitle_ios">Sebuah kota di California</string>
     <string name="theme_seeded">Berwarna</string>
     <string name="option_off">Mati</string>
     <string name="option_accent_colour">Warna aksen</string>
@@ -312,7 +295,6 @@
     <string name="title_changelog">Catatan rilis</string>
     <string name="notice_loading_lyrics">Sedang memuat lirik...\nIni mungkin akan memakan waktu.</string>
     <string name="info_action_is_permanent">Tindakan ini tidak dapat dibatalkan</string>
-    <string name="sideloading_warning_title">BERHENTI, BACA!</string>
     <string name="info_downloaded">Diunduh</string>
     <string name="option_quality_high">Tinggi</string>
     <string name="action_log_in">Masuk</string>
@@ -330,7 +312,6 @@
     <string name="title_layout">Tata Letak</string>
     <string name="option_sort_by_genre">Berdasarkan genre</string>
     <string name="notice_expiry">Berakhir dalam %1$s.</string>
-    <string name="theme_subtitle_spotify">Tema dengan aksen hijau</string>
     <string name="option_animation_style_standard">Standar</string>
     <string name="info_no_playlists">Anda tidak memiliki daftar putar.</string>
     <string name="action_test_exception_handler">Penanganan pengecualian pengujian</string>

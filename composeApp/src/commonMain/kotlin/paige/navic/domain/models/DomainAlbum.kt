@@ -9,11 +9,11 @@ import kotlin.time.Instant
 @Serializable
 data class DomainAlbum(
 	override val id: String,
-	override val name: String,
-	val artistName: String,
+	override val name: String?,
+	val artistName: String?,
 	val artistId: String,
 	val year: Int?,
-	override val coverArtId: String,
+	override val coverArtId: String?,
 	val genre: String?,
 	val genres: List<String>,
 	override val songCount: Int,
@@ -25,5 +25,6 @@ data class DomainAlbum(
 	val userRating: Int?,
 	val version: String?,
 	val musicBrainzId: String?,
-	override val songs: List<DomainSong>
+	override val songs: List<DomainSong>,
+	val isExternal: Boolean = false
 ) : DomainSongCollection

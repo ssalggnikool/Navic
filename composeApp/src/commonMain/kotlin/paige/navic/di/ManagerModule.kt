@@ -3,6 +3,8 @@ package paige.navic.di
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import paige.navic.domain.manager.DownloadManager
+import paige.navic.domain.manager.EqualiserManager
+import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SleepTimerManager
@@ -20,4 +22,6 @@ val managerModule = module {
 	singleOf(::SessionManager)
 	singleOf(::PreferenceManager)
 	singleOf(::SnackBarManager)
+	singleOf(::LoginManager)
+	singleOf(::EqualiserManager)
 }

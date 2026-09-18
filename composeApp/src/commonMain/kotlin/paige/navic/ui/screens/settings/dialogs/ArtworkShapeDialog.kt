@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -24,10 +23,8 @@ import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_ok
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.LocalPlatformContext
 import paige.navic.domain.models.settings.CoverArtShape
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ArtworkShapeDialog(
 	title: @Composable () -> Unit,
@@ -37,8 +34,6 @@ fun ArtworkShapeDialog(
 	onDismissRequest: () -> Unit
 ) {
 	if (!presented) return
-
-	val platformContext = LocalPlatformContext.current
 
 	AlertDialog(
 		title = title,
@@ -55,7 +50,6 @@ fun ArtworkShapeDialog(
 							.fillMaxWidth()
 							.clip(MaterialTheme.shapes.small)
 							.clickable {
-								platformContext.clickSound()
 								onSelect(shape)
 								onDismissRequest()
 							},
@@ -87,7 +81,6 @@ fun ArtworkShapeDialog(
 		onDismissRequest = onDismissRequest,
 		confirmButton = {
 			Button(onClick = {
-				platformContext.clickSound()
 				onDismissRequest()
 			}) {
 				Text(stringResource(Res.string.action_ok))

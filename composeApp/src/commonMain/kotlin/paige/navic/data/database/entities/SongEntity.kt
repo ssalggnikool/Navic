@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import paige.navic.domain.models.DomainContributor
 import paige.navic.domain.models.DomainExplicitStatus
 import paige.navic.domain.models.DomainReplayGain
+import paige.navic.domain.models.DomainSongArtist
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -14,7 +15,7 @@ import kotlin.time.Instant
 data class SongEntity(
 	@PrimaryKey val songId: String,
 	val title: String,
-	val artistName: String,
+	val artistName: String?,
 	val artistId: String,
 	val albumTitle: String?,
 	val belongsToAlbumId: String?,
@@ -39,11 +40,14 @@ data class SongEntity(
 	val audioChannelCount: Int?,
 	val replayGain: DomainReplayGain?,
 	val fileSize: Long,
-	val fileExtension: String,
-	val mimeType: String,
+	val fileExtension: String?,
+	val mimeType: String?,
 	val filePath: String?,
 	val starredAt: Instant?,
 	val coverArtId: String?,
 	val musicBrainzId: String?,
-	val explicitStatus: DomainExplicitStatus
+	val explicitStatus: DomainExplicitStatus,
+	val artists: List<DomainSongArtist>,
+	val albumArtists: List<DomainSongArtist>,
+	val isExternal: Boolean
 )

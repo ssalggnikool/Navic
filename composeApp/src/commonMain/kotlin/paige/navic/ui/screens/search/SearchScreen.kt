@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.insert
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -42,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_add_to_queue
 import navic.composeapp.generated.resources.action_remove_from_history
@@ -58,10 +57,11 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalBottomBarScrollManager
-import paige.navic.LocalNavStack
-import paige.navic.LocalPlatformContext
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalNavStack
+import paige.navic.di.LocalPlatformContext
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumListType
@@ -72,6 +72,7 @@ import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.domain.models.settings.ExplicitContentPlayback
+import paige.navic.domain.models.settings.ListViewMode
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Close
 import paige.navic.icons.outlined.History
@@ -91,14 +92,17 @@ import paige.navic.ui.components.layouts.artGridPlaceholder
 import paige.navic.ui.components.layouts.horizontalSection
 import paige.navic.ui.components.sheets.SongSheet
 import paige.navic.ui.core.UiState
+import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.album.components.AlbumListScreenItem
+import paige.navic.ui.screens.album.components.AlbumListScreenGridItem
 import paige.navic.ui.screens.album.viewmodels.AlbumListViewModel
-import paige.navic.ui.screens.artist.ArtistsScreenItem
+import paige.navic.ui.screens.artist.ArtistListScreenGridItem
 import paige.navic.ui.screens.artist.viewmodels.ArtistListViewModel
 import paige.navic.ui.screens.search.components.SearchScreenChips
 import paige.navic.ui.screens.search.components.SearchScreenTopBar
 import paige.navic.ui.screens.search.viewmodels.SearchViewModel
+import paige.navic.ui.util.buildSongInfoString
+import paige.navic.ui.viewmodel.RootViewModel
 
 enum class SearchCategory(val res: StringResource) {
 	ALL(Res.string.title_all),
@@ -107,14 +111,21 @@ enum class SearchCategory(val res: StringResource) {
 	ARTISTS(Res.string.title_artists)
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+// TODO: clean this up, holy shit
 @Composable
 fun SearchScreen(
 	nested: Boolean
 ) {
+	val platformContext = LocalPlatformContext.current
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	val viewModel = koinViewModel<SearchViewModel>()
+	val viewModel = koinViewModel<SearchViewModel>(
+		viewModelStoreOwner = if (nested) {
+			LocalViewModelStoreOwner.current!!
+		} else {
+			koinInject<PersistentViewModelStoreOwner>()
+		}
+	)
 	val selectedSong by viewModel.selectedSong.collectAsStateWithLifecycle()
 	val selectedSongIsStarred by viewModel.selectedSongIsStarred.collectAsStateWithLifecycle()
 	val selectedSongRating by viewModel.selectedSongRating.collectAsStateWithLifecycle()
@@ -139,12 +150,20 @@ fun SearchScreen(
 	val isOnline by viewModel.isOnline.collectAsState()
 	val downloadedSongs by viewModel.downloadedSongs.collectAsState()
 
-	val platformContext = LocalPlatformContext.current
 	val player = koinInject<MediaPlayerViewModel>()
 	val backStack = LocalNavStack.current
 
 	var selectedCategory by remember { mutableStateOf(SearchCategory.ALL) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
+
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				viewModel.gridState.animateScrollToItem(0)
+			}
+		}
+	}
 
 	Scaffold(
 		topBar = {
@@ -170,7 +189,8 @@ fun SearchScreen(
 		},
 		bottomBar = {
 			val scrollManager = LocalBottomBarScrollManager.current
-			if (!nested || preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens) {
+			val preferVisible = preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
+			if (!nested || (!platformContext.isLandscape() && preferVisible)) {
 				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
@@ -180,7 +200,12 @@ fun SearchScreen(
 			modifier = Modifier.fillMaxSize()
 		) { uiState ->
 			when (uiState) {
-				is UiState.Loading -> ArtGrid(contentPadding = contentPadding) { artGridPlaceholder() }
+				is UiState.Loading -> ArtGrid(
+					contentPadding = contentPadding,
+					selectedViewMode = ListViewMode.List
+				) {
+					artGridPlaceholder(viewMode = ListViewMode.List)
+				}
 				is UiState.Error -> ErrorBox(uiState, padding = contentPadding)
 				is UiState.Success -> {
 					val results = uiState.data
@@ -232,7 +257,7 @@ fun SearchScreen(
 
 									LaunchedEffect(dismissState.currentValue) {
 										if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-											if (player.uiState.value.queue.any { it.id == song.id }) {
+											if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 												songToQueue = song
 											} else {
 												player.addToQueueSingle(song)
@@ -278,14 +303,16 @@ fun SearchScreen(
 											modifier = Modifier
 												.background(MaterialTheme.colorScheme.surface),
 											onClick = {
-												platformContext.clickSound()
 												player.playNow(song)
 											},
 											onLongClick = { viewModel.selectSong(song) },
 											content = { Text(song.title) },
 											supportingContent = {
 												MarqueeText(
-													"${song.albumTitle ?: ""} • ${song.artistName} • ${song.year ?: ""}"
+													buildSongInfoString(
+														song = song,
+														onClickArtist = { backStack.add(Screen.ArtistDetail(it)) }
+													)
 												)
 											},
 											leadingContent = {
@@ -317,14 +344,14 @@ fun SearchScreen(
 												onDismissRequest = { viewModel.clearSelectedSong() },
 												song = song,
 												onPlayNext = {
-													if (player.uiState.value.queue.any { it.id == song.id }) {
+													if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 														songToQueue = song
 													} else {
 														player.playNextSingle(song)
 													}
 												},
 												onAddToQueue = {
-													if (player.uiState.value.queue.any { it.id == song.id }) {
+													if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 														songToQueue = song
 													} else {
 														player.addToQueueSingle(song)
@@ -335,7 +362,7 @@ fun SearchScreen(
 													)
 												) DownloadStatus.DOWNLOADED else null,
 												onTrackInfo = dropUnlessResumed {
-													backStack.add(Screen.SongDetail(song.id))
+													backStack.add(Screen.SongDetailScreen(song.id, song.coverArtId))
 												},
 												onViewAlbum = song.albumId?.let { albumId ->
 													dropUnlessResumed {
@@ -364,7 +391,7 @@ fun SearchScreen(
 								key = { it.id },
 								seeAll = false
 							) { album ->
-								AlbumListScreenItem(
+								AlbumListScreenGridItem(
 									modifier = Modifier.animateItem(fadeInSpec = null)
 										.width(150.dp),
 									tab = "search",
@@ -389,7 +416,7 @@ fun SearchScreen(
 								key = { it.id },
 								seeAll = false
 							) { artist ->
-								ArtistsScreenItem(
+								ArtistListScreenGridItem(
 									modifier = Modifier.animateItem(fadeInSpec = null)
 										.width(150.dp),
 									tab = "search",
@@ -427,11 +454,10 @@ fun SearchScreen(
 									val historyItem = searchHistory[index]
 									ListItem(
 										modifier = Modifier.clickable {
-											platformContext.clickSound()
 											query.clearText()
 											query.edit { insert(0, historyItem) }
 										},
-										headlineContent = { Text(historyItem) },
+										content = { Text(historyItem) },
 										leadingContent = {
 											Icon(
 												imageVector = Icons.Outlined.History,
@@ -441,7 +467,6 @@ fun SearchScreen(
 										},
 										trailingContent = {
 											IconButton(onClick = {
-												platformContext.clickSound()
 												viewModel.removeFromSearchHistory(historyItem)
 											}) {
 												Icon(

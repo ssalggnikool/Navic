@@ -13,12 +13,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -26,8 +24,9 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -65,98 +64,116 @@ import navic.composeapp.generated.resources.title_palette
 import navic.composeapp.generated.resources.title_theme_mode
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.Theme
 import paige.navic.domain.models.settings.ThemeMode
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Picker
-import paige.navic.ui.components.common.Dropdown
-import paige.navic.ui.components.common.Form
-import paige.navic.ui.components.common.FormRow
-import paige.navic.ui.components.common.FormTitle
+import paige.navic.ui.components.common.SegmentedListItem
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.common.TooltipBox
 import paige.navic.ui.components.layouts.NestedTopBar
-import paige.navic.ui.screens.settings.components.SettingSelectionRow
-import paige.navic.util.core.label
+import paige.navic.ui.screens.settings.components.SettingsChoiceItem
+import paige.navic.ui.screens.settings.components.SettingsGroup
+import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
+import paige.navic.ui.util.label
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsThemesScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	Scaffold(
-		topBar = { NestedTopBar({ Text(stringResource(Res.string.option_choose_theme)) }) },
-		contentWindowInsets = WindowInsets.statusBars
+		topBar = { NestedTopBar({ Text(stringResource(Res.string.option_choose_theme)) }) }
 	) { innerPadding ->
 		CompositionLocalProvider(
 			LocalMinimumInteractiveComponentSize provides 0.dp
 		) {
 			Column(
-				Modifier
+				modifier = Modifier
 					.padding(innerPadding)
 					.verticalScroll(rememberScrollState())
-					.padding(top = 16.dp, end = 16.dp, start = 16.dp)
+					.padding(horizontal = 16.dp),
+				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
-				Form {
-					SettingSelectionRow(
-						title = { Text(stringResource(Res.string.title_theme_mode)) },
-						items = ThemeMode.entries.toImmutableList(),
+				SettingsGroup {
+					SettingsChoiceItem(
+						choices = ThemeMode.entries.toImmutableList(),
+						selectedChoice = preferenceManager.themeMode,
+						onChoiceSelected = { preferenceManager.themeMode = it },
+						content = { Text(stringResource(Res.string.title_theme_mode)) },
 						label = { stringResource(it.title) },
-						selection = preferenceManager.themeMode,
-						onSelect = { preferenceManager.themeMode = it }
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
 					)
 				}
 
-				FormTitle(stringResource(Res.string.title_palette))
-				Form {
-					FormRow {
-						LazyRow(
-							modifier = Modifier
-								.fillMaxWidth()
-								.selectableGroup(),
-							horizontalArrangement = Arrangement.SpaceBetween
-						) {
-							items(Theme.entries) { theme ->
-								ThemeCard(
-									theme = theme,
-									isSelected = preferenceManager.theme == theme,
-									onSelect = { preferenceManager.theme = theme }
-								)
+				SettingsGroup(title = { Text(stringResource(Res.string.title_palette)) }) {
+					val isSeeded = preferenceManager.theme == Theme.Seeded
+					val count = if (isSeeded) 4 else 1
+
+					SegmentedListItem(
+						onClick = {},
+						content = {
+							LazyRow(
+								modifier = Modifier
+									.fillMaxWidth()
+									.selectableGroup(),
+								horizontalArrangement = Arrangement.SpaceBetween
+							) {
+								items(Theme.entries) { theme ->
+									ThemeCard(
+										theme = theme,
+										isSelected = preferenceManager.theme == theme,
+										onSelect = { preferenceManager.theme = theme }
+									)
+								}
 							}
-						}
-					}
+						},
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
+					)
 
 					AnimatedVisibility(
 						modifier = Modifier.fillMaxWidth(),
-						visible = preferenceManager.theme == Theme.Seeded
+						visible = isSeeded
 					) {
-						ThemeAccentPicker()
-					}
-
-					AnimatedVisibility(
-						modifier = Modifier.fillMaxWidth(),
-						visible = preferenceManager.theme == Theme.Seeded
-					) {
-						SettingSelectionRow(
-							title = { Text(stringResource(Res.string.option_palette_style)) },
-							items = PaletteStyle.entries.toImmutableList(),
-							label = { it.label() },
-							selection = preferenceManager.paletteStyle,
-							onSelect = { preferenceManager.paletteStyle = it }
+						ThemeAccentPicker(
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 1,
+								count = count
+							)
 						)
 					}
 
 					AnimatedVisibility(
 						modifier = Modifier.fillMaxWidth(),
-						visible = preferenceManager.theme == Theme.Seeded
+						visible = isSeeded
 					) {
-						SettingSelectionRow(
-							title = { Text(stringResource(Res.string.option_palette_specification)) },
-							items = ColorSpec.SpecVersion.entries.toImmutableList(),
+						SettingsChoiceItem(
+							choices = PaletteStyle.entries.toImmutableList(),
+							selectedChoice = preferenceManager.paletteStyle,
+							onChoiceSelected = { preferenceManager.paletteStyle = it },
+							content = { Text(stringResource(Res.string.option_palette_style)) },
 							label = { it.label() },
-							selection = preferenceManager.paletteSpec,
-							onSelect = { preferenceManager.paletteSpec = it }
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 2,
+								count = count
+							)
+						)
+					}
+
+					AnimatedVisibility(
+						modifier = Modifier.fillMaxWidth(),
+						visible = isSeeded
+					) {
+						SettingsChoiceItem(
+							choices = ColorSpec.SpecVersion.entries.toImmutableList(),
+							selectedChoice = preferenceManager.paletteSpec,
+							onChoiceSelected = { preferenceManager.paletteSpec = it },
+							label = { it.label() },
+							content = { Text(stringResource(Res.string.option_palette_specification)) },
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 3,
+								count = count
+							)
 						)
 					}
 				}
@@ -174,7 +191,6 @@ private fun BaseCard(
 	content: @Composable ColumnScope.() -> Unit
 ) {
 	val haptics = LocalHapticFeedback.current
-	val platformContext = LocalPlatformContext.current
 	val interactionSource = remember { MutableInteractionSource() }
 	val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -201,7 +217,6 @@ private fun BaseCard(
 				role = Role.ValuePicker,
 				onClick = dropUnlessResumed {
 					haptics.performHapticFeedback(HapticFeedbackType.ToggleOn)
-					platformContext.clickSound()
 					onSelect()
 				}
 			),
@@ -276,31 +291,30 @@ private fun ThemeCard(
 }
 
 @Composable
-private fun ThemeAccentPicker() {
+private fun ThemeAccentPicker(
+	shapes: ListItemShapes
+) {
 	val preferenceManager = koinInject<PreferenceManager>()
 	var expanded by remember { mutableStateOf(false) }
 
-	FormRow(
-		onClick = { expanded = true }
-	) {
-		Text(stringResource(Res.string.option_accent_colour))
-		Box {
-			Box(
-				Modifier
-					.clip(CircleShape)
-					.background(MaterialTheme.colorScheme.primary)
-					.size(40.dp)
-					.clickable {
-						expanded = true
-					}
-			)
-			Dropdown(
-				expanded = expanded,
-				onDismissRequest = { expanded = false }
-			) {
-				FormRow(
-					color = MaterialTheme.colorScheme.surfaceContainerHigh,
-					horizontalArrangement = Arrangement.Center
+	SegmentedListItem(
+		onClick = { expanded = true },
+		content = { Text(stringResource(Res.string.option_accent_colour)) },
+		trailingContent = {
+			Box {
+				Box(
+					Modifier
+						.clip(CircleShape)
+						.background(MaterialTheme.colorScheme.primary)
+						.size(40.dp)
+						.clickable {
+							expanded = true
+						}
+				)
+				// TODO: make a proper colour picker sheet
+				DropdownMenu(
+					expanded = expanded,
+					onDismissRequest = { expanded = false }
 				) {
 					RingColorPicker(
 						color = {
@@ -316,6 +330,7 @@ private fun ThemeAccentPicker() {
 					)
 				}
 			}
-		}
-	}
+		},
+		shapes = shapes
+	)
 }

@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,7 +36,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalBottomBarScrollManager
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalPlatformContext
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
@@ -52,7 +51,7 @@ import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.components.layouts.PullToRefreshBox
 import paige.navic.ui.components.layouts.RootBottomBar
-import paige.navic.ui.components.snackbars.ErrorSnackbar
+import paige.navic.ui.components.snackbars.ErrorSnackBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.screens.collection.components.CollectionDetailScreenFooterRow
 import paige.navic.ui.screens.collection.components.CollectionDetailScreenHeadingRow
@@ -64,16 +63,17 @@ import paige.navic.ui.screens.collection.components.collectionDetailScreenMoreBy
 import paige.navic.ui.screens.collection.viewmodels.CollectionDetailViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.util.ui.rememberColorSchemeFromCoverArt
-import paige.navic.util.ui.withoutTop
+import paige.navic.di.isLandscape
+import paige.navic.ui.util.rememberColorSchemeFromCoverArt
+import paige.navic.ui.util.withoutTop
 import kotlin.time.Duration
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CollectionDetailScreen(
 	collectionId: String,
 	tab: String
 ) {
+	val platformContext = LocalPlatformContext.current
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	val viewModel = koinViewModel<CollectionDetailViewModel>(
@@ -123,7 +123,7 @@ fun CollectionDetailScreen(
 			}
 		}
 	}
-	val colorScheme = if (preferenceManager.dynamicAlbumViewTheme) {
+	val colorScheme = if (preferenceManager.dynamicTheming) {
 		rememberColorSchemeFromCoverArt(
 			coverArtId = collection?.coverArtId,
 			specVersion = ColorSpec.SpecVersion.SPEC_2025
@@ -158,7 +158,8 @@ fun CollectionDetailScreen(
 			},
 			bottomBar = {
 				val scrollManager = LocalBottomBarScrollManager.current
-				if (preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens) {
+				val preferVisible = preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
+				if (!platformContext.isLandscape() && preferVisible) {
 					RootBottomBar(scrolled = scrollManager.isTriggered)
 				}
 			}
@@ -380,7 +381,7 @@ fun CollectionDetailScreen(
 			}
 		}
 
-		ErrorSnackbar(
+		ErrorSnackBar(
 			error = (collectionState as? UiState.Error)?.error,
 			onClearError = { viewModel.clearError() }
 		)

@@ -27,7 +27,6 @@ import navic.composeapp.generated.resources.action_ok
 import navic.composeapp.generated.resources.option_grid_items_per_row
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.GridSize
 
@@ -37,8 +36,6 @@ fun GridSizeDialog(
 	onDismissRequest: () -> Unit
 ) {
 	if (!presented) return
-
-	val platformContext = LocalPlatformContext.current
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	AlertDialog(
@@ -58,7 +55,6 @@ fun GridSizeDialog(
 							.fillMaxWidth()
 							.clip(MaterialTheme.shapes.small)
 							.clickable {
-								platformContext.clickSound()
 								preferenceManager.gridSize = size
 								onDismissRequest()
 							}
@@ -79,7 +75,6 @@ fun GridSizeDialog(
 		onDismissRequest = onDismissRequest,
 		confirmButton = {
 			Button(onClick = {
-				platformContext.clickSound()
 				onDismissRequest()
 			}) {
 				Text(stringResource(Res.string.action_ok))

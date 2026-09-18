@@ -27,6 +27,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ImageLoader
 import coil3.compose.SubcomposeAsyncImage
 import coil3.network.NetworkHeaders
 import coil3.network.httpHeaders
@@ -42,13 +43,14 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Error
 import paige.navic.ui.theme.defaultFont
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable
 fun CoverArt(
 	modifier: Modifier = Modifier,
 	coverArtId: String?,
+	contentScale: ContentScale = if (coverArtId?.startsWith("ar-") == true) ContentScale.Crop else ContentScale.Fit,
 	contentDescription: String? = null,
 	onClick: (() -> Unit)? = null,
 	onLongClick: (() -> Unit)? = null,
@@ -58,16 +60,19 @@ fun CoverArt(
 	interactionSource: MutableInteractionSource? = null,
 	shape: Shape? = null
 ) {
+	val coilPlatformContext = LocalCoilPlatformContext.current
+
+	val imageLoader = koinInject<ImageLoader>()
+	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
+
 	val shape = shape ?: if (!coverArtId.orEmpty().startsWith("ar-")) {
 		preferenceManager.coverArtShape.shape
 	} else {
 		preferenceManager.artistImageShape.shape
 	}
-	val coilPlatformContext = LocalCoilPlatformContext.current
-	val customHeaders = preferenceManager.customHeaders
-	val sessionManager = koinInject<SessionManager>()
-	val model = remember(coverArtId, customHeaders) {
+
+	val model = remember(coverArtId, preferenceManager.customHeaders) {
 		val networkHeaders = NetworkHeaders.Builder().apply {
 			preferenceManager.customHeadersMap().forEach { (key, value) -> add(key, value) }
 		}.build()
@@ -105,9 +110,10 @@ fun CoverArt(
 	if (coverArtId.isNullOrBlank()) return Box(commonModifier)
 	SubcomposeAsyncImage(
 		model = model,
+		imageLoader = imageLoader,
 		contentDescription = contentDescription,
 		modifier = commonModifier,
-		contentScale = ContentScale.Crop,
+		contentScale = contentScale,
 		error = {
 			LaunchedEffect(it.result.throwable) {
 				Logger.w(

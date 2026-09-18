@@ -6,7 +6,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,12 +31,12 @@ import androidx.compose.ui.unit.sp
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LyricsScreenKaraokeText(
 	text: String,
 	progress: Float,
 	isActive: Boolean,
+	isSynced: Boolean,
 	onClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
@@ -59,7 +58,11 @@ fun LyricsScreenKaraokeText(
 		}
 	} ?: false
 
-	val inactiveAlpha = if (lyricsBrightInactive) 0.9f else 0.35f
+	val inactiveAlpha = when {
+		!isSynced -> 1f
+		lyricsBrightInactive -> 0.9f
+		else -> 0.35f
+	}
 
 	val alphaTransition by animateFloatAsState(
 		targetValue = if (isActive) 1f else inactiveAlpha,
@@ -70,7 +73,7 @@ fun LyricsScreenKaraokeText(
 		Text(
 			text = text,
 			fontSize = 32.sp,
-			fontWeight = FontWeight.Bold,
+			fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
 			textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
 			style = MaterialTheme.typography.headlineLargeEmphasized,
 			color = if (lyricsBrightInactive) Color.White.copy(alpha = alphaTransition * 0.4f)

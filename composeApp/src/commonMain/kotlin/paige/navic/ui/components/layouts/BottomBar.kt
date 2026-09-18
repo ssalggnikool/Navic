@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.dropUnlessResumed
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.title_albums
 import navic.composeapp.generated.resources.title_artists
@@ -34,8 +35,8 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import paige.navic.LocalNavStack
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalNavStack
+import paige.navic.di.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.NavbarConfig
 import paige.navic.domain.models.settings.NavbarTab
@@ -55,10 +56,11 @@ import paige.navic.icons.outlined.Note
 import paige.navic.icons.outlined.PlaylistPlay
 import paige.navic.icons.outlined.Radio
 import paige.navic.icons.outlined.Search
-import paige.navic.ui.components.common.animatedTabIconPainter
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.settings.viewmodels.NavtabsViewModel
+import paige.navic.ui.util.animatedTabIconPainter
+import paige.navic.ui.viewmodel.RootViewModel
 
 private enum class NavItem(
 	val destination: Screen,
@@ -123,6 +125,7 @@ fun BottomBar(
 	enabled: Boolean = true
 ) {
 	val viewModel = koinViewModel<NavtabsViewModel>()
+	val rootViewModel = koinViewModel<RootViewModel>()
 	val backStack = LocalNavStack.current
 	val platformContext = LocalPlatformContext.current
 	val state by viewModel.state.collectAsState()
@@ -130,6 +133,17 @@ fun BottomBar(
 	val tabs = ((state as? UiState.Success)?.data ?: NavbarConfig.default)
 		.tabs.filter { tab -> tab.visible }
 	val preferenceManager = koinInject<PreferenceManager>()
+
+	val onTabSelected = { destination: Screen ->
+		if (backStack.lastOrNull() == destination) {
+			rootViewModel.requestScrollToTop()
+		} else {
+			backStack.apply {
+				clear()
+				add(destination)
+			}
+		}
+	}
 
 	AnimatedContent(
 		preferenceManager.navigationBarStyle != NavigationBarStyle.Short
@@ -161,12 +175,8 @@ fun BottomBar(
 						enabled = enabled,
 						alwaysShowLabel = preferenceManager.navigationBarLabelVisibility
 							== NavigationBarLabelVisibility.Always,
-						onClick = {
-							platformContext.clickSound()
-							backStack.apply {
-								clear()
-								add(item.destination)
-							}
+						onClick = dropUnlessResumed {
+							onTabSelected(item.destination)
 						},
 						icon = {
 							if (selected) {
@@ -222,12 +232,8 @@ fun BottomBar(
 						else NavigationItemIconPosition.Top,
 						selected = backStack.last() == item.destination,
 						enabled = enabled,
-						onClick = {
-							platformContext.clickSound()
-							backStack.apply {
-								clear()
-								add(item.destination)
-							}
+						onClick = dropUnlessResumed {
+							onTabSelected(item.destination)
 						},
 						icon = {
 							if (selected) {

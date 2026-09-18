@@ -26,13 +26,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -71,8 +74,7 @@ import navic.composeapp.generated.resources.action_share_lyrics
 import navic.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalPlatformContext
-import paige.navic.LocalSnackbarState
+import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.models.DomainSong
@@ -81,8 +83,6 @@ import paige.navic.icons.brand.Navic
 import paige.navic.icons.outlined.Check
 import paige.navic.icons.outlined.Picker
 import paige.navic.icons.outlined.Share
-import paige.navic.ui.components.common.Dropdown
-import paige.navic.ui.components.common.FormRow
 import paige.navic.ui.theme.blue
 import paige.navic.ui.theme.pink
 import paige.navic.ui.theme.positive
@@ -99,12 +99,15 @@ fun LyricsShareSheet(
 	onDismiss: () -> Unit,
 	onShare: () -> Unit
 ) {
-	val platformContext = LocalPlatformContext.current
 	val shareManager = koinInject<ShareManager>()
-	val snackbarState = LocalSnackbarState.current
-	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+	val snackBarState = LocalSnackBarState.current
+	val sheetState = rememberBottomSheetState(
+		initialValue = SheetValue.Hidden,
+		enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
+	)
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
+	val imageLoader = koinInject<ImageLoader>()
 	val sessionManager = koinInject<SessionManager>()
 	val model = remember(song.coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
@@ -187,6 +190,7 @@ fun LyricsShareSheet(
 					) {
 						AsyncImage(
 							model = model,
+							imageLoader = imageLoader,
 							contentDescription = null,
 							contentScale = ContentScale.Crop,
 							modifier = Modifier
@@ -205,7 +209,7 @@ fun LyricsShareSheet(
 							)
 
 							Text(
-								text = song.artistName,
+								text = song.artistName ?: "[unknown artist]",
 								style = MaterialTheme.typography.bodyMedium
 							)
 						}
@@ -255,7 +259,6 @@ fun LyricsShareSheet(
 						color = color,
 						isSelected = color == selectedColor,
 						onClick = {
-							platformContext.clickSound()
 							selectedColor = color
 						},
 						isPicker = false
@@ -268,29 +271,24 @@ fun LyricsShareSheet(
 							color = customHsv.toColor(),
 							isSelected = selectedColor == customHsv.toColor(),
 							onClick = {
-								platformContext.clickSound()
 								selectedColor = customHsv.toColor()
 								expanded = true
 							},
 							isPicker = true
 						)
 
-						Dropdown(
+						// TODO: make a proper colour picker sheet
+						DropdownMenu(
 							expanded = expanded,
 							onDismissRequest = { expanded = false }
 						) {
-							FormRow(
-								color = MaterialTheme.colorScheme.surfaceContainer,
-								horizontalArrangement = Arrangement.Center
-							) {
-								CircularColorPicker(
-									color = { customHsv },
-									onColorChange = { newHsv ->
-										customHsv = newHsv
-										selectedColor = newHsv.toColor()
-									}
-								)
-							}
+							CircularColorPicker(
+								color = { customHsv },
+								onColorChange = { newHsv ->
+									customHsv = newHsv
+									selectedColor = newHsv.toColor()
+								}
+							)
 						}
 					}
 				}
@@ -300,7 +298,6 @@ fun LyricsShareSheet(
 
 			Button(
 				onClick = {
-					platformContext.clickSound()
 					scope.launch {
 						try {
 							val bmp = graphicsLayer.toImageBitmap()
@@ -309,7 +306,7 @@ fun LyricsShareSheet(
 								fileName = "lyrics.png"
 							)
 						} catch (e: Exception) {
-							snackbarState.showSnackbar(e.message ?: "Something went wrong.")
+							snackBarState.showSnackbar(e.message ?: "Something went wrong.")
 						} finally {
 							onShare()
 						}

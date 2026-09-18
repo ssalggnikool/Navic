@@ -18,7 +18,7 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.BottomBarCollapseMode
 import paige.navic.domain.models.settings.MiniPlayerStyle
-import paige.navic.util.ui.easedVerticalGradient
+import paige.navic.ui.util.easedVerticalGradient
 
 @Composable
 fun RootBottomBar(

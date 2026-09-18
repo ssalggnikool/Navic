@@ -12,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -20,6 +19,10 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -43,7 +46,6 @@ import navic.composeapp.generated.resources.info_download_failed
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalPlatformContext
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainAlbum
@@ -68,8 +70,9 @@ import paige.navic.icons.outlined.Star
 import paige.navic.ui.components.common.CoverArt
 import paige.navic.ui.components.common.MarqueeText
 import paige.navic.ui.components.common.RatingRow
+import paige.navic.ui.components.dialogs.LinkConfirmationDialog
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionSheet(
 	onDismissRequest: () -> Unit,
@@ -84,8 +87,6 @@ fun CollectionSheet(
 	onAddToQueue: (() -> Unit)? = null,
 	onAddAllToPlaylist: (() -> Unit)? = null,
 	onViewArtist: (() -> Unit)? = null,
-	onViewOnLastFm: ((String) -> Unit)? = null,
-	onViewOnMusicBrainz: ((String) -> Unit)? = null,
 	starred: Boolean? = null,
 	onSetStarred: ((Boolean) -> Unit)? = null,
 	onDelete: (() -> Unit)? = null,
@@ -93,13 +94,14 @@ fun CollectionSheet(
 	onSetRating: ((Int) -> Unit)? = null
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val platformContext = LocalPlatformContext.current
 	val contentPadding = PaddingValues(horizontal = 16.dp)
 	val colors = ListItemDefaults.colors(
 		containerColor = Color.Transparent,
 		trailingIconColor = MaterialTheme.colorScheme.onSurface,
 		headlineColor = MaterialTheme.colorScheme.onSurface
 	)
+	var linkToOpen by rememberSaveable { mutableStateOf<String?>(null) }
+
 	ModalBottomSheet(
 		onDismissRequest = onDismissRequest,
 		dragHandle = null,
@@ -122,7 +124,7 @@ fun CollectionSheet(
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
 			},
-			headlineContent = { MarqueeText(collection?.name.orEmpty()) },
+			content = { MarqueeText(collection?.name.orEmpty()) },
 			supportingContent = {
 				MarqueeText(
 					listOfNotNull(
@@ -138,7 +140,7 @@ fun CollectionSheet(
 			},
 			colors = colors
 		)
-		if (rating != null && onSetRating != null) {
+		if (rating != null && onSetRating != null && preferenceManager.enableRatings) {
 			RatingRow(
 				rating = rating,
 				setRating = onSetRating
@@ -149,40 +151,35 @@ fun CollectionSheet(
 		HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
 
 		Column(Modifier.verticalScroll(rememberScrollState())) {
-			if (onViewOnLastFm != null && albumInfo?.lastFmUrl != null) {
+			if (albumInfo?.lastFmUrl != null) {
 				ListItem(
 					content = { Text(stringResource(Res.string.action_view_on_lastfm)) },
 					leadingContent = { Icon(Icons.Brand.Lastfm, null) },
 					onClick = {
-						platformContext.clickSound()
-						onViewOnLastFm(albumInfo.lastFmUrl)
-						onDismissRequest()
+						linkToOpen = albumInfo.lastFmUrl
 					},
 					colors = colors,
 					contentPadding = contentPadding
 				)
 			}
 
-			if (onViewOnMusicBrainz != null && albumInfo?.musicBrainzId != null) {
+			if (albumInfo?.musicBrainzId != null) {
 				ListItem(
 					content = { Text(stringResource(Res.string.action_view_on_musicbrainz)) },
 					leadingContent = { Icon(Icons.Brand.Musicbrainz, null) },
 					onClick = {
-						platformContext.clickSound()
-						onViewOnMusicBrainz(albumInfo.musicBrainzId)
-						onDismissRequest()
+						linkToOpen = "https://musicbrainz.org/release/${albumInfo.musicBrainzId}"
 					},
 					colors = colors,
 					contentPadding = contentPadding
 				)
 			}
 
-			if (onShare != null) {
+			if (onShare != null && preferenceManager.enableSharing) {
 				ListItem(
 					content = { Text(stringResource(Res.string.action_share)) },
 					leadingContent = { Icon(Icons.Outlined.Share, null) },
 					onClick = {
-						platformContext.clickSound()
 						onShare()
 						onDismissRequest()
 					},
@@ -196,7 +193,6 @@ fun CollectionSheet(
 					content = { Text(stringResource(Res.string.action_play_next)) },
 					leadingContent = { Icon(Icons.Outlined.QueuePlayNext, null) },
 					onClick = {
-						platformContext.clickSound()
 						onPlayNext()
 						onDismissRequest()
 					},
@@ -211,7 +207,6 @@ fun CollectionSheet(
 					content = { Text(stringResource(Res.string.action_add_to_queue)) },
 					leadingContent = { Icon(Icons.Outlined.Queue, null) },
 					onClick = {
-						platformContext.clickSound()
 						onAddToQueue()
 						onDismissRequest()
 					},
@@ -226,7 +221,6 @@ fun CollectionSheet(
 					content = { Text(stringResource(Res.string.action_add_to_playlist)) },
 					leadingContent = { Icon(Icons.Outlined.PlaylistAdd, null) },
 					onClick = {
-						platformContext.clickSound()
 						onAddAllToPlaylist()
 						onDismissRequest()
 					},
@@ -241,7 +235,6 @@ fun CollectionSheet(
 					content = { Text(stringResource(Res.string.action_view_artist)) },
 					leadingContent = { Icon(Icons.Outlined.Artist, null) },
 					onClick = {
-						platformContext.clickSound()
 						onViewArtist()
 						onDismissRequest()
 					},
@@ -260,7 +253,6 @@ fun CollectionSheet(
 						Icon(if (starred) Icons.Filled.Star else Icons.Outlined.Star, null)
 					},
 					onClick = {
-						platformContext.clickSound()
 						onSetStarred(!starred)
 						onDismissRequest()
 					},
@@ -276,7 +268,6 @@ fun CollectionSheet(
 							content = { Text(stringResource(Res.string.action_cancel_download)) },
 							leadingContent = { Icon(Icons.Outlined.Close, null) },
 							onClick = {
-								platformContext.clickSound()
 								onCancelDownloadAll?.invoke()
 								onDismissRequest()
 							},
@@ -290,7 +281,6 @@ fun CollectionSheet(
 							content = { Text(stringResource(Res.string.action_delete_download)) },
 							leadingContent = { Icon(Icons.Outlined.Delete, null) },
 							onClick = {
-								platformContext.clickSound()
 								onDeleteDownloadAll?.invoke()
 								onDismissRequest()
 							},
@@ -322,7 +312,6 @@ fun CollectionSheet(
 								)
 							},
 							onClick = {
-								platformContext.clickSound()
 								onDownloadAll?.invoke()
 								onDismissRequest()
 							},
@@ -336,7 +325,6 @@ fun CollectionSheet(
 							content = { Text(stringResource(Res.string.action_download)) },
 							leadingContent = { Icon(Icons.Outlined.Download, null) },
 							onClick = {
-								platformContext.clickSound()
 								onDownloadAll?.invoke()
 								onDismissRequest()
 							},
@@ -350,7 +338,6 @@ fun CollectionSheet(
 					content = { Text(stringResource(Res.string.action_download)) },
 					leadingContent = { Icon(Icons.Outlined.Download, null) },
 					onClick = {
-						platformContext.clickSound()
 						onDownloadAll()
 						onDismissRequest()
 					},
@@ -365,7 +352,6 @@ fun CollectionSheet(
 					content = { Text(stringResource(Res.string.action_delete)) },
 					leadingContent = { Icon(Icons.Outlined.PlaylistRemove, null) },
 					onClick = {
-						platformContext.clickSound()
 						onDelete()
 						onDismissRequest()
 					},
@@ -374,5 +360,12 @@ fun CollectionSheet(
 				)
 			}
 		}
+	}
+
+	if (linkToOpen != null) {
+		LinkConfirmationDialog(
+			linkToOpen = linkToOpen!!,
+			onDismissRequest = { linkToOpen = null }
+		)
 	}
 }

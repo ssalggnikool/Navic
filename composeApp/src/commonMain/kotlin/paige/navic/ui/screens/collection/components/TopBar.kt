@@ -6,20 +6,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.collections.immutable.toPersistentList
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_more
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.LocalNavStack
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumInfo
 import paige.navic.domain.models.DomainSongCollection
@@ -49,7 +47,6 @@ fun CollectionDetailScreenTopBar(
 	onSetStarred: ((Boolean) -> Unit)? = null,
 	refreshCollection: () -> Unit
 ) {
-	val uriHandler = LocalUriHandler.current
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 	val backStack = LocalNavStack.current
 
@@ -64,8 +61,8 @@ fun CollectionDetailScreenTopBar(
 		},
 		actions = {
 			Box {
-				var expanded by remember { mutableStateOf(false) }
-				TopBarButton({
+				var expanded by rememberSaveable { mutableStateOf(false) }
+				TopBarButton(onClick = {
 					expanded = true
 					refreshCollection()
 				}) {
@@ -86,10 +83,6 @@ fun CollectionDetailScreenTopBar(
 						onPlayNext = onPlayNext,
 						onAddToQueue = onAddToQueue,
 						onAddAllToPlaylist = { playlistDialogShown = true },
-						onViewOnLastFm = { url -> uriHandler.openUri(url) },
-						onViewOnMusicBrainz = { id ->
-							uriHandler.openUri("https://musicbrainz.org/release/$id")
-						},
 						onViewArtist =
 							if (collection is DomainAlbum)
 								dropUnlessResumed { backStack.add(Screen.ArtistDetail(collection.artistId)) }

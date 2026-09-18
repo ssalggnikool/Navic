@@ -17,10 +17,6 @@ pluginManagement {
 	}
 }
 
-plugins {
-	id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
-
 dependencyResolutionManagement {
 	repositories {
 		google {
@@ -29,6 +25,9 @@ dependencyResolutionManagement {
 				includeGroupAndSubgroups("com.android")
 				includeGroupAndSubgroups("com.google")
 			}
+		}
+		maven {
+			url = uri("https://raw.githubusercontent.com/Nightdavisao/maven-repo/refs/heads/main/")
 		}
 		mavenCentral()
 	}

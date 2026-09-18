@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,12 +24,10 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.NavKey
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.LocalPlatformContext
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.defaultFont
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyGridScope.libraryScreenOverviewButton(
 	icon: ImageVector,
 	label: StringResource,
@@ -38,7 +35,6 @@ fun LazyGridScope.libraryScreenOverviewButton(
 	start: Boolean
 ) {
 	item(span = { GridItemSpan(1) }) {
-		val platformContext = LocalPlatformContext.current
 		val backStack = LocalNavStack.current
 		Button(
 			modifier = Modifier
@@ -59,7 +55,6 @@ fun LazyGridScope.libraryScreenOverviewButton(
 				contentColor = MaterialTheme.colorScheme.onSurfaceVariant
 			),
 			onClick = dropUnlessResumed {
-				platformContext.clickSound()
 				if (backStack.lastOrNull() !is Screen.AlbumList) {
 					backStack.add(destination)
 				}

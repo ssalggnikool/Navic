@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -50,10 +48,9 @@ import navic.composeapp.generated.resources.title_songs
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalPlatformContext
-import paige.navic.LocalNavStack
 import paige.navic.data.database.entities.DownloadEntity
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumListType
@@ -73,7 +70,6 @@ import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StarredScreenContent(
 	innerPadding: PaddingValues,
@@ -121,13 +117,11 @@ fun StarredScreenContent(
 	onAddArtistToQueue: () -> Unit,
 ) {
 	val gridState = rememberLazyGridState()
-	val platformContext = LocalPlatformContext.current
 	val backStack = LocalNavStack.current
 	val albums = albumsState.data.orEmpty()
 	val songs = songsState.data.orEmpty()
 	val artists = artistsState.data.orEmpty()
 	val downloadManager = koinInject<DownloadManager>()
-	val uriHandler = LocalUriHandler.current
 
 	val scope = rememberCoroutineScope()
 
@@ -192,11 +186,10 @@ fun StarredScreenContent(
 						style = MaterialTheme.typography.labelLarge,
 						color = MaterialTheme.colorScheme.primary,
 						modifier = Modifier.clickable(onClick = dropUnlessResumed {
-							platformContext.clickSound()
 							backStack.add(
 								Screen.SongList(
 									nested = true,
-									listType = DomainSongListType.Starred
+									listType = DomainSongListType.FrequentlyPlayed
 								)
 							)
 						})
@@ -247,14 +240,14 @@ fun StarredScreenContent(
 			ArtCarousel(
 				stringResource(Res.string.title_albums),
 				albums.toImmutableList(),
-				Screen.AlbumList(true, DomainAlbumListType.Starred)
+				Screen.AlbumList(true, DomainAlbumListType.AlphabeticalByArtist)
 			) { album ->
 				val albumDownloadStatus by downloadManager
 					.getCollectionDownloadStatus(album.songs.map { it.id })
 					.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 				ArtCarouselItem(
 					coverArtId = album.coverArtId,
-					title = album.name,
+					title = album.name ?: "[unknown album]",
 					subtitle = album.artistName,
 					contentDescription = null,
 					onSelect = { onSelectAlbum(album) },
@@ -299,7 +292,7 @@ fun StarredScreenContent(
 			ArtCarousel(
 				stringResource(Res.string.title_artists),
 				artists.toImmutableList(),
-				Screen.ArtistList(true, DomainArtistListType.Starred)
+				Screen.ArtistList(true, DomainArtistListType.AlphabeticalByName)
 			) { artist ->
 				ArtCarouselItem(
 					coverArtId = artist.coverArtId,
@@ -325,20 +318,6 @@ fun StarredScreenContent(
 							songsToAddToPlaylist =
 								selectedArtistAlbums?.flatMap { it.songs }.orEmpty()
 									.toImmutableList()
-						},
-						onViewOnLastFm = {
-							onClearArtistSelection()
-							artist.lastFmUrl?.let { url ->
-								uriHandler.openUri(url)
-							}
-						},
-						onViewOnMusicBrainz = {
-							onClearArtistSelection()
-							artist.musicBrainzId?.let { id ->
-								uriHandler.openUri(
-									"https://musicbrainz.org/artist/$id"
-								)
-							}
 						},
 						starred = selectedArtistIsStarred,
 						onSetStarred = { onStarSelectedArtist(!selectedArtistIsStarred) }

@@ -1,8 +1,6 @@
 package paige.navic.ui.components.layouts
 
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -24,8 +22,7 @@ import navic.composeapp.generated.resources.title_search
 import navic.composeapp.generated.resources.title_settings
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import paige.navic.LocalNavStack
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.models.settings.NavbarConfig
 import paige.navic.domain.models.settings.NavbarTab
 import paige.navic.icons.Icons
@@ -38,10 +35,6 @@ import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.settings.viewmodels.NavtabsViewModel
 
-@OptIn(
-	ExperimentalMaterial3Api::class,
-	ExperimentalMaterial3ExpressiveApi::class
-)
 @Composable
 fun RootTopBar(
 	title: @Composable () -> Unit,
@@ -78,7 +71,6 @@ fun RootTopBar(
 private fun Actions(
 	navConfig: NavbarConfig?,
 ) {
-	val platformContext = LocalPlatformContext.current
 	val backStack = LocalNavStack.current
 
 	val isSearchEnabled = navConfig?.tabs?.any {
@@ -91,7 +83,6 @@ private fun Actions(
 		TooltipBox(stringResource(Res.string.title_search)) {
 			IconButton(
 				onClick = dropUnlessResumed {
-					platformContext.clickSound()
 					backStack.add(Screen.Search(nested = true))
 				}
 			) {
@@ -105,7 +96,6 @@ private fun Actions(
 
 	TooltipBox(stringResource(Res.string.title_settings)) {
 		IconButton(onClick = dropUnlessResumed {
-			platformContext.clickSound()
 			backStack.add(Screen.Settings.Root)
 		}) {
 			Icon(
@@ -117,7 +107,6 @@ private fun Actions(
 
 	TooltipBox(stringResource(Res.string.title_account)) {
 		IconButton(onClick = {
-			platformContext.clickSound()
 			accountSheetOpen = true
 		}) {
 			Icon(

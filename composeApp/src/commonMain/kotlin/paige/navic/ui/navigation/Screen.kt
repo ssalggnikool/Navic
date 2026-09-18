@@ -77,6 +77,14 @@ sealed interface Screen : NavKey {
 
 	@Immutable
 	@Serializable
+	data class ImageView(
+		val coverArtId: String,
+		val title: String,
+		val sharedTransitionKey: String
+	) : Screen
+
+	@Immutable
+	@Serializable
 	data object NowPlaying : Screen
 
 	@Immutable
@@ -100,7 +108,11 @@ sealed interface Screen : NavKey {
 
 	@Immutable
 	@Serializable
-	data class SongDetail(val songId: String) : Screen
+	data class SongDetailSheet(val songId: String, val coverArtId: String? = null) : Screen
+
+	@Immutable
+	@Serializable
+	data class SongDetailScreen(val songId: String, val coverArtId: String? = null) : Screen
 
 	@Immutable
 	@Serializable
@@ -150,10 +162,6 @@ sealed interface Screen : NavKey {
 
 		@Immutable
 		@Serializable
-		data object Acknowledgements : Settings
-
-		@Immutable
-		@Serializable
 		data object DataStorage : Settings
 
 		@Immutable
@@ -166,6 +174,9 @@ sealed interface Screen : NavKey {
 
 		@Immutable
 		@Serializable
+		data object Effects: Settings
+		@Immutable
+		@Serializable
 		data object CustomHeaders : Settings
 
 		@Immutable
@@ -174,6 +185,18 @@ sealed interface Screen : NavKey {
 
 		@Immutable
 		@Serializable
+		data object DownloadQuality : Settings
+
+		@Immutable
+		@Serializable
 		data object Logs : Settings
+
+		@Immutable
+		@Serializable
+		data object AppIcon : Settings
+
+		@Immutable
+		@Serializable
+		data object Equaliser : Settings
 	}
 }

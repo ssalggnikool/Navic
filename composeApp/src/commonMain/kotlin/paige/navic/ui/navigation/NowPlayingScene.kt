@@ -11,7 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -32,9 +32,9 @@ import androidx.navigation3.scene.SceneStrategyScope
 import com.kyant.capsule.ContinuousRoundedRectangle
 import paige.navic.ui.components.sheets.ModalBottomSheet
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.util.ui.LocalSheetState
-import paige.navic.util.ui.rememberColorSchemeForCurrentSong
-import paige.navic.util.ui.rememberScreenCornerRadius
+import paige.navic.di.LocalSheetState
+import paige.navic.ui.util.rememberColorSchemeForCurrentSong
+import paige.navic.ui.util.rememberScreenCornerRadius
 
 class NowPlayingScene<T : Any>(
 	override val key: Any,
@@ -51,7 +51,7 @@ class NowPlayingScene<T : Any>(
 	lateinit var sheetState: SheetState
 
 	override val content = @Composable {
-		sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+		sheetState = rememberBottomSheetState(SheetValue.Hidden, setOf(SheetValue.Hidden, SheetValue.Expanded))
 		val lifecycleOwner = rememberLifecycleOwner()
 		val screenCornerRadius = rememberScreenCornerRadius()
 

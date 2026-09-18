@@ -10,7 +10,7 @@ import kotlin.time.Instant
 data class DomainSong(
 	val id: String,
 	val title: String,
-	val artistName: String,
+	val artistName: String?,
 	val artistId: String,
 	val albumTitle: String?,
 	val albumId: String?,
@@ -35,11 +35,14 @@ data class DomainSong(
 	val audioChannelCount: Int?,
 	val replayGain: DomainReplayGain?,
 	val fileSize: Long,
-	val fileExtension: String,
-	val mimeType: String,
+	val fileExtension: String?,
+	val mimeType: String?,
 	val filePath: String?,
 	val starredAt: Instant?,
 	val coverArtId: String?,
 	val musicBrainzId: String?,
-	val explicitStatus: DomainExplicitStatus
+	val explicitStatus: DomainExplicitStatus,
+	val artists: List<DomainSongArtist>,
+	val albumArtists: List<DomainSongArtist>,
+	val isExternal: Boolean = false
 )

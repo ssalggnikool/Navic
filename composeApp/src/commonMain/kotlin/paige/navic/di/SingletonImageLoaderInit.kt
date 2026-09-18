@@ -14,7 +14,7 @@ private var sharedDiskCache: DiskCache? = null
 
 private fun getMemoryCache(context: CoilPlatformContext): MemoryCache {
 	return sharedMemoryCache ?: MemoryCache.Builder()
-		.maxSizePercent(context, 0.25)
+		.maxSizePercent(context, 0.15)
 		.build().also { sharedMemoryCache = it }
 }
 
@@ -36,6 +36,11 @@ fun initializeSingletonImageLoader(context: CoilPlatformContext): ImageLoader {
 		.build()
 }
 
+/**
+ * image loader which doesn't animate GIFs
+ *
+ * only used in `BlendBackground.kt` right now
+ */
 fun getStaticImageLoader(context: CoilPlatformContext): ImageLoader {
 	return ImageLoader.Builder(context)
 		.serviceLoaderEnabled(false)

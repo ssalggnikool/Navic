@@ -1,7 +1,6 @@
 package paige.navic.ui.theme
 
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.ShapeDefaults
@@ -13,7 +12,6 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.AnimationStyle
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavicTheme(
 	colorScheme: ColorScheme? = null,

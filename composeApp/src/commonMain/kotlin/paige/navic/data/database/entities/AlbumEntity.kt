@@ -8,11 +8,11 @@ import kotlin.time.Instant
 @Entity
 data class AlbumEntity(
 	@PrimaryKey val albumId: String,
-	val name: String,
-	val artistName: String,
+	val name: String?,
+	val artistName: String?,
 	val artistId: String,
 	val year: Int?,
-	val coverArtId: String,
+	val coverArtId: String?,
 	val genre: String?,
 	val genres: List<String>,
 	val songCount: Int,
@@ -24,4 +24,5 @@ data class AlbumEntity(
 	val userRating: Int?,
 	val version: String?,
 	val musicBrainzId: String?,
+	val isExternal: Boolean
 )

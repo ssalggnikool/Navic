@@ -2,8 +2,7 @@ package paige.navic.ui.screens.library
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,7 +22,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalBottomBarScrollManager
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.models.DomainAlbumListType
 import paige.navic.domain.models.DomainArtistListType
 import paige.navic.domain.models.DomainSongCollection
@@ -33,49 +33,57 @@ import paige.navic.ui.components.dialogs.DeletionEndpoint
 import paige.navic.ui.components.layouts.PullToRefreshBox
 import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.layouts.RootTopBar
-import paige.navic.ui.components.snackbars.ErrorSnackbar
+import paige.navic.ui.components.snackbars.ErrorSnackBar
 import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.core.UiState
+import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screens.album.viewmodels.AlbumListViewModel
 import paige.navic.ui.screens.artist.viewmodels.ArtistListViewModel
 import paige.navic.ui.screens.genre.viewmodels.GenreListViewModel
 import paige.navic.ui.screens.library.components.LibraryScreenContent
-import paige.navic.ui.screens.login.viewmodels.LoginViewModel
 import paige.navic.ui.screens.playlist.dialogs.PlaylistCreateDialog
 import paige.navic.ui.screens.playlist.viewmodels.PlaylistListViewModel
 import paige.navic.ui.screens.share.dialogs.ShareDialog
+import paige.navic.ui.viewmodel.RootViewModel
 import kotlin.time.Duration
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen() {
+	val persistentViewModelStoreOwner = koinInject<PersistentViewModelStoreOwner>()
+
 	val albumsViewModel = koinViewModel<AlbumListViewModel>(
 		key = "libraryAlbums",
-		parameters = { parametersOf(DomainAlbumListType.Recent) }
+		parameters = { parametersOf(DomainAlbumListType.Recent) },
+		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val albumsState by albumsViewModel.albumsState.collectAsStateWithLifecycle()
 	val selectedAlbum by albumsViewModel.selectedAlbum.collectAsStateWithLifecycle()
 	val selectedAlbumIsStarred by albumsViewModel.starred.collectAsStateWithLifecycle()
 	val selectedAlbumRating by albumsViewModel.rating.collectAsStateWithLifecycle()
 
-	val playlistsViewModel = koinViewModel<PlaylistListViewModel>()
+	val playlistsViewModel = koinViewModel<PlaylistListViewModel>(
+		viewModelStoreOwner = persistentViewModelStoreOwner
+	)
 	val playlistsState by playlistsViewModel.playlistsState.collectAsStateWithLifecycle()
 	val selectedPlaylist by playlistsViewModel.selectedPlaylist.collectAsStateWithLifecycle()
 
 	val artistsViewModel = koinViewModel<ArtistListViewModel>(
 		key = "libraryArtists",
-		parameters = { parametersOf(DomainArtistListType.AlphabeticalByName) }
+		parameters = { parametersOf(DomainArtistListType.AlphabeticalByName) },
+		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val artistsState by artistsViewModel.artistsState.collectAsStateWithLifecycle()
 	val selectedArtist by artistsViewModel.selectedArtist.collectAsStateWithLifecycle()
 	val selectedArtistAlbums by artistsViewModel.selectedArtistAlbums.collectAsStateWithLifecycle()
 	val selectedArtistIsStarred by artistsViewModel.starred.collectAsStateWithLifecycle()
 
-	val genresViewModel = koinViewModel<GenreListViewModel>()
+	val genresViewModel = koinViewModel<GenreListViewModel>(
+		viewModelStoreOwner = persistentViewModelStoreOwner
+	)
 	val genresState by genresViewModel.genresState.collectAsStateWithLifecycle()
 
-	val loginViewModel = koinViewModel<LoginViewModel>()
-	val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
+	val loginManager = koinInject<LoginManager>()
+	val loginState by loginManager.loginState.collectAsStateWithLifecycle()
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
@@ -91,6 +99,16 @@ fun LibraryScreen() {
 		playlistsViewModel.refreshPlaylists(false)
 		artistsViewModel.refreshArtists(false)
 		genresViewModel.refreshGenres(false)
+	}
+
+	val gridState = rememberLazyGridState()
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				gridState.animateScrollToItem(0)
+			}
+		}
 	}
 
 	Scaffold(
@@ -117,6 +135,7 @@ fun LibraryScreen() {
 			key = listOf(albumsState, playlistsState, artistsState, genresState)
 		) {
 			LibraryScreenContent(
+				state = gridState,
 				scrollBehavior = scrollBehavior,
 				innerPadding = innerPadding,
 				onSetShareId = { shareId = it },
@@ -178,7 +197,7 @@ fun LibraryScreen() {
 		(genresState as? UiState.Error)?.error
 	).mapNotNull { it?.stackTraceToString() }.takeIf { it.isNotEmpty() }?.joinToString("\n\n")
 
-	ErrorSnackbar(
+	ErrorSnackBar(
 		error = flattenedErrors?.let { Error(it) },
 		onClearError = {
 			albumsViewModel.clearError()

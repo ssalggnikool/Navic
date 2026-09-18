@@ -1,5 +1,5 @@
-// very limited markdown parser
-// since this is literally just used once i didn't want to add another dependency
+// very limited Markdown parser
+// since this is literally just used once I didn't want to add another dependency
 
 package paige.navic.ui.components.common
 

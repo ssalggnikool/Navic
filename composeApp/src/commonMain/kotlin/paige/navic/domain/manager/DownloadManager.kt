@@ -1,6 +1,6 @@
 package paige.navic.domain.manager
 
-import coil3.SingletonImageLoader
+import coil3.ImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.size.Size
@@ -37,10 +37,11 @@ import paige.navic.data.database.dao.LyricDao
 import paige.navic.data.database.entities.DownloadEntity
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.data.database.entities.LyricEntity
+import paige.navic.di.PlatformType
 import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.repositories.LyricsRepository
-import paige.navic.util.core.Logger
+import paige.navic.util.Logger
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.info_progress
 import navic.composeapp.generated.resources.title_library_download
@@ -48,6 +49,7 @@ import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
 	private val coilPlatformContext: CoilPlatformContext,
+	private val imageLoader: ImageLoader,
 	private val downloadDao: DownloadDao,
 	private val albumDao: AlbumDao,
 	private val storageManager: StorageManager,
@@ -55,6 +57,8 @@ class DownloadManager(
 	private val lyricDao: LyricDao,
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager,
+	private val connectivityManager: ConnectivityManager,
+	private val platformType: PlatformType,
 	private val notificationManager: NotificationManager
 ) {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -320,7 +324,7 @@ class DownloadManager(
 			.memoryCachePolicy(CachePolicy.DISABLED)
 			.build()
 
-		SingletonImageLoader.get(coilPlatformContext).execute(imageRequest)
+		imageLoader.execute(imageRequest)
 		Logger.i("DownloadManager", "cached cover art for $coverId")
 	}
 
@@ -348,9 +352,9 @@ class DownloadManager(
 			if (lyricsResult != null && lyricsResult.rawContent != null) {
 				lyricDao.insertLyrics(
 					LyricEntity(
-						song.id,
-						lyricsResult.rawContent,
-						lyricsResult.provider
+						songId = song.id,
+						rawContent = lyricsResult.rawContent,
+						providerName = lyricsResult.providerName
 					)
 				)
 				Logger.i("DownloadManager", "cached lyrics for ${song.id}")
@@ -365,7 +369,31 @@ class DownloadManager(
 		var lastProgress = 0f
 		var progressJob: Job? = null
 
-		val request = client.prepareRequest(sessionManager.api.getStreamUrl(song.id)) {
+		val isCellular = connectivityManager.isCellular.value
+		val bitrate = if (preferenceManager.isAdvancedDownloadTranscodingActive) {
+			if (isCellular) preferenceManager.customDownloadMaxBitrateCellular else preferenceManager.customDownloadMaxBitrateWifi
+		} else {
+			val quality = if (isCellular) preferenceManager.downloadQualityCellular else preferenceManager.downloadQualityWifi
+			if (platformType == PlatformType.Android) quality.bitrateAndroid else quality.bitrateIos
+		}
+		val container = if (preferenceManager.isAdvancedDownloadTranscodingActive) {
+			if (isCellular) preferenceManager.customDownloadFormatCellular else preferenceManager.customDownloadFormatWifi
+		} else {
+			val quality = if (isCellular) preferenceManager.downloadQualityCellular else preferenceManager.downloadQualityWifi
+			if (platformType == PlatformType.Android) quality.containerAndroid else quality.containerIos
+		}
+
+		val extension = container?.takeIf { it.isNotBlank() } ?: song.fileExtension
+
+		val request = client.prepareRequest(
+			sessionManager.api.getStreamUrl(
+				id = song.id,
+				maxBitRate = bitrate,
+				format = container?.takeIf { it.isNotBlank() },
+				// if this is true u get "stream was reset: INTERNAL_ERROR" for some reason
+				estimateContentLength = false
+			)
+		) {
 			method = HttpMethod.Get
 			onDownload { bytesSentTotal, contentLength ->
 				if (contentLength != null && contentLength > 0L) {
@@ -392,7 +420,10 @@ class DownloadManager(
 
 		request.execute { response ->
 			Logger.i("DownloadManager", "writing download for ${song.id}")
-			val path = storageManager.getDownloadPath(song.id, song.fileExtension)
+			val path = storageManager.getDownloadPath(
+				song.id,
+				extension ?: "mp3" // TODO: idk how to handle this being null lol
+			)
 			storageManager.saveFile(path, response.bodyAsChannel())
 			Logger.i("DownloadManager", "wrote download for ${song.id}")
 

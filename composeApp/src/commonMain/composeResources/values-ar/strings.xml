@@ -11,7 +11,6 @@
     <string name="title_playback">التشغيل</string>
     <string name="title_developer">خيارات المطور</string>
     <string name="title_about">عن التطبيق</string>
-    <string name="title_acknowledgements">شكر وتقدير</string>
     <string name="title_delete_playlist">عايز تحذف قايمة التشغيل؟</string>
     <string name="title_delete_share">عايز تحذف المشاركة؟</string>
     <string name="title_create_share">اعمل مشاركة</string>
@@ -21,8 +20,6 @@
     <string name="title_artists">الفنانين</string>
     <string name="title_all">الكل</string>
     <string name="title_similar_artists">فنانين زيه</string>
-    <string name="title_source">كود المطور</string>
-    <string name="title_chat">الشات</string>
     <string name="title_shares">المشاركات</string>
     <string name="title_choose_font">خط التطبيق</string>
     <string name="title_fonts_inbuilt">جوه التطبيق</string>
@@ -57,7 +54,6 @@
     <string name="option_use_marquee_text">تمرير النص</string>
     <string name="option_alphabetical_scroll">تمرير أبجدي</string>
     <string name="option_grid_items_per_row">حجم الشبكة</string>
-    <string name="option_lyrics_priority">مصدر الكلمات</string>
     <string name="option_share_expires">بتنتهي امتى</string>
     <string name="option_account_navidrome_instance">رابط الـ Instance</string>
     <string name="option_account_username">اسم المستخدم</string>
@@ -108,15 +104,10 @@
     <string name="option_mini_player_progress_style_visible">ظاهر</string>
     <string name="option_mini_player_progress_style_seekable">قابل للتحريك</string>
     <string name="theme_dynamic">ديناميكي</string>
-    <string name="theme_subtitle_dynamic">شغال على أندرويد 12 وفوق</string>
     <string name="theme_seeded">ملون</string>
-    <string name="theme_subtitle_seeded">لون واحد للتطبيق كله</string>
     <string name="theme_ios">كوبرتينو</string>
-    <string name="theme_subtitle_ios">مدينة في كاليفورنيا</string>
     <string name="theme_apple_music">Music.app</string>
-    <string name="theme_subtitle_apple_music">ثيم بتفاصيل حمرا وبينك</string>
     <string name="theme_spotify">سبوتلايت</string>
-    <string name="theme_subtitle_spotify">ثيم بتفاصيل خضرا</string>
     <string name="theme_mode_system">حسب الجهاز</string>
     <string name="theme_mode_dark">داكن</string>
     <string name="theme_mode_light">فاتح</string>
@@ -220,8 +211,4 @@
     <string name="info_no_playlists_short">مفيش قوايم تشغيل</string>
     <string name="info_lyrics_provider">الكلمات من %1$s</string>
     <string name="info_image_failed_to_load">فشل التحميل</string>
-    <string name="sideloading_warning_title">وقف، اقرا الأول!!</string>
-    <string name="sideloading_warning_subtitle">جوجل بتفكر إنها توقف الـ Sideloading على كل الأجهزة اللي عليها Google Play Services!\n</string>
-    <string name="sideloading_warning_description">التفاصيل الكاملة لسه مش واضحة، بس ممكن يوصل للنقطة دي إن أي تطبيق مش على البلاي ستور يتحجب، إلا لو صاحب التطبيق كشف هويته لجوجل أو للناس....\n\nلو عندك الخبرة إنك تركّب ROM مخصص على جهازك، دلوقتي أحسن وقت.\n\nاقرا أكتر عن اللي تقدر تعمله وإزاي تخلي صوتك يتسمع</string>
-    <string name="sideloading_warning_link_mask">من هنا.</string>
 </resources>

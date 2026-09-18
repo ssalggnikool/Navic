@@ -19,16 +19,17 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_more
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalPlatformContext
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.MoreHoriz
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.sheets.SongSheet
+import paige.navic.ui.components.sheets.SleepTimerSheet
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.theme.NavicTheme
+import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import kotlin.time.Duration
 
 @Composable
@@ -37,18 +38,18 @@ fun NowPlayingMoreButton(
 	onSetSongRating: (Int) -> Unit
 ) {
 	val backStack = LocalNavStack.current
-	val platformContext = LocalPlatformContext.current
 	val player = koinInject<MediaPlayerViewModel>()
 	val playerState by player.uiState.collectAsState()
 	val song = playerState.currentSong
 	var expanded by remember { mutableStateOf(false) }
+	var sleepTimerSheetShown by rememberSaveable { mutableStateOf(false) }
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 	var shareId by remember { mutableStateOf<String?>(null) }
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
+	val colorScheme = rememberColorSchemeFromCoverArt(song?.coverArtId)
 
 	IconButton(
 		onClick = {
-			platformContext.clickSound()
 			expanded = true
 		},
 		colors = IconButtonDefaults.filledTonalIconButtonColors(),
@@ -62,7 +63,7 @@ fun NowPlayingMoreButton(
 	}
 
 	if (expanded && song != null) {
-		NavicTheme {
+		NavicTheme(colorScheme) {
 			SongSheet(
 				onDismissRequest = { expanded = false },
 				song = song,
@@ -84,19 +85,35 @@ fun NowPlayingMoreButton(
 					playlistDialogShown = true
 				},
 				onTrackInfo = dropUnlessResumed {
-					backStack.remove(Screen.NowPlaying)
-					backStack.add(Screen.SongDetail(song.id))
+					expanded = false
+					backStack.add(Screen.SongDetailSheet(songId = song.id, coverArtId = song.coverArtId))
 				},
 				rating = songRating,
 				onSetRating = onSetSongRating,
 				showSleepTimer = true,
-				showPlaybackSpeed = true
+				onSleepTimer = {
+					expanded = false
+					sleepTimerSheetShown = true
+				},
+				showPlaybackSpeed = true,
+				onPlaybackSpeed = {
+					expanded = false
+					backStack.add(Screen.PlaybackSpeed)
+				}
+			)
+		}
+	}
+
+	if (sleepTimerSheetShown) {
+		NavicTheme(colorScheme) {
+			SleepTimerSheet(
+				onDismissRequest = { sleepTimerSheetShown = false }
 			)
 		}
 	}
 
 	if (playlistDialogShown && song != null) {
-		NavicTheme {
+		NavicTheme(colorScheme) {
 			PlaylistUpdateDialog(
 				songs = persistentListOf(song),
 				onDismissRequest = { playlistDialogShown = false }
@@ -104,7 +121,7 @@ fun NowPlayingMoreButton(
 		}
 	}
 
-	NavicTheme {
+	NavicTheme(colorScheme) {
 		ShareDialog(
 			id = shareId,
 			onIdClear = { shareId = null },

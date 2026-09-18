@@ -13,12 +13,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -50,6 +47,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.data.database.entities.DownloadEntity
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainExplicitStatus
 import paige.navic.domain.models.DomainSong
@@ -65,13 +63,15 @@ import paige.navic.icons.outlined.QueuePlayNext
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.CoverArt
 import paige.navic.ui.components.common.MarqueeText
+import paige.navic.ui.components.common.SegmentedListItem
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.common.Waveform
 import paige.navic.ui.components.dialogs.QueueDuplicateDialog
-import paige.navic.util.core.InlineExplicitIcon
-import paige.navic.util.core.toHoursMinutesSeconds
-import paige.navic.util.ui.segmentedShapes
+import paige.navic.ui.navigation.Screen
+import paige.navic.ui.util.InlineExplicitIcon
+import paige.navic.ui.util.buildSongInfoString
+import paige.navic.util.toHoursMinutesSeconds
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CollectionDetailScreenSongRow(
 	song: DomainSong,
@@ -102,11 +102,7 @@ fun CollectionDetailScreenSongRow(
 
 	var isPlayNextPending by rememberSaveable { mutableStateOf<Boolean?>(null) }
 
-	val itemShape = segmentedShapes(
-		index = index,
-		count = count,
-		dismissDirection = dismissState.dismissDirection
-	)
+	val backStack = LocalNavStack.current
 
 	SwipeToDismissBox(
 		modifier = Modifier.padding(horizontal = 16.dp, vertical = 1.5.dp),
@@ -114,14 +110,14 @@ fun CollectionDetailScreenSongRow(
 		gesturesEnabled = !isExplicit,
 		onDismiss = {
 			if (it == SwipeToDismissBoxValue.StartToEnd) {
-				if (playerState.queue.any { item -> item.id == song.id }) {
+				if (playerState.queue.any { item -> item.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 					isPlayNextPending = false
 				} else {
 					onAddToQueue()
 				}
 			}
 			if (it == SwipeToDismissBoxValue.EndToStart) {
-				if (playerState.queue.any { item -> item.id == song.id }) {
+				if (playerState.queue.any { item -> item.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 					isPlayNextPending = true
 				} else {
 					onPlayNext()
@@ -166,9 +162,10 @@ fun CollectionDetailScreenSongRow(
 			contentPadding = PaddingValues(14.dp),
 			onClick = onClick,
 			onLongClick = onLongClick,
-			shapes = itemShape,
-			colors = ListItemDefaults.segmentedColors(
-				containerColor = MaterialTheme.colorScheme.surfaceContainer
+			shapes = SegmentedListItemDefaults.segmentedShapes(
+				index = index,
+				count = count,
+				dismissDirection = dismissState.dismissDirection
 			),
 			leadingContent = {
 				if (isPlaylist)
@@ -183,7 +180,6 @@ fun CollectionDetailScreenSongRow(
 						modifier = Modifier.width(25.dp),
 						style = LocalTextStyle.current.copy(fontFeatureSettings = "tnum"),
 						fontWeight = FontWeight(400),
-						color = MaterialTheme.colorScheme.onSurfaceVariant,
 						maxLines = 1,
 						textAlign = TextAlign.Center,
 						autoSize = TextAutoSize.StepBased(6.sp, 13.sp)
@@ -201,10 +197,14 @@ fun CollectionDetailScreenSongRow(
 						},
 						inlineContent = InlineExplicitIcon
 					)
-					Text(
-						song.artistName,
-						style = MaterialTheme.typography.bodySmall,
-						maxLines = 1
+					MarqueeText(
+						text = buildSongInfoString(
+							song = song,
+							onClickArtist = { backStack.add(Screen.ArtistDetail(it)) },
+							showYear = false,
+							showAlbum = false
+						),
+						style = MaterialTheme.typography.bodySmall
 					)
 				}
 			},

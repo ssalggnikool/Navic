@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,19 +29,17 @@ import navic.composeapp.generated.resources.action_reorder
 import navic.composeapp.generated.resources.option_navigation_bar_tabs
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import paige.navic.LocalPlatformContext
 import paige.navic.domain.models.settings.NavbarTab
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.DragHandle
 import paige.navic.ui.components.common.ErrorBox
 import paige.navic.ui.core.UiState
 import paige.navic.ui.screens.settings.viewmodels.NavtabsViewModel
-import paige.navic.util.ui.DraggableListState
-import paige.navic.util.ui.dragHandle
-import paige.navic.util.ui.draggableItems
-import paige.navic.util.ui.rememberDraggableListState
+import paige.navic.ui.util.DraggableListState
+import paige.navic.ui.util.dragHandle
+import paige.navic.ui.util.draggableItems
+import paige.navic.ui.util.rememberDraggableListState
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavtabsDialog(
 	presented: Boolean,
@@ -103,7 +100,6 @@ fun NavtabsDialog(
 	}
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NavtabRow(
 	tab: NavbarTab,
@@ -111,7 +107,6 @@ private fun NavtabRow(
 	isDragging: Boolean,
 	onToggleVisibility: () -> Unit
 ) {
-	val platformContext = LocalPlatformContext.current
 	val elevation by animateDpAsState(
 		if (isDragging) 4.dp else 0.dp,
 		animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec()
@@ -133,7 +128,6 @@ private fun NavtabRow(
 				enabled = tab.id != NavbarTab.Id.LIBRARY,
 				checked = tab.visible,
 				onCheckedChange = { _ ->
-					platformContext.clickSound()
 					onToggleVisibility()
 				}
 			)

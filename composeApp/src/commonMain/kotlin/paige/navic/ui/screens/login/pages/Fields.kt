@@ -1,7 +1,7 @@
 package paige.navic.ui.screens.login.pages
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.KeyboardActionHandler
@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
-import navic.composeapp.generated.resources.option_account_navidrome_instance
+import navic.composeapp.generated.resources.option_account_instance
 import navic.composeapp.generated.resources.option_account_password
 import navic.composeapp.generated.resources.option_account_username
 import org.jetbrains.compose.resources.stringResource
@@ -51,7 +51,7 @@ fun LoginScreenFields(
 	var instanceWasFocused by remember { mutableStateOf(false) }
 	OutlinedTextField(
 		modifier = Modifier
-			.height(60.dp)
+			.heightIn(min = 60.dp)
 			.padding(horizontal = 16.dp)
 			.fillMaxWidth()
 			.focusRequester(instanceFocusRequester)
@@ -63,7 +63,7 @@ fun LoginScreenFields(
 			},
 		state = instanceState,
 		isError = instanceError,
-		label = { Text(stringResource(Res.string.option_account_navidrome_instance)) },
+		label = { Text(stringResource(Res.string.option_account_instance)) },
 		lineLimits = TextFieldLineLimits.SingleLine,
 		enabled = !isBusy,
 		keyboardOptions = KeyboardOptions(
@@ -82,7 +82,7 @@ fun LoginScreenFields(
 	var usernameWasFocused by remember { mutableStateOf(false) }
 	OutlinedTextField(
 		modifier = Modifier
-			.height(60.dp)
+			.heightIn(min = 60.dp)
 			.padding(horizontal = 16.dp)
 			.fillMaxWidth()
 			.focusRequester(usernameFocusRequester)
@@ -113,7 +113,7 @@ fun LoginScreenFields(
 	var passwordWasFocused by remember { mutableStateOf(false) }
 	OutlinedSecureTextField(
 		modifier = Modifier
-			.height(60.dp)
+			.heightIn(min = 60.dp)
 			.padding(horizontal = 16.dp)
 			.fillMaxWidth()
 			.focusRequester(passwordFocusRequester)

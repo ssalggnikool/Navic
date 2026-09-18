@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.notice_login_suggestion
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.LocalPlatformContext
 
 @Composable
 fun LoginScreenSuggestionChips(
@@ -35,7 +34,6 @@ fun LoginScreenSuggestionChips(
 		!instanceState.text.startsWith("https://") &&
 		(instanceState.text.contains(".") || instanceState.text.contains(":"))
 ) {
-	val platformContext = LocalPlatformContext.current
 	AnimatedVisibility(
 		modifier = Modifier.fillMaxWidth(),
 		visible = showSuggestions,
@@ -63,7 +61,6 @@ fun LoginScreenSuggestionChips(
 				Spacer(Modifier.width(8.dp))
 				SuggestionChip(
 					onClick = {
-						platformContext.clickSound()
 						instanceState.edit {
 							replace(0, length, "https://$url")
 						}
@@ -78,7 +75,6 @@ fun LoginScreenSuggestionChips(
 				)
 				SuggestionChip(
 					onClick = {
-						platformContext.clickSound()
 						instanceState.edit {
 							replace(0, length, "http://$url")
 						}

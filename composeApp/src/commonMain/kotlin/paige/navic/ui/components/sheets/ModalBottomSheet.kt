@@ -6,8 +6,9 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -17,15 +18,15 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import paige.navic.util.ui.SheetHideMotionSpec
-import paige.navic.util.ui.SheetShowMotionSpec
+import paige.navic.ui.util.SheetHideMotionSpec
+import paige.navic.ui.util.SheetShowMotionSpec
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModalBottomSheet(
 	onDismissRequest: () -> Unit,
 	modifier: Modifier = Modifier,
-	sheetState: SheetState = rememberModalBottomSheetState(),
+	sheetState: SheetState = rememberBottomSheetState(SheetValue.Hidden),
 	sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
 	sheetGesturesEnabled: Boolean = true,
 	shape: Shape = BottomSheetDefaults.ExpandedShape,

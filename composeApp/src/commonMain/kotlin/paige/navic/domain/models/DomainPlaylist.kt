@@ -9,8 +9,8 @@ import kotlin.time.Instant
 @Serializable
 data class DomainPlaylist(
 	override val id: String,
-	override val name: String,
-	val owner: String,
+	override val name: String?,
+	val owner: String?,
 	val comment: String?,
 	override val coverArtId: String?,
 	override val songCount: Int,

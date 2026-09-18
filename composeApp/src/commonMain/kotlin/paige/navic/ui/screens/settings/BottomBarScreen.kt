@@ -1,10 +1,10 @@
 package paige.navic.ui.screens.settings
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,6 +21,7 @@ import kotlinx.collections.immutable.toImmutableList
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.option_bottom_bar_collapse_mode
 import navic.composeapp.generated.resources.option_bottom_bar_visibility_mode
+import navic.composeapp.generated.resources.option_hide_bottom_bar_if_idle
 import navic.composeapp.generated.resources.option_mini_player_progress_style
 import navic.composeapp.generated.resources.option_mini_player_style
 import navic.composeapp.generated.resources.option_navigation_bar_label_visibility
@@ -32,7 +33,8 @@ import navic.composeapp.generated.resources.title_mini_player
 import navic.composeapp.generated.resources.title_navigation_bar
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalPlatformContext
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.BottomBarCollapseMode
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
@@ -40,27 +42,32 @@ import paige.navic.domain.models.settings.MiniPlayerProgressStyle
 import paige.navic.domain.models.settings.MiniPlayerStyle
 import paige.navic.domain.models.settings.NavigationBarLabelVisibility
 import paige.navic.domain.models.settings.NavigationBarStyle
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.ChevronForward
-import paige.navic.ui.components.common.Form
-import paige.navic.ui.components.common.FormRow
-import paige.navic.ui.components.common.FormTitle
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
-import paige.navic.ui.screens.settings.components.SettingSelectionRow
-import paige.navic.ui.screens.settings.components.SettingSwitchRow
+import paige.navic.ui.components.layouts.NestedTopBarDefaults
+import paige.navic.ui.screens.settings.components.SettingsChoiceItem
+import paige.navic.ui.screens.settings.components.SettingsGroup
+import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
+import paige.navic.ui.screens.settings.components.SettingsNavItem
+import paige.navic.ui.screens.settings.components.SettingsToggleItem
 import paige.navic.ui.screens.settings.dialogs.NavtabsDialog
 
 @Composable
 fun BottomBarScreen() {
 	val platformContext = LocalPlatformContext.current
-	var showNavtabsDialog by rememberSaveable { mutableStateOf(false) }
+	val hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+	var tabsDialogOpen by rememberSaveable { mutableStateOf(false) }
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	Scaffold(
 		topBar = {
 			NestedTopBar(
-				{ Text(stringResource(Res.string.title_bottom_app_bar)) },
-				hideBack = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+				title = { Text(stringResource(Res.string.title_bottom_app_bar)) },
+				navigationAction = {
+					if (!hideBack) {
+						NestedTopBarDefaults.NavigationAction()
+					}
+				}
 			)
 		}
 	) { innerPadding ->
@@ -68,84 +75,97 @@ fun BottomBarScreen() {
 			LocalMinimumInteractiveComponentSize provides 0.dp
 		) {
 			Column(
-				Modifier
+				modifier = Modifier
 					.padding(innerPadding)
 					.verticalScroll(rememberScrollState())
-					.padding(top = 16.dp, end = 16.dp, start = 16.dp)
+					.padding(horizontal = 16.dp),
+				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
-				Form {
-					SettingSwitchRow(
-						title = { Text(stringResource(Res.string.option_swipe_to_skip)) },
-						value = preferenceManager.swipeToSkip,
-						onSetValue = { preferenceManager.swipeToSkip = it }
-					)
-
-					SettingSelectionRow(
-						items = BottomBarCollapseMode.entries.toImmutableList(),
+				SettingsGroup {
+					val count = if (!platformContext.isLandscape()) 2 else 1
+					SettingsChoiceItem(
+						choices = BottomBarCollapseMode.entries.toImmutableList(),
+						selectedChoice = preferenceManager.bottomBarCollapseMode,
+						onChoiceSelected = { preferenceManager.bottomBarCollapseMode = it },
+						content = { Text(stringResource(Res.string.option_bottom_bar_collapse_mode)) },
 						label = { stringResource(it.displayName) },
-						selection = preferenceManager.bottomBarCollapseMode,
-						onSelect = { preferenceManager.bottomBarCollapseMode = it },
-						title = { Text(stringResource(Res.string.option_bottom_bar_collapse_mode)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
 					)
 
-					SettingSelectionRow(
-						items = BottomBarVisibilityMode.entries.toImmutableList(),
-						label = { stringResource(it.displayName) },
-						selection = preferenceManager.bottomBarVisibilityMode,
-						onSelect = { preferenceManager.bottomBarVisibilityMode = it },
-						title = { Text(stringResource(Res.string.option_bottom_bar_visibility_mode)) },
-					)
-				}
-
-				FormTitle(stringResource(Res.string.title_navigation_bar))
-				Form {
-					SettingSelectionRow(
-						items = NavigationBarStyle.entries.toImmutableList(),
-						label = { stringResource(it.displayName) },
-						selection = preferenceManager.navigationBarStyle,
-						onSelect = { preferenceManager.navigationBarStyle = it },
-						title = { Text(stringResource(Res.string.option_navigation_bar_style)) },
-					)
-
-					SettingSelectionRow(
-						items = NavigationBarLabelVisibility.entries.toImmutableList(),
-						label = { stringResource(it.displayName) },
-						selection = preferenceManager.navigationBarLabelVisibility,
-						onSelect = { preferenceManager.navigationBarLabelVisibility = it },
-						title = { Text(stringResource(Res.string.option_navigation_bar_label_visibility)) },
-					)
-
-					FormRow(
-						onClick = { showNavtabsDialog = true }
-					) {
-						Text(stringResource(Res.string.option_navigation_bar_tabs))
-						Icon(Icons.Outlined.ChevronForward, null)
+					if (!platformContext.isLandscape()) {
+						SettingsChoiceItem(
+							choices = BottomBarVisibilityMode.entries.toImmutableList(),
+							selectedChoice = preferenceManager.bottomBarVisibilityMode,
+							onChoiceSelected = { preferenceManager.bottomBarVisibilityMode = it },
+							content = { Text(stringResource(Res.string.option_bottom_bar_visibility_mode)) },
+							label = { stringResource(it.displayName) },
+							shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = count)
+						)
 					}
 				}
 
-				FormTitle(stringResource(Res.string.title_mini_player))
-				Form {
-					SettingSelectionRow(
-						items = MiniPlayerStyle.entries.toImmutableList(),
+				SettingsGroup(title = { Text(stringResource(Res.string.title_navigation_bar)) }) {
+					SettingsChoiceItem(
+						choices = NavigationBarStyle.entries.toImmutableList(),
+						selectedChoice = preferenceManager.navigationBarStyle,
+						onChoiceSelected = { preferenceManager.navigationBarStyle = it },
+						content = { Text(stringResource(Res.string.option_navigation_bar_style)) },
 						label = { stringResource(it.displayName) },
-						selection = preferenceManager.miniPlayerStyle,
-						onSelect = { preferenceManager.miniPlayerStyle = it },
-						title = { Text(stringResource(Res.string.option_mini_player_style)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 
-					SettingSelectionRow(
-						items = MiniPlayerProgressStyle.entries.toImmutableList(),
+					SettingsChoiceItem(
+						choices = NavigationBarLabelVisibility.entries.toImmutableList(),
+						selectedChoice = preferenceManager.navigationBarLabelVisibility,
+						onChoiceSelected = { preferenceManager.navigationBarLabelVisibility = it },
+						content = { Text(stringResource(Res.string.option_navigation_bar_label_visibility)) },
 						label = { stringResource(it.displayName) },
-						selection = preferenceManager.miniPlayerProgressStyle,
-						onSelect = { preferenceManager.miniPlayerProgressStyle = it },
-						title = { Text(stringResource(Res.string.option_mini_player_progress_style)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+					)
+
+					SettingsNavItem(
+						onClick = { tabsDialogOpen = true },
+						content = { Text(stringResource(Res.string.option_navigation_bar_tabs)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
+					)
+				}
+
+				SettingsGroup(title = { Text(stringResource(Res.string.title_mini_player)) }) {
+					SettingsChoiceItem(
+						choices = MiniPlayerStyle.entries.toImmutableList(),
+						selectedChoice = preferenceManager.miniPlayerStyle,
+						onChoiceSelected = { preferenceManager.miniPlayerStyle = it },
+						content = { Text(stringResource(Res.string.option_mini_player_style)) },
+						label = { stringResource(it.displayName) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4)
+					)
+					SettingsChoiceItem(
+						choices = MiniPlayerProgressStyle.entries.toImmutableList(),
+						selectedChoice = preferenceManager.miniPlayerProgressStyle,
+						onChoiceSelected = { preferenceManager.miniPlayerProgressStyle = it },
+						content = { Text(stringResource(Res.string.option_mini_player_progress_style)) },
+						label = { stringResource(it.displayName) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+					)
+					SettingsToggleItem(
+						content = { Text(stringResource(Res.string.option_swipe_to_skip)) },
+						checked = preferenceManager.swipeToSkip,
+						onCheckedChange = { preferenceManager.swipeToSkip = it },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
+					)
+					SettingsToggleItem(
+						content = { Text(stringResource(Res.string.option_hide_bottom_bar_if_idle)) },
+						checked = preferenceManager.hideIfIdle,
+						onCheckedChange = { preferenceManager.hideIfIdle = it },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
 					)
 				}
 			}
 		}
-		NavtabsDialog(
-			presented = showNavtabsDialog,
-			onDismissRequest = { showNavtabsDialog = false }
-		)
 	}
+
+	NavtabsDialog(
+		presented = tabsDialogOpen,
+		onDismissRequest = { tabsDialogOpen = false }
+	)
 }

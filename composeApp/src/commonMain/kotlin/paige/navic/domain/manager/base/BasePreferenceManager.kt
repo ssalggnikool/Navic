@@ -17,7 +17,7 @@ private typealias Setter<T> = (key: String, newValue: T) -> Unit
  *
  * @property settings
  */
-@Suppress("SameParameterValue", "MemberVisibilityCanBePrivate", "unused")
+@Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 abstract class BasePreferenceManager(
 	protected val settings: Settings
 ) {

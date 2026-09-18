@@ -22,16 +22,15 @@ import navic.composeapp.generated.resources.info_unknown_genre
 import navic.composeapp.generated.resources.info_unknown_year
 import navic.composeapp.generated.resources.subtitle_playlist
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.LocalPlatformContext
-import paige.navic.LocalNavStack
-import paige.navic.LocalSharedTransitionScope
+import paige.navic.di.LocalNavStack
+import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainPlaylist
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.ui.components.common.CoverArt
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.defaultFont
-import paige.navic.util.ui.EmphasizedDecelerateEasing
+import paige.navic.ui.util.EmphasizedDecelerateEasing
 
 @Composable
 fun CollectionDetailScreenHeadingRow(
@@ -39,8 +38,8 @@ fun CollectionDetailScreenHeadingRow(
 	tab: String,
 	titleAlpha: Float
 ) {
-	val platformContext = LocalPlatformContext.current
 	val backStack = LocalNavStack.current
+	val sharedTransitionKey = "${tab}-${collection.id}-cover"
 	with(LocalSharedTransitionScope.current) {
 		CoverArt(
 			coverArtId = collection.coverArtId,
@@ -50,7 +49,7 @@ fun CollectionDetailScreenHeadingRow(
 				.padding(horizontal = 64.dp)
 				.aspectRatio(1f)
 				.sharedElement(
-					sharedContentState = this@with.rememberSharedContentState("${tab}-${collection.id}-cover"),
+					sharedContentState = this@with.rememberSharedContentState(sharedTransitionKey),
 					boundsTransform = BoundsTransform { _, _ ->
 						tween(
 							durationMillis = 500,
@@ -60,7 +59,16 @@ fun CollectionDetailScreenHeadingRow(
 					animatedVisibilityScope = LocalNavAnimatedContentScope.current
 				)
 				.alpha(titleAlpha),
-			crossfadeMs = 0
+			crossfadeMs = 0,
+			onClick = collection.coverArtId?.let { coverArtId ->
+				dropUnlessResumed {
+					backStack.add(Screen.ImageView(
+						coverArtId = coverArtId,
+						title = collection.name ?: "[unknown album]",
+						sharedTransitionKey = sharedTransitionKey
+					))
+				}
+			}
 		)
 		Column(
 			modifier = Modifier
@@ -70,7 +78,7 @@ fun CollectionDetailScreenHeadingRow(
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			Text(
-				collection.name,
+				collection.name ?: "[unknown album]",
 				style = MaterialTheme.typography.headlineSmall,
 				textAlign = TextAlign.Center,
 				modifier = Modifier
@@ -86,7 +94,6 @@ fun CollectionDetailScreenHeadingRow(
 					modifier = Modifier.clickable(
 						collection is DomainAlbum,
 						onClick = dropUnlessResumed {
-							platformContext.clickSound()
 							(collection as? DomainAlbum)?.artistId?.let { id ->
 								backStack.add(Screen.ArtistDetail(id))
 							}

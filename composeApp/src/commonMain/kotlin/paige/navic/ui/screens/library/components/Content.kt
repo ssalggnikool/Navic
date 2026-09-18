@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,15 +35,15 @@ import paige.navic.icons.outlined.Star
 import paige.navic.ui.components.layouts.horizontalSection
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.album.components.AlbumListScreenItem
-import paige.navic.ui.screens.artist.ArtistsScreenItem
+import paige.navic.ui.screens.album.components.AlbumListScreenGridItem
+import paige.navic.ui.screens.artist.ArtistListScreenGridItem
 import paige.navic.ui.screens.genre.components.GenreListScreenCard
-import paige.navic.ui.screens.playlist.components.PlaylistListScreenItem
-import paige.navic.util.ui.withoutTop
+import paige.navic.ui.screens.playlist.components.PlaylistListScreenGridItem
+import paige.navic.ui.util.withoutTop
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreenContent(
+	state: LazyGridState,
 	scrollBehavior: TopAppBarScrollBehavior,
 	innerPadding: PaddingValues,
 	onSetShareId: (String) -> Unit,
@@ -89,6 +89,7 @@ fun LibraryScreenContent(
 		contentPadding = innerPadding.withoutTop() + PaddingValues(top = 8.dp),
 		verticalArrangement = Arrangement.spacedBy(5.dp),
 		horizontalArrangement = Arrangement.spacedBy(5.dp),
+		state = state
 	) {
 		libraryScreenOverviewButton(
 			icon = Icons.Outlined.LibraryAdd,
@@ -122,7 +123,7 @@ fun LibraryScreenContent(
 			key = { it.id },
 			seeAll = true
 		) { album ->
-			AlbumListScreenItem(
+			AlbumListScreenGridItem(
 				modifier = Modifier.animateItem().width(150.dp),
 				tab = "library",
 				album = album,
@@ -146,7 +147,7 @@ fun LibraryScreenContent(
 			key = { it.id },
 			seeAll = true
 		) { playlist ->
-			PlaylistListScreenItem(
+			PlaylistListScreenGridItem(
 				modifier = Modifier.animateItem().width(150.dp),
 				tab = "library",
 				playlist = playlist,
@@ -167,7 +168,7 @@ fun LibraryScreenContent(
 			key = { it.id },
 			seeAll = true
 		) { artist ->
-			ArtistsScreenItem(
+			ArtistListScreenGridItem(
 				modifier = Modifier.animateItem().width(150.dp),
 				tab = "library",
 				artist = artist,

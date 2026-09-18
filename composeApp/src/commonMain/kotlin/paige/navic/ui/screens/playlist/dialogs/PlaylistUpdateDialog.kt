@@ -40,13 +40,13 @@ import navic.composeapp.generated.resources.info_no_playlists
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import paige.navic.LocalPlatformContext
 import paige.navic.domain.models.DomainSong
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.PlaylistAdd
 import paige.navic.icons.outlined.Refresh
 import paige.navic.ui.components.common.ErrorBox
-import paige.navic.ui.components.common.FormButton
+import paige.navic.ui.components.common.SegmentedListButton
+import paige.navic.ui.components.common.SegmentedListButtonDefaults
 import paige.navic.ui.components.dialogs.FormDialog
 import paige.navic.ui.core.UiState
 import paige.navic.ui.screens.playlist.viewmodels.PlaylistUpdateDialogViewModel
@@ -63,7 +63,6 @@ fun PlaylistUpdateDialog(
 		key = songs.joinToString() + playlistToExclude,
 		parameters = { parametersOf(songs, playlistToExclude) }
 	)
-	val platformContext = LocalPlatformContext.current
 	val state by viewModel.playlistsState.collectAsState()
 	val confirmState by viewModel.confirmState.collectAsState()
 	val selectedPlaylists by viewModel.selectedPlaylists.collectAsState()
@@ -83,14 +82,11 @@ fun PlaylistUpdateDialog(
 						.toggleable(
 							value = isSelected,
 							onValueChange = {
-								platformContext.clickSound()
 								viewModel.togglePlaylistSelection(playlist)
 							},
 							role = Role.Checkbox
 						),
-					headlineContent = {
-						Text(playlist.name)
-					},
+					content = { Text(playlist.name) },
 					leadingContent = {
 						Checkbox(
 							checked = isSelected,
@@ -119,7 +115,6 @@ fun PlaylistUpdateDialog(
 		action = {
 			IconButton(
 				onClick = {
-					platformContext.clickSound()
 					viewModel.refreshResults()
 				},
 				enabled = state !is UiState.Loading,
@@ -132,39 +127,36 @@ fun PlaylistUpdateDialog(
 			)
 		},
 		buttons = {
-			if ((state as? UiState.Success)?.data?.isNotEmpty() == true
-				|| state is UiState.Loading
-			) {
-				FormButton(
-					onClick = {
-						viewModel.confirm()
-					},
+			if (state.data?.isNotEmpty() == true || state is UiState.Loading) {
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = viewModel::confirm,
 					enabled = confirmState !is UiState.Loading && selectedPlaylists.isNotEmpty(),
-					color = MaterialTheme.colorScheme.primary
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2),
+					colors = SegmentedListButtonDefaults.primaryColors()
 				) {
-					if (confirmState !is UiState.Loading) {
-						Text(stringResource(Res.string.action_ok))
-					} else {
-						CircularProgressIndicator(
-							modifier = Modifier.size(20.dp)
-						)
+					if (confirmState is UiState.Loading) {
+						CircularProgressIndicator(Modifier.size(20.dp))
 					}
+					Text(stringResource(Res.string.action_ok))
 				}
 			} else {
-				FormButton(
-					onClick = {
-						createDialogShown = true
-					},
-					content = { Text(stringResource(Res.string.action_new)) }
-				)
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = { createDialogShown = true },
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2)
+				) {
+					Text(stringResource(Res.string.action_new))
+				}
 			}
-			FormButton(
-				onClick = {
-					onDismissRequest()
-				},
+			SegmentedListButton(
+				modifier = Modifier.fillMaxWidth(),
+				onClick = onDismissRequest,
 				enabled = state !is UiState.Loading,
-				content = { Text(stringResource(Res.string.action_cancel)) }
-			)
+				shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
+			) {
+				Text(stringResource(Res.string.action_cancel))
+			}
 		},
 		content = {
 			when (val state = state) {

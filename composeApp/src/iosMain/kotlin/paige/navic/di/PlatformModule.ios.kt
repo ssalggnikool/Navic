@@ -4,16 +4,17 @@ import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.cinterop.ExperimentalForeignApi
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import paige.navic.data.database.CacheDatabase
 import paige.navic.data.database.DownloadDatabase
+import paige.navic.domain.manager.AppIconManager
 import paige.navic.domain.manager.ConnectivityManager
+import paige.navic.domain.manager.LinkManager
 import paige.navic.domain.manager.LogManager
+import paige.navic.domain.manager.PermissionManager
 import paige.navic.domain.manager.NotificationManager
 import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.manager.StorageManager
-import paige.navic.domain.repositories.PlayerStateRepository
 import paige.navic.shared.IOSMediaPlayerViewModel
 import paige.navic.shared.MediaPlayerViewModel
 import platform.Foundation.NSDocumentDirectory
@@ -22,6 +23,7 @@ import platform.Foundation.NSUserDomainMask
 import coil3.PlatformContext as CoilPlatformContext
 
 actual val platformModule = module {
+	single { PlatformType.IOS }
 	single<CacheDatabase> {
 		val dbPath = documentDirectory() + "/cache.db"
 		Room
@@ -40,24 +42,10 @@ actual val platformModule = module {
 			.build()
 	}
 
-	single<PlayerStateRepository> {
-		val producePath = {
-			@OptIn(ExperimentalForeignApi::class)
-			val directory = NSFileManager.defaultManager.URLForDirectory(
-				directory = NSDocumentDirectory,
-				inDomain = NSUserDomainMask,
-				appropriateForURL = null,
-				create = true,
-				error = null
-			)
-			directory?.path + "/${PlayerStateRepository.DATASTORE_FILE_NAME}"
-		}
-		PlayerStateRepository(PlayerStateRepository.getInstance(producePath))
-	}
-
-	viewModel<MediaPlayerViewModel> {
+	single<MediaPlayerViewModel> {
 		IOSMediaPlayerViewModel(
 			stateRepository = get(),
+			songRepository = get(),
 			downloadManager = get(),
 			connectivityManager = get(),
 			syncManager = get(),
@@ -73,6 +61,9 @@ actual val platformModule = module {
 	singleOf(::StorageManager)
 	singleOf(::ConnectivityManager)
 	singleOf(::LogManager)
+	singleOf(::AppIconManager)
+	singleOf(::PermissionManager)
+	singleOf(::LinkManager)
 }
 
 @OptIn(ExperimentalForeignApi::class)

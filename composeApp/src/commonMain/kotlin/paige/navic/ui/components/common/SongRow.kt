@@ -31,13 +31,11 @@ import navic.composeapp.generated.resources.info_download_failed
 import navic.composeapp.generated.resources.info_downloaded
 import navic.composeapp.generated.resources.info_explicit
 import navic.composeapp.generated.resources.info_not_available_offline
-import navic.composeapp.generated.resources.info_unknown_album
-import navic.composeapp.generated.resources.info_unknown_year
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalNavStack
 import paige.navic.data.database.entities.DownloadEntity
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.DomainExplicitStatus
 import paige.navic.domain.models.DomainSong
@@ -53,7 +51,8 @@ import paige.navic.ui.components.dialogs.QueueDuplicateDialog
 import paige.navic.ui.components.sheets.SongSheet
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
-import paige.navic.util.core.InlineExplicitIcon
+import paige.navic.ui.util.InlineExplicitIcon
+import paige.navic.ui.util.buildSongInfoString
 
 @Composable
 fun SongRow(
@@ -101,7 +100,7 @@ fun SongRow(
 				onLongClick = onLongClick,
 				enabled = !isExplicit
 			),
-		headlineContent = {
+		content = {
 			Text(
 				text = buildAnnotatedString {
 					append(song.title)
@@ -116,13 +115,10 @@ fun SongRow(
 		},
 		supportingContent = {
 			MarqueeText(
-				text = buildString {
-					append(song.albumTitle ?: stringResource(Res.string.info_unknown_album))
-					append(" • ")
-					append(song.artistName)
-					append(" • ")
-					append(song.year ?: stringResource(Res.string.info_unknown_year))
-				}
+				buildSongInfoString(
+					song = song,
+					onClickArtist = { backStack.add(Screen.ArtistDetail(it)) }
+				)
 			)
 		},
 		leadingContent = {
@@ -213,7 +209,7 @@ fun SongRow(
 			},
 			onShare = onShare,
 			onPlayNext = {
-				if (player.uiState.value.queue.any { it.id == song.id }) {
+				if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 					duplicateQueueDialogShown = true
 					duplicateQueueDialogShownPlayNext = true
 				} else {
@@ -221,7 +217,7 @@ fun SongRow(
 				}
 			},
 			onAddToQueue = {
-				if (player.uiState.value.queue.any { it.id == song.id }) {
+				if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
 					duplicateQueueDialogShown = true
 					duplicateQueueDialogShownPlayNext = false
 				} else {
@@ -229,7 +225,7 @@ fun SongRow(
 				}
 			},
 			onTrackInfo = dropUnlessResumed {
-				backStack.add(Screen.SongDetail(song.id))
+				backStack.add(Screen.SongDetailScreen(song.id, song.coverArtId))
 			},
 			onViewAlbum = dropUnlessResumed {
 				backStack.add(

@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.CarouselDefaults
@@ -29,12 +27,10 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.collections.immutable.ImmutableList
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_see_all
-import paige.navic.LocalPlatformContext
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.LocalNavStack
+import paige.navic.di.LocalNavStack
 import paige.navic.ui.components.common.CoverArt
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> ArtCarousel(
 	title: String,
@@ -42,7 +38,6 @@ fun <T> ArtCarousel(
 	destination: NavKey? = null,
 	content: @Composable CarouselItemScope.(item: T) -> Unit
 ) {
-	val platformContext = LocalPlatformContext.current
 	val backStack = LocalNavStack.current
 
 	if (items.isNotEmpty()) {
@@ -68,7 +63,6 @@ fun <T> ArtCarousel(
 						modifier = Modifier
 							.heightIn(min = 32.dp).padding(top = 8.dp)
 							.clickable(onClick = dropUnlessResumed {
-								platformContext.clickSound()
 								backStack.add(destination)
 							})
 					)
@@ -99,7 +93,6 @@ fun <T> ArtCarousel(
 	}
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarouselItemScope.ArtCarouselItem(
 	coverArtId: String?,
@@ -109,7 +102,6 @@ fun CarouselItemScope.ArtCarouselItem(
 	onSelect: () -> Unit = {},
 	onClick: () -> Unit = {}
 ) {
-	val platformContext = LocalPlatformContext.current
 	val focusManager = LocalFocusManager.current
 
 	Column(
@@ -124,7 +116,6 @@ fun CarouselItemScope.ArtCarouselItem(
 				.maskClip(MaterialTheme.shapes.large),
 			shape = RectangleShape,
 			onClick = {
-				platformContext.clickSound()
 				focusManager.clearFocus(true)
 				onClick()
 			},

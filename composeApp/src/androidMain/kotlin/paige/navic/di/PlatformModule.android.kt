@@ -1,5 +1,6 @@
 package paige.navic.di
 
+import androidx.media3.common.util.UnstableApi
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import org.koin.android.ext.koin.androidApplication
@@ -7,17 +8,23 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import paige.navic.data.database.CacheDatabase
 import paige.navic.data.database.DownloadDatabase
+import paige.navic.domain.manager.AppIconManager
+import paige.navic.domain.manager.AudioGainManager
 import paige.navic.domain.manager.ConnectivityManager
+import paige.navic.domain.manager.LinkManager
 import paige.navic.domain.manager.LogManager
+import paige.navic.domain.manager.PermissionManager
 import paige.navic.domain.manager.NotificationManager
 import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.manager.StorageManager
-import paige.navic.domain.repositories.PlayerStateRepository
+import paige.navic.exoplayer.AudioGainProcessor
 import paige.navic.shared.AndroidMediaPlayerViewModel
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.util.android.ActivityProvider
 
+@UnstableApi
 actual val platformModule = module {
+	single { PlatformType.Android }
 	singleOf(::ActivityProvider)
 	single<CacheDatabase> {
 		val dbPath = androidApplication()
@@ -41,25 +48,19 @@ actual val platformModule = module {
 			.build()
 	}
 
-	single<PlayerStateRepository> {
-		val context = androidApplication()
-		val producePath = {
-			context.filesDir.resolve(PlayerStateRepository.DATASTORE_FILE_NAME).absolutePath
-		}
-		PlayerStateRepository(PlayerStateRepository.getInstance(producePath))
-	}
-
 	single<MediaPlayerViewModel> {
 		AndroidMediaPlayerViewModel(
 			application = androidApplication(),
 			stateRepository = get(),
+			songRepository = get(),
 			albumDao = get(),
 			downloadManager = get(),
 			connectivityManager = get(),
 			sessionManager = get(),
-			platformContext = get(),
 			preferenceManager = get(),
-			snackBarManager = get()
+			snackBarManager = get(),
+			audioGainManager = get(),
+			imageLoader = get()
 		)
 	}
 
@@ -68,4 +69,9 @@ actual val platformModule = module {
 	singleOf(::StorageManager)
 	singleOf(::ConnectivityManager)
 	singleOf(::LogManager)
+	singleOf(::AppIconManager)
+	singleOf(::PermissionManager)
+	singleOf(::LinkManager)
+	singleOf(::AudioGainManager)
+	singleOf(::AudioGainProcessor)
 }

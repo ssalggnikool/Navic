@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +28,9 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_see_all
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.LocalNavStack
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalNavStack
 import paige.navic.ui.core.UiState
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun <T> LazyGridScope.horizontalSection(
 	seeAll: Boolean,
 	title: StringResource,
@@ -68,7 +65,6 @@ fun <T> LazyGridScope.horizontalSection(
 	}
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyGridScope.header(
 	title: StringResource,
 	vararg formatArgs: Any,
@@ -88,7 +84,6 @@ fun LazyGridScope.header(
 	}
 	if (active) {
 		item(span = { GridItemSpan(1) }) {
-			val platformContext = LocalPlatformContext.current
 			val backStack = LocalNavStack.current
 			Text(
 				stringResource(Res.string.action_see_all),
@@ -102,7 +97,6 @@ fun LazyGridScope.header(
 						interactionSource = null,
 						indication = null,
 						onClick = dropUnlessResumed {
-					    	platformContext.clickSound()
 					    	backStack.add(destination)
 					    }
 					)

@@ -2,7 +2,6 @@ package paige.navic.domain.models.settings
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.expressiveLightColorScheme
 import androidx.compose.runtime.Composable
@@ -19,10 +18,10 @@ import navic.composeapp.generated.resources.theme_seeded
 import navic.composeapp.generated.resources.theme_spotify
 import org.jetbrains.compose.resources.StringResource
 import org.koin.compose.koinInject
-import paige.navic.LocalPlatformContext
+import paige.navic.di.LocalPlatformContext
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.util.ui.darkIosColorScheme
-import paige.navic.util.ui.lightIosColorScheme
+import paige.navic.ui.util.darkIosColorScheme
+import paige.navic.ui.util.lightIosColorScheme
 
 /**
  * Theme choices that the user can choose from
@@ -60,7 +59,6 @@ enum class Theme(val title: StringResource) {
 	 */
 	Spotify(Res.string.theme_spotify);
 
-	@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 	@Composable
 	fun colorScheme(): ColorScheme {
 		val platformContext = LocalPlatformContext.current

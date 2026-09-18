@@ -16,46 +16,53 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withLink
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.kyant.capsule.ContinuousCapsule
+import kotlinx.coroutines.launch
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_log_in
-import navic.composeapp.generated.resources.info_login_description_end
-import navic.composeapp.generated.resources.info_login_description_middle
-import navic.composeapp.generated.resources.info_login_description_start
+import navic.composeapp.generated.resources.action_open_settings
+import navic.composeapp.generated.resources.info_login_description
+import navic.composeapp.generated.resources.notice_local_network_denied
 import navic.composeapp.generated.resources.option_custom_headers
+import navic.composeapp.generated.resources.subtitle_local_network_denied
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import paige.navic.LocalNavStack
-import paige.navic.LocalPlatformContext
+import org.koin.compose.koinInject
+import paige.navic.di.LocalNavStack
+import paige.navic.domain.manager.LoginManager
+import paige.navic.domain.manager.PermissionManager
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Error
+import paige.navic.ui.components.common.SegmentedListButton
+import paige.navic.ui.components.common.SegmentedListButtonDefaults
+import paige.navic.ui.components.dialogs.FormDialog
 import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.login.viewmodels.LoginViewModel
 import paige.navic.ui.theme.defaultFont
 
 @Composable
 fun LoginScreenContent(innerPadding: PaddingValues) {
-	val viewModel = koinViewModel<LoginViewModel>()
+	val viewModel = koinInject<LoginManager>()
 	val loginState by viewModel.loginState.collectAsStateWithLifecycle()
 
 	val instanceState = viewModel.instanceState
@@ -64,23 +71,6 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 
 	val isBusy = loginState is LoginUiState.Loading || loginState is LoginUiState.Syncing
 
-	val linkColor = MaterialTheme.colorScheme.primary
-	val startText = stringResource(Res.string.info_login_description_start)
-	val middleText = stringResource(Res.string.info_login_description_middle)
-	val endText = stringResource(Res.string.info_login_description_end)
-	val noticeText = remember {
-		buildAnnotatedString {
-			append("$startText ")
-			withLink(LinkAnnotation.Url(url = "https://www.navidrome.org/")) {
-				withStyle(SpanStyle(color = linkColor)) {
-					append(middleText)
-				}
-			}
-			append(" $endText")
-		}
-	}
-
-	val platformContext = LocalPlatformContext.current
 	val haptics = LocalHapticFeedback.current
 	val backStack = LocalNavStack.current
 	val focusManager = LocalFocusManager.current
@@ -89,15 +79,23 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 	val usernameFocusRequester = remember { FocusRequester() }
 	val passwordFocusRequester = remember { FocusRequester() }
 
-	val login = {
-		platformContext.checkLocalNetworkPermission()
+	val permissionManager = koinInject<PermissionManager>()
+	val loginScope = rememberCoroutineScope()
+	var localNetworkDenied by rememberSaveable { mutableStateOf(false) }
+	val login: () -> Unit = {
+		loginScope.launch {
+			if (!permissionManager.requestLocalNetworkPermission()) {
+				localNetworkDenied = true
+				return@launch
+			}
 
-		if (!viewModel.login()) {
-			haptics.performHapticFeedback(HapticFeedbackType.Reject)
-			when {
-				viewModel.instanceError -> instanceFocusRequester.requestFocus()
-				viewModel.usernameError -> usernameFocusRequester.requestFocus()
-				viewModel.passwordError -> passwordFocusRequester.requestFocus()
+			if (!viewModel.login()) {
+				haptics.performHapticFeedback(HapticFeedbackType.Reject)
+				when {
+					viewModel.instanceError -> instanceFocusRequester.requestFocus()
+					viewModel.usernameError -> usernameFocusRequester.requestFocus()
+					viewModel.passwordError -> passwordFocusRequester.requestFocus()
+				}
 			}
 		}
 	}
@@ -142,7 +140,7 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 					modifier = Modifier.padding(horizontal = 16.dp)
 				)
 				Text(
-					text = noticeText,
+					text = stringResource(Res.string.info_login_description),
 					modifier = Modifier.padding(horizontal = 16.dp)
 				)
 
@@ -178,7 +176,6 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 						.clickable(onClick = dropUnlessResumed {
 							backStack.lastOrNull()?.let {
 								if (it is Screen.Login) {
-									platformContext.clickSound()
 									backStack.add(Screen.Settings.CustomHeaders)
 									focusManager.clearFocus(true)
 								}
@@ -199,7 +196,6 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 				Button(
 					modifier = Modifier.fillMaxWidth(),
 					onClick = {
-						platformContext.clickSound()
 						login()
 					},
 					enabled = !isBusy,
@@ -212,5 +208,26 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 				}
 			}
 		}
+	}
+
+	if (localNetworkDenied) {
+		FormDialog(
+			onDismissRequest = { localNetworkDenied = false },
+			icon = { Icon(Icons.Outlined.Error, null) },
+			title = { Text(stringResource(Res.string.notice_local_network_denied)) },
+			content = { Text(stringResource(Res.string.subtitle_local_network_denied)) },
+			buttons = {
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = {
+						localNetworkDenied = false
+						permissionManager.openPermissionsSettings()
+					},
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 1)
+				) {
+					Text(stringResource(Res.string.action_open_settings))
+				}
+			}
+		)
 	}
 }

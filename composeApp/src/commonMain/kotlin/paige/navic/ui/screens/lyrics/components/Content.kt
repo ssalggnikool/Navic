@@ -36,7 +36,7 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.lyrics.LyricsResult
 import paige.navic.shared.MediaPlayerViewModel
-import paige.navic.util.core.calculateWordProgress
+import paige.navic.util.calculateWordProgress
 import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -62,7 +62,7 @@ fun LyricsScreenContent(
 
 	val lyrics = data?.lines
 	val isSynced = data?.isSynced == true
-	val provider = data?.provider
+	val providerName = data?.providerName
 	val maxSelectionChars = 150
 	fun totalSelectedChars(): Int =
 		selectedIndices.sumOf { lyrics?.getOrNull(it)?.text?.length ?: 0 }
@@ -197,6 +197,7 @@ fun LyricsScreenContent(
 				text = line.text,
 				progress = progress,
 				isActive = highlight,
+				isSynced = isSynced,
 				onClick = {
 					if (isSelecting) {
 						val lineTextLength = line.text.length
@@ -233,8 +234,8 @@ fun LyricsScreenContent(
 								}
 							}
 						}
-					} else {
-						player.seek((lineTime / duration).toFloat())
+					} else if (line.time != null) {
+						player.seek((line.time / duration).toFloat())
 						if (player.uiState.value.isPaused) {
 							player.resume()
 						}
@@ -255,12 +256,12 @@ fun LyricsScreenContent(
 					.background(lineBackgroundColor, MaterialTheme.shapes.medium)
 			)
 		}
-		provider?.let { provider ->
+		providerName?.let { providerName ->
 			item {
 				Text(
 					stringResource(
 						Res.string.info_lyrics_provider,
-						provider.displayName
+						providerName
 					),
 					textAlign = TextAlign.Center,
 					modifier = Modifier.fillMaxWidth()

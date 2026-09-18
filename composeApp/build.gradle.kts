@@ -1,9 +1,6 @@
-import androidx.room3.gradle.RoomExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
-import com.mikepenz.aboutlibraries.plugin.AboutLibrariesExtension
-import io.github.composegears.valkyrie.gradle.ValkyrieExtension
+import com.google.devtools.ksp.gradle.KspAATask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
 	alias(libs.plugins.kotlinMultiplatform)
@@ -11,19 +8,20 @@ plugins {
 	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.composeMultiplatform)
 	alias(libs.plugins.composeCompiler)
-	alias(libs.plugins.aboutLibraries)
 	alias(libs.plugins.valkyrie)
 	alias(libs.plugins.ksp)
 	alias(libs.plugins.androidx.room3)
 }
 
-// remove material 2
 configurations.all {
+	// remove material 2
 	exclude(group = "org.jetbrains.compose.material", module = "material")
 	exclude(group = "androidx.compose.material", module = "material")
+	// cache SNAPSHOT dependencies for less time, default 24h
+	resolutionStrategy.cacheChangingModulesFor(1, "hours")
 }
 
-extensions.configure<ValkyrieExtension> {
+valkyrie {
 	packageName = "paige.navic.icons"
 	generateAtSync = true
 	outputDirectory = layout.buildDirectory.dir("generated/sources/valkyrie")
@@ -49,39 +47,56 @@ extensions.configure<ValkyrieExtension> {
 	}
 }
 
-extensions.configure<AboutLibrariesExtension> {
-	export {
-		outputFile = file("src/commonMain/composeResources/files/acknowledgements.json")
+val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
+	description = "generate BuildInfo.kt"
+
+	val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdroid")
+		.map { it.toBoolean() }
+		.getOrElse(false)
+
+	from(
+		resources.text.fromString(
+			"""
+			|package paige.navic.generated
+			|
+			|object BuildInfo {
+			|	const val FDROID = $fdroid
+			|}
+			|
+			""".trimMargin()
+		)
+	) {
+		rename { "BuildInfo.kt" }
+		into("paige/navic/generated")
 	}
+
+	into(layout.buildDirectory.dir("generated/buildInfo/commonMain/kotlin"))
 }
 
-tasks {
-	matching { it.name.startsWith("ksp") }.configureEach {
-		dependsOn(":composeApp:generateValkyrieImageVector")
-	}
-	named("copyNonXmlValueResourcesForCommonMain") {
-		dependsOn(":composeApp:exportLibraryDefinitions")
-	}
-	withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
-		dependsOn(":composeApp:generateValkyrieImageVector")
-	}
-	withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-		compilerOptions {
-			jvmTarget.set(JvmTarget.JVM_21)
-			freeCompilerArgs.add("-Xexpect-actual-classes")
+tasks.withType<KotlinCompilationTask<*>>().configureEach {
+	dependsOn("generateValkyrieImageVector")
+	dependsOn(generateBuildInfo)
+}
 
-		}
-	}
-	matching { it.name.startsWith("compileKotlinIos") }.configureEach {
-		// “truly horrifying workaround” for a crash in SearchScreen.kt
-		// https://youtrack.jetbrains.com/issue/KT-84055/Reference-to-lambda-in-lambda-in-function-TextField-can-not-be-evaluated#focus=Comments-27-13188532.0-0
-		val tmp = layout.buildDirectory.dir("generated/iosWorkaround/commonMain/kotlin").get()
-		kotlin.sourceSets["commonMain"].kotlin.srcDir(tmp)
+// no idea why ksp tasks depend on valkyrie
+tasks.withType<KspAATask>().configureEach {
+	dependsOn("generateValkyrieImageVector")
+}
 
-		doFirst {
-			tmp.asFile.mkdirs()
-			tmp.file("TextFieldDecorator.kt").asFile.writeText(
-				"""
+kotlin.sourceSets.commonMain {
+	kotlin.srcDir(generateBuildInfo.map { it.destinationDir })
+}
+
+tasks.matching { it.name.startsWith("compileKotlinIos") }.configureEach {
+	// “truly horrifying workaround” for a crash in SearchScreen.kt
+	// https://youtrack.jetbrains.com/issue/KT-84055/Reference-to-lambda-in-lambda-in-function-TextField-can-not-be-evaluated#focus=Comments-27-13188532.0-0
+	val tmp = layout.buildDirectory.dir("generated/iosWorkaround/commonMain/kotlin").get()
+	kotlin.sourceSets["commonMain"].kotlin.srcDir(tmp)
+
+	doFirst {
+		tmp.asFile.mkdirs()
+		tmp.file("TextFieldDecorator.kt").asFile.writeText(
+			"""
 package androidx.compose.foundation.text.input
 
 import androidx.compose.runtime.Composable
@@ -92,15 +107,14 @@ public fun interface TextFieldDecorator {
     public fun Decoration(innerTextField: @Composable () -> Unit)
 }
 """
-			)
-		}
-		doLast {
-			tmp.asFile.deleteRecursively()
-		}
+		)
+	}
+	doLast {
+		tmp.asFile.deleteRecursively()
 	}
 }
 
-extensions.configure<KotlinMultiplatformExtension> {
+kotlin {
 	listOf(
 		iosArm64(),
 		iosSimulatorArm64()
@@ -111,12 +125,16 @@ extensions.configure<KotlinMultiplatformExtension> {
 		}
 	}
 
-	extensions.configure<KotlinMultiplatformAndroidLibraryExtension> {
+	android {
 		namespace = "paige.navic"
 		compileSdk = libs.versions.android.compileSdk.get().toInt()
 		minSdk = libs.versions.android.minSdk.get().toInt()
 
 		androidResources.enable = true
+
+		compilerOptions {
+			jvmTarget.set(JvmTarget.JVM_21)
+		}
 
 		packaging {
 			resources {
@@ -170,7 +188,7 @@ extensions.configure<KotlinMultiplatformExtension> {
 	}
 }
 
-extensions.configure<RoomExtension> {
+room3 {
 	schemaDirectory("$projectDir/schemas")
 }
 

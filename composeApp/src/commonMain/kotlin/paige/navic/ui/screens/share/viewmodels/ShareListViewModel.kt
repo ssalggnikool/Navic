@@ -18,6 +18,9 @@ class ShareListViewModel(
 	val sharesState: StateFlow<UiState<List<DomainShare>>>
 		field = MutableStateFlow<UiState<List<DomainShare>>>(UiState.Loading())
 
+	val selectedShare: StateFlow<DomainShare?>
+		field = MutableStateFlow<DomainShare?>(null)
+
 	val isRefreshing: StateFlow<Boolean>
 		field = MutableStateFlow(false)
 
@@ -51,5 +54,13 @@ class ShareListViewModel(
 				isRefreshing.value = false
 			}
 		}
+	}
+
+	fun updateSelection(newSelection: DomainShare) {
+		selectedShare.value = newSelection
+	}
+
+	fun clearSelection() {
+		selectedShare.value = null
 	}
 }
