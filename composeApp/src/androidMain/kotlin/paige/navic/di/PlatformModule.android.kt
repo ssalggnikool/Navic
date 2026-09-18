@@ -57,7 +57,6 @@ actual val platformModule = module {
 			preferenceManager = get(),
 			snackBarManager = get(),
 			audioGainManager = get(),
-			imageLoader = get()
 		)
 	}
 
