@@ -96,15 +96,13 @@ class DbRepository(
 				Logger.i("DbRepository", "$progress ${getString(message)}")
 				onProgress(progress, message)
 
-				launch {
-					notificationManager.showProgressNotification(
-						id = NotificationIds.SYNC_LIBRARY,
-						title = getString(Res.string.title_sync_control),
-						message = getString(message),
-						progress = progress,
-						indeterminate = progress <= 0f || progress >= 1f
-					)
-				}
+				notificationManager.showProgressNotification(
+					id = NotificationIds.SYNC_LIBRARY,
+					title = getString(Res.string.title_sync_control),
+					message = getString(message),
+					progress = progress,
+					indeterminate = progress <= 0f || progress >= 1f
+				)
 			}
 
 			try {
