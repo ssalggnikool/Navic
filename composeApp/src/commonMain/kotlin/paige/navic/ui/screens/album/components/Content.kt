@@ -42,7 +42,7 @@ fun LazyGridScope.albumListScreenContent(
 	val data = state.data.orEmpty()
 	if (data.isNotEmpty()) {
 		if (selectedSorting == DomainAlbumListType.AlphabeticalByName) {
-			val grouped = data.groupBy { it.name.firstOrNull()?.uppercaseChar() ?: '#' }
+			val grouped = data.groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
 				.toList()
 				.sortedBy { it.first }
 

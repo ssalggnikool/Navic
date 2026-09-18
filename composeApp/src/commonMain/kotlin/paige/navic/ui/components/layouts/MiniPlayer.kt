@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -80,10 +81,10 @@ import paige.navic.icons.filled.SkipNext
 import paige.navic.icons.outlined.Radio
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.MarqueeText
-import paige.navic.ui.util.playPauseIconPainter
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.settings.viewmodels.NavtabsViewModel
+import paige.navic.ui.util.playPauseIconPainter
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable
@@ -108,6 +109,7 @@ fun MiniPlayer(
 	val song = playerState.currentSong
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
+	val imageLoader = koinInject<ImageLoader>()
 	val sessionManager = koinInject<SessionManager>()
 	val model = remember(song?.coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
@@ -228,6 +230,7 @@ fun MiniPlayer(
 						Box(contentAlignment = Alignment.Center) {
 							AsyncImage(
 								model = model,
+								imageLoader = imageLoader,
 								contentDescription = null,
 								contentScale = ContentScale.Fit,
 								modifier = Modifier
@@ -322,7 +325,7 @@ fun MiniPlayer(
 					},
 					supportingContent = {
 						if (song != null) {
-							MarqueeText(song.artistName)
+							MarqueeText(song.artistName ?: "[unknown artist]")
 						} else {
 							MarqueeText(stringResource(Res.string.info_not_playing))
 						}

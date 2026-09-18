@@ -79,7 +79,7 @@
 	<string name="subtitle_developer">Debugging, testing, logs</string>
 	<string name="subtitle_about">App info, version, updates, licences</string>
 	<string name="subtitle_playlist">Playlist</string>
-	<string name="subtitle_enable_scrobbling">Scrobble played tracks to your Navidrome server</string>
+	<string name="subtitle_enable_scrobbling">Scrobble played tracks to your music server</string>
 	<string name="subtitle_gapless_playback">Experimental. Requires an application restart. May conflict with audio offload on some devices</string>
 	<string name="subtitle_audio_offload">Experimental. Requires application restart. May conflict with gapless playback on some devices</string>
 	<string name="subtitle_now_playing_background_style">Choose static if you have performance issues</string>
@@ -122,7 +122,7 @@
 	<string name="option_lyrics_blur">Blur the edges</string>
 	<string name="option_lyrics_bright_inactive">Brighter inactive lines</string>
 	<string name="option_share_expires">Expires</string>
-	<string name="option_account_navidrome_instance">Instance URL</string>
+	<string name="option_account_instance">Instance URL</string>
 	<string name="option_account_username">Username</string>
 	<string name="option_account_password">Password</string>
 	<string name="option_lyrics_autoscroll">Lyrics auto-scrolling</string>
@@ -493,9 +493,7 @@
 	<string name="info_syncing_genres">Syncing genres...</string>
 	<string name="info_syncing_artists">Syncing artists...</string>
 	<string name="info_syncing_radios">Syncing radios...</string>
-	<string name="info_login_description_start">Log into your</string>
-	<string name="info_login_description_middle">Navidrome</string>
-	<string name="info_login_description_end">instance.</string>
+	<string name="info_login_description">Log into a Subsonic compatible music server.</string>
 	<string name="info_exception_handler">This will immediately crash the application. Are you sure?</string>
 	<string name="info_streaming_quality">Higher quality presets will use more data. Transcoding can severely impact load times and cause lyrics to become unsynced. Select Lossless if you encounter any issues.</string>
 	<string name="info_download_quality">Higher quality presets will use more storage and data. Transcoding can increase download times. Select Lossless if you encounter any issues.</string>

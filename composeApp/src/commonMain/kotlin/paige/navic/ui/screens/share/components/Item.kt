@@ -96,20 +96,21 @@ fun ShareListScreenItem(
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
 			},
-			content = { Text(share.description) },
+			content = { share.description?.let { Text(it) } },
 			supportingContent = { Text(stringResource(Res.string.info_shared_by, share.username)) },
-			overlineContent = {
-				val expires = share.expiresAt
-				val remaining = expires - currentTime
-				if (remaining.isPositive()) {
-					Text(
-						stringResource(
-							Res.string.info_share_expires_in,
-							remaining.toHoursMinutesSeconds()
+			overlineContent = share.expiresAt?.let { expires ->
+				{
+					val remaining = expires - currentTime
+					if (remaining.isPositive()) {
+						Text(
+							stringResource(
+								Res.string.info_share_expires_in,
+								remaining.toHoursMinutesSeconds()
+							)
 						)
-					)
-				} else {
-					Text(stringResource(Res.string.info_share_expired))
+					} else {
+						Text(stringResource(Res.string.info_share_expired))
+					}
 				}
 			},
 			onClick = onClick,

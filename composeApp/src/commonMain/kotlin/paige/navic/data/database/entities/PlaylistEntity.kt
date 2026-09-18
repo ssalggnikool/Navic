@@ -10,9 +10,9 @@ import kotlin.time.Instant
 @Entity
 data class PlaylistEntity(
 	@PrimaryKey val playlistId: String,
-	val name: String,
+	val name: String?,
 	val comment: String?,
-	val owner: String,
+	val owner: String?,
 	val coverArtId: String?,
 	val songCount: Int,
 	val duration: Duration,

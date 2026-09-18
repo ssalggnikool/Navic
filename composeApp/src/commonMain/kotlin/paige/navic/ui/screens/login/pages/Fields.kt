@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
-import navic.composeapp.generated.resources.option_account_navidrome_instance
+import navic.composeapp.generated.resources.option_account_instance
 import navic.composeapp.generated.resources.option_account_password
 import navic.composeapp.generated.resources.option_account_username
 import org.jetbrains.compose.resources.stringResource
@@ -63,7 +63,7 @@ fun LoginScreenFields(
 			},
 		state = instanceState,
 		isError = instanceError,
-		label = { Text(stringResource(Res.string.option_account_navidrome_instance)) },
+		label = { Text(stringResource(Res.string.option_account_instance)) },
 		lineLimits = TextFieldLineLimits.SingleLine,
 		enabled = !isBusy,
 		keyboardOptions = KeyboardOptions(

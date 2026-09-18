@@ -364,7 +364,7 @@ fun ArtistDetailScreen(
 										.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 									ArtCarouselItem(
 										coverArtId = album.coverArtId,
-										title = album.name,
+										title = album.name ?: "[unknown album]",
 										contentDescription = null,
 										onSelect = { viewModel.selectAlbum(album) },
 										onClick = dropUnlessResumed {
