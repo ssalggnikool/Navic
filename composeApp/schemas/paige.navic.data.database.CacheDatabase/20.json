@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 20,
-    "identityHash": "581eb4d54633615676d5f4f5507df218",
+    "identityHash": "4677136a6fffa193a83e222cd398a399",
     "entities": [
       {
         "tableName": "AlbumEntity",
@@ -653,7 +653,7 @@
       },
       {
         "tableName": "SyncActionEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `actionType` TEXT NOT NULL, `itemId` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `actionType` TEXT NOT NULL, `itemId` TEXT NOT NULL, `time` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP)",
         "fields": [
           {
             "fieldPath": "id",
@@ -672,6 +672,13 @@
             "columnName": "itemId",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "CURRENT_TIMESTAMP"
           }
         ],
         "primaryKey": {
@@ -719,7 +726,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '581eb4d54633615676d5f4f5507df218')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4677136a6fffa193a83e222cd398a399')"
     ]
   }
 }
