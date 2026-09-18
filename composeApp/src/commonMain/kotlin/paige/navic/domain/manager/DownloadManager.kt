@@ -62,14 +62,7 @@ class DownloadManager(
 	private val notificationManager: NotificationManager
 ) {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-	private val client = HttpClient {
-		val customHeaders = preferenceManager.customHeadersMap()
-		if (customHeaders.isNotEmpty()) {
-			defaultRequest {
-				customHeaders.forEach { (key, value) -> header(key, value) }
-			}
-		}
-	}
+	private val client = sessionManager.api.httpClient
 	private val activeDownloadsMutex = Mutex()
 	private val activeDownloads = mutableMapOf<String, Job>()
 	private val downloadSemaphore =
