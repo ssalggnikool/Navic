@@ -4,7 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 
-class ActivityProvider : Application.ActivityLifecycleCallbacks {
+class AndroidActivityProvider : Application.ActivityLifecycleCallbacks {
 	var currentActivity: Activity? = null
 		private set
 

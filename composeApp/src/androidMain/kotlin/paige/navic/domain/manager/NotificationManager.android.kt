@@ -10,12 +10,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import paige.navic.di.ResourceProvider
-import paige.navic.util.android.ActivityProvider
+import paige.navic.util.android.AndroidActivityProvider
 
 actual class NotificationManager(
 	private val context: Context,
 	private val resourceProvider: ResourceProvider,
-	private val activityProvider: ActivityProvider
+	private val activityProvider: AndroidActivityProvider
 ) {
 	private val notificationManager =
 		context.getSystemService(Context.NOTIFICATION_SERVICE) as AndroidNotificationManager
