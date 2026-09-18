@@ -8,12 +8,9 @@ import dev.zt64.subsonic.client.SubsonicAuth
 import dev.zt64.subsonic.client.SubsonicClient
 import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.http
-import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -22,9 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
 
 class SessionManager(
 	private val settings: Settings,
@@ -67,39 +61,6 @@ class SessionManager(
 		clientConfig = {
 			install(UserAgent) {
 				agent = "Navic"
-			}
-
-			/*
-			 	this validator shouldn't care if the status code is 2xx or 3xx, we'll be validating against the response anyway
-			 	this is a workaround for the stream endpoint returning 200 with an error body
-			 */
-			HttpResponseValidator {
-				validateResponse { response ->
-					val contentType = response.headers["content-type"]
-
-					if (contentType == "application/json") {
-						try {
-							val objectResponse = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-
-							val subsonicResponse = objectResponse["subsonic-response"]?.jsonObject
-
-							if (subsonicResponse != null) {
-								val errorObject = subsonicResponse["error"]?.jsonObject
-
-								if (errorObject != null) {
-									// something has gone wrong with request, throw an error immediately
-									throw UnhandledSubsonicException(
-										"we got an error that isn't being handled by subsonic-kotlin, bug zt about it",
-										errorObject,
-										response
-									)
-								}
-							}
-						} catch (_: Exception) {
-							// probably not our business, let something else handle the exception
-						}
-					}
-				}
 			}
 
 			val proxyUrl = preferenceManager.proxyUrl
@@ -222,10 +183,3 @@ fun User.canShare(): Boolean {
 fun SessionManager.canUserShare(): Boolean {
 	return this.getCachedUser()?.canShare() ?: false
 }
-
-
-class UnhandledSubsonicException(
-	message: String,
-	jsonError: JsonObject,
-	response: HttpResponse
-): Exception("$message (status code ${response.status}): $jsonError")
