@@ -42,7 +42,6 @@ import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.repositories.LyricsRepository
 import paige.navic.util.Logger
-import paige.navic.di.PlatformType
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.info_progress
 import navic.composeapp.generated.resources.title_library_download
