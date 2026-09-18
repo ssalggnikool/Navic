@@ -98,10 +98,10 @@ class DbRepository(
 
 				notificationManager.showProgressNotification(
 					id = NotificationIds.SYNC_LIBRARY,
-					title = getString(Res.string.title_sync_control),
+					title = "${getString(Res.string.title_sync_control)} (${(progress * 100).toInt()}%)",
 					message = getString(message),
 					progress = progress,
-					indeterminate = progress <= 0f || progress >= 1f
+					indeterminate = progress <= 0f
 				)
 			}
 
