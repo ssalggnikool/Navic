@@ -54,7 +54,6 @@ import coil3.ImageLoader
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -89,6 +88,7 @@ import paige.navic.domain.models.settings.ReplayGainMode
 import paige.navic.domain.repositories.PlayerStateRepository
 import paige.navic.domain.repositories.SongRepository
 import paige.navic.exoplayer.AudioGainProcessor
+import paige.navic.exoplayer.ExoPlayerCoilBitmapLoader
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
 import java.io.File
@@ -111,6 +111,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	private val sessionManager: SessionManager by inject()
 	private val preferenceManager: PreferenceManager by inject()
 	private val equaliserManager: EqualiserManager by inject()
+	private val imageLoader: ImageLoader by inject()
 
 	private var equaliser: Equalizer? = null
 	private var audioEffectSessionId: Int = C.AUDIO_SESSION_ID_UNSET
@@ -221,8 +222,11 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 		)
 
+		val bitmapLoader = ExoPlayerCoilBitmapLoader(applicationContext, imageLoader)
+
 		mediaSession = MediaSession.Builder(this, player)
 			.setSessionActivity(sessionPendingIntent)
+			.setBitmapLoader(bitmapLoader)
 			.setCallback(MediaSessionCallback(player))
 			.setCustomLayout(makeButtons(player))
 			.build()
@@ -1149,6 +1153,10 @@ class AndroidMediaPlayerViewModel(
 			.setAlbumTitle(albumTitle)
 			.setDurationMs(duration.inWholeMilliseconds)
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
+
+		metadataBuilder.setArtworkUri(
+			coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
+		)
 
 		val metadata = metadataBuilder.build()
 
