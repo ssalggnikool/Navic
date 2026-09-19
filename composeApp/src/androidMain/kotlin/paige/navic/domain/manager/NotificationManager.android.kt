@@ -1,6 +1,7 @@
 package paige.navic.domain.manager
 
 import android.Manifest
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager as AndroidNotificationManager
 import android.content.Context
@@ -9,13 +10,13 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import paige.navic.di.ActivityProvider
 import paige.navic.di.ResourceProvider
-import paige.navic.util.android.AndroidActivityProvider
 
 actual class NotificationManager(
 	private val context: Context,
 	private val resourceProvider: ResourceProvider,
-	private val activityProvider: AndroidActivityProvider
+	private val activityProvider: ActivityProvider
 ) {
 	private val notificationManager =
 		context.getSystemService(Context.NOTIFICATION_SERVICE) as AndroidNotificationManager
@@ -67,7 +68,7 @@ actual class NotificationManager(
 					Manifest.permission.POST_NOTIFICATIONS
 				) != PackageManager.PERMISSION_GRANTED
 			) {
-				activityProvider.currentActivity?.let { activity ->
+				activityProvider.get<Activity>().let { activity ->
 					ActivityCompat.requestPermissions(
 						activity,
 						arrayOf(Manifest.permission.POST_NOTIFICATIONS),
