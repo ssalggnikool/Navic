@@ -7,6 +7,7 @@ import android.util.Log
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.component.KoinComponent
 import org.koin.dsl.module
 import paige.navic.androidApp.di.AndroidResourceProvider
 import paige.navic.di.ActivityProvider
@@ -14,7 +15,7 @@ import paige.navic.di.ResourceProvider
 import paige.navic.di.initKoin
 import kotlin.system.exitProcess
 
-class Application : android.app.Application() {
+class Application : android.app.Application(), KoinComponent {
 	override fun onCreate() {
 		super.onCreate()
 

@@ -15,10 +15,14 @@
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 	<!-- needed for the playback service and widgets -->
+	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission
 		android:name="android.permission.FOREGROUND_SERVICE"
 		tools:ignore="ForegroundServicesPolicy" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+	<!-- needed for notifications for downloads and syncing db -->
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
 	<permission
 		android:name="${applicationId}.permission.PLAYBACK_SERVICE"

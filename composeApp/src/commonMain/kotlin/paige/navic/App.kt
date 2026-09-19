@@ -67,6 +67,7 @@ import paige.navic.di.LocalSnackBarState
 import paige.navic.di.PlatformType
 import paige.navic.di.rememberPlatformContext
 import paige.navic.domain.manager.BottomBarScrollManager
+import paige.navic.domain.manager.NotificationManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
@@ -134,6 +135,12 @@ fun App() {
 	val platformContext = rememberPlatformContext()
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
+	val notificationManager = koinInject<NotificationManager>()
+
+	LaunchedEffect(Unit) {
+		notificationManager.requestPermissions()
+	}
+
 	val isLoggedIn by sessionManager.isLoggedIn.collectAsStateWithLifecycle()
 	val backStack = rememberNavBackStack(
 		config, if (isLoggedIn) {

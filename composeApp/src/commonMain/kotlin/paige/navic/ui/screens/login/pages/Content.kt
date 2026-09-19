@@ -52,10 +52,12 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.manager.PermissionManager
 import paige.navic.icons.Icons
+import paige.navic.domain.manager.NotificationManager
 import paige.navic.icons.outlined.Error
 import paige.navic.ui.components.common.SegmentedListButton
 import paige.navic.ui.components.common.SegmentedListButtonDefaults
 import paige.navic.ui.components.dialogs.FormDialog
+import paige.navic.ui.components.dialogs.NotificationPermissionDialog
 import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.defaultFont
@@ -80,15 +82,13 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 	val passwordFocusRequester = remember { FocusRequester() }
 
 	val permissionManager = koinInject<PermissionManager>()
+	val notificationManager = koinInject<NotificationManager>()
 	val loginScope = rememberCoroutineScope()
 	var localNetworkDenied by rememberSaveable { mutableStateOf(false) }
-	val login: () -> Unit = {
-		loginScope.launch {
-			if (!permissionManager.requestLocalNetworkPermission()) {
-				localNetworkDenied = true
-				return@launch
-			}
+	var showNotificationPermissionDialog by rememberSaveable { mutableStateOf(false) }
 
+	val performLoginAction: () -> Unit = {
+		loginScope.launch {
 			if (!viewModel.login()) {
 				haptics.performHapticFeedback(HapticFeedbackType.Reject)
 				when {
@@ -97,6 +97,18 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 					viewModel.passwordError -> passwordFocusRequester.requestFocus()
 				}
 			}
+		}
+	}
+
+	val login: () -> Unit = {
+		loginScope.launch {
+			if (viewModel.isLocalNetworkInstance()) {
+				if (!permissionManager.requestLocalNetworkPermission()) {
+					localNetworkDenied = true
+					return@launch
+				}
+			}
+			showNotificationPermissionDialog = true
 		}
 	}
 
@@ -227,6 +239,20 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 				) {
 					Text(stringResource(Res.string.action_open_settings))
 				}
+			}
+		)
+	}
+
+	if (showNotificationPermissionDialog) {
+		NotificationPermissionDialog(
+			onDismiss = {
+				showNotificationPermissionDialog = false
+				performLoginAction()
+			},
+			onAllow = {
+				showNotificationPermissionDialog = false
+				notificationManager.requestPermissions()
+				performLoginAction()
 			}
 		)
 	}

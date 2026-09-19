@@ -14,6 +14,7 @@ import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.LinkManager
 import paige.navic.domain.manager.LogManager
 import paige.navic.domain.manager.PermissionManager
+import paige.navic.domain.manager.NotificationManager
 import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.manager.StorageManager
 import paige.navic.exoplayer.AudioGainProcessor
@@ -23,6 +24,7 @@ import paige.navic.shared.MediaPlayerViewModel
 @UnstableApi
 actual val platformModule = module {
 	single { PlatformType.Android }
+
 	single<CacheDatabase> {
 		val dbPath = androidApplication()
 			.getDatabasePath("cache.db")
@@ -62,6 +64,7 @@ actual val platformModule = module {
 	}
 
 	singleOf(::ShareManager)
+	singleOf(::NotificationManager)
 	singleOf(::StorageManager)
 	singleOf(::ConnectivityManager)
 	singleOf(::LogManager)
