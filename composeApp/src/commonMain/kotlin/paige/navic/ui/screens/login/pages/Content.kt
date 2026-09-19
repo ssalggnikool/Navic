@@ -38,7 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.kyant.capsule.ContinuousCapsule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_log_in
 import navic.composeapp.generated.resources.action_open_settings
@@ -49,7 +52,6 @@ import navic.composeapp.generated.resources.subtitle_local_network_denied
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
-import paige.navic.di.LocalPlatformContext
 import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.manager.PermissionManager
 import paige.navic.icons.Icons
@@ -103,13 +105,15 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 
 	val login: () -> Unit = {
 		loginScope.launch {
-			if (viewModel.isLocalNetworkInstance()) {
-				if (!permissionManager.requestLocalNetworkPermission()) {
-					localNetworkDenied = true
-					return@launch
+			withContext(Dispatchers.IO) {
+				if (viewModel.isLocalNetworkInstance()) {
+					if (!permissionManager.requestLocalNetworkPermission()) {
+						localNetworkDenied = true
+						return@withContext
+					}
 				}
+				showNotificationPermissionDialog = true
 			}
-			showNotificationPermissionDialog = true
 		}
 	}
 
