@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 20,
-    "identityHash": "581eb4d54633615676d5f4f5507df218",
+    "version": 21,
+    "identityHash": "4677136a6fffa193a83e222cd398a399",
     "entities": [
       {
         "tableName": "AlbumEntity",
