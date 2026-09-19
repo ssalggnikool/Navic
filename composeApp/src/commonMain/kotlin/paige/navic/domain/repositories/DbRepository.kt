@@ -333,33 +333,37 @@ class DbRepository(
 	}
 
 	suspend fun syncArtists(): Result<Unit> = runDbOp {
-		val pageSize = 500
-		var offset = 0
-		val artists = mutableListOf<ArtistEntity>()
+		//val pageSize = 500
+		//var offset = 0
+		val artists =	 mutableListOf<ArtistEntity>()
 
-		try {
-			while (true) {
-				val batch = sessionManager.api.searchID3(
-					query = "", artistCount = pageSize, artistOffset = offset
-				).artists.map { it.toEntity() }
-				if (batch.isEmpty()) break
-				artists.addAll(batch)
-				if (batch.size < pageSize) break
-				offset += pageSize
-			}
-			// because some servers like to not give an error...?
-			require(artists.isNotEmpty())
-		} catch (ex: Exception) {
-			Logger.w(
-				"DbRepository",
-				"could not sync artists from search3 endpoint, trying getArtists",
-				ex
-			)
-			artists.clear()
-			val batch = sessionManager.api.getArtists().index
-				.flatMap { index -> index.artists.map { artist -> artist.toEntity() } }
-			artists.addAll(batch)
-		}
+		// reverting this for now
+		// see https://github.com/ssalggnikool/Navic/issues/521
+
+		//try {
+		//	while (true) {
+		//		val batch = sessionManager.api.searchID3(
+		//			query = "", artistCount = pageSize, artistOffset = offset
+		//		).artists.map { it.toEntity() }
+		//		if (batch.isEmpty()) break
+		//		artists.addAll(batch)
+		//		if (batch.size < pageSize) break
+		//		offset += pageSize
+		//	}
+		//	// because some servers like to not give an error...?
+		//	require(artists.isNotEmpty())
+		//} catch (ex: Exception) {
+		//	Logger.w(
+		//		"DbRepository",
+		//		"could not sync artists from search3 endpoint, trying getArtists",
+		//		ex
+		//	)
+		//	artists.clear()
+
+		val batch = sessionManager.api.getArtists().index
+			.flatMap { index -> index.artists.map { artist -> artist.toEntity() } }
+		artists.addAll(batch)
+		//}
 
 		artists.chunked(dbChunkSize).forEach { chunk ->
 			artistDao.insertArtists(chunk)
