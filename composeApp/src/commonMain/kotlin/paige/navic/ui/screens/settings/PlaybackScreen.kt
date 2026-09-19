@@ -147,7 +147,7 @@ fun SettingsPlaybackScreen() {
 
 						SettingsSliderItem(
 							value = preferenceManager.minDurationToScrobble,
-							valueRange = 0f..1f,
+							valueRange = 0f..60f,
 							onValueChange = { preferenceManager.minDurationToScrobble = it },
 							trailingContent = { Text("${preferenceManager.minDurationToScrobble.toInt()}s") },
 							content = { Text(stringResource(Res.string.option_min_duration_to_scrobble)) },
