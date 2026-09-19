@@ -176,6 +176,7 @@ kotlin {
 			implementation(libs.bundles.ktor.android)
 			implementation(libs.bundles.androidx.android)
 			implementation(libs.bundles.media3)
+			implementation(libs.kotlinx.coroutines.guava)
 		}
 
 		iosMain.dependencies {
