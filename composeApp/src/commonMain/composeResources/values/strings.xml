@@ -208,7 +208,7 @@
 
 	<string name="info_status_idle">Idle</string>
 	<string name="info_status_calculating">Calculating...</string>
-	<string name="info_status_downloading">Downloading in progress...</string>
+	<string name="info_status_downloading">Download in progress...</string>
 	<string name="info_sync_never">Never</string>
 	<string name="info_sync_just_now">Just now</string>
 	<string name="info_bulk_download_warning">Are you sure you want to download every album by %1$s?\nThis may require a significant amount of storage and data.</string>
