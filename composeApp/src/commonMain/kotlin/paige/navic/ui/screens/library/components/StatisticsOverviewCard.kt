@@ -150,7 +150,7 @@ private fun StatPageContent(
 	val colorScheme = rememberColorSchemeFromCoverArt(coverArtId)
 	val barColor = colorScheme.primary
 	val ratio = when {
-		totalDuration > Duration.ZERO -> (duration.inWholeMilliseconds / totalDuration.inWholeMilliseconds).toFloat()
+		totalDuration > Duration.ZERO -> (duration.inWholeMilliseconds.toDouble() / totalDuration.inWholeMilliseconds.toDouble()).toFloat()
 		else -> 0f
 	}
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -210,7 +210,7 @@ private fun StatPageContent(
 					Text(
 						text = stringResource(
 							Res.string.info_listening_stats_ratio,
-							ratio.toInt() * 100
+							(ratio * 100).toInt()
 						),
 						style = MaterialTheme.typography.labelSmall,
 						color = MaterialTheme.colorScheme.onSurfaceVariant
