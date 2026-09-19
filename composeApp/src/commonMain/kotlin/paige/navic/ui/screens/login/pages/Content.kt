@@ -102,9 +102,11 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 
 	val login: () -> Unit = {
 		loginScope.launch {
-			if (!permissionManager.requestLocalNetworkPermission()) {
-				localNetworkDenied = true
-				return@launch
+			if (viewModel.isLocalNetworkInstance()) {
+				if (!permissionManager.requestLocalNetworkPermission()) {
+					localNetworkDenied = true
+					return@launch
+				}
 			}
 			showNotificationPermissionDialog = true
 		}
