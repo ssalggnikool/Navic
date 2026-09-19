@@ -11,9 +11,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import paige.navic.di.LocalPlatformContext
 import paige.navic.domain.repositories.DbRepository
 import paige.navic.ui.core.LoginUiState
-import paige.navic.util.isLocalNetworkHost
+import paige.navic.ui.util.AddressUtil
 
 class LoginManager(
     private val repository: DbRepository,
@@ -55,7 +56,13 @@ class LoginManager(
 	}
 
 	fun isLocalNetworkInstance(): Boolean {
-		return isLocalNetworkHost(instanceState.text.toString())
+		val host = AddressUtil.extractHostFromUri(instanceState.text.toString())
+
+		return if (host != null) {
+			AddressUtil.isAddressLocal(host)
+		} else {
+			false
+		}
 	}
 
 	init {
