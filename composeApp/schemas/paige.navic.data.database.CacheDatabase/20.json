@@ -653,7 +653,7 @@
       },
       {
         "tableName": "SyncActionEntity",
-		"createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `actionType` TEXT NOT NULL, `itemId` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `actionType` TEXT NOT NULL, `itemId` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -672,13 +672,6 @@
             "columnName": "itemId",
             "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "time",
-            "columnName": "time",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "CURRENT_TIMESTAMP"
           }
         ],
         "primaryKey": {
