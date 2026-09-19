@@ -22,19 +22,29 @@ actual class NotificationManager(
 		context.getSystemService(Context.NOTIFICATION_SERVICE) as AndroidNotificationManager
 
 	init {
-		createNotificationChannel()
+		createNotificationChannels()
 	}
 
-	private fun createNotificationChannel() {
+	private fun createNotificationChannels() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			val channel = NotificationChannel(
-				CHANNEL_ID,
-				"Library Updates",
+			val syncChannel = NotificationChannel(
+				CHANNEL_SYNC_ID,
+				"Library Synchronization",
 				AndroidNotificationManager.IMPORTANCE_LOW
 			).apply {
-				description = "Notifications for library sync and downloads"
+				description = "Notifications for database synchronization updates"
 			}
-			notificationManager.createNotificationChannel(channel)
+
+			val downloadChannel = NotificationChannel(
+				CHANNEL_DOWNLOAD_ID,
+				"Music Downloads",
+				AndroidNotificationManager.IMPORTANCE_LOW
+			).apply {
+				description = "Notifications for music file and media downloads"
+			}
+
+			notificationManager.createNotificationChannel(syncChannel)
+			notificationManager.createNotificationChannel(downloadChannel)
 		}
 	}
 
@@ -45,7 +55,8 @@ actual class NotificationManager(
 		progress: Float,
 		indeterminate: Boolean
 	) {
-		val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+		val channelId = if (id == NotificationIds.SYNC_LIBRARY) CHANNEL_SYNC_ID else CHANNEL_DOWNLOAD_ID
+		val builder = NotificationCompat.Builder(context, channelId)
 			.setSmallIcon(resourceProvider.icNavic)
 			.setContentTitle(title)
 			.setContentText(message)
@@ -80,6 +91,7 @@ actual class NotificationManager(
 	}
 
 	companion object {
-		private const val CHANNEL_ID = "library_updates"
+		private const val CHANNEL_SYNC_ID = "library_sync"
+		private const val CHANNEL_DOWNLOAD_ID = "music_downloads"
 	}
 }
