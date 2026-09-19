@@ -95,14 +95,16 @@ class ScrobbleManager(
 		if (!preferenceManager.enableScrobbling || songId == null) return
 
 		scope.launch(Dispatchers.IO) {
+			val currentTime = Clock.System.now()
+
 			if (connectivityManager.isOnline.value) {
 				try {
-					sessionManager.api.scrobble(songId, submission = true)
+					sessionManager.api.scrobble(songId, submission = true, time = currentTime)
 				} catch (_: Exception) {
-					syncManager.enqueueAction(SyncActionType.SCROBBLE, songId)
+					syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
 				}
 			} else {
-				syncManager.enqueueAction(SyncActionType.SCROBBLE, songId)
+				syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
 			}
 		}
 	}

@@ -112,10 +112,8 @@ fun LyricsShareSheet(
 	val model = remember(song.coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
 			.data(song.coverArtId?.let { sessionManager.getCoverArtUrl(it) })
-			.memoryCacheKey(song.coverArtId)
 			.diskCacheKey(song.coverArtId)
 			.diskCachePolicy(CachePolicy.ENABLED)
-			.memoryCachePolicy(CachePolicy.ENABLED)
 			.build()
 	}
 

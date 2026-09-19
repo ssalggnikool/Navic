@@ -23,7 +23,7 @@ import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.ktor.KtorDataSource
 import androidx.media3.exoplayer.BaseRenderer
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
@@ -88,6 +88,7 @@ import paige.navic.domain.models.settings.ReplayGainMode
 import paige.navic.domain.repositories.PlayerStateRepository
 import paige.navic.domain.repositories.SongRepository
 import paige.navic.exoplayer.AudioGainProcessor
+import paige.navic.exoplayer.ExoPlayerCoilBitmapLoader
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
 import java.io.File
@@ -110,6 +111,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	private val sessionManager: SessionManager by inject()
 	private val preferenceManager: PreferenceManager by inject()
 	private val equaliserManager: EqualiserManager by inject()
+	private val imageLoader: ImageLoader by inject()
 
 	private var equaliser: Equalizer? = null
 	private var audioEffectSessionId: Int = C.AUDIO_SESSION_ID_UNSET
@@ -133,8 +135,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 				setSmallIcon(resourceProvider.icNavic)
 			}
 
-		val httpDataSourceFactory = DefaultHttpDataSource.Factory()
-			.setDefaultRequestProperties(preferenceManager.customHeadersMap())
+		val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.api.httpClient)
 		val dataSourceFactory = DefaultDataSource.Factory(this, httpDataSourceFactory)
 
 		val extractorsFactory = ExtractorsFactory {
@@ -221,8 +222,11 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 		)
 
+		val bitmapLoader = ExoPlayerCoilBitmapLoader(applicationContext, imageLoader)
+
 		mediaSession = MediaSession.Builder(this, player)
 			.setSessionActivity(sessionPendingIntent)
+			.setBitmapLoader(bitmapLoader)
 			.setCallback(MediaSessionCallback(player))
 			.setCustomLayout(makeButtons(player))
 			.build()
@@ -461,7 +465,6 @@ class AndroidMediaPlayerViewModel(
 	private val audioGainManager: AudioGainManager,
 	private val application: Application,
 	private val albumDao: AlbumDao,
-	private val imageLoader: ImageLoader,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
 ) : MediaPlayerViewModel(
@@ -1151,29 +1154,9 @@ class AndroidMediaPlayerViewModel(
 			.setDurationMs(duration.inWholeMilliseconds)
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
 
-		val artworkData = coverArtId?.let { coverId ->
-			val diskCache = imageLoader.diskCache
-			val snapshot = diskCache?.openSnapshot(coverId) ?: return@let null
-
-			val bytes = try {
-				snapshot.use { it.data.toFile().readBytes() }
-			} catch (ex: Exception) {
-				Logger.w("MediaPlayer", "could not read artwork data", ex)
-				null
-			}
-
-			snapshot.close()
-
-			return@let bytes
-		}
-
-		if (artworkData != null) {
-			metadataBuilder.setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
-		} else {
-			metadataBuilder.setArtworkUri(
-				coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
-			)
-		}
+		metadataBuilder.setArtworkUri(
+			coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
+		)
 
 		val metadata = metadataBuilder.build()
 
