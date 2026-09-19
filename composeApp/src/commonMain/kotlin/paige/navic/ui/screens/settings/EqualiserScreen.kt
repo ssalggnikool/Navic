@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -45,6 +46,7 @@ import paige.navic.ui.components.layouts.TopBarButton
 import paige.navic.ui.screens.settings.components.SettingsChoiceItem
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
+import paige.navic.ui.util.withoutBottom
 
 @Composable
 fun SettingsEqualiserScreen() {
@@ -81,7 +83,7 @@ fun SettingsEqualiserScreen() {
 		) {
 			Column(
 				modifier = Modifier
-					.padding(innerPadding)
+					.padding(innerPadding.withoutBottom())
 					.verticalScroll(rememberScrollState())
 					.padding(horizontal = 16.dp),
 				horizontalAlignment = Alignment.CenterHorizontally,
@@ -105,30 +107,29 @@ fun SettingsEqualiserScreen() {
 				if (config.mode != EqualiserMode.BuiltIn) {
 					Text(stringResource(Res.string.info_equaliser_mode_not_builtin))
 					return@Column
-				}
-
-				if (config.bandCount == 0) {
+				} else if (config.bandCount == 0) {
 					Text(stringResource(Res.string.info_equaliser_unsupported))
 					return@Column
-				}
-
-				Row(Modifier.widthIn(max = 600.dp)) {
-					repeat(config.bandCount) { band ->
-						EqualiserBand(
-							level = config.bandLevels[band] ?: 0f,
-							onLevelChange = { level ->
-								val newLevels = config.bandLevels.toMutableMap().apply {
-									set(band, level)
-								}
-								val newConfig = config.copy(bandLevels = newLevels)
-								scope.launch {
-									equaliserManager.setConfig(newConfig)
-								}
-							},
-							levelRange = config.bandLowerRange..config.bandUpperRange
-						)
+				} else {
+					Row(Modifier.widthIn(max = 600.dp)) {
+						repeat(config.bandCount) { band ->
+							EqualiserBand(
+								level = config.bandLevels[band] ?: 0f,
+								onLevelChange = { level ->
+									val newLevels = config.bandLevels.toMutableMap().apply {
+										set(band, level)
+									}
+									val newConfig = config.copy(bandLevels = newLevels)
+									scope.launch {
+										equaliserManager.setConfig(newConfig)
+									}
+								},
+								levelRange = config.bandLowerRange..config.bandUpperRange
+							)
+						}
 					}
 				}
+				Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
 			}
 		}
 	}

@@ -53,6 +53,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
+import paige.navic.ui.theme.NavicTheme
+import paige.navic.ui.util.rememberColorSchemeForCurrentSong
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
@@ -149,7 +151,13 @@ fun MiniPlayer(
 		visible = hasSong || !preferenceManager.hideIfIdle,
 		modifier = modifier
 	) {
-		Swiper(
+		val colorScheme = if (preferenceManager.dynamicTheming) {
+			rememberColorSchemeForCurrentSong(forceDark = false)
+		} else {
+			null
+		}
+		NavicTheme(colorScheme = colorScheme) {
+			Swiper(
 			onSwipeLeft = {
 				if (isInteractive) player.next()
 			},
@@ -399,6 +407,7 @@ fun MiniPlayer(
 					}
 				}
 			}
+		}
 		}
 	}
 }

@@ -5,6 +5,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.unit.Dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import paige.navic.domain.manager.BottomBarScrollManager
@@ -27,6 +28,10 @@ val LocalSharedTransitionScope = staticCompositionLocalOf<SharedTransitionScope>
 
 val LocalBottomBarScrollManager = staticCompositionLocalOf<BottomBarScrollManager> {
 	error("No BottomBarScrollManager provided")
+}
+
+val LocalBottomBarPadding = staticCompositionLocalOf<Dp> {
+	error("No BottomBarPadding provided")
 }
 
 /**

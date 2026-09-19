@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -36,6 +38,7 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.AppIconManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.AppIconVariant
+import paige.navic.ui.util.withoutBottom
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Info
 import paige.navic.ui.components.common.SegmentedListItem
@@ -58,7 +61,7 @@ fun SettingsAppIconScreen() {
 		) {
 			Column(
 				modifier = Modifier
-					.padding(innerPadding)
+					.padding(innerPadding.withoutBottom())
 					.verticalScroll(rememberScrollState())
 					.padding(horizontal = 16.dp),
 				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
@@ -115,6 +118,7 @@ fun SettingsAppIconScreen() {
 						style = MaterialTheme.typography.bodyMedium
 					)
 				}
+				Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
 			}
 		}
 	}

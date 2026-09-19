@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -77,6 +79,7 @@ import paige.navic.ui.screens.settings.components.SettingsChoiceItem
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.util.label
+import paige.navic.ui.util.withoutBottom
 
 @Composable
 fun SettingsThemesScreen() {
@@ -90,7 +93,7 @@ fun SettingsThemesScreen() {
 		) {
 			Column(
 				modifier = Modifier
-					.padding(innerPadding)
+					.padding(innerPadding.withoutBottom())
 					.verticalScroll(rememberScrollState())
 					.padding(horizontal = 16.dp),
 				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
@@ -177,6 +180,7 @@ fun SettingsThemesScreen() {
 						)
 					}
 				}
+				Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
 			}
 		}
 	}

@@ -4,6 +4,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
@@ -48,6 +50,7 @@ import paige.navic.ui.components.common.SegmentedListItem
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.navigation.Screen
+import paige.navic.ui.util.withoutBottom
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.screens.settings.components.SettingsNavItem
@@ -74,7 +77,7 @@ fun AudioEffectsScreen() {
 		) {
 			Column(
 				modifier = Modifier
-					.padding(innerPadding)
+					.padding(innerPadding.withoutBottom())
 					.verticalScroll(rememberScrollState())
 					.padding(horizontal = 16.dp),
 				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
@@ -176,6 +179,7 @@ fun AudioEffectsScreen() {
 				}
 
 				InformationTip(stringResource(Res.string.option_preamp_tip))
+				Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
 			}
 		}
 	}

@@ -2,6 +2,8 @@ package paige.navic.ui.screens.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -29,6 +31,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.di.LocalPlatformContext
 import paige.navic.di.PlatformType
+import paige.navic.ui.util.withoutBottom
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.generated.BuildInfo
 import paige.navic.ui.components.common.SegmentedListItem
@@ -65,7 +68,7 @@ fun SettingsAboutScreen() {
 	) { innerPadding ->
 		Column(
 			modifier = Modifier
-				.padding(innerPadding)
+				.padding(innerPadding.withoutBottom())
 				.verticalScroll(rememberScrollState())
 				.padding(horizontal = 16.dp),
 			verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
@@ -116,6 +119,7 @@ fun SettingsAboutScreen() {
 					)
 				}
 			}
+			Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
 		}
 	}
 

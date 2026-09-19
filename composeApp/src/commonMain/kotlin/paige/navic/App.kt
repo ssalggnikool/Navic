@@ -13,10 +13,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,6 +55,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.getString
 import org.koin.compose.koinInject
+import paige.navic.di.LocalBottomBarPadding
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalPlatformContext
@@ -73,6 +70,7 @@ import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.models.settings.ExplicitContentPlayback
 import paige.navic.generated.BuildInfo
 import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.ui.components.layouts.RootBottomBar
 import paige.navic.ui.components.sheets.ChangelogSheet
 import paige.navic.ui.components.snackbars.NavicSnackBar
 import paige.navic.ui.navigation.BottomSheetSceneStrategy
@@ -152,7 +150,6 @@ fun App() {
 	}
 
 	val density = LocalDensity.current
-	val layoutDirection = LocalLayoutDirection.current
 	val scrollManager = remember {
 		BottomBarScrollManager(with(density) { 50.dp.toPx() })
 	}
@@ -179,6 +176,12 @@ fun App() {
 			NavicTheme {
 				Scaffold(
 					modifier = Modifier.nestedScroll(scrollManager.connection),
+					bottomBar = {
+						val currentScreen = backStack.lastOrNull()
+						if (isLoggedIn && currentScreen !is Screen.Settings) {
+							RootBottomBar(scrolled = scrollManager.isTriggered)
+						}
+					},
 					snackbarHost = {
 						SnackbarHost(hostState = snackBarState) { snackBarData ->
 							NavicSnackBar(snackBarData = snackBarData)
@@ -186,68 +189,66 @@ fun App() {
 					},
 					contentWindowInsets = WindowInsets()
 				) { contentPadding ->
-					NavDisplay(
-						modifier = Modifier
-							.padding(
-								start = contentPadding
-									.calculateStartPadding(layoutDirection),
-								end = contentPadding
-									.calculateEndPadding(layoutDirection)
-							)
-							.fillMaxSize()
-							.background(MaterialTheme.colorScheme.surface),
-						backStack = backStack,
-						sceneStrategies = listOf(
-							remember { NowPlayingSceneStrategy() },
-							remember { BottomSheetSceneStrategy() },
-							rememberListDetailSceneStrategy()
-						),
-						entryDecorators = listOf(
-							rememberSaveableStateHolderNavEntryDecorator(),
+					CompositionLocalProvider(
+						LocalBottomBarPadding provides contentPadding.calculateBottomPadding()
+					) {
+						NavDisplay(
+							modifier = Modifier
+								.fillMaxSize()
+								.background(MaterialTheme.colorScheme.surface),
+							backStack = backStack,
+							sceneStrategies = listOf(
+								remember { NowPlayingSceneStrategy() },
+								remember { BottomSheetSceneStrategy() },
+								rememberListDetailSceneStrategy()
+							),
+							entryDecorators = listOf(
+								rememberSaveableStateHolderNavEntryDecorator(),
 
-							// makes it so that ViewModels get destroyed if their
-							// associated screen is removed from the back stack
-							//
-							// this might not always be desirable, so the
-							// `PersistentViewModelStoreOwner` class is used for
-							// certain ViewModels to work around this
-							rememberViewModelStoreNavEntryDecorator()
-						),
-						onBack = {
-							if (backStack.size >= 2) {
-								backStack.removeLastOrNull()
-							}
-						},
-						entryProvider = entryProvider(backStack),
-						sharedTransitionScope = this@SharedTransitionLayout,
-						transitionSpec = {
-							Material3Transitions.SharedXAxisEnterTransition(
-								density
-							) togetherWith Material3Transitions.SharedXAxisExitTransition(
-								density
-							)
-						},
-						popTransitionSpec = {
-							Material3Transitions.SharedXAxisPopEnterTransition(
-								density
-							) togetherWith Material3Transitions.SharedXAxisPopExitTransition(
-								density
-							)
-						},
-						predictivePopTransitionSpec = {
-							if (preferenceManager.enablePredictiveBackAnimations) {
-								slideInHorizontally(
-									animationSpec = tween(300, easing = EaseOutQuart),
-									initialOffsetX = { -it }
-								) togetherWith slideOutHorizontally(
-									animationSpec = tween(300, easing = EaseOutQuart),
-									targetOffsetX = { it }
+								// makes it so that ViewModels get destroyed if their
+								// associated screen is removed from the back stack
+								//
+								// this might not always be desirable, so the
+								// `PersistentViewModelStoreOwner` class is used for
+								// certain ViewModels to work around this
+								rememberViewModelStoreNavEntryDecorator()
+							),
+							onBack = {
+								if (backStack.size >= 2) {
+									backStack.removeLastOrNull()
+								}
+							},
+							entryProvider = entryProvider(backStack),
+							sharedTransitionScope = this@SharedTransitionLayout,
+							transitionSpec = {
+								Material3Transitions.SharedXAxisEnterTransition(
+									density
+								) togetherWith Material3Transitions.SharedXAxisExitTransition(
+									density
 								)
-							} else {
-								ContentTransform(EnterTransition.None, ExitTransition.None)
+							},
+							popTransitionSpec = {
+								Material3Transitions.SharedXAxisPopEnterTransition(
+									density
+								) togetherWith Material3Transitions.SharedXAxisPopExitTransition(
+									density
+								)
+							},
+							predictivePopTransitionSpec = {
+								if (preferenceManager.enablePredictiveBackAnimations) {
+									slideInHorizontally(
+										animationSpec = tween(300, easing = EaseOutQuart),
+										initialOffsetX = { -it }
+									) togetherWith slideOutHorizontally(
+										animationSpec = tween(300, easing = EaseOutQuart),
+										targetOffsetX = { it }
+									)
+								} else {
+									ContentTransform(EnterTransition.None, ExitTransition.None)
+								}
 							}
-						}
-					)
+						)
+					}
 				}
 				// version check is annoying to do on iOS
 				if (preferenceManager.checkForUpdates
@@ -268,11 +269,10 @@ private fun entryProvider(
 	val fadeSpec = ContentTransform(fadeIn(), fadeOut())
 
 	val navtabMetadata = if (backStack.size == 1)
-		listPane("root")
-			.plus(transitionSpec { fadeSpec })
+		transitionSpec { fadeSpec }
 			.plus(popTransitionSpec { fadeSpec })
 			.plus(predictivePopTransitionSpec { fadeSpec })
-	else listPane("root")
+	else emptyMap()
 	val imageViewMetadata = transitionSpec { ContentTransform(fadeIn(), ExitTransition.None) }
 		.plus(popTransitionSpec { ContentTransform(EnterTransition.None, fadeOut()) })
 		.plus(predictivePopTransitionSpec { ContentTransform(EnterTransition.None, fadeOut()) })
@@ -336,7 +336,7 @@ private fun entryProvider(
 		entry<Screen.PlaybackSpeed>(metadata = BottomSheetSceneStrategy.bottomSheet()) {
 			PlaybackSpeedScreen()
 		}
-		entry<Screen.CollectionDetail>(metadata = detailPane("root")) { key ->
+		entry<Screen.CollectionDetail> { key ->
 			CollectionDetailScreen(key.collectionId, key.tab)
 		}
 		entry<Screen.SongDetailScreen> { key ->
@@ -366,7 +366,7 @@ private fun entryProvider(
 		}
 
 		// settings
-		entry<Screen.Settings.Root>(metadata = listPane("settings")) {
+		entry<Screen.Settings.Root>(metadata = listPane("settings", detailPlaceholder = { SettingsAppearanceScreen() })) {
 			SettingsScreen()
 		}
 		entry<Screen.Settings.Appearance>(metadata = detailPane("settings")) {

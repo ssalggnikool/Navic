@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -57,6 +59,7 @@ import paige.navic.ui.components.common.SegmentedListItem
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.navigation.Screen
+import paige.navic.ui.util.withoutBottom
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.theme.defaultFont
@@ -68,7 +71,7 @@ fun SettingsScreen() {
 	) { innerPadding ->
 		Column(
 			modifier = Modifier
-				.padding(innerPadding)
+				.padding(innerPadding.withoutBottom())
 				.verticalScroll(rememberScrollState())
 				.padding(horizontal = 16.dp),
 			verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
@@ -132,6 +135,7 @@ fun SettingsScreen() {
 					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
 				)
 			}
+			Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
 		}
 	}
 }

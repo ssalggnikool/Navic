@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -41,6 +42,7 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Add
 import paige.navic.icons.outlined.Delete
+import paige.navic.ui.util.withoutBottom
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
@@ -85,7 +87,7 @@ fun SettingsCustomHeadersScreen() {
 		) {
 			Column(
 				modifier = Modifier
-					.padding(innerPadding)
+					.padding(innerPadding.withoutBottom())
 					.verticalScroll(rememberScrollState())
 					.padding(horizontal = 16.dp),
 				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
@@ -131,6 +133,7 @@ fun SettingsCustomHeadersScreen() {
 						fontFamily = defaultFont(100)
 					)
 				}
+				Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
 			}
 		}
 	}

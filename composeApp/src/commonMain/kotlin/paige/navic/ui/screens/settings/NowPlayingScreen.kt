@@ -2,6 +2,8 @@ package paige.navic.ui.screens.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -52,6 +54,7 @@ import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.screens.settings.components.SettingsNavItem
 import paige.navic.ui.screens.settings.components.SettingsToggleItem
+import paige.navic.ui.util.withoutBottom
 import paige.navic.ui.screens.settings.dialogs.LyricsPrioritySheet
 import paige.navic.ui.screens.settings.dialogs.NowPlayingSliderStyleDialog
 
@@ -80,7 +83,7 @@ fun SettingsNowPlayingScreen() {
 		) {
 			Column(
 				modifier = Modifier
-					.padding(innerPadding)
+					.padding(innerPadding.withoutBottom())
 					.verticalScroll(rememberScrollState())
 					.padding(horizontal = 16.dp),
 				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
@@ -172,6 +175,7 @@ fun SettingsNowPlayingScreen() {
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)
 					)
 				}
+				Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
 			}
 		}
 	}
