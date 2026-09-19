@@ -176,7 +176,7 @@ fun CollectionDetailScreenSongRow(
 					)
 				else
 					Text(
-						text = "${index + 1}",
+						text = song.trackNumber?.toString() ?: "${index + 1}",
 						modifier = Modifier.width(25.dp),
 						style = LocalTextStyle.current.copy(fontFeatureSettings = "tnum"),
 						fontWeight = FontWeight(400),

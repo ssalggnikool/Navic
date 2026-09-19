@@ -7,6 +7,7 @@ android-minSdk = "24"
 #noinspection UnusedVersionCatalogEntry
 android-targetSdk = "37"
 kotlin = "2.4.20"
+kotlinx-coroutines = "1.10.2"
 
 # Androidx
 androidx-activity = "1.13.0"
@@ -35,6 +36,9 @@ coil = "3.6.2"
 koin = "4.2.2"
 
 [libraries]
+# Coroutines (Guava interop, needed for MediaLibraryService's ListenableFuture callbacks)
+kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinx-coroutines" }
+
 # Compose
 cmp-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
 cmp-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
