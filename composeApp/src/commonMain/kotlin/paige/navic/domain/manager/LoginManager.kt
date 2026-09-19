@@ -11,7 +11,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import paige.navic.di.LocalPlatformContext
 import paige.navic.domain.repositories.DbRepository
 import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.util.AddressUtil
