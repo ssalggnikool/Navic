@@ -116,6 +116,7 @@ import paige.navic.ui.screens.song.SongDetailScreen
 import paige.navic.ui.screens.song.SongDetailSheet
 import paige.navic.ui.screens.song.SongListScreen
 import paige.navic.ui.screens.starred.StarredScreen
+import paige.navic.ui.screens.stats.StatisticsScreen
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.Material3Transitions
 
@@ -363,6 +364,10 @@ private fun entryProvider(
 		}
 		entry<Screen.ArtistDetail> { key ->
 			ArtistDetailScreen(key.artist)
+		}
+
+		entry<Screen.Statistics>(metadata = navtabMetadata) { key ->
+			StatisticsScreen(key.nested)
 		}
 
 		// settings

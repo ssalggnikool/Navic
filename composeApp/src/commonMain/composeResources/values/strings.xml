@@ -59,6 +59,10 @@
 	<string name="title_theme_mode">Theme mode</string>
 	<string name="title_account">Account</string>
 	<string name="title_track_info">Track info</string>
+	<string name="title_statistics">Stats</string>
+	<string name="title_top_songs">Top songs</string>
+	<string name="title_top_artists">Top artists</string>
+	<string name="title_top_albums">Top albums</string>
 	<string name="title_lyric_providers">Lyric providers</string>
 	<string name="title_github">GitHub</string>
 	<string name="title_codeberg">Codeberg</string>
@@ -319,6 +323,11 @@
 		<item quantity="other">Rate %1$d stars</item>
 	</plurals>
 
+	<plurals name="count_plays">
+		<item quantity="one">%1$d play</item>
+		<item quantity="other">%1$d plays</item>
+	</plurals>
+
 	<plurals name="count_lines">
 		<item quantity="one">%1$d line selected</item>
 		<item quantity="other">%1$d lines selected</item>
@@ -342,6 +351,7 @@
 	<string name="action_view_album">View album</string>
 	<string name="action_view_playlist">View playlist</string>
 	<string name="action_view_artist">View artist</string>
+	<string name="action_view_statistics">View statistics</string>
 	<string name="action_star">Star</string>
 	<string name="action_remove_star">Unstar</string>
 	<string name="action_download">Download</string>
@@ -446,6 +456,9 @@
 	<string name="info_track_replay_gain">Track ReplayGain</string>
 	<string name="info_album_replay_gain">Album ReplayGain</string>
 	<string name="info_dynamic_replay_gain">Dynamic ReplayGain</string>
+	<string name="info_total_plays">Total plays</string>
+	<string name="info_total_listening_time">Total listening time</string>
+	<string name="info_listening_stats_ratio">%1$d% of total listening time</string>
 	<string name="info_track_replay_gain_effective">ReplayGain effective value</string>
 	<string name="info_update">Version "%1$s" has been released</string>
 	<string name="info_shared_by">Shared by %1$s</string>
@@ -489,5 +502,6 @@
 	<string name="info_equaliser_unsupported">Your device does not support this feature.</string>
 	<string name="info_equaliser_mode_not_builtin">Please adjust the external equaliser using its dedicated app.</string>
 	<string name="info_lyric_provider_disclaimer">Enabling LRCLIB and/or LyricsPlus will make requests to external and unaffiliated web services.</string>
+	<string name="info_starred_songs">Starred songs</string>
 	<string name="info_duration_left">%1$s left</string>
 </resources>

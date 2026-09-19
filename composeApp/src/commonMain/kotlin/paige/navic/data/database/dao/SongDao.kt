@@ -6,6 +6,7 @@ import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Transaction
 import androidx.room3.Upsert
+import kotlinx.coroutines.flow.Flow
 import paige.navic.data.database.entities.SongEntity
 import paige.navic.util.Logger
 
@@ -25,6 +26,33 @@ interface SongDao {
 
 	@Query("SELECT * FROM SongEntity")
 	suspend fun getAllSongs(): List<SongEntity>
+
+	@Query("SELECT SUM(playCount) FROM SongEntity")
+	fun getTotalPlayCount(): Flow<Int?>
+
+	@Query("SELECT SUM(duration * playCount) FROM SongEntity")
+	fun getTotalListeningTime(): Flow<Long?>
+
+	@Query("SELECT * FROM SongEntity WHERE playCount > 0 ORDER BY playCount DESC LIMIT :limit")
+	fun getTopSongs(limit: Int): Flow<List<SongEntity>>
+
+	@Query("SELECT * FROM SongEntity WHERE starredAt IS NOT NULL")
+	fun getStarredSongs(): Flow<List<SongEntity>>
+
+	@Query("SELECT belongsToAlbumId FROM SongEntity WHERE playCount > 0 GROUP BY belongsToAlbumId ORDER BY SUM(playCount) DESC LIMIT :limit")
+	fun getTopAlbumIds(limit: Int): Flow<List<String>>
+
+	@Query("SELECT artistId FROM SongEntity WHERE playCount > 0 GROUP BY artistId ORDER BY SUM(playCount) DESC LIMIT :limit")
+	fun getTopArtistIds(limit: Int): Flow<List<String>>
+
+	@Query("SELECT SUM(playCount) FROM SongEntity WHERE artistId = :artistId")
+	fun getArtistPlayCount(artistId: String): Flow<Int?>
+
+	@Query("SELECT SUM(duration * playCount) FROM SongEntity WHERE artistId = :artistId")
+	fun getArtistListeningTime(artistId: String): Flow<Long?>
+
+	@Query("SELECT SUM(duration * playCount) FROM SongEntity WHERE belongsToAlbumId = :albumId")
+	fun getAlbumListeningTime(albumId: String): Flow<Long?>
 
 	@Query("SELECT * FROM SongEntity WHERE belongsToAlbumId = :albumId")
 	suspend fun getSongsByAlbumId(albumId: String): List<SongEntity>

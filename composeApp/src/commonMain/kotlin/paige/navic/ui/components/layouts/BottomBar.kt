@@ -31,6 +31,7 @@ import navic.composeapp.generated.resources.title_playlists
 import navic.composeapp.generated.resources.title_radios
 import navic.composeapp.generated.resources.title_search
 import navic.composeapp.generated.resources.title_songs
+import navic.composeapp.generated.resources.title_statistics
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -56,6 +57,7 @@ import paige.navic.icons.outlined.Note
 import paige.navic.icons.outlined.PlaylistPlay
 import paige.navic.icons.outlined.Radio
 import paige.navic.icons.outlined.Search
+import paige.navic.icons.outlined.Statistics
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.settings.viewmodels.NavtabsViewModel
@@ -114,6 +116,11 @@ private enum class NavItem(
 		icon = Icons.Filled.Radio,
 		iconUnselected = Icons.Outlined.Radio,
 		label = Res.string.title_radios
+	),
+	STATISTICS(
+		destination = Screen.Statistics(),
+		icon = Icons.Outlined.Statistics,
+		label = Res.string.title_statistics
 	)
 }
 
@@ -167,6 +174,7 @@ fun BottomBar(
 						NavbarTab.Id.GENRES -> NavItem.GENRES
 						NavbarTab.Id.SONGS -> NavItem.SONGS
 						NavbarTab.Id.RADIOS -> NavItem.RADIOS
+						NavbarTab.Id.STATISTICS -> NavItem.STATISTICS
 					}
 					val selected = backStack.lastOrNull() == item.destination
 
@@ -223,6 +231,7 @@ fun BottomBar(
 						NavbarTab.Id.GENRES -> NavItem.GENRES
 						NavbarTab.Id.SONGS -> NavItem.SONGS
 						NavbarTab.Id.RADIOS -> NavItem.RADIOS
+						NavbarTab.Id.STATISTICS -> NavItem.STATISTICS
 					}
 					val selected = backStack.last() == item.destination
 
