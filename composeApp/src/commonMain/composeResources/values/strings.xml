@@ -95,7 +95,6 @@
 	<string name="subtitle_configure_lyric_providers">Choose where to fetch lyrics from</string>
 	<string name="subtitle_audio_effects">Adjust how the music sounds</string>
 	<string name="subtitle_enable_ratings">Enable 5-star ratings for music</string>
-	<string name="subtitle_enable_sharing">Enable sharing links to music &amp; listing shares</string>
 
 	<string name="option_off">Off</string>
 	<string name="option_now_playing_background_style">Background style</string>
@@ -209,7 +208,6 @@
 	<string name="option_list_view_mode_grid">Grid</string>
 	<string name="option_list_view_mode_list">List</string>
 	<string name="option_enable_ratings">Enable ratings</string>
-	<string name="option_enable_sharing">Enable sharing</string>
 	<string name="option_enable_predictive_back_animations">Enable predictive back animations</string>
 
 	<string name="info_status_idle">Idle</string>

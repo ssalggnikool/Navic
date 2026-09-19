@@ -50,7 +50,6 @@ class PreferenceManager(
 	var marqueeSpeed by preference(MarqueeSpeed.Slow)
 	var alphabeticalScroll by preference(false)
 	var enableRatings by preference(true)
-	var enableSharing by preference(true)
 	var lyricsAutoscroll by preference(true)
 	var lyricsBeatByBeat by preference(true)
 	var lyricsKeepAlive by preference(true)
