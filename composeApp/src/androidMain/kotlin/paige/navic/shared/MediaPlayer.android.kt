@@ -54,7 +54,6 @@ import coil3.ImageLoader
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -1188,13 +1187,4 @@ class AndroidMediaPlayerViewModel(
 
 		return builder.build()
 	}
-}
-
-// hack: this is using kotlin/java reflection and should be removed later
-fun SessionManager.getKtorHttpClient(): HttpClient {
-	val apiInstance = this.api
-	val field = apiInstance.javaClass.getDeclaredField("httpClient").apply {
-		isAccessible = true
-	}
-	return field.get(apiInstance) as HttpClient
 }
