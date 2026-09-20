@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
@@ -36,6 +35,7 @@ import paige.navic.domain.models.DomainShare
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Delete
 import paige.navic.ui.components.common.CoverArt
+import paige.navic.ui.components.common.SwipeToDismissBox
 import paige.navic.util.toHoursMinutesSeconds
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds

@@ -23,6 +23,7 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.models.DomainExplicitStatus
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.MarqueeText
+import paige.navic.ui.components.common.SmallRatingRow
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.nowPlaying.components.controls.NowPlayingMoreButton
 import paige.navic.ui.screens.nowPlaying.components.controls.NowPlayingStarButton
@@ -116,6 +117,12 @@ fun NowPlayingInfoRow(
 					}
 				}
 			)
+			if (songRating != 0) {
+				SmallRatingRow(
+					rating = songRating,
+					color = MaterialTheme.colorScheme.onSurfaceVariant
+				)
+			}
 		}
 		Row(
 			horizontalArrangement = Arrangement.spacedBy(10.dp)

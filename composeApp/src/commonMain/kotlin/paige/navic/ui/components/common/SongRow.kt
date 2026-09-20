@@ -1,6 +1,7 @@
 package paige.navic.ui.components.common
 
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -100,6 +101,7 @@ fun SongRow(
 				onLongClick = onLongClick,
 				enabled = !isExplicit
 			),
+		verticalAlignment = Alignment.CenterVertically,
 		content = {
 			Text(
 				text = buildAnnotatedString {
@@ -114,12 +116,17 @@ fun SongRow(
 			)
 		},
 		supportingContent = {
-			MarqueeText(
-				buildSongInfoString(
-					song = song,
-					onClickArtist = { backStack.add(Screen.ArtistDetail(it)) }
+			Column {
+				MarqueeText(
+					buildSongInfoString(
+						song = song,
+						onClickArtist = { backStack.add(Screen.ArtistDetail(it)) }
+					)
 				)
-			)
+				if (song.userRating != null && song.userRating != 0) {
+					SmallRatingRow(rating = song.userRating)
+				}
+			}
 		},
 		leadingContent = {
 			CoverArt(

@@ -16,7 +16,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
@@ -65,6 +64,8 @@ import paige.navic.ui.components.common.CoverArt
 import paige.navic.ui.components.common.MarqueeText
 import paige.navic.ui.components.common.SegmentedListItem
 import paige.navic.ui.components.common.SegmentedListItemDefaults
+import paige.navic.ui.components.common.SmallRatingRow
+import paige.navic.ui.components.common.SwipeToDismissBox
 import paige.navic.ui.components.common.Waveform
 import paige.navic.ui.components.dialogs.QueueDuplicateDialog
 import paige.navic.ui.navigation.Screen
@@ -167,6 +168,7 @@ fun CollectionDetailScreenSongRow(
 				count = count,
 				dismissDirection = dismissState.dismissDirection
 			),
+			verticalAlignment = Alignment.CenterVertically,
 			leadingContent = {
 				if (isPlaylist)
 					CoverArt(
@@ -206,6 +208,9 @@ fun CollectionDetailScreenSongRow(
 						),
 						style = MaterialTheme.typography.bodySmall
 					)
+					if (song.userRating != null && song.userRating != 0) {
+						SmallRatingRow(rating = song.userRating)
+					}
 				}
 			},
 			trailingContent = {

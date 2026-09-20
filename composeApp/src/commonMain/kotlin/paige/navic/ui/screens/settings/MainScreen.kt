@@ -164,7 +164,8 @@ private fun PageRow(
 		contentPadding = PaddingValues(if (preferenceManager.theme.isMaterialLike()) 16.dp else 12.dp)
 	) {
 		Row(
-			horizontalArrangement = Arrangement.spacedBy(12.dp)
+			horizontalArrangement = Arrangement.spacedBy(12.dp),
+			verticalAlignment = Alignment.CenterVertically
 		) {
 			if (preferenceManager.theme.isMaterialLike()) {
 				Column(

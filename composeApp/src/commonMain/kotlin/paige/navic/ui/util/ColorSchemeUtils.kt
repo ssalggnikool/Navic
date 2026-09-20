@@ -67,7 +67,8 @@ fun rememberColorSchemeFromCoverArt(
 		seedColor = dominantColorState.color,
 		isDark = isDark,
 		style = style,
-		specVersion = specVersion
+		specVersion = specVersion,
+		isAmoled = preferenceManager.amoled
 	)
 
 	return scheme

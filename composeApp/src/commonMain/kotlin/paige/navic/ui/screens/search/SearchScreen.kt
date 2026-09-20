@@ -22,7 +22,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -85,6 +84,8 @@ import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.components.common.CoverArt
 import paige.navic.ui.components.common.ErrorBox
 import paige.navic.ui.components.common.MarqueeText
+import paige.navic.ui.components.common.SmallRatingRow
+import paige.navic.ui.components.common.SwipeToDismissBox
 import paige.navic.ui.components.dialogs.QueueDuplicateDialog
 import paige.navic.ui.components.layouts.ArtGrid
 import paige.navic.ui.components.layouts.RootBottomBar
@@ -245,7 +246,8 @@ fun SearchScreen(
 								}
 								items(
 									songs.take(10).size,
-									span = { GridItemSpan(maxLineSpan) }) { index ->
+									span = { GridItemSpan(maxLineSpan) }
+								) { index ->
 									val song = songs[index]
 									val isDownloaded = downloadedSongs.containsKey(song.id)
 
@@ -306,14 +308,26 @@ fun SearchScreen(
 												player.playNow(song)
 											},
 											onLongClick = { viewModel.selectSong(song) },
+											verticalAlignment = Alignment.CenterVertically,
 											content = { Text(song.title) },
 											supportingContent = {
-												MarqueeText(
-													buildSongInfoString(
-														song = song,
-														onClickArtist = { backStack.add(Screen.ArtistDetail(it)) }
+												Column {
+													MarqueeText(
+														buildSongInfoString(
+															song = song,
+															onClickArtist = {
+																backStack.add(
+																	Screen.ArtistDetail(
+																		it
+																	)
+																)
+															}
+														)
 													)
-												)
+													if (song.userRating != null && song.userRating != 0) {
+														SmallRatingRow(rating = song.userRating)
+													}
+												}
 											},
 											leadingContent = {
 												CoverArt(

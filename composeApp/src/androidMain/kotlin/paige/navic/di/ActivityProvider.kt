@@ -9,7 +9,7 @@ import android.app.Application
 import android.os.Bundle
 import java.util.Objects
 
-class ActivityProvider(application: Application) {
+class ActivityProvider(application: Application) : Application.ActivityLifecycleCallbacks {
 	private var activeActivity: Activity? = null
 
 	/**
@@ -18,21 +18,21 @@ class ActivityProvider(application: Application) {
 	@Suppress("UNCHECKED_CAST")
 	fun <T : Activity> get(): T = Objects.requireNonNull(activeActivity, "No active activity cached!") as T
 
+	override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+	override fun onActivityPaused(activity: Activity) {}
+	override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+	override fun onActivityStarted(activity: Activity) {}
+	override fun onActivityStopped(activity: Activity) {}
+
+	override fun onActivityResumed(activity: Activity) {
+		activeActivity = activity
+	}
+
+	override fun onActivityDestroyed(activity: Activity) {
+		activeActivity = null
+	}
+
 	init {
-		application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-			override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-			override fun onActivityPaused(activity: Activity) {}
-			override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-			override fun onActivityStarted(activity: Activity) {}
-			override fun onActivityStopped(activity: Activity) {}
-
-			override fun onActivityResumed(activity: Activity) {
-				activeActivity = activity
-			}
-
-			override fun onActivityDestroyed(activity: Activity) {
-				activeActivity = null
-			}
-		})
+		application.registerActivityLifecycleCallbacks(this)
 	}
 }

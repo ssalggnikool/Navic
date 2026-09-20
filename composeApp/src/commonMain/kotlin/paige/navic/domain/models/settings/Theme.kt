@@ -74,7 +74,14 @@ enum class Theme(val title: StringResource) {
 		return when (this) {
 			Dynamic -> platformContext.colorScheme ?: remember(isDark) {
 				if (isDark)
-					darkColorScheme()
+					if (preferenceManager.amoled)
+						darkColorScheme(
+							surface = Color.Black,
+							onSurface = Color.White,
+							background = Color.Black,
+							onBackground = Color.White
+						)
+					else darkColorScheme()
 				else expressiveLightColorScheme()
 			}
 
@@ -86,7 +93,8 @@ enum class Theme(val title: StringResource) {
 				).toColor(),
 				isDark = isDark,
 				specVersion = ColorSpec.SpecVersion.SPEC_2025,
-				style = preferenceManager.paletteStyle
+				style = preferenceManager.paletteStyle,
+				isAmoled = preferenceManager.amoled
 			)
 
 			iOS -> if (isDark)

@@ -52,6 +52,7 @@ class PreferenceManager(
 	var enableRatings by preference(true)
 	var lyricsAutoscroll by preference(true)
 	var lyricsBeatByBeat by preference(true)
+	var lyricsFakeBeatByBeat by preference(false)
 	var lyricsKeepAlive by preference(true)
 	var lyricsBlur by preference(false)
 	var lyricsBrightInactive by preference(false)
@@ -104,6 +105,7 @@ class PreferenceManager(
 	// theme related settings
 	var theme by preference(Theme.Dynamic)
 	var themeMode by preference(ThemeMode.System)
+	var amoled by preference(false)
 	var dynamicTheming by preference(false)
 	var paletteStyle by preference(PaletteStyle.TonalSpot)
 	var paletteSpec by preference(ColorSpec.SpecVersion.SPEC_2025)

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import paige.navic.domain.repositories.DbRepository
 import paige.navic.ui.core.LoginUiState
+import paige.navic.ui.util.AddressUtil
 
 class LoginManager(
     private val repository: DbRepository,
@@ -51,6 +52,16 @@ class LoginManager(
 		validateUsername()
 		validatePassword()
 		return !instanceError && !usernameError && !passwordError
+	}
+
+	fun isLocalNetworkInstance(): Boolean {
+		val host = AddressUtil.extractHostFromUri(instanceState.text.toString())
+
+		return if (host != null) {
+			AddressUtil.isAddressLocal(host)
+		} else {
+			false
+		}
 	}
 
 	init {
