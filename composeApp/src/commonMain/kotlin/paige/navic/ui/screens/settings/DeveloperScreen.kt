@@ -2,16 +2,13 @@ package paige.navic.ui.screens.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -20,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import navic.composeapp.generated.resources.Res
@@ -59,9 +55,6 @@ fun SettingsDeveloperScreen() {
 	var exceptionConfirmationShown by rememberSaveable { mutableStateOf(false) }
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	var proxyDialogShown by rememberSaveable { mutableStateOf(false) }
-	val proxyField = rememberTextFieldState(preferenceManager.proxyUrl)
-
 	Scaffold(
 		topBar = {
 			NestedTopBar(
@@ -86,7 +79,7 @@ fun SettingsDeveloperScreen() {
 			) {
 				SettingsGroup {
 					val isAndroid = platformContext.platformType == PlatformType.Android
-					val count = if (isAndroid) 4 else 3
+					val count = if (isAndroid) 3 else 2
 
 					SettingsNavItem(
 						onClick = dropUnlessResumed {
@@ -108,17 +101,6 @@ fun SettingsDeveloperScreen() {
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = count)
 					)
 
-					SettingsNavItem(
-						onClick = {
-							proxyDialogShown = true
-						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = 2,
-							count = count
-						),
-						content = { Text("Proxy settings") }
-					)
-
 					if (isAndroid) {
 						SettingsNavItem(
 							onClick = dropUnlessResumed {
@@ -129,10 +111,7 @@ fun SettingsDeveloperScreen() {
 								}
 							},
 							content = { Text(stringResource(Res.string.title_logs)) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 3,
-								count = count
-							)
+							shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = count)
 						)
 					}
 				}
@@ -174,56 +153,6 @@ fun SettingsDeveloperScreen() {
 					Text(stringResource(Res.string.action_cancel))
 				}
 			},
-		)
-	}
-
-	// FIXME: hardcoded strings
-	if (proxyDialogShown) {
-		FormDialog(
-			onDismissRequest = { proxyDialogShown = false },
-			title = { Text("Proxy settings") },
-			content = {
-				Column {
-					Text(
-						textAlign = TextAlign.Center,
-						text =
-							"""
-								|Unless if you're a developer and you're trying to debug something, this is probably not for you.
-								|Use a normal VPN/proxy instead.
-								|Currently supported proxy protocols are HTTP and SOCKS.
-								|Note that you need to restart the app after setting the proxy.
-							""".trimMargin()
-					)
-
-					Spacer(Modifier.padding(8.dp))
-
-					TextField(
-						state = proxyField,
-						label = { Text("URL") },
-						placeholder = { Text("http://192.168.0.100:8080") }
-					)
-				}
-			},
-			buttons = {
-				SegmentedListButton(
-					modifier = Modifier.fillMaxWidth(),
-					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2),
-					onClick = {
-						preferenceManager.proxyUrl = proxyField.text.toString()
-						proxyDialogShown = false
-					}
-				) {
-					Text(stringResource(Res.string.action_ok))
-				}
-
-				SegmentedListButton(
-					onClick = { proxyDialogShown = false },
-					modifier = Modifier.fillMaxWidth(),
-					shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
-				) {
-					Text(stringResource(Res.string.action_cancel))
-				}
-			}
 		)
 	}
 }
