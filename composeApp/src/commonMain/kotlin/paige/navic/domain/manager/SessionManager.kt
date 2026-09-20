@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import paige.navic.util.configureSsl
+import paige.navic.util.getDefaultEngineForPlatform
 
 class SessionManager(
 	private val settings: Settings,
@@ -85,13 +87,16 @@ class SessionManager(
 				}
 			}
 
+			configureSsl(preferenceManager.dangerousSslNoopEnabled)
+
 			val customHeaders = preferenceManager.customHeadersMap()
 			if (customHeaders.isNotEmpty()) {
 				defaultRequest {
 					customHeaders.forEach { (key, value) -> header(key, value) }
 				}
 			}
-		}
+		},
+		engine = getDefaultEngineForPlatform()
 	)
 
 	suspend fun login(

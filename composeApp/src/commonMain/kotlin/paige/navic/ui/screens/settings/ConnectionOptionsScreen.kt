@@ -18,9 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
@@ -33,6 +35,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_delete
@@ -49,8 +52,12 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Add
 import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.Info
+import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.screens.settings.components.SettingsGroup
+import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
+import paige.navic.ui.screens.settings.components.SettingsToggleItem
 import paige.navic.ui.theme.defaultFont
 import kotlin.random.Random
 
@@ -75,7 +82,17 @@ fun SettingsConnectionOptionsScreen() {
 	}
 	val updateProxyUrl: (String) -> Unit = { url ->
 		proxyUrlField = url
-		preferenceManager.proxyUrl = url
+		if (SessionManager.PROXY_URL_REGEX.matches(proxyUrlField)) {
+			preferenceManager.proxyUrl = url
+			sessionManager.refreshClient()
+		}
+	}
+
+	var sslNoopChecked by mutableStateOf(preferenceManager.dangerousSslNoopEnabled)
+	val updateSslNoop: (Boolean) -> Unit = { bool ->
+		sslNoopChecked = bool
+		preferenceManager.dangerousSslNoopEnabled = bool
+		sessionManager.refreshClient()
 	}
 
 	val headers = remember {
@@ -106,10 +123,9 @@ fun SettingsConnectionOptionsScreen() {
 			Column(
 				modifier = Modifier
 					.padding(innerPadding)
-					.padding(top = 8.dp)
-					.padding(horizontal = 16.dp)
-					.verticalScroll(rememberScrollState()),
-				verticalArrangement = Arrangement.spacedBy(12.dp),
+					.verticalScroll(rememberScrollState())
+					.padding(horizontal = 16.dp),
+				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
 				SettingsGroup(
 					title = { Text(stringResource(Res.string.option_proxy_settings)) },
@@ -117,6 +133,7 @@ fun SettingsConnectionOptionsScreen() {
 				) {
 					OutlinedTextField(
 						modifier = Modifier.fillMaxWidth(),
+						singleLine = true,
 						value = proxyUrlField,
 						onValueChange = updateProxyUrl,
 						isError = proxyUrlHasErrors,
@@ -126,6 +143,24 @@ fun SettingsConnectionOptionsScreen() {
 							if (proxyUrlHasErrors) {
 								Text(stringResource(Res.string.info_incorrect_proxy_url_format))
 							}
+						}
+					)
+				}
+				// TODO: hide this on iOS, and also add strings to the xml. piss
+				SettingsGroup(
+					title = { Text("Security settings") },
+					modifier = Modifier.fillMaxWidth()
+				) {
+					SettingsToggleItem(
+						checked = sslNoopChecked,
+						onCheckedChange = updateSslNoop,
+						content = { Text("Ignore SSL certificates") },
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 1,
+							count = 1
+						),
+						supportingContent = {
+							Text("Only enable this if you know what you're doing. Useful if you're using a proxy for inspecting requests.")
 						}
 					)
 				}
