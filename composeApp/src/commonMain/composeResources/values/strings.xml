@@ -122,6 +122,8 @@
 	<string name="option_account_password">Password</string>
 	<string name="option_lyrics_autoscroll">Lyrics auto-scrolling</string>
 	<string name="option_lyrics_beat_by_beat">Beat-by-beat lyrics</string>
+	<string name="option_lyrics_fake_beat_by_beat">Fake beat-by-beat effect</string>
+	<string name="subtitle_lyrics_fake_beat_by_beat">Simulate word-level timing when it is missing</string>
 	<string name="option_sort_random">Random</string>
 	<string name="option_sort_newest">Recently added</string>
 	<string name="option_sort_rating">Rating</string>
