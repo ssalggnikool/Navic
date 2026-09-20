@@ -1,7 +1,6 @@
 package paige.navic.ui.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +15,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,8 +23,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_delete
 import navic.composeapp.generated.resources.action_new
+import navic.composeapp.generated.resources.option_connection_options
 import navic.composeapp.generated.resources.option_custom_headers
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -43,7 +48,6 @@ import paige.navic.icons.outlined.Add
 import paige.navic.icons.outlined.Delete
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.screens.settings.components.SettingsGroup
-import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.theme.defaultFont
 import kotlin.random.Random
 
@@ -54,9 +58,22 @@ private data class Header(
 )
 
 @Composable
-fun SettingsCustomHeadersScreen() {
+fun SettingsConnectionOptionsScreen() {
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
+
+	var proxyUrlField by mutableStateOf(preferenceManager.proxyUrl)
+	val proxyUrlHasErrors by derivedStateOf {
+		if (proxyUrlField.isNotBlank()) {
+			!SessionManager.PROXY_URL_REGEX.matches(proxyUrlField)
+		} else {
+			false
+		}
+	}
+	val updateProxyUrl: (String) -> Unit = { url ->
+		proxyUrlField = url
+		preferenceManager.proxyUrl = url
+	}
 
 	val headers = remember {
 		preferenceManager.customHeaders.lines()
@@ -78,7 +95,7 @@ fun SettingsCustomHeadersScreen() {
 	}
 
 	Scaffold(
-		topBar = { NestedTopBar({ Text(stringResource(Res.string.option_custom_headers)) }) }
+		topBar = { NestedTopBar({ Text(stringResource(Res.string.option_connection_options)) }) }
 	) { innerPadding ->
 		CompositionLocalProvider(
 			LocalMinimumInteractiveComponentSize provides 0.dp
@@ -86,12 +103,32 @@ fun SettingsCustomHeadersScreen() {
 			Column(
 				modifier = Modifier
 					.padding(innerPadding)
-					.verticalScroll(rememberScrollState())
-					.padding(horizontal = 16.dp),
-				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
+					.padding(top = 8.dp)
+					.padding(horizontal = 16.dp)
+					.verticalScroll(rememberScrollState()),
+				verticalArrangement = Arrangement.spacedBy(12.dp),
 			) {
 				SettingsGroup(
-					modifier = Modifier.animateContentSize()
+					title = { Text("Proxy settings") },
+					modifier = Modifier.fillMaxWidth()
+				) {
+					OutlinedTextField(
+						modifier = Modifier.fillMaxWidth(),
+						value = proxyUrlField,
+						onValueChange = updateProxyUrl,
+						isError = proxyUrlHasErrors,
+						label = { Text("URL") },
+						placeholder = { Text("http://192.168.0.100:8080") },
+						supportingText = {
+							if (proxyUrlHasErrors) {
+								Text("Incorrect proxy URL format")
+							}
+						}
+					)
+				}
+				SettingsGroup(
+					title = { Text(stringResource(Res.string.option_custom_headers)) },
+					modifier = Modifier.fillMaxWidth()
 				) {
 					headers.forEachIndexed { index, header ->
 						AnimatedVisibility(

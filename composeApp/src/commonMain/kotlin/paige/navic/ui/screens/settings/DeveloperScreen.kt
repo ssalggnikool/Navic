@@ -92,7 +92,7 @@ fun SettingsDeveloperScreen() {
 						onClick = dropUnlessResumed {
 							backStack.lastOrNull()?.let {
 								if (it is Screen.Settings.Developer) {
-									backStack.add(Screen.Settings.CustomHeaders)
+									backStack.add(Screen.Settings.ConnectionOptions)
 								}
 							}
 						},

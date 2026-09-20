@@ -24,8 +24,8 @@ class SessionManager(
 	private val settings: Settings,
 	private val preferenceManager: PreferenceManager
 ) {
-	private companion object {
-		val PROXY_URL_REGEX = Regex("socks[4-5]?://(.+):(\\d+)")
+	companion object {
+		val PROXY_URL_REGEX = Regex("(socks[4-5]?|https?)?://(.+):?(\\d+)")
 	}
 
 	val isLoggedIn: StateFlow<Boolean>

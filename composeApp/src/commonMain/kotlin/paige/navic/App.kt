@@ -100,7 +100,7 @@ import paige.navic.ui.screens.settings.FontsScreen
 import paige.navic.ui.screens.settings.SettingsAboutScreen
 import paige.navic.ui.screens.settings.SettingsAppIconScreen
 import paige.navic.ui.screens.settings.SettingsAppearanceScreen
-import paige.navic.ui.screens.settings.SettingsCustomHeadersScreen
+import paige.navic.ui.screens.settings.SettingsConnectionOptionsScreen
 import paige.navic.ui.screens.settings.SettingsDataStorageScreen
 import paige.navic.ui.screens.settings.SettingsDeveloperScreen
 import paige.navic.ui.screens.settings.SettingsDownloadQualityScreen
@@ -399,8 +399,8 @@ private fun entryProvider(
 		entry<Screen.Settings.Themes> {
 			SettingsThemesScreen()
 		}
-		entry<Screen.Settings.CustomHeaders> {
-			SettingsCustomHeadersScreen()
+		entry<Screen.Settings.ConnectionOptions> {
+			SettingsConnectionOptionsScreen()
 		}
 		entry<Screen.Settings.StreamingQuality> {
 			SettingsStreamingQualityScreen()
