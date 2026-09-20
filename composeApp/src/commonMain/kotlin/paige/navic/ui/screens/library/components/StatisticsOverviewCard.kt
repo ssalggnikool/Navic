@@ -1,5 +1,6 @@
 package paige.navic.ui.screens.library.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +56,7 @@ fun StatisticsOverviewCard(
 	Column(
 		modifier = Modifier
 			.fillMaxWidth()
-			.padding(horizontal = 16.dp, vertical = 8.dp)
+			.padding(horizontal = 16.dp)
 			.clip(MaterialTheme.shapes.large)
 			.background(MaterialTheme.colorScheme.surfaceContainerHigh)
 			.clickable(onClick = onClick)
@@ -78,11 +80,12 @@ fun StatisticsOverviewCard(
 			horizontalArrangement = Arrangement.Center,
 			verticalAlignment = Alignment.CenterVertically
 		) {
-			repeat(3) { iteration ->
-				val color = if (pagerState.currentPage == iteration)
-					MaterialTheme.colorScheme.primary
-				else
-					MaterialTheme.colorScheme.surfaceVariant
+			repeat(pagerState.pageCount) { page ->
+				val color by animateColorAsState(
+					if (pagerState.currentPage == page)
+						MaterialTheme.colorScheme.primary
+					else MaterialTheme.colorScheme.surfaceVariant
+				)
 				Box(
 					modifier = Modifier
 						.padding(2.dp)

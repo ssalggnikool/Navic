@@ -2,42 +2,44 @@ package paige.navic.ui.components.layouts
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.NavKey
 import kotlinx.collections.immutable.ImmutableList
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_see_all
 import navic.composeapp.generated.resources.count_plays
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import paige.navic.di.LocalNavStack
 import paige.navic.ui.components.common.CoverArt
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.unit.sp
 import paige.navic.util.toSummaryString
 import kotlin.time.Duration
 
+// TODO: get rid of this and use ArtGrid and ArtGridItem
 @Composable
 fun <T> ArtCarousel(
 	title: String,
@@ -102,12 +104,14 @@ fun ArtCarouselItem(
 	onClick: () -> Unit = {}
 ) {
 	val focusManager = LocalFocusManager.current
+	val interactionSource = remember { MutableInteractionSource() }
 
 	Column(
 		modifier = Modifier
 			.width(150.dp)
-			.clip(MaterialTheme.shapes.large)
 			.combinedClickable(
+				interactionSource = interactionSource,
+				indication = null,
 				onClick = {
 					focusManager.clearFocus(true)
 					onClick()
@@ -120,20 +124,17 @@ fun ArtCarouselItem(
 	) {
 		CoverArt(
 			coverArtId = coverArtId,
-			contentDescription = null,
-			modifier = Modifier
-				.fillMaxWidth()
-				.clip(MaterialTheme.shapes.large)
+			contentDescription = contentDescription,
+			interactionSource = interactionSource,
+			modifier = Modifier.fillMaxWidth()
 		)
 
 		Text(
 			text = title,
-			style = MaterialTheme.typography.bodyMedium,
-			fontWeight = FontWeight.Medium,
-			maxLines = 1,
-			overflow = TextOverflow.Ellipsis,
-			modifier = Modifier
-				.padding(top = 8.dp, start = 4.dp, end = 4.dp)
+			style = MaterialTheme.typography.titleSmallEmphasized,
+			modifier = Modifier.padding(top = 6.dp),
+			maxLines = 2,
+			overflow = TextOverflow.Ellipsis
 		)
 
 		subtitle?.let {
@@ -141,9 +142,6 @@ fun ArtCarouselItem(
 				text = subtitle,
 				style = MaterialTheme.typography.bodySmall,
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(start = 4.dp, end = 4.dp),
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
@@ -157,9 +155,6 @@ fun ArtCarouselItem(
 				text = if (timeText != null) "$playsText • $timeText" else playsText,
 				style = MaterialTheme.typography.labelSmall,
 				color = MaterialTheme.colorScheme.primary,
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)

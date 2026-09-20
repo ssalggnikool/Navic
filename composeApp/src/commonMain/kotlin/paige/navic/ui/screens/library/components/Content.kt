@@ -2,16 +2,23 @@ package paige.navic.ui.screens.library.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import navic.composeapp.generated.resources.Res
@@ -23,6 +30,8 @@ import navic.composeapp.generated.resources.option_sort_starred
 import navic.composeapp.generated.resources.title_artists
 import navic.composeapp.generated.resources.title_genres
 import navic.composeapp.generated.resources.title_playlists
+import navic.composeapp.generated.resources.title_statistics
+import org.jetbrains.compose.resources.stringResource
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumListType
@@ -197,6 +206,18 @@ fun LibraryScreenContent(
 			seeAll = true
 		) { genreWithAlbums ->
 			GenreListScreenCard(genre = genreWithAlbums)
+		}
+
+		item(span = { GridItemSpan(maxLineSpan) }) {
+			Text(
+				text = stringResource(Res.string.title_statistics),
+				style = MaterialTheme.typography.titleMediumEmphasized,
+				fontWeight = FontWeight(600),
+				modifier = Modifier
+					.heightIn(min = 32.dp)
+					.padding(top = 12.dp, start = 16.dp)
+					.semantics { heading() }
+			)
 		}
 
 		item(span = { GridItemSpan(maxLineSpan) }) {
