@@ -26,7 +26,6 @@ import navic.composeapp.generated.resources.action_reset_dont_show_agains
 import navic.composeapp.generated.resources.action_test_exception_handler
 import navic.composeapp.generated.resources.info_exception_handler
 import navic.composeapp.generated.resources.option_connection_options
-import navic.composeapp.generated.resources.option_custom_headers
 import navic.composeapp.generated.resources.title_confirm
 import navic.composeapp.generated.resources.title_developer
 import navic.composeapp.generated.resources.title_logs
