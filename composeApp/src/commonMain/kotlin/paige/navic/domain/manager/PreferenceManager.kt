@@ -52,6 +52,7 @@ class PreferenceManager(
 	var enableRatings by preference(true)
 	var lyricsAutoscroll by preference(true)
 	var lyricsBeatByBeat by preference(true)
+	var lyricsFakeBeatByBeat by preference(false)
 	var lyricsKeepAlive by preference(true)
 	var lyricsBlur by preference(false)
 	var lyricsBrightInactive by preference(false)

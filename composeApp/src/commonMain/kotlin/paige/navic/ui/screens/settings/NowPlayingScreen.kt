@@ -26,6 +26,7 @@ import navic.composeapp.generated.resources.option_lyrics_autoscroll
 import navic.composeapp.generated.resources.option_lyrics_beat_by_beat
 import navic.composeapp.generated.resources.option_lyrics_blur
 import navic.composeapp.generated.resources.option_lyrics_bright_inactive
+import navic.composeapp.generated.resources.option_lyrics_fake_beat_by_beat
 import navic.composeapp.generated.resources.option_lyrics_keep_alive
 import navic.composeapp.generated.resources.option_now_playing_background_style
 import navic.composeapp.generated.resources.option_now_playing_slider_style
@@ -33,6 +34,7 @@ import navic.composeapp.generated.resources.option_now_playing_song_info
 import navic.composeapp.generated.resources.option_now_playing_toolbar_position
 import navic.composeapp.generated.resources.option_swipe_to_skip
 import navic.composeapp.generated.resources.subtitle_configure_lyric_providers
+import navic.composeapp.generated.resources.subtitle_lyrics_fake_beat_by_beat
 import navic.composeapp.generated.resources.subtitle_now_playing_background_style
 import navic.composeapp.generated.resources.title_layout
 import navic.composeapp.generated.resources.title_now_playing
@@ -122,37 +124,44 @@ fun SettingsNowPlayingScreen() {
 						onClick = { lyricProvidersSheetOpen = true },
 						content = { Text(stringResource(Res.string.action_configure_lyric_providers)) },
 						supportingContent = { Text(stringResource(Res.string.subtitle_configure_lyric_providers)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 7)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.lyricsAutoscroll,
 						onCheckedChange = { preferenceManager.lyricsAutoscroll = it },
 						content = { Text(stringResource(Res.string.option_lyrics_autoscroll)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 7)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.lyricsBeatByBeat,
 						onCheckedChange = { preferenceManager.lyricsBeatByBeat = it },
 						content = { Text(stringResource(Res.string.option_lyrics_beat_by_beat)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 7)
+					)
+					SettingsToggleItem(
+						checked = preferenceManager.lyricsFakeBeatByBeat,
+						onCheckedChange = { preferenceManager.lyricsFakeBeatByBeat = it },
+						content = { Text(stringResource(Res.string.option_lyrics_fake_beat_by_beat)) },
+						supportingContent = { Text(stringResource(Res.string.subtitle_lyrics_fake_beat_by_beat)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 7)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.lyricsKeepAlive,
 						onCheckedChange = { preferenceManager.lyricsKeepAlive = it },
 						content = { Text(stringResource(Res.string.option_lyrics_keep_alive)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 7)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.lyricsBlur,
 						onCheckedChange = { preferenceManager.lyricsBlur = it },
 						content = { Text(stringResource(Res.string.option_lyrics_blur)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 7)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.lyricsBrightInactive,
 						onCheckedChange = { preferenceManager.lyricsBrightInactive = it },
 						content = { Text(stringResource(Res.string.option_lyrics_bright_inactive)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 6, count = 7)
 					)
 				}
 
