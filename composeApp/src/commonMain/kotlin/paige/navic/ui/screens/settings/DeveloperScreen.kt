@@ -25,6 +25,7 @@ import navic.composeapp.generated.resources.action_ok
 import navic.composeapp.generated.resources.action_reset_dont_show_agains
 import navic.composeapp.generated.resources.action_test_exception_handler
 import navic.composeapp.generated.resources.info_exception_handler
+import navic.composeapp.generated.resources.option_connection_options
 import navic.composeapp.generated.resources.option_custom_headers
 import navic.composeapp.generated.resources.title_confirm
 import navic.composeapp.generated.resources.title_developer
@@ -89,7 +90,7 @@ fun SettingsDeveloperScreen() {
 								}
 							}
 						},
-						content = { Text(stringResource(Res.string.option_custom_headers)) },
+						content = { Text(stringResource(Res.string.option_connection_options)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
 					)
 

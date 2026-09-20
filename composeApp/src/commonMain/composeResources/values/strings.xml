@@ -255,6 +255,8 @@
 	<string name="option_queue_info_type_remining">Show songs/time remaining</string>
 	<string name="option_queue_info_type_full">Show songs/time of the whole queue</string>
 
+	<string name="option_proxy_settings">Proxy settings</string>
+
 	<string name="theme_dynamic">Dynamic</string>
 	<string name="theme_seeded">Tinted</string>
 	<string name="theme_ios">Cupertino</string>
@@ -491,5 +493,6 @@
 	<string name="info_equaliser_mode_not_builtin">Please adjust the external equaliser using its dedicated app.</string>
 	<string name="info_lyric_provider_disclaimer">Enabling LRCLIB and/or LyricsPlus will make requests to external and unaffiliated web services.</string>
 	<string name="info_duration_left">%1$s left</string>
+	<string name="info_proxy_url_placeholder">E.g. http://127.0.0.1:8080</string>
 	<string name="info_incorrect_proxy_url_format">Incorrect proxy URL format. Supported protocols are HTTP and SOCKS.</string>
 </resources>

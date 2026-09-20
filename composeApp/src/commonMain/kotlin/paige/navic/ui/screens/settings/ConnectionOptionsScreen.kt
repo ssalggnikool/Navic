@@ -37,8 +37,11 @@ import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_delete
 import navic.composeapp.generated.resources.action_new
+import navic.composeapp.generated.resources.info_incorrect_proxy_url_format
+import navic.composeapp.generated.resources.info_proxy_url_placeholder
 import navic.composeapp.generated.resources.option_connection_options
 import navic.composeapp.generated.resources.option_custom_headers
+import navic.composeapp.generated.resources.option_proxy_settings
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
@@ -109,7 +112,7 @@ fun SettingsConnectionOptionsScreen() {
 				verticalArrangement = Arrangement.spacedBy(12.dp),
 			) {
 				SettingsGroup(
-					title = { Text("Proxy settings") },
+					title = { Text(stringResource(Res.string.option_proxy_settings)) },
 					modifier = Modifier.fillMaxWidth()
 				) {
 					OutlinedTextField(
@@ -118,10 +121,10 @@ fun SettingsConnectionOptionsScreen() {
 						onValueChange = updateProxyUrl,
 						isError = proxyUrlHasErrors,
 						label = { Text("URL") },
-						placeholder = { Text("http://192.168.0.100:8080") },
+						placeholder = { Text(stringResource(Res.string.info_proxy_url_placeholder)) },
 						supportingText = {
 							if (proxyUrlHasErrors) {
-								Text("Incorrect proxy URL format")
+								Text(stringResource(Res.string.info_incorrect_proxy_url_format))
 							}
 						}
 					)
