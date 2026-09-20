@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
@@ -62,7 +61,6 @@ import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.theme.defaultFont
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen() {
 	Scaffold(
@@ -138,7 +136,6 @@ fun SettingsScreen() {
 	}
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PageRow(
 	destination: Screen? = null,

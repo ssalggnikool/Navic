@@ -22,6 +22,7 @@ import paige.navic.domain.models.settings.NavigationBarStyle
 import paige.navic.domain.models.settings.NowPlayingBackgroundStyle
 import paige.navic.domain.models.settings.NowPlayingSliderStyle
 import paige.navic.domain.models.settings.OfflineMode
+import paige.navic.domain.models.settings.QueueInfoType
 import paige.navic.domain.models.settings.ReplayGainMode
 import paige.navic.domain.models.settings.StreamingQuality
 import paige.navic.domain.models.settings.Theme
@@ -32,13 +33,15 @@ import com.russhwolf.settings.Settings as KmpSettings
 class PreferenceManager(
 	settings: KmpSettings
 ) : BasePreferenceManager(settings) {
-	var appIconVariant by preference(AppIconVariant.Default)
+    var queueInfoType by (preference(QueueInfoType.Full))
+    var appIconVariant by preference(AppIconVariant.Default)
 	var font by preference(FontOption.GoogleSans)
 	var fontPath by preference("")
 	var animationStyle by preference(AnimationStyle.Expressive)
 	var nowPlayingBackgroundStyle by preference(NowPlayingBackgroundStyle.Dynamic)
 	var swipeToSkip by preference(true)
 	var hideIfIdle by preference(false)
+	var enablePredictiveBackAnimations by preference(true)
 	var gridSize by preference(GridSize.TwoByTwo)
 	var coverArtShape by preference(CoverArtShape.Soft)
 	var artistImageShape by preference(CoverArtShape.Soft)
@@ -47,7 +50,6 @@ class PreferenceManager(
 	var marqueeSpeed by preference(MarqueeSpeed.Slow)
 	var alphabeticalScroll by preference(false)
 	var enableRatings by preference(true)
-	var enableSharing by preference(true)
 	var lyricsAutoscroll by preference(true)
 	var lyricsBeatByBeat by preference(true)
 	var lyricsKeepAlive by preference(true)

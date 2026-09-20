@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -89,7 +88,6 @@ fun ArtGrid(
 	)
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ArtGridItem(
 	modifier: Modifier = Modifier,
@@ -201,7 +199,7 @@ fun ArtGridPlaceholder(
 						.shimmerLoading()
 				)
 			},
-			headlineContent = {
+			content = {
 				Box(
 					modifier = Modifier
 						.width(170.dp)

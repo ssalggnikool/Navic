@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,7 +52,6 @@ import paige.navic.ui.util.DraggableListState
 import paige.navic.ui.util.buildSongInfoString
 import paige.navic.ui.util.dragHandle
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun QueueScreenItem(
 	index: Int,

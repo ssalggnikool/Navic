@@ -8,7 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import coil3.SingletonImageLoader
+import coil3.ImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import com.kmpalette.rememberDominantColorState
@@ -35,7 +35,7 @@ fun rememberColorSchemeFromCoverArt(
 	}
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
-	val loader = SingletonImageLoader.get(coilPlatformContext)
+	val loader = koinInject<ImageLoader>()
 	val model = remember(coverArtUri) {
 		ImageRequest.Builder(coilPlatformContext)
 			.data(coverArtUri)

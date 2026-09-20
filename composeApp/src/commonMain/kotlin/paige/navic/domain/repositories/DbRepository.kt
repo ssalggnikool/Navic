@@ -34,6 +34,7 @@ import paige.navic.data.database.dao.RadioDao
 import paige.navic.data.database.dao.SongDao
 import paige.navic.data.database.dao.SyncActionDao
 import paige.navic.data.database.entities.AlbumEntity
+import paige.navic.data.database.entities.ArtistEntity
 import paige.navic.data.database.entities.PlaylistEntity
 import paige.navic.data.database.entities.PlaylistSongCrossRef
 import paige.navic.data.database.entities.SongEntity
@@ -201,6 +202,12 @@ class DbRepository(
 										"could not deserialize album ${summary.id} (${summary.name}); skipping it",
 										e
 									)
+								} else if (e.message != null && e.message!!.contains("DATA_NOT_FOUND")) {
+									Logger.e(
+										"DbRepository",
+										"album with id ${summary.id} (${summary.name}) not found; skipping it",
+										e
+									)
 								} else {
 									throw e
 								}
@@ -228,7 +235,7 @@ class DbRepository(
 					album.songs.forEach { song ->
 						val songEntity = song.toEntity(
 							artistIdOverride = albumEntity.artistId.takeIf { song.artistId.isNullOrBlank() },
-							artistNameOverride = albumEntity.artistName.takeIf { song.artistName.isBlank() }
+							artistNameOverride = albumEntity.artistName.takeIf { song.artistName.isNullOrBlank() }
 						)
 						songBatch.add(songEntity)
 						allValidSongIds.add(songEntity.songId)
@@ -326,18 +333,44 @@ class DbRepository(
 	}
 
 	suspend fun syncArtists(): Result<Unit> = runDbOp {
-		val remoteArtistsWrapper = sessionManager.api.getArtists()
-		val flatArtists = remoteArtistsWrapper.flatMap { indexGroup ->
-			indexGroup.artists
-		}
-		val entities = flatArtists.map { it.toEntity() }
+		//val pageSize = 500
+		//var offset = 0
+		val artists =	 mutableListOf<ArtistEntity>()
 
-		entities.chunked(dbChunkSize).forEach { chunk ->
+		// reverting this for now
+		// see https://github.com/ssalggnikool/Navic/issues/521
+
+		//try {
+		//	while (true) {
+		//		val batch = sessionManager.api.searchID3(
+		//			query = "", artistCount = pageSize, artistOffset = offset
+		//		).artists.map { it.toEntity() }
+		//		if (batch.isEmpty()) break
+		//		artists.addAll(batch)
+		//		if (batch.size < pageSize) break
+		//		offset += pageSize
+		//	}
+		//	// because some servers like to not give an error...?
+		//	require(artists.isNotEmpty())
+		//} catch (ex: Exception) {
+		//	Logger.w(
+		//		"DbRepository",
+		//		"could not sync artists from search3 endpoint, trying getArtists",
+		//		ex
+		//	)
+		//	artists.clear()
+
+		val batch = sessionManager.api.getArtists().index
+			.flatMap { index -> index.artists.map { artist -> artist.toEntity() } }
+		artists.addAll(batch)
+		//}
+
+		artists.chunked(dbChunkSize).forEach { chunk ->
 			artistDao.insertArtists(chunk)
 		}
-		artistDao.deleteObsoleteArtists(entities.map { it.artistId }.toSet())
+		artistDao.deleteObsoleteArtists(artists.map { it.artistId }.toSet())
 
-		Logger.i("DbRepository", "- Artists Synced: ${entities.size} artists found")
+		Logger.i("DbRepository", "- Artists Synced: ${artists.size} artists found")
 	}
 
 	suspend fun syncRadios(): Result<Unit> = runDbOp {

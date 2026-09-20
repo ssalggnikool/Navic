@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.Switch
 import androidx.compose.material3.VerticalDivider
@@ -18,7 +17,6 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.ui.components.common.SegmentedListItem
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsToggleItem(
 	checked: Boolean,

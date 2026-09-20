@@ -27,7 +27,6 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ContainedLoadingIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -68,10 +67,11 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalPlatformContext
-import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.isLandscape
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SnackBarManager
@@ -94,11 +94,10 @@ import paige.navic.ui.screens.artist.viewmodels.ArtistDetailViewModel
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
 import paige.navic.ui.screens.share.dialogs.ShareDialog
 import paige.navic.ui.theme.NavicTheme
-import paige.navic.di.isLandscape
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import kotlin.time.Duration
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ArtistDetailScreen(
 	artistId: String
@@ -365,7 +364,7 @@ fun ArtistDetailScreen(
 										.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 									ArtCarouselItem(
 										coverArtId = album.coverArtId,
-										title = album.name,
+										title = album.name ?: "[unknown album]",
 										contentDescription = null,
 										onSelect = { viewModel.selectAlbum(album) },
 										onClick = dropUnlessResumed {

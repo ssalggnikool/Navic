@@ -12,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -49,6 +48,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.SessionManager
+import paige.navic.domain.manager.canUserShare
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumInfo
 import paige.navic.domain.models.DomainPlaylist
@@ -73,7 +74,7 @@ import paige.navic.ui.components.common.MarqueeText
 import paige.navic.ui.components.common.RatingRow
 import paige.navic.ui.components.dialogs.LinkConfirmationDialog
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionSheet(
 	onDismissRequest: () -> Unit,
@@ -95,6 +96,8 @@ fun CollectionSheet(
 	onSetRating: ((Int) -> Unit)? = null
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
+	val sessionManager = koinInject<SessionManager>()
+
 	val contentPadding = PaddingValues(horizontal = 16.dp)
 	val colors = ListItemDefaults.colors(
 		containerColor = Color.Transparent,
@@ -125,7 +128,7 @@ fun CollectionSheet(
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
 			},
-			headlineContent = { MarqueeText(collection?.name.orEmpty()) },
+			content = { MarqueeText(collection?.name.orEmpty()) },
 			supportingContent = {
 				MarqueeText(
 					listOfNotNull(
@@ -176,7 +179,7 @@ fun CollectionSheet(
 				)
 			}
 
-			if (onShare != null && preferenceManager.enableSharing) {
+			if (onShare != null && sessionManager.canUserShare()) {
 				ListItem(
 					content = { Text(stringResource(Res.string.action_share)) },
 					leadingContent = { Icon(Icons.Outlined.Share, null) },

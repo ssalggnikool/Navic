@@ -1,6 +1,8 @@
 package paige.navic
 
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.tween
@@ -16,7 +18,6 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -52,7 +53,6 @@ import androidx.navigation3.ui.NavDisplay.popTransitionSpec
 import androidx.navigation3.ui.NavDisplay.predictivePopTransitionSpec
 import androidx.navigation3.ui.NavDisplay.transitionSpec
 import androidx.savedstate.serialization.SavedStateConfiguration
-import coil3.SingletonImageLoader
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.modules.SerializersModule
@@ -65,7 +65,6 @@ import paige.navic.di.LocalPlatformContext
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.di.LocalSnackBarState
 import paige.navic.di.PlatformType
-import paige.navic.di.initializeSingletonImageLoader
 import paige.navic.di.rememberPlatformContext
 import paige.navic.domain.manager.BottomBarScrollManager
 import paige.navic.domain.manager.PreferenceManager
@@ -85,6 +84,7 @@ import paige.navic.ui.screens.artist.ArtistListScreen
 import paige.navic.ui.screens.collection.CollectionDetailScreen
 import paige.navic.ui.screens.genre.GenreDetailScreen
 import paige.navic.ui.screens.genre.GenreListScreen
+import paige.navic.ui.screens.imageView.ImageViewScreen
 import paige.navic.ui.screens.library.LibraryScreen
 import paige.navic.ui.screens.login.LoginScreen
 import paige.navic.ui.screens.lyrics.LyricsScreen
@@ -128,16 +128,9 @@ private val config = SavedStateConfiguration {
 	}
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun App() {
-	// TODO: inject image loader and stop using this cursed singleton thing
-	runCatching {
-		SingletonImageLoader.setSafe { platformContext ->
-			initializeSingletonImageLoader(platformContext)
-		}
-	}
-
 	val platformContext = rememberPlatformContext()
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -226,6 +219,7 @@ fun App() {
 							}
 						},
 						entryProvider = entryProvider(backStack),
+						sharedTransitionScope = this@SharedTransitionLayout,
 						transitionSpec = {
 							Material3Transitions.SharedXAxisEnterTransition(
 								density
@@ -241,20 +235,25 @@ fun App() {
 							)
 						},
 						predictivePopTransitionSpec = {
-							slideInHorizontally(
-								animationSpec = tween(300, easing = EaseOutQuart),
-								initialOffsetX = { -it }
-							) togetherWith slideOutHorizontally(
-								animationSpec = tween(300, easing = EaseOutQuart),
-								targetOffsetX = { it }
-							)
+							if (preferenceManager.enablePredictiveBackAnimations) {
+								slideInHorizontally(
+									animationSpec = tween(300, easing = EaseOutQuart),
+									initialOffsetX = { -it }
+								) togetherWith slideOutHorizontally(
+									animationSpec = tween(300, easing = EaseOutQuart),
+									targetOffsetX = { it }
+								)
+							} else {
+								ContentTransform(EnterTransition.None, ExitTransition.None)
+							}
 						}
 					)
 				}
 				// version check is annoying to do on iOS
 				if (preferenceManager.checkForUpdates
 					&& platformContext.platformType == PlatformType.Android
-					&& !BuildInfo.FDROID) {
+					&& !BuildInfo.FDROID
+				) {
 					ChangelogSheet()
 				}
 			}
@@ -266,15 +265,18 @@ fun App() {
 private fun entryProvider(
 	backStack: NavBackStack<NavKey>
 ): (NavKey) -> (NavEntry<NavKey>) {
+	val fadeSpec = ContentTransform(fadeIn(), fadeOut())
+
 	val navtabMetadata = if (backStack.size == 1)
-		listPane("root") + transitionSpec {
-			ContentTransform(fadeIn(), fadeOut())
-		} + popTransitionSpec {
-			ContentTransform(fadeIn(), fadeOut())
-		} + predictivePopTransitionSpec {
-			ContentTransform(fadeIn(), fadeOut())
-		}
+		listPane("root")
+			.plus(transitionSpec { fadeSpec })
+			.plus(popTransitionSpec { fadeSpec })
+			.plus(predictivePopTransitionSpec { fadeSpec })
 	else listPane("root")
+	val imageViewMetadata = transitionSpec { ContentTransform(fadeIn(), ExitTransition.None) }
+		.plus(popTransitionSpec { ContentTransform(EnterTransition.None, fadeOut()) })
+		.plus(predictivePopTransitionSpec { ContentTransform(EnterTransition.None, fadeOut()) })
+
 	return androidx.navigation3.runtime.entryProvider {
 		// tabs
 		entry<Screen.Library>(metadata = navtabMetadata) {
@@ -309,6 +311,13 @@ private fun entryProvider(
 		// misc
 		entry<Screen.Login> {
 			LoginScreen()
+		}
+		entry<Screen.ImageView>(metadata = imageViewMetadata) { key ->
+			ImageViewScreen(
+				coverArtId = key.coverArtId,
+				title = key.title,
+				sharedTransitionKey = key.sharedTransitionKey
+			)
 		}
 		entry<Screen.NowPlaying>(
 			metadata = NowPlayingSceneStrategy.bottomSheet(maxWidth = Dp.Unspecified)

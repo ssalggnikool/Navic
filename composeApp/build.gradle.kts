@@ -13,10 +13,12 @@ plugins {
 	alias(libs.plugins.androidx.room3)
 }
 
-// remove material 2
 configurations.all {
+	// remove material 2
 	exclude(group = "org.jetbrains.compose.material", module = "material")
 	exclude(group = "androidx.compose.material", module = "material")
+	// cache SNAPSHOT dependencies for less time, default 24h
+	resolutionStrategy.cacheChangingModulesFor(1, "hours")
 }
 
 valkyrie {

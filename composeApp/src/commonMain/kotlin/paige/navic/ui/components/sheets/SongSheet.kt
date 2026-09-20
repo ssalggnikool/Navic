@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -57,8 +56,10 @@ import org.koin.compose.koinInject
 import paige.navic.data.database.entities.DownloadStatus
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SleepTimerMode
+import paige.navic.domain.manager.canUserShare
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainExplicitStatus
 import paige.navic.domain.models.DomainSong
@@ -91,7 +92,7 @@ import paige.navic.ui.util.buildSongInfoString
 import paige.navic.ui.util.label
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongSheet(
 	onDismissRequest: () -> Unit,
@@ -120,6 +121,7 @@ fun SongSheet(
 	useSongTheme: Boolean = true
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
+	val sessionManager = koinInject<SessionManager>()
 
 	val sleepTimerManager = koinInject<SleepTimerManager>()
 	val sleepTimerMode by sleepTimerManager.mode.collectAsStateWithLifecycle()
@@ -155,7 +157,7 @@ fun SongSheet(
 			Spacer(Modifier.height(16.dp))
 
 			ListItem(
-				headlineContent = {
+				content = {
 					MarqueeText(
 						text = buildAnnotatedString {
 							append(song.title)
@@ -198,7 +200,7 @@ fun SongSheet(
 			HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
 
 			Column(Modifier.verticalScroll(rememberScrollState())) {
-				if (onShare != null && preferenceManager.enableSharing) {
+				if (onShare != null && sessionManager.canUserShare()) {
 					ListItem(
 						content = { Text(stringResource(Res.string.action_share)) },
 						leadingContent = { Icon(Icons.Outlined.Share, null) },

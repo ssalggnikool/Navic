@@ -1,4 +1,4 @@
-<p>Navic is a free and open source modern Navidrome client for Android and iOS.</p>
+<p>Navic is a modern Subsonic music streaming app for Android and iOS.</p>
 
 <h2>Features</h2>
 <ul>

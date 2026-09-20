@@ -2,7 +2,6 @@ package paige.navic.ui.screens.album.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,8 +20,8 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.notice_deleted_download
 import navic.composeapp.generated.resources.notice_download_started
 import org.koin.compose.koinInject
-import paige.navic.di.LocalNavStack
 import paige.navic.data.database.entities.DownloadStatus
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SnackBarManager
@@ -34,7 +33,6 @@ import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.playlist.dialogs.PlaylistUpdateDialog
 import paige.navic.ui.util.appendBulletPoint
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AlbumListScreenListItem(
 	modifier: Modifier = Modifier,
@@ -71,7 +69,7 @@ fun AlbumListScreenListItem(
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
 			},
-			content = { MarqueeText(album.name) },
+			content = { MarqueeText(album.name ?: "[unknown album]") },
 			supportingContent = {
 				MarqueeText(
 					buildAnnotatedString {

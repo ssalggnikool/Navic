@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.CarouselDefaults
@@ -33,7 +31,6 @@ import org.jetbrains.compose.resources.stringResource
 import paige.navic.di.LocalNavStack
 import paige.navic.ui.components.common.CoverArt
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> ArtCarousel(
 	title: String,
@@ -96,7 +93,6 @@ fun <T> ArtCarousel(
 	}
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarouselItemScope.ArtCarouselItem(
 	coverArtId: String?,

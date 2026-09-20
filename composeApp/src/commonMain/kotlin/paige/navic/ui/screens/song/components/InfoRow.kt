@@ -1,7 +1,6 @@
 package paige.navic.ui.screens.song.components
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,7 +13,6 @@ import navic.composeapp.generated.resources.info_unknown
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.ui.components.common.SegmentedListItem
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SongDetailScreenInfoRow(
 	shapes: ListItemShapes,

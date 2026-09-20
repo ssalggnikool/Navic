@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -41,7 +40,6 @@ import paige.navic.ui.screens.artist.ArtistListScreenGridItem
 import paige.navic.ui.util.withoutTop
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun ArtistListScreenContent(
 	state: UiState<ImmutableList<DomainArtist>>,
 	starred: Boolean,

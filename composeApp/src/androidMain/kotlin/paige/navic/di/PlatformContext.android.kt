@@ -3,7 +3,6 @@ package paige.navic.di
 import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -20,10 +19,7 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.ThemeMode
 
-@OptIn(
-	ExperimentalMaterial3WindowSizeClassApi::class,
-	ExperimentalMaterial3ExpressiveApi::class
-)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 actual fun rememberPlatformContext(): PlatformContext {
 	val view = LocalView.current

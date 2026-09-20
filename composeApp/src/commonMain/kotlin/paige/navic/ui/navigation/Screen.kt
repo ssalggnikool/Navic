@@ -77,6 +77,14 @@ sealed interface Screen : NavKey {
 
 	@Immutable
 	@Serializable
+	data class ImageView(
+		val coverArtId: String,
+		val title: String,
+		val sharedTransitionKey: String
+	) : Screen
+
+	@Immutable
+	@Serializable
 	data object NowPlaying : Screen
 
 	@Immutable

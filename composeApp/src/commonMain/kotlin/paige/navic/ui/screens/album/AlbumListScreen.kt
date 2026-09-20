@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -56,7 +54,6 @@ import paige.navic.ui.util.withoutTop
 import paige.navic.ui.viewmodel.RootViewModel
 import kotlin.time.Duration
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumListScreen(
 	nested: Boolean = false,
@@ -139,7 +136,7 @@ fun AlbumListScreen(
 			key = albumsState
 		) {
 			val grouped = remember(albumsState.data) {
-				albumsState.data.orEmpty().groupBy { it.name.firstOrNull()?.uppercaseChar() ?: '#' }
+				albumsState.data.orEmpty().groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
 					.toList()
 					.sortedBy { it.first }
 			}

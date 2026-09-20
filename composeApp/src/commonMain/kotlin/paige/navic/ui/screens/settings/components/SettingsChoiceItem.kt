@@ -7,7 +7,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
@@ -26,7 +25,6 @@ import navic.composeapp.generated.resources.action_ok
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.ui.components.common.SegmentedListItem
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <Choice> SettingsChoiceItem(
 	choices: ImmutableList<Choice>,
@@ -65,7 +63,6 @@ fun <Choice> SettingsChoiceItem(
 	}
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun <Choice> ChoiceDialog(
 	onDismissRequest: () -> Unit,

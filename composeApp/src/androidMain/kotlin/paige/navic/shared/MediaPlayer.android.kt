@@ -50,7 +50,7 @@ import androidx.media3.session.MediaSessionService
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
 import androidx.media3.session.SessionToken
-import coil3.imageLoader
+import coil3.ImageLoader
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
@@ -89,12 +89,12 @@ import paige.navic.domain.models.settings.ReplayGainMode
 import paige.navic.domain.repositories.PlayerStateRepository
 import paige.navic.domain.repositories.SongRepository
 import paige.navic.exoplayer.AudioGainProcessor
+import paige.navic.exoplayer.ExoPlayerCoilBitmapLoader
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import coil3.PlatformContext as CoilPlatformContext
 
 @OptIn(UnstableApi::class)
 class PlaybackService : MediaSessionService(), KoinComponent {
@@ -112,6 +112,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	private val sessionManager: SessionManager by inject()
 	private val preferenceManager: PreferenceManager by inject()
 	private val equaliserManager: EqualiserManager by inject()
+	private val imageLoader: ImageLoader by inject()
 
 	private var equaliser: Equalizer? = null
 	private var audioEffectSessionId: Int = C.AUDIO_SESSION_ID_UNSET
@@ -135,7 +136,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 				setSmallIcon(resourceProvider.icNavic)
 			}
 
-		val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.getKtorHttpClient())
+		val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.api.httpClient)
 		val dataSourceFactory = DefaultDataSource.Factory(this, httpDataSourceFactory)
 
 		val extractorsFactory = ExtractorsFactory {
@@ -222,9 +223,13 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 		)
 
+		val bitmapLoader = ExoPlayerCoilBitmapLoader(applicationContext, imageLoader)
+
 		mediaSession = MediaSession.Builder(this, player)
 			.setSessionActivity(sessionPendingIntent)
+			.setBitmapLoader(bitmapLoader)
 			.setCallback(MediaSessionCallback(player))
+			.setSessionActivity(sessionPendingIntent)
 			.setCustomLayout(makeButtons(player))
 			.build()
 
@@ -264,7 +269,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	}
 
 	override fun onTaskRemoved(rootIntent: Intent?) {
-		onDestroy()
+		pauseAllPlayersAndStopSelf()
 	}
 
 	override fun onDestroy() {
@@ -462,7 +467,6 @@ class AndroidMediaPlayerViewModel(
 	private val audioGainManager: AudioGainManager,
 	private val application: Application,
 	private val albumDao: AlbumDao,
-	private val platformContext: CoilPlatformContext,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
 ) : MediaPlayerViewModel(
@@ -1152,29 +1156,9 @@ class AndroidMediaPlayerViewModel(
 			.setDurationMs(duration.inWholeMilliseconds)
 			.setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
 
-		val artworkData = coverArtId?.let { coverId ->
-			val diskCache = platformContext.imageLoader.diskCache
-			val snapshot = diskCache?.openSnapshot(coverId) ?: return@let null
-
-			val bytes = try {
-				snapshot.use { it.data.toFile().readBytes() }
-			} catch (ex: Exception) {
-				Logger.w("MediaPlayer", "could not read artwork data", ex)
-				null
-			}
-
-			snapshot.close()
-
-			return@let bytes
-		}
-
-		if (artworkData != null) {
-			metadataBuilder.setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
-		} else {
-			metadataBuilder.setArtworkUri(
-				coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
-			)
-		}
+		metadataBuilder.setArtworkUri(
+			coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
+		)
 
 		val metadata = metadataBuilder.build()
 
