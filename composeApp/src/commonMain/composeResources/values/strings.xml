@@ -126,6 +126,8 @@
 	<string name="option_account_password">Password</string>
 	<string name="option_lyrics_autoscroll">Lyrics auto-scrolling</string>
 	<string name="option_lyrics_beat_by_beat">Beat-by-beat lyrics</string>
+	<string name="option_lyrics_fake_beat_by_beat">Fake beat-by-beat effect</string>
+	<string name="subtitle_lyrics_fake_beat_by_beat">Simulate word-level timing when it is missing</string>
 	<string name="option_sort_random">Random</string>
 	<string name="option_sort_newest">Recently added</string>
 	<string name="option_sort_rating">Rating</string>
@@ -191,6 +193,7 @@
 	<string name="option_cover_art_quality">Cover art quality</string>
 	<string name="option_palette_style">Palette style</string>
 	<string name="option_palette_specification">Palette specification</string>
+	<string name="option_use_amoled_theme">Use AMOLED theme</string>
 	<string name="option_explicit_playback">Explicit content playback</string>
 	<string name="option_explicit_playback_allowed">Allowed</string>
 	<string name="option_explicit_playback_skip">Skip explicit songs</string>
@@ -212,7 +215,7 @@
 
 	<string name="info_status_idle">Idle</string>
 	<string name="info_status_calculating">Calculating...</string>
-	<string name="info_status_downloading">Downloading in progress...</string>
+	<string name="info_status_downloading">Download in progress...</string>
 	<string name="info_sync_never">Never</string>
 	<string name="info_sync_just_now">Just now</string>
 	<string name="info_bulk_download_warning">Are you sure you want to download every album by %1$s?\nThis may require a significant amount of storage and data.</string>
@@ -504,4 +507,7 @@
 	<string name="info_lyric_provider_disclaimer">Enabling LRCLIB and/or LyricsPlus will make requests to external and unaffiliated web services.</string>
 	<string name="info_starred_songs">Starred songs</string>
 	<string name="info_duration_left">%1$s left</string>
+	<string name="dialog_notification_permission_title">Enable Notifications</string>
+	<string name="dialog_notification_permission_message">Navic needs permission to show notifications so you can track media downloads and library synchronization progress in the background.</string>
+	<string name="action_allow">Allow</string>
 </resources>

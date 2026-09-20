@@ -60,6 +60,7 @@ import navic.composeapp.generated.resources.option_accent_colour
 import navic.composeapp.generated.resources.option_choose_theme
 import navic.composeapp.generated.resources.option_palette_specification
 import navic.composeapp.generated.resources.option_palette_style
+import navic.composeapp.generated.resources.option_use_amoled_theme
 import navic.composeapp.generated.resources.title_palette
 import navic.composeapp.generated.resources.title_theme_mode
 import org.jetbrains.compose.resources.stringResource
@@ -76,6 +77,7 @@ import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.screens.settings.components.SettingsChoiceItem
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
+import paige.navic.ui.screens.settings.components.SettingsToggleItem
 import paige.navic.ui.util.label
 
 @Composable
@@ -108,7 +110,7 @@ fun SettingsThemesScreen() {
 
 				SettingsGroup(title = { Text(stringResource(Res.string.title_palette)) }) {
 					val isSeeded = preferenceManager.theme == Theme.Seeded
-					val count = if (isSeeded) 4 else 1
+					val count = if (isSeeded) 5 else 2
 
 					SegmentedListItem(
 						onClick = {},
@@ -131,13 +133,23 @@ fun SettingsThemesScreen() {
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
 					)
 
+					SettingsToggleItem(
+						checked = preferenceManager.amoled,
+						onCheckedChange = { preferenceManager.amoled = it },
+						content = { Text(stringResource(Res.string.option_use_amoled_theme)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 1,
+							count = count
+						)
+					)
+
 					AnimatedVisibility(
 						modifier = Modifier.fillMaxWidth(),
 						visible = isSeeded
 					) {
 						ThemeAccentPicker(
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 1,
+								index = 2,
 								count = count
 							)
 						)
@@ -154,7 +166,7 @@ fun SettingsThemesScreen() {
 							content = { Text(stringResource(Res.string.option_palette_style)) },
 							label = { it.label() },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 2,
+								index = 3,
 								count = count
 							)
 						)
@@ -171,7 +183,7 @@ fun SettingsThemesScreen() {
 							label = { it.label() },
 							content = { Text(stringResource(Res.string.option_palette_specification)) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 3,
+								index = 4,
 								count = count
 							)
 						)
