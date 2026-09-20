@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import paige.navic.util.Logger
 
 class SessionManager(
 	private val settings: Settings,
@@ -134,7 +135,11 @@ class SessionManager(
 			return currentUser
 		}
 		scope.launch {
-			fetchCurrentUser()
+			try {
+				fetchCurrentUser()
+			} catch (e: Exception) {
+				Logger.e("SessionManager", "Failed to fetch current user info", e)
+			}
 		}
 		return currentUser
 	}
