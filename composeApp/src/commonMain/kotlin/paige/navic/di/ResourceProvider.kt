@@ -5,8 +5,5 @@ interface ResourceProvider {
 	val appIconDefault: Int
 	val appIconInverted: Int
 	val icNavic: Int
-	val animLibrary: Int
-	val animPlaylist: Int
-	val animArtist: Int
 	val animPause: Int
 }

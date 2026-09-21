@@ -26,7 +26,7 @@ import paige.navic.ui.viewmodel.RootViewModel
 fun BottomBar(
 	modifier: Modifier = Modifier,
 	containerColor: Color = NavigationBarDefaults.containerColor,
-	windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
+	windowInsets: WindowInsets,
 	enabled: Boolean = true
 ) {
 	val viewModel = koinViewModel<NavtabsViewModel>()
