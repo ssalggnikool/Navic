@@ -35,6 +35,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -54,7 +59,7 @@ import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Add
 import paige.navic.icons.outlined.Check
 import paige.navic.icons.outlined.Delete
-import paige.navic.icons.outlined.Info
+import paige.navic.icons.outlined.Edit
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.screens.settings.components.SettingsGroup
@@ -216,7 +221,8 @@ private fun CustomHeadersBottomSheet(
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
 				Column(
-					verticalArrangement = Arrangement.Center
+					modifier = Modifier.fillMaxWidth(),
+					horizontalAlignment = Alignment.CenterHorizontally
 				) {
 					Text(
 						modifier = Modifier.padding(4.dp),
@@ -285,6 +291,17 @@ private fun HeaderRow(
 ) {
 	var isEditing by remember { mutableStateOf(key.isBlank()) }
 
+	val focusRequester = remember { FocusRequester() }
+	val enterEditMode: () -> Unit = {
+		isEditing = !isEditing
+		focusRequester.captureFocus()
+	}
+	val onFocus: (FocusState) -> Unit = {
+		if (!it.hasFocus && !it.isCaptured) {
+			isEditing = false
+		}
+	}
+
 	Surface(
 		color = MaterialTheme.colorScheme.surfaceContainer,
 		shape = MaterialTheme.shapes.large
@@ -295,7 +312,10 @@ private fun HeaderRow(
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			Column(
-				modifier = Modifier.weight(1f),
+				modifier = Modifier.weight(1f)
+					.focusRequester(focusRequester)
+					.onFocusChanged(onFocus)
+					.animateContentSize(),
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
 				if (isEditing) {
@@ -331,10 +351,14 @@ private fun HeaderRow(
 					)
 				}
 			}
-			Column {
+			Column(
+				verticalArrangement = Arrangement.SpaceBetween
+			) {
+				val padding = Modifier.padding(vertical = 8.dp)
+
 				if (isEditing) {
 					IconButton(
-						modifier = Modifier.padding(vertical = 6.dp),
+						modifier = padding,
 						onClick = onDelete,
 						shape = MaterialTheme.shapes.medium
 					) {
@@ -344,7 +368,7 @@ private fun HeaderRow(
 						)
 					}
 					IconButton(
-						modifier = Modifier.padding(vertical = 6.dp),
+						modifier = padding,
 						onClick = { isEditing = !isEditing },
 						shape = MaterialTheme.shapes.medium
 					) {
@@ -355,14 +379,13 @@ private fun HeaderRow(
 					}
 				} else {
 					IconButton(
-						modifier = Modifier.padding(vertical = 6.dp),
-						onClick = { isEditing = !isEditing },
+						modifier = padding,
+						onClick = enterEditMode,
 						shape = MaterialTheme.shapes.medium
 					) {
-						// todo: this needs a pencil icon
 						Icon(
-							Icons.Outlined.Info,
-							"Finish editing"
+							Icons.Outlined.Edit,
+							"Edit"
 						)
 					}
 				}
