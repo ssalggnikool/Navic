@@ -240,13 +240,6 @@
 	<string name="option_bottom_bar_visibility_mode_default">Default</string>
 	<string name="option_bottom_bar_visibility_mode_all_screens">All screens</string>
 
-	<string name="option_navigation_bar_style">Navigation bar style</string>
-	<string name="option_navigation_bar_style_normal">Normal</string>
-	<string name="option_navigation_bar_style_short">Short</string>
-	<string name="option_navigation_bar_label_visibility">Label visibility</string>
-	<string name="option_navigation_bar_label_visibility_always">Always</string>
-	<string name="option_navigation_bar_label_visibility_only_selected">Only selected</string>
-	<string name="option_navigation_bar_label_visibility_never">Never</string>
 	<string name="option_navigation_bar_tabs">Configure and re-order tabs</string>
 
 	<string name="option_mini_player_style">Mini player style</string>

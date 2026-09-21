@@ -24,8 +24,6 @@ import navic.composeapp.generated.resources.option_bottom_bar_visibility_mode
 import navic.composeapp.generated.resources.option_hide_bottom_bar_if_idle
 import navic.composeapp.generated.resources.option_mini_player_progress_style
 import navic.composeapp.generated.resources.option_mini_player_style
-import navic.composeapp.generated.resources.option_navigation_bar_label_visibility
-import navic.composeapp.generated.resources.option_navigation_bar_style
 import navic.composeapp.generated.resources.option_navigation_bar_tabs
 import navic.composeapp.generated.resources.option_swipe_to_skip
 import navic.composeapp.generated.resources.title_bottom_app_bar
@@ -40,8 +38,6 @@ import paige.navic.domain.models.settings.BottomBarCollapseMode
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.domain.models.settings.MiniPlayerProgressStyle
 import paige.navic.domain.models.settings.MiniPlayerStyle
-import paige.navic.domain.models.settings.NavigationBarLabelVisibility
-import paige.navic.domain.models.settings.NavigationBarStyle
 import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.components.layouts.NestedTopBarDefaults
@@ -105,28 +101,10 @@ fun BottomBarScreen() {
 				}
 
 				SettingsGroup(title = { Text(stringResource(Res.string.title_navigation_bar)) }) {
-					SettingsChoiceItem(
-						choices = NavigationBarStyle.entries.toImmutableList(),
-						selectedChoice = preferenceManager.navigationBarStyle,
-						onChoiceSelected = { preferenceManager.navigationBarStyle = it },
-						content = { Text(stringResource(Res.string.option_navigation_bar_style)) },
-						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
-					)
-
-					SettingsChoiceItem(
-						choices = NavigationBarLabelVisibility.entries.toImmutableList(),
-						selectedChoice = preferenceManager.navigationBarLabelVisibility,
-						onChoiceSelected = { preferenceManager.navigationBarLabelVisibility = it },
-						content = { Text(stringResource(Res.string.option_navigation_bar_label_visibility)) },
-						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
-					)
-
 					SettingsNavItem(
 						onClick = { tabsDialogOpen = true },
 						content = { Text(stringResource(Res.string.option_navigation_bar_tabs)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
 					)
 				}
 
