@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -30,14 +31,15 @@ fun RootBottomBar(
 	modifier: Modifier = Modifier,
 	shadows: Boolean = true,
 	hideMiniPlayer: Boolean = false,
-	windowInsets: WindowInsets = NavigationBarDefaults.windowInsets
+	windowInsets: WindowInsets = WindowInsets.systemBars
 ) {
-	val preferenceManager = koinInject<PreferenceManager>()
 	val platformContext = LocalPlatformContext.current
+	if (platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium) return
+
+	val preferenceManager = koinInject<PreferenceManager>()
 	val scrolled =
 		scrolled && preferenceManager.bottomBarCollapseMode == BottomBarCollapseMode.OnScroll
 	val detached = preferenceManager.miniPlayerStyle == MiniPlayerStyle.Detached
-	val hideBottomBar = platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 	val progress by animateFloatAsState(
 		targetValue = if (scrolled) 0f else 1f,
 		animationSpec = spring(
@@ -49,6 +51,7 @@ fun RootBottomBar(
 		targetValue = if (scrolled || !shadows) 0f else 1f,
 		animationSpec = tween(durationMillis = 600)
 	)
+
 	Column(
 		modifier = modifier.then(
 			if (detached)
@@ -67,25 +70,21 @@ fun RootBottomBar(
 					)
 				},
 				enabled = !scrolled,
-				windowInsets = if (!hideBottomBar)
-					windowInsets.only(WindowInsetsSides.Horizontal)
-				else windowInsets
+				windowInsets = windowInsets.only(WindowInsetsSides.Horizontal)
 			)
 		}
-		if (!hideBottomBar) {
-			BottomBar(
-				containerColor = if (detached)
-					NavigationBarDefaults.containerColor.copy(alpha = 0f)
-				else NavigationBarDefaults.containerColor,
-				modifier = Modifier.graphicsLayer {
-					alpha = progress.coerceIn(0f..1f)
-					translationY = ((1f - progress) * size.height).coerceAtLeast(
-						if (preferenceManager.miniPlayerStyle == MiniPlayerStyle.Detached) -2048f else 0f
-					)
-				},
-				enabled = !scrolled,
-				windowInsets = windowInsets
-			)
-		}
+		BottomBar(
+			containerColor = if (detached)
+				NavigationBarDefaults.containerColor.copy(alpha = 0f)
+			else NavigationBarDefaults.containerColor,
+			modifier = Modifier.graphicsLayer {
+				alpha = progress.coerceIn(0f..1f)
+				translationY = ((1f - progress) * size.height).coerceAtLeast(
+					if (detached) -2048f else 0f
+				)
+			},
+			enabled = !scrolled,
+			windowInsets = windowInsets.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+		)
 	}
 }
