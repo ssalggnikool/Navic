@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -31,11 +33,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_delete
@@ -57,6 +62,7 @@ import paige.navic.ui.components.common.SegmentedListItemDefaults
 import paige.navic.ui.components.layouts.NestedTopBar
 import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
+import paige.navic.ui.screens.settings.components.SettingsNavItem
 import paige.navic.ui.screens.settings.components.SettingsToggleItem
 import paige.navic.ui.theme.defaultFont
 import kotlin.random.Random
@@ -71,6 +77,8 @@ private data class Header(
 fun SettingsConnectionOptionsScreen() {
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
+
+	var showHeadersBottomSheet by remember { mutableStateOf(false) }
 
 	var proxyUrlField by mutableStateOf(preferenceManager.proxyUrl)
 	val proxyUrlHasErrors by derivedStateOf {
@@ -105,11 +113,8 @@ fun SettingsConnectionOptionsScreen() {
 			.toMutableStateList()
 	}
 
-	val hiddenHeaders = remember { mutableStateSetOf<Long>() }
-
 	fun updateSettings() {
 		preferenceManager.customHeaders = headers
-			.filter { !hiddenHeaders.contains(it.id) }
 			.joinToString("\n") { "${it.key}:${it.value}" }
 		sessionManager.refreshClient()
 	}
@@ -128,7 +133,6 @@ fun SettingsConnectionOptionsScreen() {
 				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
 				SettingsGroup(
-					title = { Text(stringResource(Res.string.option_proxy_settings)) },
 					modifier = Modifier.fillMaxWidth()
 				) {
 					OutlinedTextField(
@@ -137,7 +141,7 @@ fun SettingsConnectionOptionsScreen() {
 						value = proxyUrlField,
 						onValueChange = updateProxyUrl,
 						isError = proxyUrlHasErrors,
-						label = { Text("URL") },
+						label = { Text("Proxy URL") },
 						placeholder = { Text(stringResource(Res.string.info_proxy_url_placeholder)) },
 						supportingText = {
 							if (proxyUrlHasErrors) {
@@ -146,56 +150,87 @@ fun SettingsConnectionOptionsScreen() {
 						}
 					)
 				}
-				// TODO: hide this on iOS, and also add strings to the xml. piss
 				SettingsGroup(
-					title = { Text("Security settings") },
 					modifier = Modifier.fillMaxWidth()
 				) {
+					// TODO: hide this on iOS, and also add strings to the xml. piss
 					SettingsToggleItem(
 						checked = sslNoopChecked,
 						onCheckedChange = updateSslNoop,
 						content = { Text("Ignore SSL certificates") },
 						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = 1,
-							count = 1
+							index = 0,
+							count = 2
 						),
 						supportingContent = {
 							Text("Only enable this if you know what you're doing. Useful if you're using a proxy for inspecting requests.")
 						}
 					)
-				}
-				SettingsGroup(
-					title = { Text(stringResource(Res.string.option_custom_headers)) },
-					modifier = Modifier.fillMaxWidth()
-				) {
-					headers.forEachIndexed { index, header ->
-						AnimatedVisibility(
-							modifier = Modifier.fillMaxWidth(),
-							visible = !hiddenHeaders.contains(header.id)
-						) {
-							HeaderRow(
-								key = header.key,
-								value = header.value,
-								onSetKey = {
-									headers[index] = header.copy(key = it)
-									updateSettings()
-								},
-								onSetValue = {
-									headers[index] = header.copy(value = it)
-									updateSettings()
-								},
-								onDelete = {
-									hiddenHeaders.add(header.id)
-									updateSettings()
-								}
-							)
+					SettingsNavItem(
+						content = { Text("Custom headers") },
+						supportingContent = {
+							Text("Additional information attached to each request")
+						},
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 1,
+							count = 2
+						),
+						onClick = {
+							showHeadersBottomSheet = !showHeadersBottomSheet
 						}
-					}
+					)
 				}
+			}
+
+			if (showHeadersBottomSheet) {
+				CustomHeadersBottomSheet(
+					headers,
+					onUpdate = {
+						updateSettings()
+					},
+					onDismiss = {
+						showHeadersBottomSheet = !showHeadersBottomSheet
+					}
+				)
+			}
+		}
+	}
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomHeadersBottomSheet(
+	headers: SnapshotStateList<Header>,
+	onUpdate: () -> Unit,
+	onDismiss: () -> Unit
+) {
+	ModalBottomSheet(
+		onDismissRequest = onDismiss
+	) {
+		Column(
+			modifier = Modifier.padding(horizontal = 16.dp),
+			verticalArrangement = Arrangement.spacedBy(16.dp)
+		) {
+			Column(
+				verticalArrangement = Arrangement.spacedBy(4.dp),
+				horizontalAlignment = Alignment.CenterHorizontally
+			) {
+				Text(
+					text = "Custom headers",
+					style = MaterialTheme.typography.headlineMediumEmphasized
+				)
+				Text(
+					text = "Additional information attached to each request",
+					style = MaterialTheme.typography.bodyMedium,
+					textAlign = TextAlign.Center
+				)
+				Spacer(
+					Modifier.padding(2.dp)
+				)
 				FilledTonalButton(
 					onClick = {
 						headers.add(Header(key = "", value = ""))
-						updateSettings()
+						onUpdate()
 					},
 					modifier = Modifier.fillMaxWidth()
 				) {
@@ -204,6 +239,29 @@ fun SettingsConnectionOptionsScreen() {
 					Text(
 						stringResource(Res.string.action_new),
 						fontFamily = defaultFont(100)
+					)
+				}
+			}
+			SettingsGroup(
+				modifier = Modifier.verticalScroll(rememberScrollState())
+					.weight(weight = 1f, fill = false)
+			) {
+				headers.forEachIndexed { index, header ->
+					HeaderRow(
+						key = header.key,
+						value = header.value,
+						onSetKey = {
+							headers[index] = header.copy(key = it)
+							onUpdate()
+						},
+						onSetValue = {
+							headers[index] = header.copy(value = it)
+							onUpdate()
+						},
+						onDelete = {
+							headers.remove(header)
+							onUpdate()
+						}
 					)
 				}
 			}
