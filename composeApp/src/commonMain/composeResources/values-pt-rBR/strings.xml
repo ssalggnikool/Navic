@@ -33,7 +33,6 @@
     <string name="option_alphabetical_scroll">Rolamento alfabético</string>
     <string name="option_grid_items_per_row">Tamanho da grade</string>
     <string name="option_share_expires">Expira?</string>
-    <string name="option_account_navidrome_instance">URL da instância</string>
     <string name="option_account_username">Nome de usuário</string>
     <string name="option_account_password">Senha</string>
     <string name="option_lyrics_autoscroll">Rolamento automático da letra</string>
@@ -153,7 +152,6 @@
     <string name="option_bottom_bar_visibility_mode">Visibilidade</string>
     <string name="option_bottom_bar_visibility_mode_default">Padrão</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">Em todas as telas</string>
-    <string name="option_navigation_bar_style">Estilo da barra de navegação</string>
     <string name="theme_mode_system">Sistema</string>
     <string name="theme_mode_dark">Escuro</string>
     <string name="theme_mode_light">Claro</string>
@@ -210,7 +208,6 @@
     <string name="info_not_available_offline">Não disponível offline</string>
     <string name="info_syncing_saving">Salvando...</string>
     <string name="info_click_to_retry">Clique para tentar novamente</string>
-    <string name="info_login_description_middle">Navidrome</string>
     <string name="info_download_failed">Falha no download</string>
     <string name="info_downloaded">Baixado</string>
     <string name="info_syncing">Sincronizando...</string>
@@ -221,7 +218,6 @@
     <string name="info_syncing_genres">Sincronizando gêneros...</string>
     <string name="info_syncing_artists">Sincronizando artistas...</string>
     <string name="info_syncing_radios">Sincronizando rádios...</string>
-    <string name="info_login_description_start">Faça login na sua instância</string>
     <string name="info_exception_handler">Isso fará o aplicativo travar imediatamente. Tem certeza?</string>
     <string name="subtitle_data_storage">Gerenciar sincronização, uso de rede e cache</string>
     <string name="subtitle_pending_actions">%1$d itens aguardando conexão de rede</string>
@@ -269,9 +265,6 @@
     <string name="info_progress">Progresso</string>
     <string name="info_in_use">(em uso)</string>
     <string name="info_explicit">Explícito</string>
-    <string name="option_navigation_bar_style_normal">Normal</string>
-    <string name="option_navigation_bar_label_visibility_always">Sempre</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">Apenas selecionados</string>
     <string name="option_navigation_bar_tabs">Configure e reordene abas</string>
     <string name="option_mini_player_style">Estilo do miniplayer</string>
     <string name="option_mini_player_style_unified">Unificado</string>
@@ -400,8 +393,6 @@
     <string name="info_external_song_description">Essa música foi marcada como externa pelo seu servidor, então talvez não seja possível você ouvi-la.</string>
     <string name="info_transcoding_defaults">Deixar vazio quaisquer das opções irá omitir elas e permitir que o servidor decida.</string>
     <string name="option_palette_style">Estilo da paleta</string>
-    <string name="option_navigation_bar_label_visibility">Visibilidade</string>
-    <string name="option_navigation_bar_label_visibility_never">Nunca</string>
     <string name="action_start">Iniciar</string>
     <string name="action_ok">OK</string>
     <string name="action_play">Reproduzir</string>
@@ -428,7 +419,6 @@
     <string name="option_sort_year">Ano</string>
     <string name="subtitle_app_icon_designer">Feito por: %1$s</string>
     <string name="option_palette_specification">Especificação da paleta</string>
-    <string name="option_navigation_bar_style_short">Curto</string>
     <string name="action_clear_queue">Limpar fila</string>
     <string name="action_reset">Resetar</string>
     <string name="notice_created_radio">Rádio %1$s adicionada.</string>
@@ -451,5 +441,4 @@
     <string name="option_dynamic_replaygain_tip">Configurar o ReplayGain para Dinâmico irá utilizar o ganho do álbum se um álbum estiver sendo tocado. Caso contrário, o ganho da faixa será utilizado.</string>
     <string name="action_scroll_down">Descer para baixo</string>
     <string name="action_reset_dont_show_agains">Resetar diálogos de "não mostrar novamente"</string>
-    <string name="info_login_description_end">.</string>
 </resources>

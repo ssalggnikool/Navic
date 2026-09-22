@@ -111,12 +111,6 @@
     <string name="option_bottom_bar_visibility_mode">Synlighetsmodus</string>
     <string name="option_bottom_bar_visibility_mode_default">Standard</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">Alle skjermer</string>
-    <string name="option_navigation_bar_style_normal">Normal</string>
-    <string name="option_navigation_bar_style_short">Kort</string>
-    <string name="option_navigation_bar_label_visibility">Etikett synlighet</string>
-    <string name="option_navigation_bar_label_visibility_always">Alltid</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">Kun valgte</string>
-    <string name="option_navigation_bar_label_visibility_never">Aldri</string>
     <string name="option_mini_player_style">Minispiller stil</string>
     <string name="option_mini_player_progress_style_hidden">Gjemt</string>
     <string name="option_mini_player_progress_style_visible">Synlig</string>
@@ -247,7 +241,6 @@
     <string name="info_syncing_finished">Fullført.</string>
     <string name="info_syncing_playlists">Synkroniserer spillelister …</string>
     <string name="info_syncing_radios">Synkroniserer radioer …</string>
-    <string name="info_login_description_middle">Navidrome</string>
     <string name="info_no_albums">Ingen album</string>
     <string name="info_no_artists">Ingen artister</string>
     <string name="info_no_songs">Ingen sanger</string>
@@ -264,8 +257,6 @@
     <string name="title_sort_by">Sorter</string>
     <string name="info_downloaded">Lastet ned</string>
     <string name="info_no_lyrics">Ingen sangtekst</string>
-    <string name="info_login_description_end">tjener.</string>
-    <string name="info_login_description_start">Logg inn hos din</string>
     <string name="info_no_playlists">Ingen spillelister.</string>
     <string name="info_repeat_all">Gjenta alle</string>
     <string name="subtitle_developer">Feilsøking, testing og logger</string>
@@ -276,13 +267,11 @@
     <string name="option_swipe_to_skip">Dra for å bytte sang</string>
     <string name="option_lyrics_keep_alive">Behold skjermen på når sangtekster vise</string>
     <string name="option_lyrics_blur">Gjør sangtekstlinjer ved skjermkantene uskarpe</string>
-    <string name="option_account_navidrome_instance">Nettadresse til tjener</string>
     <string name="option_live_status">Synkroniseringsstatus</string>
     <string name="info_status_idle">Inaktiv</string>
     <string name="info_bulk_download_warning">Er du sikker på at du vil laste ned alle album av %1$s?\nDette vil kreve mye lagringsplass og mobildata.</string>
     <string name="option_bottom_bar_collapse_mode">Skjul</string>
     <string name="option_bottom_bar_collapse_mode_on_scroll">Ved rulling</string>
-    <string name="option_navigation_bar_style">Stil for navigasjonslinje</string>
     <string name="option_navigation_bar_tabs">Tilpass fanene i navigasjonslinjen</string>
     <string name="option_mini_player_style_unified">Festet</string>
     <string name="option_mini_player_style_detached">Løs</string>

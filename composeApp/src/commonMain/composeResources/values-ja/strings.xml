@@ -94,7 +94,6 @@
     <string name="option_lyrics_blur">歌詞をぼかす</string>
     <string name="option_lyrics_bright_inactive">非アクティブな歌詞を明るく表示</string>
     <string name="option_share_expires">有効期限</string>
-    <string name="option_account_navidrome_instance">インスタンスURL</string>
     <string name="option_account_username">ユーザーネーム</string>
     <string name="option_account_password">パスワード</string>
     <string name="option_lyrics_autoscroll">歌詞の自動スクロール</string>

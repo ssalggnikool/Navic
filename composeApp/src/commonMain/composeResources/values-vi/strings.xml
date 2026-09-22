@@ -112,7 +112,6 @@
     <string name="option_lyrics_blur">Làm mờ viền</string>
     <string name="option_lyrics_bright_inactive">Làm sáng dòng không hoạt động</string>
     <string name="option_share_expires">Hết hạn</string>
-    <string name="option_account_navidrome_instance">URL đối tượng</string>
     <string name="option_account_username">Tên người dùng</string>
     <string name="option_account_password">Mật khẩu</string>
     <string name="option_lyrics_autoscroll">Tự động cuộn lời</string>

@@ -69,7 +69,6 @@
     <string name="title_songs">Lagu-lagu</string>
     <string name="info_lyrics_provider">Lirik disediakan oleh %1$s</string>
     <string name="action_search_history">Pencarian Terbaru</string>
-    <string name="info_login_description_middle">Navidrome</string>
     <string name="info_syncing_playlists">Menyinkronkan daftar putar...</string>
     <string name="action_remove_from_history">Hapus dari riwayat</string>
     <string name="option_mini_player_style_unified">Terpadu</string>
@@ -97,7 +96,6 @@
     <string name="option_sort_rating">Peringkat</string>
     <string name="action_reorder">Susun ulang</string>
     <string name="action_view_on_musicbrainz">Lihat di MusicBrainz</string>
-    <string name="option_navigation_bar_style_short">Pendek</string>
     <string name="info_no_artists">Tidak ada artis</string>
     <string name="action_dont_show_again">Jangan muncul lagi</string>
     <string name="info_no_starred">Tidak ada yang diberi bintang</string>
@@ -149,7 +147,6 @@
     <string name="action_add_to_playlist">Tambahkan ke Daftar Putar</string>
     <string name="info_track_duration">Lamanya</string>
     <string name="option_bottom_bar_collapse_mode_never">Tidak pernah</string>
-    <string name="option_account_navidrome_instance">URL Instans</string>
     <string name="info_not_playing">Tidak Diputar</string>
     <string name="option_account_username">Nama pengguna</string>
     <string name="info_share_expires_in">Berakhir dalam %1$s</string>
@@ -219,12 +216,10 @@
     <string name="action_queue">Antre</string>
     <string name="title_genres">Genre</string>
     <string name="subtitle_appearance">Tema, warna, tata letak</string>
-    <string name="info_login_description_start">Masuk ke akun Anda</string>
     <string name="option_sort_alphabetical_by_name">Diurutkan berdasarkan abjad nama</string>
     <string name="info_no_genres">Tidak ada genre</string>
     <string name="info_image_failed_to_load">Gagal memuat</string>
     <string name="option_bottom_bar_visibility_mode_default">Bawaan</string>
-    <string name="option_navigation_bar_style_normal">Normal</string>
     <string name="action_remove_star">Hapus Bintang</string>
     <string name="info_track_year">Tahun</string>
     <string name="subtitle_trigger_sync">Memaksa pengunduhan seluruh pustaka secara langsung</string>
@@ -240,7 +235,6 @@
     <string name="option_offline_mode">Mode offline</string>
     <string name="info_syncing_genres">Menyinkronkan genre...</string>
     <string name="option_now_playing_background_style_static">Statis</string>
-    <string name="option_navigation_bar_style">Gaya bilah navigasi</string>
     <string name="option_min_duration_to_scrobble">Durasi minimum untuk melakukan scrobble</string>
     <string name="option_now_playing_background_style">Gaya latar belakang</string>
     <string name="option_offline_mode_forced">Dipaksa</string>
@@ -271,12 +265,10 @@
     <string name="option_accent_colour">Warna aksen</string>
     <string name="info_syncing_finished">Selesai.</string>
     <string name="info_track_bitrate">Kecepatan bit</string>
-    <string name="option_navigation_bar_label_visibility_always">Selalu</string>
     <string name="action_ok">OKE</string>
     <string name="subtitle_now_playing">Sesuaikan tampilan layar penuh saat sedang diputar</string>
     <string name="notice_queue_duplicate">Lagu ini sudah ada dalam antrean. Apakah Anda benar-benar ingin menambahkannya lagi?</string>
     <string name="option_sort_playlist_duration">Lamanya</string>
-    <string name="info_login_description_end">instans.</string>
     <string name="subtitle_pending_actions">%1$d item menunggu jaringan</string>
     <string name="info_track_replay_gain_effective">Nilai efektif ReplayGain</string>
     <string name="title_artists">Artis</string>
@@ -317,9 +309,7 @@
     <string name="action_test_exception_handler">Penanganan pengecualian pengujian</string>
     <string name="info_no_lyrics">Tidak ada lirik</string>
     <string name="option_sort_playlist_date_added">Tanggal ditambahkan</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">Hanya yang terpilih</string>
     <string name="info_unknown">Tidak dikenal</string>
-    <string name="option_navigation_bar_label_visibility">Visibilitas label</string>
     <string name="action_sleep_timer_enabled">Pengatur waktu tidur - %1$s tersisa</string>
     <string name="option_max_bitrate_wifi">Kecepatan Bit Maksimum WiFi (kbps)</string>
     <string name="option_quality_lossless">Tanpa kehilangan data (tanpa transkode)</string>

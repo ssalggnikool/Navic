@@ -33,7 +33,6 @@
     <string name="option_now_playing_background_style_dynamic">動態</string>
     <string name="option_now_playing_background_style">背景風格</string>
     <string name="option_auto_fill_queue">自動填滿佇列</string>
-    <string name="option_account_navidrome_instance">執行個體 URL</string>
     <string name="option_account_username">使用者名稱</string>
     <string name="option_account_password">密碼</string>
     <string name="option_sort_random">隨機</string>
@@ -112,8 +111,6 @@
     <string name="info_no_search_results">無結果</string>
     <string name="info_syncing">同步中...</string>
     <string name="info_syncing_saving">儲存中...</string>
-    <string name="info_login_description_middle">Navidrome</string>
-    <string name="info_login_description_start">登入您的</string>
     <string name="info_equaliser_unsupported">您的裝置不支援此功能。</string>
     <string name="title_songs">歌曲</string>
     <string name="option_now_playing_song_info">顯示歌曲技術資訊</string>

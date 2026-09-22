@@ -100,7 +100,6 @@
     <string name="option_lyrics_blur">Efekt rozmycia tekstu</string>
     <string name="option_lyrics_bright_inactive">Podświetlone nieaktywne teksty</string>
     <string name="option_share_expires">Wygasa</string>
-    <string name="option_account_navidrome_instance">URL instancji</string>
     <string name="option_account_username">Nazwa użytkownika</string>
     <string name="option_account_password">Hasło</string>
     <string name="option_lyrics_autoscroll">Automatyczne przewijanie tekstu</string>
@@ -190,13 +189,6 @@
     <string name="option_bottom_bar_visibility_mode">Tryb widoczności</string>
     <string name="option_bottom_bar_visibility_mode_default">Domyślny</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">Na każdym panelu</string>
-    <string name="option_navigation_bar_style">Styl paska nawigacji</string>
-    <string name="option_navigation_bar_style_normal">Normalny</string>
-    <string name="option_navigation_bar_style_short">Krótki</string>
-    <string name="option_navigation_bar_label_visibility">Widoczność podpisów</string>
-    <string name="option_navigation_bar_label_visibility_always">Zawsze</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">Tylko wybrane</string>
-    <string name="option_navigation_bar_label_visibility_never">Nigdy</string>
     <string name="option_navigation_bar_tabs">Zmień kolejność zakładek na pasku nawigacji</string>
     <string name="option_mini_player_style">Styl miniodtwarzacza</string>
     <string name="option_mini_player_style_unified">Jednolity</string>
@@ -397,9 +389,6 @@
     <string name="info_syncing_genres">Synchronizuję gatunki...</string>
     <string name="info_syncing_artists">Synchronizuję artystów...</string>
     <string name="info_syncing_radios">Synchronizuję radia...</string>
-    <string name="info_login_description_start">Zaloguj się do instancji</string>
-    <string name="info_login_description_middle">Navidrome</string>
-    <string name="info_login_description_end">.</string>
     <string name="info_exception_handler">Aplikacja wyłączy się w wyniku crasha. Jesteś pewien?</string>
     <string name="info_streaming_quality">Wyższa jakość wiąże się ze zwiększonym zużyciem danych. Transkodowanie może zdesynchronizować teksty utworów i poważnie wpłynąć na czasy ładowania. Wybierz Bezstratna, jeżeli napotkasz jakiekolwiek problemy.</string>
     <string name="info_download_quality">Wyższa jakość wiąże się ze zwiększonym zużyciem pamięci masowej i danych. Transkodowanie może wydłużyć czasy pobierania. Wybierz Bezstratna, jeżeli napotkasz jakiekolwiek problemy.</string>

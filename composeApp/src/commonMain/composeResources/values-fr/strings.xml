@@ -34,7 +34,6 @@
     <string name="option_alphabetical_scroll">Défilement alphabétique</string>
     <string name="option_grid_items_per_row">Taille de la grille</string>
     <string name="option_share_expires">Expiration</string>
-    <string name="option_account_navidrome_instance">URL de l'instance</string>
     <string name="option_account_username">Nom d'utilisateur</string>
     <string name="option_account_password">Mot de passe</string>
     <string name="option_lyrics_autoscroll">Défilement automatique des paroles</string>
@@ -184,9 +183,6 @@
     <string name="option_bottom_bar_visibility_mode">Visibilité</string>
     <string name="option_bottom_bar_visibility_mode_default">Défaut</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">Partout</string>
-    <string name="option_navigation_bar_style">Style de la barre de navigation</string>
-    <string name="option_navigation_bar_style_normal">Normal</string>
-    <string name="option_navigation_bar_style_short">Court</string>
     <string name="option_navigation_bar_tabs">Configurer et déplacer les onglets</string>
     <string name="option_mini_player_style">Style du mini-lecteur</string>
     <string name="option_mini_player_style_unified">Unifié</string>
@@ -272,9 +268,6 @@
     <string name="info_syncing_playlists">Synchronisation des listes de lecture...</string>
     <string name="info_syncing_genres">Synchronisation des genres...</string>
     <string name="info_syncing_artists">Synchronisation des artistes...</string>
-    <string name="info_login_description_start">Connectez-vous à votre</string>
-    <string name="info_login_description_middle">Navidrome</string>
-    <string name="info_login_description_end">instance.</string>
     <string name="info_exception_handler">Cela va immédiatement provoquer le plantage de l'application. Êtes-vous sûr ?</string>
     <string name="title_radios">Radios</string>
     <string name="title_create_radio">Ajouter une radio</string>
@@ -304,7 +297,6 @@
     <string name="option_quality_lossless">Sans perte (pas de transcodage)</string>
     <string name="info_status_downloading">Téléchargement en cours...</string>
     <string name="info_explicit">Explicite</string>
-    <string name="option_navigation_bar_label_visibility_always">Toujours</string>
     <string name="option_playback_speed">Vitesse de lecture</string>
     <string name="info_streaming_quality">Les préconfigurations de haute qualité vont utiliser plus de données. Le transcodage peut grandement affecter les temps de chargement et rendre les paroles désynchronisées. Sélectionnez Sans perte si vous rencontrez des problèmes.</string>
     <string name="title_disc_number">Disque %1$s</string>
@@ -349,8 +341,6 @@
     <string name="option_quality_high">Haute</string>
     <string name="info_progress">Progression</string>
     <string name="info_in_use">(actuellement utilisé)</string>
-    <string name="option_navigation_bar_label_visibility">Visibilité de l'intitulé</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">Seulement celui sélectionné</string>
     <string name="info_no_starred">Vous n'avez rien ajouté en favori</string>
     <string name="info_no_search_results">Aucun résultat</string>
     <string name="title_logs">Journal</string>
@@ -368,7 +358,6 @@
     <string name="option_explicit_playback_skip">Passer le contenus pour adultes</string>
     <string name="option_explicit_playback_skip_session">Passer le contenu pour adulte pour cette session uniquement</string>
     <string name="info_transcoding_defaults">Si vous laissez l'un de ces champs vide, il sera ignoré et le serveur décidera à votre place.</string>
-    <string name="option_navigation_bar_label_visibility_never">Jamais</string>
     <string name="action_next_song">Morceau suivant</string>
     <string name="action_previous_song">Morceau précédent</string>
     <string name="action_pause">Pause</string>
