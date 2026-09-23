@@ -57,26 +57,17 @@ class ExoStateHolder: KoinComponent {
 	private val sessionManager: SessionManager by inject()
 	private val preferenceManager: PreferenceManager by inject()
 	private val imageLoader: ImageLoader by inject()
-
-	val gainProcessor = ExoAudioGainProcessor()
 	private val mutex = Mutex()
-	companion object {
-		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
-		const val COMMAND_REPEAT = "COMMAND_REPEAT"
 
-		fun newSessionToken(context: Context): SessionToken {
-			return SessionToken(context, ComponentName(context, PlaybackService::class.java))
-		}
-	}
+	private var isInitialized = false
+
+	// PlaybackService and AudioGainManager depends on these fields below
 
 	lateinit var playerInstance: ExoPlayer
 	lateinit var mediaSession: MediaSession
 
-	fun initialize() = runBlocking {
-		createPlayerInstance()
-		createMediaSession()
-		return@runBlocking
-	}
+	val gainProcessor = ExoAudioGainProcessor()
+
 
 	private class MediaSessionCallback(private val player: ExoPlayer) : MediaSession.Callback {
 		override fun onConnect(
@@ -188,7 +179,7 @@ class ExoStateHolder: KoinComponent {
 		setBackBuffer(10_000, true)
 	}.build()
 
-	suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
+	private suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
 		val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
 		val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory, extractorsFactory)
 
@@ -240,7 +231,7 @@ class ExoStateHolder: KoinComponent {
 		return playerInstance
 	}
 
-	suspend fun createMediaSession(): MediaSession = mutex.withLock {
+	private suspend fun createMediaSession(): MediaSession = mutex.withLock {
 		val bitmapLoader = ExoArtworkLoader(context, imageLoader)
 		val sessionIntent = context.packageManager
 			.getLaunchIntentForPackage(context.packageName)
@@ -268,11 +259,34 @@ class ExoStateHolder: KoinComponent {
 		return mediaSession
 	}
 
+	/**
+	 * initializes instances for the player and the media session, should be called ASAP on PlaybackService (onCreate)
+	 */
+	fun initState() = runBlocking {
+		if (isInitialized) return@runBlocking
+
+		createPlayerInstance()
+		createMediaSession()
+		isInitialized = !isInitialized
+	}
+
 	fun destroySession() {
+		if (!isInitialized) return
+
 		mediaSession.let {
 			it.player.stop()
 			it.player.release()
 			it.release()
+		}
+		isInitialized = !isInitialized
+	}
+
+	companion object {
+		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
+		const val COMMAND_REPEAT = "COMMAND_REPEAT"
+
+		fun newSessionToken(context: Context): SessionToken {
+			return SessionToken(context, ComponentName(context, PlaybackService::class.java))
 		}
 	}
 }

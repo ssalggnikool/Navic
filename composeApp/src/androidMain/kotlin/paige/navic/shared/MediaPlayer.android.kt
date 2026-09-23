@@ -50,7 +50,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 			equaliserManager,
 			this
 		)
-		stateHolder.initialize()
+		stateHolder.initState()
 
 		val notificationProvider = DefaultMediaNotificationProvider.Builder(this)
 			.build().apply {
@@ -82,7 +82,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 		}
 	}
 
-	override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
+	override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession {
 		return stateHolder.mediaSession
 	}
 
