@@ -1,4 +1,4 @@
-package paige.navic.exoplayer.listeners
+package paige.navic.exoplayer.impl
 
 import android.content.Context
 import android.content.Intent
@@ -13,18 +13,15 @@ import kotlinx.coroutines.launch
 import paige.navic.domain.manager.EqualiserManager
 import paige.navic.domain.models.settings.EqualiserMode
 import paige.navic.util.Logger
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @UnstableApi
 class ExoEqualizerManager(
-	private val equaliserManager: EqualiserManager,
-	private val context: Context
+    private val equaliserManager: EqualiserManager,
+    private val context: Context
 ): Player.Listener {
 	private var equalizerMode = EqualiserMode.Disabled
 	private val scope = CoroutineScope(Dispatchers.Default)
 	private var currentAudioSessionId = C.AUDIO_SESSION_ID_UNSET
-	private var currentAudioEffectsId = C.AUDIO_SESSION_ID_UNSET
 	private var equaliser: Equalizer? = null
 
 	override fun onAudioSessionIdChanged(audioSessionId: Int) {

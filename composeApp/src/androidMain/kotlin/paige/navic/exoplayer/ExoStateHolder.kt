@@ -40,17 +40,13 @@ import androidx.media3.session.SessionToken
 import coil3.ImageLoader
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.exoplayer.impl.ExoAudioGainProcessor
-import paige.navic.exoplayer.impl.ExoCoilBitmapLoader
+import paige.navic.exoplayer.impl.ExoArtworkLoader
 import paige.navic.shared.PlaybackService
 
 @OptIn(UnstableApi::class)
@@ -58,10 +54,9 @@ class ExoStateHolder(
 	private val context: Context,
 	sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager,
-	private val gainProcessor: ExoAudioGainProcessor,
-	private val imageLoader: ImageLoader,
+	private val imageLoader: ImageLoader
 ) {
-	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+	val gainProcessor = ExoAudioGainProcessor()
 	private val mutex = Mutex()
 	companion object {
 		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
@@ -77,10 +72,8 @@ class ExoStateHolder(
 
 	init {
 		runBlocking {
-			scope.launch {
-				createPlayerInstance()
-				createMediaSession()
-			}
+			createPlayerInstance()
+			createMediaSession()
 		}
 	}
 
@@ -158,7 +151,7 @@ class ExoStateHolder(
 		}
 	}
 
-	fun makeButtons(player: Player) = buildList {
+	private fun makeButtons(player: Player) = buildList {
 		add(
 			CommandButton.Builder(
 				if (player.shuffleModeEnabled) {
@@ -249,7 +242,7 @@ class ExoStateHolder(
 	}
 
 	suspend fun createMediaSession(): MediaSession = mutex.withLock {
-		val bitmapLoader = ExoCoilBitmapLoader(context, imageLoader)
+		val bitmapLoader = ExoArtworkLoader(context, imageLoader)
 		val sessionIntent = context.packageManager
 			.getLaunchIntentForPackage(context.packageName)
 			?.apply {

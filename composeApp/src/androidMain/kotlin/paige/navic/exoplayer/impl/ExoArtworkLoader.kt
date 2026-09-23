@@ -15,7 +15,7 @@ import paige.navic.util.Logger
  * before resorting to doing the normal behavior of ExoPlayer (which just fetches the provided image url)
  */
 @UnstableApi
-class ExoCoilBitmapLoader(
+class ExoArtworkLoader(
 	context: Context,
 	private val imageLoader: ImageLoader,
 ): BitmapLoader {
