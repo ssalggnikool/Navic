@@ -43,6 +43,8 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.exoplayer.impl.ExoAudioGainProcessor
@@ -50,12 +52,12 @@ import paige.navic.exoplayer.impl.ExoArtworkLoader
 import paige.navic.shared.PlaybackService
 
 @OptIn(UnstableApi::class)
-class ExoStateHolder(
-	private val context: Context,
-	sessionManager: SessionManager,
-	private val preferenceManager: PreferenceManager,
-	private val imageLoader: ImageLoader
-) {
+class ExoStateHolder: KoinComponent {
+	private val context: Context by inject()
+	private val sessionManager: SessionManager by inject()
+	private val preferenceManager: PreferenceManager by inject()
+	private val imageLoader: ImageLoader by inject()
+
 	val gainProcessor = ExoAudioGainProcessor()
 	private val mutex = Mutex()
 	companion object {
@@ -70,11 +72,10 @@ class ExoStateHolder(
 	lateinit var playerInstance: ExoPlayer
 	lateinit var mediaSession: MediaSession
 
-	init {
-		runBlocking {
-			createPlayerInstance()
-			createMediaSession()
-		}
+	fun initialize() = runBlocking {
+		createPlayerInstance()
+		createMediaSession()
+		return@runBlocking
 	}
 
 	private class MediaSessionCallback(private val player: ExoPlayer) : MediaSession.Callback {
@@ -117,8 +118,6 @@ class ExoStateHolder(
 			return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
 		}
 	}
-
-
 
 	private val extractorsFactory = ExtractorsFactory {
 		arrayOf(

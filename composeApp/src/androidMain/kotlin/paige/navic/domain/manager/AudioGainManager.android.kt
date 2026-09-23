@@ -1,15 +1,17 @@
 package paige.navic.domain.manager
 
 import androidx.media3.common.util.UnstableApi
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import paige.navic.domain.models.DomainReplayGain
 import paige.navic.domain.models.settings.ReplayGainMode
 import paige.navic.exoplayer.ExoStateHolder
 import paige.navic.exoplayer.impl.ExoAudioGainProcessor
 
 @UnstableApi
-actual class AudioGainManager(
-	private val stateHolder: ExoStateHolder
-) {
+actual class AudioGainManager: KoinComponent {
+	private val stateHolder: ExoStateHolder by inject()
+
     actual fun applyGainMode(
         mode: ReplayGainMode
     ) {

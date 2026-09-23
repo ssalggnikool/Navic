@@ -46,6 +46,11 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 
 	override fun onCreate() {
 		super.onCreate()
+		exoEqualizerManager = ExoEqualizerManager(
+			equaliserManager,
+			this
+		)
+		stateHolder.initialize()
 
 		val notificationProvider = DefaultMediaNotificationProvider.Builder(this)
 			.build().apply {
@@ -68,10 +73,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 
 			player.addListener(exoEqualizerManager)
 
-			exoEqualizerManager = ExoEqualizerManager(
-				equaliserManager,
-				this
-			).apply {
+			exoEqualizerManager.apply {
 				applyEqualiserMode(equaliserManager.config.value.mode)
 				scope.launch(Dispatchers.Main) {
 					equaliserManager.config.collect { updateEqualiser() }
