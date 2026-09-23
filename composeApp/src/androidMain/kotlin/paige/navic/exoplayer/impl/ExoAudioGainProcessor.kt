@@ -1,4 +1,4 @@
-package paige.navic.exoplayer
+package paige.navic.exoplayer.impl
 
 import android.media.AudioFormat
 import androidx.media3.common.audio.AudioProcessor
@@ -14,7 +14,7 @@ import java.nio.ByteOrder
 
 
 @UnstableApi
-class AudioGainProcessor : BaseAudioProcessor() {
+class ExoAudioGainProcessor : BaseAudioProcessor() {
 	private companion object {
 		const val DEFAULT_GAIN = 1f
 	}

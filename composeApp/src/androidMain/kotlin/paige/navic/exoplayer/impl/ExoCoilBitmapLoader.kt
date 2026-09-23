@@ -1,4 +1,4 @@
-package paige.navic.exoplayer
+package paige.navic.exoplayer.impl
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -15,7 +15,7 @@ import paige.navic.util.Logger
  * before resorting to doing the normal behavior of ExoPlayer (which just fetches the provided image url)
  */
 @UnstableApi
-class ExoPlayerCoilBitmapLoader(
+class ExoCoilBitmapLoader(
 	context: Context,
 	private val imageLoader: ImageLoader,
 ): BitmapLoader {

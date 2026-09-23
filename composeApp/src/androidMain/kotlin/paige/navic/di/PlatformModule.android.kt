@@ -17,7 +17,7 @@ import paige.navic.domain.manager.PermissionManager
 import paige.navic.domain.manager.NotificationManager
 import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.manager.StorageManager
-import paige.navic.exoplayer.AudioGainProcessor
+import paige.navic.exoplayer.impl.ExoAudioGainProcessor
 import paige.navic.shared.AndroidMediaPlayerViewModel
 import paige.navic.shared.MediaPlayerViewModel
 
@@ -71,5 +71,5 @@ actual val platformModule = module {
 	singleOf(::PermissionManager)
 	singleOf(::LinkManager)
 	singleOf(::AudioGainManager)
-	singleOf(::AudioGainProcessor)
+	singleOf(::ExoAudioGainProcessor)
 }
