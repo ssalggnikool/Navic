@@ -62,7 +62,7 @@ fun NowPlayingTechnicalInfoRow() {
 				val requestedBitrate = if (preferenceManager.isAdvancedTranscodingActive) {
 					if (isCellular) preferenceManager.customMaxBitrateCellular else preferenceManager.customMaxBitrateWifi
 				} else {
-					if (isCellular) preferenceManager.streamingQualityCellular.bitrateAndroid else preferenceManager.streamingQualityWifi.bitrateAndroid
+					if (isCellular) preferenceManager.streamingQualityCellular.bitrate else preferenceManager.streamingQualityWifi.bitrate
 				}
 
 				val bitrateFormatted = playerState.playbackBitrate?.let { "${it / 1000} kbps" }

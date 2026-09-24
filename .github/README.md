@@ -2,10 +2,9 @@
 
 <img title="Navic" alt="Navic" height="140" src="https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/wordmark.png">
 
-A modern (Open)Subsonic music streaming app for Android and iOS.
+A modern (Open)Subsonic music streaming app for Android.
 
 [![Add to Obtainium](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/obtainium.svg)][ADD_TO_OBTAINIUM]
-[![AltSource provides links for most sideloading apps, like Feather](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/altsource.svg)][ALTSOURCE]
 [![Link to the latest release where you can download the APK or IPA directly](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/direct_download.svg)][LATEST_RELEASE]
 [![Discord](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/discord.svg)](https://discord.gg/TBcnNX66PH)
 [![IzzyOnDroid](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/izzyondroid.svg)](https://apt.izzysoft.de/fdroid/index/apk/paige.navic)
@@ -48,10 +47,6 @@ A modern (Open)Subsonic music streaming app for Android and iOS.
 You can help translate Navic by contributing on [Weblate](https://hosted.weblate.org/engage/navic/).
 
 ![Weblate translation status](https://hosted.weblate.org/widget/navic/navic/matrix-auto.svg)
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) to see how you can help out!
 
 ## Star History
 

@@ -1,1 +1,1 @@
-Subsonic music streaming app for Android and iOS
+Subsonic music streaming app for Android

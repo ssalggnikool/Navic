@@ -253,11 +253,7 @@ fun App() {
 						)
 					}
 				}
-				// version check is annoying to do on iOS
-				if (preferenceManager.checkForUpdates
-					&& platformContext.platformType == PlatformType.Android
-					&& !BuildInfo.FDROID
-				) {
+				if (preferenceManager.checkForUpdates && !BuildInfo.FDROID) {
 					ChangelogSheet()
 				}
 			}

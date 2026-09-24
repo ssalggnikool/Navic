@@ -5,7 +5,6 @@ on:
     paths:
       - composeApp/**
       - gradle/**
-      - iosApp/**
       - build.gradle.kts
       - settings.gradle.kts
       - .github/workflows/build.yml
@@ -18,7 +17,6 @@ on:
     paths:
       - composeApp/**
       - gradle/**
-      - iosApp/**
       - build.gradle.kts
       - settings.gradle.kts
       - .github/workflows/build.yml
@@ -80,66 +78,10 @@ jobs:
           compression-level: 0
           if-no-files-found: ignore
 
-  build-ios:
-    name: iOS
-    runs-on: macos-26
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: gradle
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
-
-      - name: Cache konan
-        uses: actions/cache@v4
-        with:
-          path: ~/.konan
-          key: ${{ runner.os }}-konan-${{ hashFiles('**/*.gradle.kts', '**/libs.versions.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-konan-
-
-      - name: Run Gradle tasks
-        run: ./gradlew :composeApp:generateValkyrieImageVector
-
-      - name: Build IPA
-        run: |
-          xcodebuild archive \
-            -project iosApp/iosApp.xcodeproj \
-            -scheme iosApp \
-            -configuration Release \
-            -sdk iphoneos \
-            -archivePath "iosApp.xcarchive" \
-            CODE_SIGN_ENTITLEMENTS="iosApp/entitlements.xml" \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGN_STYLE=Manual \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES
-
-          mkdir -p Payload
-
-          APP_PATH=$(find "iosApp.xcarchive/Products/Applications" -name "*.app" | head -n 1)
-          cp -r "$APP_PATH" Payload/
-
-          zip -r "Navic.ipa" Payload
-
-      - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: navic-release-ios
-          path: Navic.ipa
-          compression-level: 0
-          if-no-files-found: ignore
-
   upload-artifacts-to-discord:
     name: Upload Artifacts to Discord
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: [ build-android, build-ios ]
+    needs: [ build-android ]
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
@@ -155,7 +97,7 @@ jobs:
 
           files=()
           i=1
-          for file in **/*.apk; do  # TODO: Add ipa - too big for Discord 10mb limit (need boooosts)
+          for file in **/*.apk; do
             files+=("-F file${i}=@${file}")
             ((i++))
           done
@@ -174,7 +116,7 @@ jobs:
   create-release:
     name: Create GitHub Release
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    needs: [ build-android, build-ios ]
+    needs: [ build-android ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -190,7 +132,7 @@ jobs:
         run: |
           shopt -s nullglob globstar
 
-          gh release create "$GITHUB_REF_NAME" **/*.{apk,ipa} \
+          gh release create "$GITHUB_REF_NAME" **/*.apk \
             --repo "$GITHUB_REPOSITORY" \
             --title "$GITHUB_REF_NAME" \
             --draft --generate-notes

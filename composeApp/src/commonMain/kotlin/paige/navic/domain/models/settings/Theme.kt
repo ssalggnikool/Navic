@@ -44,7 +44,6 @@ enum class Theme(val title: StringResource) {
 
 	/**
 	 * The app will be themed according to Apple's HIG.
-	 * TODO: this should pull from UIColor
 	 */
 	@Suppress("EnumEntryName")
 	iOS(Res.string.theme_ios),
