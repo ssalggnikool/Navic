@@ -9,8 +9,6 @@ import navic.composeapp.generated.resources.info_no_songs
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.data.database.entities.DownloadEntity
 import paige.navic.domain.models.DomainSong
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Note
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.core.UiState
 
@@ -65,7 +63,6 @@ fun LazyListScope.songListScreenContent(
 			else -> {
 				item {
 					ContentUnavailable(
-						icon = Icons.Outlined.Note,
 						label = stringResource(Res.string.info_no_songs)
 					)
 				}

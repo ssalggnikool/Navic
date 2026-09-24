@@ -18,8 +18,6 @@ import org.jetbrains.compose.resources.stringResource
 import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainAlbumListType
 import paige.navic.domain.models.settings.ListViewMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Album
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.components.layouts.artGridPlaceholder
 import paige.navic.ui.core.UiState
@@ -145,7 +143,6 @@ fun LazyGridScope.albumListScreenContent(
 			else -> {
 				item(span = { GridItemSpan(maxLineSpan) }) {
 					ContentUnavailable(
-						icon = Icons.Outlined.Album,
 						label = stringResource(Res.string.info_no_albums)
 					)
 				}

@@ -58,8 +58,6 @@ import paige.navic.domain.models.DomainArtist
 import paige.navic.domain.models.DomainArtistListType
 import paige.navic.domain.models.DomainSong
 import paige.navic.domain.models.DomainSongListType
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.PlaylistRemove
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.components.common.SongRow
 import paige.navic.ui.components.layouts.ArtCarousel
@@ -143,7 +141,6 @@ fun StarredScreenContent(
 	) {
 		if (albums.isEmpty() && songs.isEmpty() && artists.isEmpty()) {
 			ContentUnavailable(
-				icon = Icons.Outlined.PlaylistRemove,
 				label = stringResource(Res.string.info_no_starred)
 			)
 			return@Column

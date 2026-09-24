@@ -97,6 +97,8 @@
 	<string name="subtitle_configure_lyric_providers">Choose where to fetch lyrics from</string>
 	<string name="subtitle_audio_effects">Adjust how the music sounds</string>
 	<string name="subtitle_enable_ratings">Enable 5-star ratings for music</string>
+	<string name="subtitle_custom_headers">Additional information attached to each request</string>
+	<string name="subtitle_ignore_ssl_certificates">Only enable this if you know what you're doing. Useful if you're using a proxy for inspecting requests.</string>
 
 	<string name="option_off">Off</string>
 	<string name="option_now_playing_background_style">Background style</string>
@@ -168,7 +170,7 @@
 	<string name="option_last_sync">Last full sync</string>
 	<string name="option_pending_actions">Pending sync actions</string>
 	<string name="option_downloaded_songs">Downloaded songs</string>
-	<string name="option_custom_headers">Custom server headers</string>
+	<string name="option_custom_headers">Custom headers</string>
 	<string name="option_connection_options">Connection options</string>
 	<string name="option_check_for_updates">Check for updates</string>
 	<string name="option_radio_name">Name</string>
@@ -258,6 +260,8 @@
 	<string name="option_queue_info_type_full">Show songs/time of the whole queue</string>
 
 	<string name="option_proxy_settings">Proxy settings</string>
+	<string name="option_proxy_url">Proxy URL</string>
+	<string name="option_ignore_ssl_certificates">Ignore SSL certificates</string>
 
 	<string name="theme_dynamic">Dynamic</string>
 	<string name="theme_seeded">Tinted</string>
@@ -344,6 +348,7 @@
 	<string name="action_shuffle">Shuffle</string>
 	<string name="action_repeat">Repeat</string>
 	<string name="action_delete">Delete</string>
+	<string name="action_edit">edit</string>
 	<string name="action_cancel">Cancel</string>
 	<string name="action_refresh">Refresh</string>
 	<string name="action_share">Share</string>
@@ -510,5 +515,6 @@
 	<string name="info_proxy_url_placeholder">E.g. http://127.0.0.1:8080</string>
 	<string name="info_incorrect_proxy_url_format">Incorrect proxy URL format. Supported protocols are HTTP and SOCKS.</string>
 	<string name="info_chat_unsupported">Your server does not support this feature, or you are offline</string>
+	<string name="info_content_unavailable">Nothing here</string>
 	<string name="action_allow">Allow</string>
 </resources>

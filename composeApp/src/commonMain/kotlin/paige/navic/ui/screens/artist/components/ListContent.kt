@@ -30,8 +30,6 @@ import paige.navic.domain.models.DomainAlbum
 import paige.navic.domain.models.DomainArtist
 import paige.navic.domain.models.DomainArtistListType
 import paige.navic.domain.models.settings.ListViewMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Artist
 import paige.navic.ui.components.common.AlphabeticalScroller
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.components.layouts.ArtGrid
@@ -198,7 +196,6 @@ fun ArtistListScreenContent(
 			if (grouped.isEmpty()) {
 				item(span = { GridItemSpan(maxLineSpan) }) {
 					ContentUnavailable(
-						icon = Icons.Outlined.Artist,
 						label = stringResource(Res.string.info_no_artists)
 					)
 				}
