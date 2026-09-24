@@ -29,7 +29,7 @@ class ExoEqualizerManager(
 		applyEqualiserMode(equalizerMode)
 	}
 
-	fun createEqualiser(sessionId: Int) {
+	private fun createEqualiser(sessionId: Int) {
 		releaseEqualiser()
 		try {
 			val equaliser = Equalizer(0, sessionId).apply {
@@ -78,23 +78,24 @@ class ExoEqualizerManager(
 
 	fun applyEqualiserMode(mode: EqualiserMode) {
 		equalizerMode = mode
-		closeAudioEffectSession()
+		closeAudioEffectSession(currentAudioSessionId)
 		releaseEqualiser()
 
 		when (mode) {
 			EqualiserMode.BuiltIn -> createEqualiser(currentAudioSessionId)
-			EqualiserMode.External -> openAudioEffectSession()
+			EqualiserMode.External -> openAudioEffectSession(currentAudioSessionId)
 			EqualiserMode.Disabled -> Unit
 		}
 	}
 
 	// Announces our audio session to the system so external equalizer apps can attach effects to it
-	private fun openAudioEffectSession() {
-		if (currentAudioSessionId == C.AUDIO_SESSION_ID_UNSET) return
+	private fun openAudioEffectSession(sessionId: Int) {
+		if (sessionId == C.AUDIO_SESSION_ID_UNSET) return
+		currentAudioSessionId = sessionId
 
 		context.sendBroadcast(
 			Intent(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION).apply {
-				putExtra(AudioEffect.EXTRA_AUDIO_SESSION, currentAudioSessionId)
+				putExtra(AudioEffect.EXTRA_AUDIO_SESSION, sessionId)
 				putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
 				putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
 			}
@@ -102,11 +103,11 @@ class ExoEqualizerManager(
 	}
 
 	// Tells external equalizer apps our audio session is going away so they can release their effects
-	private fun closeAudioEffectSession() {
+	private fun closeAudioEffectSession(sessionId: Int) {
 		if (currentAudioSessionId == C.AUDIO_SESSION_ID_UNSET) return
 		context.sendBroadcast(
 			Intent(AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION).apply {
-				putExtra(AudioEffect.EXTRA_AUDIO_SESSION, currentAudioSessionId)
+				putExtra(AudioEffect.EXTRA_AUDIO_SESSION, sessionId)
 				putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
 			}
 		)
@@ -115,6 +116,6 @@ class ExoEqualizerManager(
 
 	fun releaseEqualiser() {
 		this.equaliser = null
-		closeAudioEffectSession()
+		closeAudioEffectSession(currentAudioSessionId)
 	}
 }
