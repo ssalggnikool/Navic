@@ -8,4 +8,8 @@ actual class PermissionManager {
 		// it's annoying to trigger this dialogue on iOS
 		return true
 	}
+	actual suspend fun requestNotificationsPermission(): Boolean {
+		// notifications not used on iOS
+		return true
+	}
 }

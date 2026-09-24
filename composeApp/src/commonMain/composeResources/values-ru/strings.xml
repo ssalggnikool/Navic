@@ -25,7 +25,6 @@
     <string name="option_use_marquee_text">Скорость автоматической прокрутки текста</string>
     <string name="option_grid_items_per_row">Размер сетки</string>
     <string name="option_share_expires">Срок действия</string>
-    <string name="option_account_navidrome_instance">URL сервера</string>
     <string name="option_account_username">Имя пользователя</string>
     <string name="option_account_password">Пароль</string>
     <string name="option_lyrics_autoscroll">Автопрокрутка текста</string>
@@ -174,9 +173,6 @@
     <string name="option_bottom_bar_visibility_mode">Режим видимости</string>
     <string name="option_bottom_bar_visibility_mode_default">По умолчанию</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">Все экраны</string>
-    <string name="option_navigation_bar_style">Стиль панели навигации</string>
-    <string name="option_navigation_bar_style_normal">Обычный</string>
-    <string name="option_navigation_bar_style_short">Короткий</string>
     <string name="option_navigation_bar_tabs">Настройка и порядок вкладок</string>
     <string name="option_mini_player_style">Стиль мини-плеера</string>
     <string name="option_mini_player_style_unified">Соединённый</string>
@@ -276,9 +272,6 @@
     <string name="info_syncing_playlists">Синхронизируем плейлисты...</string>
     <string name="info_syncing_genres">Синхронизируем жанры...</string>
     <string name="info_syncing_artists">Синхронизируем исполнителей...</string>
-    <string name="info_login_description_start">Войдите в ваш сервер</string>
-    <string name="info_login_description_middle">Navidrome</string>
-    <string name="info_login_description_end">.</string>
     <string name="info_exception_handler">Это приведет к немедленному сбою приложения. Вы уверены в том, что хотите продолжить?</string>
     <string name="option_lyrics_blur">Размытие краев</string>
     <string name="title_create_radio">Создать радио</string>
@@ -323,9 +316,6 @@
     <string name="option_animation_style">Стиль анимаций</string>
     <string name="option_animation_style_expressive">Выразительный</string>
     <string name="option_animation_style_standard">Стандартный</string>
-    <string name="option_navigation_bar_label_visibility">Отображение подписей</string>
-    <string name="option_navigation_bar_label_visibility_always">Всегда</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">Только под выбранным</string>
     <plurals name="count_rate_stars">
         <item quantity="one">Оценить на %1$d звезду</item>
         <item quantity="few">Оценить на %1$d звезды</item>
@@ -383,7 +373,6 @@
     <string name="option_explicit_playback_allowed">Разрешен</string>
     <string name="option_explicit_playback_skip">Пропускать нецензурные песни</string>
     <string name="option_explicit_playback_skip_session">Пропускать нецензурные песни в этой сессии</string>
-    <string name="option_navigation_bar_label_visibility_never">Никогда</string>
     <string name="action_next_song">Следующий трек</string>
     <string name="action_previous_song">Предыдущий трек</string>
     <string name="action_open_settings">Открыть настройки</string>

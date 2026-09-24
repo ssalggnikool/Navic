@@ -42,6 +42,7 @@ import navic.composeapp.generated.resources.action_sleep_timer_enabled
 import navic.composeapp.generated.resources.action_sleep_timer_queue_enabled
 import navic.composeapp.generated.resources.action_sleep_timer_songs_enabled
 import navic.composeapp.generated.resources.action_view_shares
+import navic.composeapp.generated.resources.title_chat
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
@@ -52,6 +53,7 @@ import paige.navic.domain.manager.SleepTimerMode
 import paige.navic.domain.manager.canUserShare
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Bedtime
+import paige.navic.icons.outlined.Forum
 import paige.navic.icons.outlined.Logout
 import paige.navic.icons.outlined.Share
 import paige.navic.ui.components.common.Monogram
@@ -148,7 +150,7 @@ fun AccountSheet(
 			Spacer(Modifier.height(9.dp))
 
 			val isSharingAllowed = sessionManager.canUserShare()
-			val count = if (isSharingAllowed) 3 else 2
+			val count = if (isSharingAllowed) 4 else 3
 
 			if (isSharingAllowed) {
 				SegmentedListItem(
@@ -164,6 +166,19 @@ fun AccountSheet(
 					content = { Text(stringResource(Res.string.action_view_shares)) }
 				)
 			}
+
+			SegmentedListItem(
+				shapes = SegmentedListItemDefaults.segmentedShapes(
+					index = count - 3,
+					count = count
+				),
+				onClick = {
+					animateToDismiss()
+					backStack.add(Screen.Chat)
+				},
+				leadingContent = { Icon(Icons.Outlined.Forum, null) },
+				content = { Text(stringResource(Res.string.title_chat)) }
+			)
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(

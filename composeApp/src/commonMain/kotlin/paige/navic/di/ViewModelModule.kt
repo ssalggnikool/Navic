@@ -13,6 +13,7 @@ import paige.navic.ui.components.sheets.ChangelogViewModel
 import paige.navic.ui.screens.album.viewmodels.AlbumListViewModel
 import paige.navic.ui.screens.artist.viewmodels.ArtistDetailViewModel
 import paige.navic.ui.screens.artist.viewmodels.ArtistListViewModel
+import paige.navic.ui.screens.chat.viewmodels.ChatViewModel
 import paige.navic.ui.screens.collection.viewmodels.CollectionDetailViewModel
 import paige.navic.ui.screens.genre.viewmodels.GenreListViewModel
 import paige.navic.ui.screens.lyrics.viewmodels.LyricsScreenViewModel
@@ -31,6 +32,7 @@ import paige.navic.ui.screens.share.viewmodels.ShareDialogViewModel
 import paige.navic.ui.screens.share.viewmodels.ShareListViewModel
 import paige.navic.ui.screens.song.viewmodels.SongDetailViewModel
 import paige.navic.ui.screens.song.viewmodels.SongListViewModel
+import paige.navic.ui.screens.stats.viewmodels.StatisticsViewModel
 import paige.navic.ui.viewmodel.RootViewModel
 
 val viewModelModule = module {
@@ -136,4 +138,6 @@ val viewModelModule = module {
 	viewModelOf(::NavtabsViewModel)
 	viewModelOf(::LyricsPriorityViewModel)
 	viewModelOf(::RootViewModel)
+	viewModelOf(::StatisticsViewModel)
+	viewModelOf(::ChatViewModel)
 }

@@ -12,7 +12,4 @@ actual class NotificationManager {
 
 	actual fun cancelNotification(id: Int) {
 	}
-
-	actual fun requestPermissions() {
-	}
 }

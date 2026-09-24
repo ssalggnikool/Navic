@@ -72,24 +72,6 @@ actual class NotificationManager(
 		notificationManager.cancel(id)
 	}
 
-	actual fun requestPermissions() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-			if (ContextCompat.checkSelfPermission(
-					context,
-					Manifest.permission.POST_NOTIFICATIONS
-				) != PackageManager.PERMISSION_GRANTED
-			) {
-				activityProvider.get<Activity>().let { activity ->
-					ActivityCompat.requestPermissions(
-						activity,
-						arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-						101
-					)
-				}
-			}
-		}
-	}
-
 	companion object {
 		private const val CHANNEL_SYNC_ID = "library_sync"
 		private const val CHANNEL_DOWNLOAD_ID = "music_downloads"

@@ -59,11 +59,16 @@
 	<string name="title_theme_mode">Theme mode</string>
 	<string name="title_account">Account</string>
 	<string name="title_track_info">Track info</string>
+	<string name="title_statistics">Stats</string>
+	<string name="title_top_songs">Top songs</string>
+	<string name="title_top_artists">Top artists</string>
+	<string name="title_top_albums">Top albums</string>
 	<string name="title_lyric_providers">Lyric providers</string>
 	<string name="title_github">GitHub</string>
 	<string name="title_codeberg">Codeberg</string>
 	<string name="title_link_confirmation">Leaving Navic</string>
 	<string name="title_audio_effects">Audio effects</string>
+	<string name="title_chat">Chat</string>
 
 	<string name="subtitle_appearance">Themes, colours, layout, app icon</string>
 	<string name="subtitle_now_playing">Customise the now playing &amp; lyrics views</string>
@@ -86,6 +91,7 @@
 	<string name="subtitle_dynamic_theming">Dynamically theme the album and artist view based on the cover art</string>
 	<string name="subtitle_app_icon_designer">Designed by: %1$s</string>
 	<string name="subtitle_local_network_denied">You need to grant Navic access to your local network in order for your server to be reachable.</string>
+	<string name="subtitle_notifications_denied">You need to grant Navic notification permissions to receive download and sync notifications.</string>
 	<string name="subtitle_equaliser">Tune &amp; enhance audio</string>
 	<string name="subtitle_equaliser_disabled">Not available when audio offload is enabled</string>
 	<string name="subtitle_configure_lyric_providers">Choose where to fetch lyrics from</string>
@@ -237,13 +243,6 @@
 	<string name="option_bottom_bar_visibility_mode_default">Default</string>
 	<string name="option_bottom_bar_visibility_mode_all_screens">All screens</string>
 
-	<string name="option_navigation_bar_style">Navigation bar style</string>
-	<string name="option_navigation_bar_style_normal">Normal</string>
-	<string name="option_navigation_bar_style_short">Short</string>
-	<string name="option_navigation_bar_label_visibility">Label visibility</string>
-	<string name="option_navigation_bar_label_visibility_always">Always</string>
-	<string name="option_navigation_bar_label_visibility_only_selected">Only selected</string>
-	<string name="option_navigation_bar_label_visibility_never">Never</string>
 	<string name="option_navigation_bar_tabs">Configure and re-order tabs</string>
 
 	<string name="option_mini_player_style">Mini player style</string>
@@ -325,6 +324,11 @@
 		<item quantity="other">Rate %1$d stars</item>
 	</plurals>
 
+	<plurals name="count_plays">
+		<item quantity="one">%1$d play</item>
+		<item quantity="other">%1$d plays</item>
+	</plurals>
+
 	<plurals name="count_lines">
 		<item quantity="one">%1$d line selected</item>
 		<item quantity="other">%1$d lines selected</item>
@@ -348,6 +352,7 @@
 	<string name="action_view_album">View album</string>
 	<string name="action_view_playlist">View playlist</string>
 	<string name="action_view_artist">View artist</string>
+	<string name="action_view_statistics">View statistics</string>
 	<string name="action_star">Star</string>
 	<string name="action_remove_star">Unstar</string>
 	<string name="action_download">Download</string>
@@ -400,6 +405,7 @@
 	<string name="action_visit_site">Visit site</string>
 	<string name="action_scroll_down">Scroll down</string>
 	<string name="action_reset_dont_show_agains">Reset "don't show again" dialogs</string>
+	<string name="action_send_message">Send message</string>
 	<string name="subtitle_rebuild_database">Wipes all local metadata and forces a fresh sync</string>
 
 	<string name="notice_deleted_playlist">Playlist deleted.</string>
@@ -420,6 +426,7 @@
 	<string name="notice_login_suggestion">Did you mean...</string>
 	<string name="notice_queue_duplicate">This song is already in the queue. Do you want to add it again?</string>
 	<string name="notice_local_network_denied">Permission denied</string>
+	<string name="notice_notifications_denied">Permission denied</string>
 	<string name="notice_link_confirmation">This link is taking you to the following website:</string>
 
 	<string name="info_app_version">Navic %1$s</string>
@@ -452,6 +459,9 @@
 	<string name="info_track_replay_gain">Track ReplayGain</string>
 	<string name="info_album_replay_gain">Album ReplayGain</string>
 	<string name="info_dynamic_replay_gain">Dynamic ReplayGain</string>
+	<string name="info_total_plays">Total plays</string>
+	<string name="info_total_listening_time">Total listening time</string>
+	<string name="info_listening_stats_ratio">%1$d% of total listening time</string>
 	<string name="info_track_replay_gain_effective">ReplayGain effective value</string>
 	<string name="info_update">Version "%1$s" has been released</string>
 	<string name="info_shared_by">Shared by %1$s</string>
@@ -495,10 +505,10 @@
 	<string name="info_equaliser_unsupported">Your device does not support this feature.</string>
 	<string name="info_equaliser_mode_not_builtin">Please adjust the external equaliser using its dedicated app.</string>
 	<string name="info_lyric_provider_disclaimer">Enabling LRCLIB and/or LyricsPlus will make requests to external and unaffiliated web services.</string>
+	<string name="info_starred_songs">Starred songs</string>
 	<string name="info_duration_left">%1$s left</string>
 	<string name="info_proxy_url_placeholder">E.g. http://127.0.0.1:8080</string>
 	<string name="info_incorrect_proxy_url_format">Incorrect proxy URL format. Supported protocols are HTTP and SOCKS.</string>
-	<string name="dialog_notification_permission_title">Enable Notifications</string>
-	<string name="dialog_notification_permission_message">Navic needs permission to show notifications so you can track media downloads and library synchronization progress in the background.</string>
+	<string name="info_chat_unsupported">Your server does not support this feature, or you are offline</string>
 	<string name="action_allow">Allow</string>
 </resources>

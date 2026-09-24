@@ -60,4 +60,24 @@ actual class PermissionManager(
 			permissionLauncher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
 		}
 	}
+
+	actual suspend fun requestNotificationsPermission(): Boolean {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+			return true
+		}
+
+		val alreadyGranted = context.checkSelfPermission(
+			Manifest.permission.POST_NOTIFICATIONS
+		) == PackageManager.PERMISSION_GRANTED
+
+		if (alreadyGranted) return true
+
+		return suspendCancellableCoroutine { continuation ->
+			pendingContinuation = continuation
+			continuation.invokeOnCancellation {
+				pendingContinuation = null
+			}
+			permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+		}
+	}
 }

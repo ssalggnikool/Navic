@@ -32,7 +32,6 @@
     <string name="option_alphabetical_scroll">Desplazamiento alfabético</string>
     <string name="option_grid_items_per_row">Tamaño de elementos por fila</string>
     <string name="option_share_expires">Caduca</string>
-    <string name="option_account_navidrome_instance">URL del servidor</string>
     <string name="option_account_username">Usuario</string>
     <string name="option_account_password">Contraseña</string>
     <string name="option_lyrics_autoscroll">Desplazamiento automático de letra</string>
@@ -161,9 +160,6 @@
     <string name="option_bottom_bar_visibility_mode">Modo de visibilidad</string>
     <string name="option_bottom_bar_visibility_mode_default">Predeterminado</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">Todas las pantallas</string>
-    <string name="option_navigation_bar_style">Estilo de la barra de navegación</string>
-    <string name="option_navigation_bar_style_normal">Normal</string>
-    <string name="option_navigation_bar_style_short">Corta</string>
     <string name="option_mini_player_style">Estilo de mini-reproductor</string>
     <string name="option_mini_player_style_unified">Unificado</string>
     <string name="option_mini_player_progress_style">Estilo de progreso del mini-reproductor</string>
@@ -254,9 +250,6 @@
     <string name="info_syncing_playlists">Sincronizando listas de reproducción…</string>
     <string name="info_syncing_genres">Sincronizando géneros…</string>
     <string name="info_syncing_artists">Sincronizando artistas…</string>
-    <string name="info_login_description_start">Acceda a su instalación de</string>
-    <string name="info_login_description_middle">Navidrome</string>
-    <string name="info_login_description_end">.</string>
     <string name="info_bulk_download_warning">¿Confirma que quiere descargar todos los álbumes de %1$s?\nPuede requerir una gran cantidad de almacenamiento y datos.</string>
     <string name="info_status_idle">Inactivo</string>
     <string name="notice_queue_duplicate">Esta canción ya está en la cola. ¿Realmente la quiere volver a añadir?</string>
@@ -317,9 +310,6 @@
     <string name="option_animation_style">Estilo de animación</string>
     <string name="option_animation_style_expressive">Expresivo</string>
     <string name="option_animation_style_standard">Estándar</string>
-    <string name="option_navigation_bar_label_visibility">Visibilidad de la etiqueta</string>
-    <string name="option_navigation_bar_label_visibility_always">Siempre</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">Sólo seleccionada</string>
     <string name="option_now_playing_song_info">Mostrar información técnica de la canción</string>
     <plurals name="count_rate_stars">
         <item quantity="one">Valorar con %1$d estrella</item>
@@ -389,7 +379,6 @@
     <string name="option_dynamic_theming">Tema dinámico</string>
     <string name="info_transcoding_defaults">Dejar cualquiera de estos vacíos los omitirá y delegará al servidor la decisión.</string>
     <string name="option_stream_custom_quality">Utilizar calidad de transmisión personalizada</string>
-    <string name="option_navigation_bar_label_visibility_never">Nunca</string>
     <string name="action_next_song">Canción siguiente</string>
     <string name="action_previous_song">Canción anterior</string>
     <string name="action_pause">Pausa</string>

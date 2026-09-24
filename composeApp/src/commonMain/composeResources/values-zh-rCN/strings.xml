@@ -52,7 +52,6 @@
     <string name="option_alphabetical_scroll">按字母顺序滚动</string>
     <string name="option_grid_items_per_row">网格大小</string>
     <string name="option_share_expires">有效期</string>
-    <string name="option_account_navidrome_instance">服务器地址</string>
     <string name="option_account_username">用户名</string>
     <string name="option_account_password">密码</string>
     <string name="option_lyrics_autoscroll">歌词自动滚动</string>
@@ -89,12 +88,9 @@
     <string name="option_bottom_bar_visibility_mode">显示模式</string>
     <string name="option_bottom_bar_visibility_mode_default">默认</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">所有界面</string>
-    <string name="option_navigation_bar_style">导航栏样式</string>
     <string name="title_mini_player">迷你播放器</string>
     <string name="subtitle_bottom_app_bar">自定义底栏与迷你播放器</string>
     <string name="option_mini_player_style">迷你播放器样式</string>
-    <string name="option_navigation_bar_style_normal">标准</string>
-    <string name="option_navigation_bar_style_short">紧凑</string>
     <string name="option_navigation_bar_tabs">重新排列导航栏标签</string>
     <string name="option_mini_player_style_unified">统一</string>
     <string name="option_mini_player_style_detached">分离</string>
@@ -268,13 +264,10 @@
     <string name="info_download_failed">下载失败</string>
     <string name="info_click_to_retry">点击重试</string>
     <string name="info_downloaded">已下载</string>
-    <string name="info_login_description_start">登录你的</string>
-    <string name="info_login_description_end">实例。</string>
     <string name="info_exception_handler">这将导致应用程序立即崩溃。你确定吗？</string>
     <string name="info_streaming_quality">更高质量的预设将使用更多移动数据。转码可能会严重影响加载时间并导致歌词不同步。如果遇到任何问题，请选择无损。</string>
     <string name="title_radios">电台</string>
     <string name="title_create_radio">创建电台</string>
-    <string name="option_navigation_bar_label_visibility_always">总是</string>
     <string name="title_direction">方向</string>
     <string name="title_select_lyrics">选择歌词</string>
     <string name="option_lyrics_blur">歌词模糊</string>
@@ -310,8 +303,6 @@
     <string name="info_progress">进度</string>
     <string name="info_in_use">（使用中）</string>
     <string name="info_explicit">露骨内容</string>
-    <string name="option_navigation_bar_label_visibility">标签可见性</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">仅所选</string>
     <plurals name="count_lines">
         <item quantity="other">已选择 %1$d 行</item>
     </plurals>
@@ -331,7 +322,6 @@
     <string name="info_syncing_genres">正在同步流派...</string>
     <string name="info_syncing_artists">正在同步艺术家...</string>
     <string name="info_syncing_radios">正在同步电台...</string>
-    <string name="info_login_description_middle">Navidrome</string>
     <string name="option_cover_art_quality">封面直连</string>
     <string name="info_no_starred">无收藏</string>
     <string name="title_starred">收藏</string>
@@ -351,7 +341,6 @@
     <string name="option_explicit_playback_skip">跳过露骨歌曲</string>
     <string name="option_explicit_playback_skip_session">在此会话中跳过露骨歌曲</string>
     <string name="info_transcoding_defaults">将这些留空将省略它们，让服务器决定。</string>
-    <string name="option_navigation_bar_label_visibility_never">从不</string>
     <string name="action_next_song">下一首</string>
     <string name="action_previous_song">上一首</string>
     <string name="action_pause">暂停</string>

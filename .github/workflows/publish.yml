@@ -78,10 +78,10 @@ jobs:
           ASSET_URL=$(echo "$ASSET" | jq -r '.browser_download_url')
           ASSET_SIZE=$(echo "$ASSET" | jq -r '.size')
           VERSION="$(cat iosApp/Configuration/Config.xcconfig \
-            | grep -w 'NAVIC_PROJECT_VERSION'
+            | grep -w 'NAVIC_PROJECT_VERSION' \
             | cut -d '=' -f2)"
           BUILD_VERSION="$(cat iosApp/Configuration/Config.xcconfig \
-            | grep -w 'NAVIC_PROJECT_BUILD_VERSION'
+            | grep -w 'NAVIC_PROJECT_BUILD_VERSION' \
             | cut -d '=' -f2)"
 
           jq \

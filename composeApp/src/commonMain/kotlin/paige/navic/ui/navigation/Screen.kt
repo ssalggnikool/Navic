@@ -101,6 +101,10 @@ sealed interface Screen : NavKey {
 
 	@Immutable
 	@Serializable
+	data object Chat : Screen
+
+	@Immutable
+	@Serializable
 	data class CollectionDetail(
 		val collectionId: String,
 		val tab: String
@@ -127,6 +131,12 @@ sealed interface Screen : NavKey {
 	@Immutable
 	@Serializable
 	data class ArtistDetail(val artist: String) : Screen
+
+	@Immutable
+	@Serializable
+	data class Statistics(
+		val nested: Boolean = false
+	) : Screen
 
 	// settings
 	@Immutable

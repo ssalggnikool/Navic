@@ -51,7 +51,6 @@
     <string name="option_alphabetical_scroll">Alfabetisch scrollen</string>
     <string name="option_grid_items_per_row">Roostergrootte</string>
     <string name="option_share_expires">Vervalt</string>
-    <string name="option_account_navidrome_instance">Instantie URL</string>
     <string name="option_account_username">Gebruikersnaam</string>
     <string name="option_account_password">Wachtwoord</string>
     <string name="title_delete_share">Share verwijderen?</string>
@@ -87,9 +86,6 @@
     <string name="option_bottom_bar_visibility_mode">Zichtbaarheidsmodus</string>
     <string name="option_bottom_bar_visibility_mode_default">Standaard</string>
     <string name="option_bottom_bar_visibility_mode_all_screens">Alle schermen</string>
-    <string name="option_navigation_bar_style">Navigatiebalkstijl</string>
-    <string name="option_navigation_bar_style_normal">Normaal</string>
-    <string name="option_navigation_bar_style_short">Kort</string>
     <string name="option_navigation_bar_tabs">Configuratie voor navigatie tabbladen</string>
     <string name="option_mini_player_style">Minispelerstijl</string>
     <string name="option_mini_player_style_unified">Verenigd</string>
@@ -345,10 +341,6 @@
     <string name="info_transcoding_defaults">Laat deze leeg om de server instellingen te gebruiken</string>
     <string name="info_external_song">Extern</string>
     <string name="info_external_song_description">Dit lied is door uw server als extern gemarkeerd, dus het is mogelijk niet af te spelen.</string>
-    <string name="option_navigation_bar_label_visibility">Labels tonen</string>
-    <string name="option_navigation_bar_label_visibility_always">Altijd</string>
-    <string name="option_navigation_bar_label_visibility_only_selected">Alleen geselecteerde</string>
-    <string name="option_navigation_bar_label_visibility_never">Nooit</string>
     <plurals name="count_minutes">
         <item quantity="one">%1$d minuut</item>
         <item quantity="other">%1$d minuten</item>
@@ -427,9 +419,6 @@
     <string name="info_syncing_genres">Genres synchroniseren...</string>
     <string name="info_syncing_artists">Artiesten synchroniseren...</string>
     <string name="info_syncing_radios">Radios synchroniseren...</string>
-    <string name="info_login_description_start">Log in uw</string>
-    <string name="info_login_description_middle">Navidrome</string>
-    <string name="info_login_description_end">instantie in.</string>
     <string name="info_exception_handler">Dit zal de app onmiddelijk crashen. Weet u het zeker?</string>
     <string name="info_streaming_quality">Hogere qualiteitsinstellingen zullen meer data verbruiken. Transcodering kan tot langere laadtijden lijden en synchronisatieproblemen bij songtexten veroorzaken. Als u zulke problemen ondervind, selecteer a.u.b. lossless qualiteit.</string>
     <string name="info_download_quality">Hogere qualiteitsinstellingen zullen meer opslag en data gebruiken. Transcodering kan tot langere download tijden lijden. Als u problemen ondervind, selecteer a.u.b. lossless qualiteit.</string>

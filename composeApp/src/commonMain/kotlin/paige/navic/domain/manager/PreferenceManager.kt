@@ -17,8 +17,6 @@ import paige.navic.domain.models.settings.ListViewMode
 import paige.navic.domain.models.settings.MarqueeSpeed
 import paige.navic.domain.models.settings.MiniPlayerProgressStyle
 import paige.navic.domain.models.settings.MiniPlayerStyle
-import paige.navic.domain.models.settings.NavigationBarLabelVisibility
-import paige.navic.domain.models.settings.NavigationBarStyle
 import paige.navic.domain.models.settings.NowPlayingBackgroundStyle
 import paige.navic.domain.models.settings.NowPlayingSliderStyle
 import paige.navic.domain.models.settings.OfflineMode
@@ -95,10 +93,6 @@ class PreferenceManager(
 	// navigation bar settings
 	var bottomBarCollapseMode by preference(BottomBarCollapseMode.OnScroll)
 	var bottomBarVisibilityMode by preference(BottomBarVisibilityMode.AllScreens)
-	var navigationBarStyle by preference(NavigationBarStyle.Normal)
-	var navigationBarLabelVisibility by preference(
-		NavigationBarLabelVisibility.Always
-	)
 	var miniPlayerStyle by preference(MiniPlayerStyle.Detached)
 	var miniPlayerProgressStyle by preference(MiniPlayerProgressStyle.Seekable)
 

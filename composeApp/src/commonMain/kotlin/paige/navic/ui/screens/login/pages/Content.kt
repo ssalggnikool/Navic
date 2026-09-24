@@ -49,18 +49,17 @@ import navic.composeapp.generated.resources.info_login_description
 import navic.composeapp.generated.resources.notice_local_network_denied
 import navic.composeapp.generated.resources.option_connection_options
 import navic.composeapp.generated.resources.subtitle_local_network_denied
+import navic.composeapp.generated.resources.subtitle_notifications_denied
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.manager.PermissionManager
 import paige.navic.icons.Icons
-import paige.navic.domain.manager.NotificationManager
 import paige.navic.icons.outlined.Error
 import paige.navic.ui.components.common.SegmentedListButton
 import paige.navic.ui.components.common.SegmentedListButtonDefaults
 import paige.navic.ui.components.dialogs.FormDialog
-import paige.navic.ui.components.dialogs.NotificationPermissionDialog
 import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.defaultFont
@@ -85,23 +84,9 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 	val passwordFocusRequester = remember { FocusRequester() }
 
 	val permissionManager = koinInject<PermissionManager>()
-	val notificationManager = koinInject<NotificationManager>()
 	val loginScope = rememberCoroutineScope()
 	var localNetworkDenied by rememberSaveable { mutableStateOf(false) }
-	var showNotificationPermissionDialog by rememberSaveable { mutableStateOf(false) }
-
-	val performLoginAction: () -> Unit = {
-		loginScope.launch {
-			if (!viewModel.login()) {
-				haptics.performHapticFeedback(HapticFeedbackType.Reject)
-				when {
-					viewModel.instanceError -> instanceFocusRequester.requestFocus()
-					viewModel.usernameError -> usernameFocusRequester.requestFocus()
-					viewModel.passwordError -> passwordFocusRequester.requestFocus()
-				}
-			}
-		}
-	}
+	var notificationsDenied by rememberSaveable { mutableStateOf(false) }
 
 	val login: () -> Unit = {
 		loginScope.launch {
@@ -112,7 +97,18 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 						return@withContext
 					}
 				}
-				showNotificationPermissionDialog = true
+				if (!permissionManager.requestNotificationsPermission()) {
+					notificationsDenied = true
+					return@withContext
+				}
+				if (!viewModel.login()) {
+					haptics.performHapticFeedback(HapticFeedbackType.Reject)
+					when {
+						viewModel.instanceError -> instanceFocusRequester.requestFocus()
+						viewModel.usernameError -> usernameFocusRequester.requestFocus()
+						viewModel.passwordError -> passwordFocusRequester.requestFocus()
+					}
+				}
 			}
 		}
 	}
@@ -248,16 +244,23 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 		)
 	}
 
-	if (showNotificationPermissionDialog) {
-		NotificationPermissionDialog(
-			onDismiss = {
-				showNotificationPermissionDialog = false
-				performLoginAction()
-			},
-			onAllow = {
-				showNotificationPermissionDialog = false
-				notificationManager.requestPermissions()
-				performLoginAction()
+	if (notificationsDenied) {
+		FormDialog(
+			onDismissRequest = { notificationsDenied = false },
+			icon = { Icon(Icons.Outlined.Error, null) },
+			title = { Text(stringResource(Res.string.notice_notifications_denied)) },
+			content = { Text(stringResource(Res.string.subtitle_notifications_denied)) },
+			buttons = {
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = {
+						notificationsDenied = false
+						permissionManager.openPermissionsSettings()
+					},
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 1)
+				) {
+					Text(stringResource(Res.string.action_open_settings))
+				}
 			}
 		)
 	}
