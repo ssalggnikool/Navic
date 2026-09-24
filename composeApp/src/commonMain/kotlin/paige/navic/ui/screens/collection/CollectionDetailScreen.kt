@@ -46,7 +46,6 @@ import paige.navic.domain.models.DomainSongCollection
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Album
-import paige.navic.icons.outlined.Note
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.components.layouts.PullToRefreshBox
@@ -348,7 +347,6 @@ fun CollectionDetailScreen(
 					if (collection.songs.isEmpty()) {
 						item {
 							ContentUnavailable(
-								icon = Icons.Outlined.Note,
 								label = stringResource(Res.string.info_no_songs)
 							)
 						}

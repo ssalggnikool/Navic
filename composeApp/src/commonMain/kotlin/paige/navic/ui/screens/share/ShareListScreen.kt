@@ -34,8 +34,6 @@ import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.ShareOff
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.components.dialogs.DeletionDialog
 import paige.navic.ui.components.dialogs.DeletionEndpoint
@@ -109,7 +107,6 @@ fun ShareListScreen() {
 							if (stateValue.data.isEmpty()) {
 								item(span = { GridItemSpan(maxLineSpan) }) {
 									ContentUnavailable(
-										icon = Icons.Filled.ShareOff,
 										label = stringResource(Res.string.info_no_shares)
 									)
 								}
