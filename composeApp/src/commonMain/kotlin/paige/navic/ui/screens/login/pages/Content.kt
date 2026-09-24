@@ -47,6 +47,7 @@ import navic.composeapp.generated.resources.action_log_in
 import navic.composeapp.generated.resources.action_open_settings
 import navic.composeapp.generated.resources.info_login_description
 import navic.composeapp.generated.resources.notice_local_network_denied
+import navic.composeapp.generated.resources.notice_notifications_denied
 import navic.composeapp.generated.resources.option_connection_options
 import navic.composeapp.generated.resources.subtitle_local_network_denied
 import navic.composeapp.generated.resources.subtitle_notifications_denied
