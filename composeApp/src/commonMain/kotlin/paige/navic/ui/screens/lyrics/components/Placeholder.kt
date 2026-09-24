@@ -13,8 +13,6 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_refresh
 import navic.composeapp.generated.resources.info_no_lyrics
 import org.jetbrains.compose.resources.stringResource
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Lyrics
 import paige.navic.ui.components.common.ContentUnavailable
 
 @Composable
@@ -28,7 +26,6 @@ fun LyricsScreenPlaceholder(
 	) {
 		ContentUnavailable(
 			modifier = Modifier,
-			icon = Icons.Outlined.Lyrics,
 			label = stringResource(Res.string.info_no_lyrics)
 		)
 

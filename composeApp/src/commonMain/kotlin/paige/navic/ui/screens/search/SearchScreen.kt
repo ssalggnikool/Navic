@@ -76,7 +76,6 @@ import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Close
 import paige.navic.icons.outlined.History
 import paige.navic.icons.outlined.Lock
-import paige.navic.icons.outlined.NoSearchResults
 import paige.navic.icons.outlined.Offline
 import paige.navic.icons.outlined.Queue
 import paige.navic.shared.MediaPlayerViewModel
@@ -220,7 +219,6 @@ fun SearchScreen(
 
 					if (query.text.isNotBlank() && albums.isEmpty() && artists.isEmpty() && songs.isEmpty()) {
 						ContentUnavailable(
-							icon = Icons.Outlined.NoSearchResults,
 							label = stringResource(Res.string.info_no_search_results)
 						)
 					}

@@ -8,8 +8,6 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.info_no_genres
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.domain.models.DomainGenre
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Genre
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.core.UiState
 
@@ -33,7 +31,6 @@ fun LazyGridScope.genreListScreenContent(
 			else -> {
 				item(span = { GridItemSpan(maxLineSpan) }) {
 					ContentUnavailable(
-						icon = Icons.Outlined.Genre,
 						label = stringResource(Res.string.info_no_genres)
 					)
 				}

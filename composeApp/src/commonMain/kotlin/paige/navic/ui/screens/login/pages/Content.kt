@@ -48,7 +48,7 @@ import navic.composeapp.generated.resources.action_open_settings
 import navic.composeapp.generated.resources.info_login_description
 import navic.composeapp.generated.resources.notice_local_network_denied
 import navic.composeapp.generated.resources.notice_notifications_denied
-import navic.composeapp.generated.resources.option_custom_headers
+import navic.composeapp.generated.resources.option_connection_options
 import navic.composeapp.generated.resources.subtitle_local_network_denied
 import navic.composeapp.generated.resources.subtitle_notifications_denied
 import org.jetbrains.compose.resources.stringResource
@@ -182,7 +182,7 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 				Spacer(Modifier.height(12.dp))
 
 				Text(
-					text = stringResource(Res.string.option_custom_headers),
+					text = stringResource(Res.string.option_connection_options),
 					color = MaterialTheme.colorScheme.primary,
 					textDecoration = TextDecoration.Underline,
 					modifier = Modifier
@@ -190,7 +190,7 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 						.clickable(onClick = dropUnlessResumed {
 							backStack.lastOrNull()?.let {
 								if (it is Screen.Login) {
-									backStack.add(Screen.Settings.CustomHeaders)
+									backStack.add(Screen.Settings.ConnectionOptions)
 									focusManager.clearFocus(true)
 								}
 							}

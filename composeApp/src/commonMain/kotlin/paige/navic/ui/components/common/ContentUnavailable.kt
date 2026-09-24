@@ -4,7 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -14,15 +15,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import navic.composeapp.generated.resources.Res
+import navic.composeapp.generated.resources.info_content_unavailable
+import org.jetbrains.compose.resources.stringResource
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Question
 
 @Composable
 fun ContentUnavailable(
 	modifier: Modifier = Modifier.fillMaxSize(),
-	icon: ImageVector,
-	label: String,
+	label: String = stringResource(Res.string.info_content_unavailable),
 	color: Color = MaterialTheme.colorScheme.onSurface
 ) {
 	Column(
@@ -31,9 +35,9 @@ fun ContentUnavailable(
 		verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
 	) {
 		Icon(
-			imageVector = icon,
+			imageVector = Icons.Outlined.Question,
 			contentDescription = null,
-			modifier = Modifier.size(48.dp),
+			modifier = Modifier.width(110.dp).height(30.dp),
 			tint = color
 		)
 		Text(
