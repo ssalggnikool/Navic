@@ -30,7 +30,7 @@ class PlaylistListViewModel(
 		field = MutableStateFlow(null)
 
 	val selectedSorting: StateFlow<DomainPlaylistListType>
-		field = MutableStateFlow(DomainPlaylistListType.DateAdded)
+		field = MutableStateFlow(DomainPlaylistListType.Name)
 
 	val selectedReversed: StateFlow<Boolean>
 		field = MutableStateFlow(false)
