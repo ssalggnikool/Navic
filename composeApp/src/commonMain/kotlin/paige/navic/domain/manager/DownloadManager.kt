@@ -413,13 +413,13 @@ class DownloadManager(
 			if (isCellular) preferenceManager.customDownloadMaxBitrateCellular else preferenceManager.customDownloadMaxBitrateWifi
 		} else {
 			val quality = if (isCellular) preferenceManager.downloadQualityCellular else preferenceManager.downloadQualityWifi
-			if (platformType == PlatformType.Android) quality.bitrateAndroid else quality.bitrateIos
+			quality.bitrate
 		}
 		val container = if (preferenceManager.isAdvancedDownloadTranscodingActive) {
 			if (isCellular) preferenceManager.customDownloadFormatCellular else preferenceManager.customDownloadFormatWifi
 		} else {
 			val quality = if (isCellular) preferenceManager.downloadQualityCellular else preferenceManager.downloadQualityWifi
-			if (platformType == PlatformType.Android) quality.containerAndroid else quality.containerIos
+			quality.container
 		}
 
 		val extension = container?.takeIf { it.isNotBlank() } ?: song.fileExtension

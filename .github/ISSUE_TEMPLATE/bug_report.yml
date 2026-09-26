@@ -39,7 +39,7 @@ body:
     id: os
     attributes:
       label: OS Version
-      placeholder: Android 17, iOS 26...
+      placeholder: Android 17
     validations:
       required: true
 

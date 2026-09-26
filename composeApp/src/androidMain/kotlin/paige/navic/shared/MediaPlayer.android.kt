@@ -618,12 +618,12 @@ class PlaybackService : MediaLibraryService(), KoinComponent {
 			val bitrate = if (preferenceManager.isAdvancedTranscodingActive) {
 				if (isCellular) preferenceManager.customMaxBitrateCellular else preferenceManager.customMaxBitrateWifi
 			} else {
-				if (isCellular) preferenceManager.streamingQualityCellular.bitrateAndroid else preferenceManager.streamingQualityWifi.bitrateAndroid
+				if (isCellular) preferenceManager.streamingQualityCellular.bitrate else preferenceManager.streamingQualityWifi.bitrate
 			}
 			val container = if (preferenceManager.isAdvancedTranscodingActive) {
 				if (isCellular) preferenceManager.customFormatCellular else preferenceManager.customFormatWifi
 			} else {
-				if (isCellular) preferenceManager.streamingQualityCellular.containerAndroid else preferenceManager.streamingQualityWifi.containerAndroid
+				if (isCellular) preferenceManager.streamingQualityCellular.container else preferenceManager.streamingQualityWifi.container
 			}
 			return sessionManager.api.getStreamUrl(
 				songId,
@@ -830,12 +830,12 @@ class AndroidMediaPlayerViewModel(
 		val bitrate = if (preferenceManager.isAdvancedTranscodingActive) {
 			if (isCellular) preferenceManager.customMaxBitrateCellular else preferenceManager.customMaxBitrateWifi
 		} else {
-			if (isCellular) preferenceManager.streamingQualityCellular.bitrateAndroid else preferenceManager.streamingQualityWifi.bitrateAndroid
+			if (isCellular) preferenceManager.streamingQualityCellular.bitrate else preferenceManager.streamingQualityWifi.bitrate
 		}
 		val container = if (preferenceManager.isAdvancedTranscodingActive) {
 			if (isCellular) preferenceManager.customFormatCellular else preferenceManager.customFormatWifi
 		} else {
-			if (isCellular) preferenceManager.streamingQualityCellular.containerAndroid else preferenceManager.streamingQualityWifi.containerAndroid
+			if (isCellular) preferenceManager.streamingQualityCellular.container else preferenceManager.streamingQualityWifi.container
 		}
 		return sessionManager.api.getStreamUrl(id, bitrate, container?.takeIf { it.isNotBlank() })
 			.toUri()

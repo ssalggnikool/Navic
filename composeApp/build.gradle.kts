@@ -87,44 +87,7 @@ kotlin.sourceSets.commonMain {
 	kotlin.srcDir(generateBuildInfo.map { it.destinationDir })
 }
 
-tasks.matching { it.name.startsWith("compileKotlinIos") }.configureEach {
-	// “truly horrifying workaround” for a crash in SearchScreen.kt
-	// https://youtrack.jetbrains.com/issue/KT-84055/Reference-to-lambda-in-lambda-in-function-TextField-can-not-be-evaluated#focus=Comments-27-13188532.0-0
-	val tmp = layout.buildDirectory.dir("generated/iosWorkaround/commonMain/kotlin").get()
-	kotlin.sourceSets["commonMain"].kotlin.srcDir(tmp)
-
-	doFirst {
-		tmp.asFile.mkdirs()
-		tmp.file("TextFieldDecorator.kt").asFile.writeText(
-			"""
-package androidx.compose.foundation.text.input
-
-import androidx.compose.runtime.Composable
-
-public fun interface TextFieldDecorator {
-    @Suppress("ComposableLambdaParameterNaming")
-    @Composable
-    public fun Decoration(innerTextField: @Composable () -> Unit)
-}
-"""
-		)
-	}
-	doLast {
-		tmp.asFile.deleteRecursively()
-	}
-}
-
 kotlin {
-	listOf(
-		iosArm64(),
-		iosSimulatorArm64()
-	).forEach { target ->
-		target.binaries.framework {
-			baseName = "ComposeApp"
-			isStatic = true
-		}
-	}
-
 	android {
 		namespace = "paige.navic"
 		compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -178,10 +141,6 @@ kotlin {
 			implementation(libs.bundles.media3)
 			implementation(libs.kotlinx.coroutines.guava)
 		}
-
-		iosMain.dependencies {
-			implementation(libs.bundles.ktor.ios)
-		}
 	}
 
 	compilerOptions {
@@ -195,8 +154,6 @@ room3 {
 
 dependencies {
 	add("kspAndroid", libs.androidx.room3.compiler)
-	add("kspIosSimulatorArm64", libs.androidx.room3.compiler)
-	add("kspIosArm64", libs.androidx.room3.compiler)
 
 	add("kspCommonMainMetadata", libs.androidx.room3.compiler)
 }
