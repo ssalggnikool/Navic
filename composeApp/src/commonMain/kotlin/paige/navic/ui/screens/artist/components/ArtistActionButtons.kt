@@ -30,6 +30,7 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_cancel_download
 import navic.composeapp.generated.resources.action_delete_download
 import navic.composeapp.generated.resources.action_play
+import navic.composeapp.generated.resources.action_shuffle
 import navic.composeapp.generated.resources.info_download_failed
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.data.database.entities.DownloadStatus
@@ -39,11 +40,13 @@ import paige.navic.icons.outlined.Close
 import paige.navic.icons.outlined.Delete
 import paige.navic.icons.outlined.Download
 import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.Shuffle
 import paige.navic.ui.theme.defaultFont
 
 @Composable
 fun ArtistActionButtons(
 	onPlay: () -> Unit,
+	onPlayShuffled: () -> Unit,
 	onDownload: () -> Unit,
 	onCancelDownload: () -> Unit,
 	onDeleteDownload: () -> Unit,
@@ -58,6 +61,21 @@ fun ArtistActionButtons(
 		horizontalArrangement = Arrangement.spacedBy(12.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
+		OutlinedButton(
+			modifier = Modifier.size(width = 52.dp, height = 44.dp),
+			onClick = onPlayShuffled,
+			shape = ContinuousCapsule,
+			enabled = playEnabled,
+			contentPadding = PaddingValues(0.dp)
+		) {
+			Icon(
+				imageVector = Icons.Outlined.Shuffle,
+				contentDescription = stringResource(Res.string.action_shuffle),
+				modifier = Modifier.size(22.dp),
+				tint = MaterialTheme.colorScheme.primary
+			)
+		}
+
 		Box(
 			modifier = Modifier
 				.weight(1f)
@@ -97,7 +115,6 @@ fun ArtistActionButtons(
 		OutlinedButton(
 			modifier = Modifier.size(width = 52.dp, height = 44.dp),
 			onClick = {
-				
 				when (downloadStatus) {
 					DownloadStatus.NOT_DOWNLOADED, DownloadStatus.FAILED -> onDownload()
 					DownloadStatus.DOWNLOADING -> onCancelDownload()
