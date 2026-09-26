@@ -11,29 +11,25 @@ import paige.navic.util.decibelsToLinear
 import paige.navic.util.effectiveGain
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.math.abs
 
 
 @UnstableApi
 class ExoAudioGainProcessor : BaseAudioProcessor() {
 	private companion object {
-		const val DEFAULT_GAIN = 1f
+		const val DEFAULT_GAIN_DB = 0f
 	}
 
 	private var replayGainMetadata: DomainReplayGain? = null
 
+	private var isReplayGainActive = false
+
 	private val finalVolume: Float
-		get() {
-			// ugly hack: we are checking the volume here because the metadata may get returned anyway, but with its parameters values null
-			return if (this.replayGainMetadata != null && this.volume.toDouble() != 0.0) {
-				(volume + rgAmpValue).decibelsToLinear()
-			} else {
-				(volume + ampValue).decibelsToLinear()
-			}
-		}
+		get() = (if (isReplayGainActive) volume + rgAmpValue else ampValue).decibelsToLinear()
 
 	// we should ONLY flush if the gain has changed, flushing needlessly will cause some "bits" of the music to skip
 	// flushing the stream is needed because otherwise the user might hear some crackling after changing values
-	private var volume = DEFAULT_GAIN
+	private var volume = DEFAULT_GAIN_DB
 		set(value) {
 			if (field != value) flush(StreamMetadata.DEFAULT)
 			field = value
@@ -52,19 +48,36 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 		}
 
 	fun applyGainMode(mode: ReplayGainMode) {
-		volume = replayGainMetadata?.effectiveGain(mode) ?: DEFAULT_GAIN
+		if (mode == ReplayGainMode.Off) {
+			resetGain()
+			return
+		}
+		val gain = replayGainMetadata?.effectiveGain(mode)
+		if (gain != null) {
+			isReplayGainActive = true
+			volume = gain
+		} else {
+			isReplayGainActive = false
+			volume = DEFAULT_GAIN_DB
+		}
 	}
 
 	fun setReplayGainMetadata(metadata: DomainReplayGain?) {
 		replayGainMetadata = metadata
+		if (metadata == null) {
+			isReplayGainActive = false
+			volume = DEFAULT_GAIN_DB
+		}
 	}
 
 	fun resetGain() {
-		volume = DEFAULT_GAIN
+		replayGainMetadata = null
+		isReplayGainActive = false
+		volume = DEFAULT_GAIN_DB
 	}
 
 	override fun isActive(): Boolean {
-		return super.isActive() && finalVolume != DEFAULT_GAIN
+		return super.isActive() && (abs(finalVolume - 1.0f) > 0.0001f)
 	}
 
 	override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
@@ -84,7 +97,7 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 
 		val computedVolume = finalVolume
 
-		if (computedVolume == DEFAULT_GAIN) {
+		if (abs(computedVolume - 1.0f) < 0.0001f) {
 			outputBuffer.put(inputBuffer)
 		} else {
 			val shortBufferInput = inputBuffer.asShortBuffer()
