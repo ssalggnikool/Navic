@@ -134,4 +134,7 @@ class PreferenceManager(
 	}
 
 	var offlineMode by preference(OfflineMode.Auto)
+
+	var proxyUrl by preference("")
+	var dangerousSslNoopEnabled by preference(false)
 }

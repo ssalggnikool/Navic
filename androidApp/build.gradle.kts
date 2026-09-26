@@ -28,6 +28,7 @@ extensions.configure<ApplicationExtension> {
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
 		versionCode = 59
 		versionName = "v1.0.0-alpha59"
+		multiDexEnabled = true
 
 		ndk {
 			abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
@@ -84,6 +85,8 @@ extensions.configure<ApplicationExtension> {
 	}
 
 	compileOptions {
+		isCoreLibraryDesugaringEnabled = true
+
 		sourceCompatibility = JavaVersion.VERSION_21
 		targetCompatibility = JavaVersion.VERSION_21
 	}
@@ -117,6 +120,7 @@ extensions.configure<ApplicationAndroidComponentsExtension> {
 }
 
 dependencies {
+	coreLibraryDesugaring(libs.desugar.jdk.libs)
 	implementation(projects.composeApp)
 	implementation(libs.androidx.activity.compose)
 	implementation(libs.cmp.material3)

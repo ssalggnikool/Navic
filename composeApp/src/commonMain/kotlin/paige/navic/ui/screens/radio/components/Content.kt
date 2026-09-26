@@ -8,8 +8,6 @@ import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.info_no_radios
 import org.jetbrains.compose.resources.stringResource
 import paige.navic.domain.models.DomainRadio
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Radio
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.core.UiState
 
@@ -38,7 +36,6 @@ fun LazyGridScope.radioListScreenContent(
 			else -> {
 				item(span = { GridItemSpan(maxLineSpan) }) {
 					ContentUnavailable(
-						icon = Icons.Outlined.Radio,
 						label = stringResource(Res.string.info_no_radios)
 					)
 				}

@@ -20,9 +20,13 @@ import paige.navic.ui.theme.defaultFont
 fun SettingsGroup(
 	modifier: Modifier = Modifier,
 	title: (@Composable () -> Unit)? = null,
-	content: @Composable ColumnScope.() -> Unit
+	verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+	content: @Composable ColumnScope.() -> Unit,
 ) {
-	Column(modifier = modifier.fillMaxWidth()) {
+	Column(
+		modifier = modifier.fillMaxWidth(),
+		verticalArrangement = verticalArrangement
+	) {
 		if (title != null) {
 			Box(modifier = Modifier.padding(start = 12.dp)) {
 				CompositionLocalProvider(

@@ -50,8 +50,6 @@ import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSheetState
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.models.settings.QueueInfoType
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.PlaylistRemove
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.ContentUnavailable
 import paige.navic.ui.navigation.Screen
@@ -237,7 +235,6 @@ fun QueueScreen() {
 			if (queue.isEmpty()) {
 				item {
 					ContentUnavailable(
-						icon = Icons.Outlined.PlaylistRemove,
 						label = stringResource(Res.string.info_no_queue)
 					)
 				}
