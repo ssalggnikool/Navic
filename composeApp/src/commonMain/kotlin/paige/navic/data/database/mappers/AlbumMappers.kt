@@ -52,7 +52,7 @@ fun AlbumWithSongs.toDomainModel() = DomainAlbum(
 	version = album.version,
 	songs = songs
 		.map { it.toDomainModel() }
-		.sortedWith(compareBy({ it.discNumber ?: 0 }, { it.trackNumber ?: 0 })),
+		.sortedBy { it.trackNumber },
 	isExternal = album.isExternal
 )
 
