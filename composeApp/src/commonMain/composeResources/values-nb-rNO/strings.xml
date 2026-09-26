@@ -423,4 +423,24 @@
     <string name="option_preamp_tip">Setter du forforsterker valgene til veldig høye verdier kan det føre til forvrengning av lyden.</string>
     <string name="option_hide_bottom_bar_if_idle">Gjem minispiller hvis ingenting spilles</string>
     <string name="action_reset_dont_show_agains">Nullstill alle «Ikke vis igjen» valg</string>
+    <string name="title_statistics">Statistikk</string>
+    <string name="title_top_songs">Topp sanger</string>
+    <string name="title_top_artists">Topp artister</string>
+    <string name="title_top_albums">Topp album</string>
+    <string name="action_allow">Tillat</string>
+    <string name="info_duration_left">%1$s igjen</string>
+    <string name="info_starred_songs">Stjernemerkede sanger</string>
+    <string name="info_total_listening_time">Total lyttetid</string>
+    <string name="info_total_plays">Totalt antall avspillinger</string>
+    <string name="notice_image_saved">Bilde lagret.</string>
+    <string name="action_view_statistics">Se statistikk</string>
+    <string name="action_save">Lagre</string>
+    <plurals name="count_plays">
+        <item quantity="one">%1$d avspilling</item>
+        <item quantity="other">%1$d avspillinger</item>
+    </plurals>
+    <plurals name="count_remaining_songs">
+        <item quantity="one">%1$d sang igjen</item>
+        <item quantity="other">%1$d sanger igjen</item>
+    </plurals>
 </resources>
