@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package paige.navic.util
 
 import android.annotation.SuppressLint
@@ -26,7 +28,7 @@ import androidx.core.graphics.scale
 @SuppressLint("UnnecessaryComposedModifier")
 actual fun Modifier.backwardsCompatibleBlur(radius: Dp): Modifier  {
 	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-		this@backwardsCompatibleBlur then Modifier.blur(radius)
+		return this.then(Modifier.blur(radius))
 	}
 
 	return this.composed {
