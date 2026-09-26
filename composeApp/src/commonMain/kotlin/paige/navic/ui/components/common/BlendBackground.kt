@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -30,6 +29,7 @@ import coil3.request.ImageRequest
 import org.koin.compose.koinInject
 import paige.navic.di.getStaticImageLoader
 import paige.navic.domain.manager.SessionManager
+import paige.navic.util.backwardsCompatibleBlur
 import kotlin.time.TimeSource
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
@@ -89,7 +89,7 @@ fun BlendBackground(
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
-			.blur(80.dp)
+			.backwardsCompatibleBlur(80.dp)
 	) {
 		AsyncImage(
 			model = model,
