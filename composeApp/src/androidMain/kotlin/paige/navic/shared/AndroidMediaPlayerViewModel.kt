@@ -280,7 +280,7 @@ class AndroidMediaPlayerViewModel(
 				currentIndex = index,
 				currentSong = currentSong,
 				currentCollection = derivedCollection ?: state.currentCollection,
-				isPaused = !controller.playWhenReady,
+				isPaused = (!controller.playWhenReady || controller.playbackState == Player.STATE_ENDED),
 				isShuffleEnabled = controller.shuffleModeEnabled,
 				repeatMode = controller.repeatMode
 			)
@@ -654,7 +654,12 @@ class AndroidMediaPlayerViewModel(
 	}
 
 	override fun resume() = launchInView(true) {
-		controller?.play()
+		controller?.let { player ->
+			if (player.playbackState == Player.STATE_ENDED) {
+				player.seekTo(0, 0L)
+			}
+			player.play()
+		}
 	}
 
 	override fun next() = launchInView(true) {
