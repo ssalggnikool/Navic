@@ -134,7 +134,10 @@ fun isHardwareRenderingCucked(): Boolean {
 	return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < Build.VERSION_CODES.S
 }
 
-//
+/*
+ * if we're running android < 12, this basically fixes the issue where
+ * blend rotation doesn't update in real time (it only did if you interacted with the now playing screen)
+ */
 @Composable
 actual fun PlatformLayerComposable(
 	modifier: Modifier,
@@ -142,9 +145,7 @@ actual fun PlatformLayerComposable(
 ) {
 	AndroidView(
 		factory = { context ->
-			ComposeView(context).apply {
-				if (isHardwareRenderingCucked()) setLayerType(View.LAYER_TYPE_SOFTWARE, null)
-			}
+			ComposeView(context)
 		},
 		update = { composeView ->
 			composeView.setContent(content)
@@ -153,10 +154,12 @@ actual fun PlatformLayerComposable(
 	)
 }
 
+/*
+ * if you don't disable this on the coil builder for the blend background,
+ * you'll always be greeted with this error on android 7 > x < 12:
+ *  "Software rendering doesn't support hardware bitmaps"
+ * ...how many people are on the island again, beatoriche?
+ */
 actual fun ImageRequest.Builder.disableHardwareIfCucked(): ImageRequest.Builder {
 	return this.allowHardware(!isHardwareRenderingCucked())
-}
-
-actual fun isUsingRenderShit(): Boolean {
-	return Build.VERSION.SDK_INT < Build.VERSION_CODES.S
 }

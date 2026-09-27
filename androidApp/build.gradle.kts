@@ -33,7 +33,7 @@ extensions.configure<ApplicationExtension> {
 		ndk {
 			abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
 			if (!isTaskRelease) {
-				abiFilters.add("x86_64")
+				abiFilters.addAll(listOf("x86_64", "x86"))
 			}
 		}
 	}

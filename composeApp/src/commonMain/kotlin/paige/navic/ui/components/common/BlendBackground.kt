@@ -68,24 +68,23 @@ fun BlendBackground(
 			.build()
 	}
 
-	if (!isUsingRenderShit()) {
-		LaunchedEffect(isPaused) {
-			if (!isPaused) {
-				val timeSource = TimeSource.Monotonic
-				var lastFrameMark = timeSource.markNow()
 
-				while (true) {
-					withFrameNanos { _ ->
-						val now = timeSource.markNow()
-						val elapsed = now - lastFrameMark
-						val elapsedMillis =
-							elapsed.toDouble(kotlin.time.DurationUnit.MILLISECONDS).toFloat()
-						lastFrameMark = now
+	LaunchedEffect(isPaused) {
+		if (!isPaused) {
+			val timeSource = TimeSource.Monotonic
+			var lastFrameMark = timeSource.markNow()
 
-						frameRotation -= (360f / 24000f) * elapsedMillis
-						topLeftRotation += (360f / 12000f) * elapsedMillis
-						botRightRotation += (360f / 20000f) * elapsedMillis
-					}
+			while (true) {
+				withFrameNanos { _ ->
+					val now = timeSource.markNow()
+					val elapsed = now - lastFrameMark
+					val elapsedMillis =
+						elapsed.toDouble(kotlin.time.DurationUnit.MILLISECONDS).toFloat()
+					lastFrameMark = now
+
+					frameRotation -= (360f / 24000f) * elapsedMillis
+					topLeftRotation += (360f / 12000f) * elapsedMillis
+					botRightRotation += (360f / 20000f) * elapsedMillis
 				}
 			}
 		}
