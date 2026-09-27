@@ -2,11 +2,18 @@ package paige.navic.di
 
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 
 val appModule = module {
 	single { Settings() }
-	single { initializeSingletonImageLoader(get()) }
+	singleOf(::CoilSingleton)
+	single {
+		get<CoilSingleton>().coilImageLoader
+	}
+	single(named("static")) {
+		get<CoilSingleton>().staticCoilImageLoader
+	}
 	singleOf(::PersistentViewModelStoreOwner)
 }

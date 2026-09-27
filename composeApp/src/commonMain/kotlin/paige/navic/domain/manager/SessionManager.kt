@@ -19,17 +19,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import paige.navic.util.configureSsl
 import paige.navic.util.getDefaultEngineForPlatform
 import paige.navic.util.Logger
+import paige.navic.util.extractProxyConfigFromUrl
 
 class SessionManager(
 	private val settings: Settings,
 	private val preferenceManager: PreferenceManager
 ) {
-	companion object {
-		val PROXY_URL_REGEX = Regex("(socks[4-5]?|https?)?://(.+):?(\\d+)")
-	}
 
 	val isLoggedIn: StateFlow<Boolean>
 		field = MutableStateFlow(false)
@@ -65,30 +62,9 @@ class SessionManager(
 			install(UserAgent) {
 				agent = "Navic"
 			}
-
-			val proxyUrl = preferenceManager.proxyUrl
-
-			if (proxyUrl.isNotBlank()) {
-				engine {
-					// socks is not tested but the parsing here should just work... hopefully...
-					if (proxyUrl.startsWith("http")) {
-						proxy = ProxyBuilder.http(proxyUrl)
-					} else if (proxyUrl.startsWith("socks")) {
-						val match = PROXY_URL_REGEX.matchEntire(proxyUrl)
-
-						if (match?.groupValues?.isNotEmpty() == true) {
-							val port = match.groupValues.getOrNull(1)?.toIntOrNull()
-
-							proxy = ProxyBuilder.socks(
-								match.groupValues[0],
-								port ?: 1080
-							)
-						}
-					}
-				}
+			engine {
+				proxy = extractProxyConfigFromUrl(preferenceManager.proxyUrl)
 			}
-
-			configureSsl(preferenceManager.dangerousSslNoopEnabled)
 
 			val customHeaders = preferenceManager.customHeadersMap()
 			if (customHeaders.isNotEmpty()) {
@@ -97,7 +73,7 @@ class SessionManager(
 				}
 			}
 		},
-		engine = getDefaultEngineForPlatform()
+		engine = getDefaultEngineForPlatform(preferenceManager.dangerousSslNoopEnabled)
 	)
 
 	suspend fun login(

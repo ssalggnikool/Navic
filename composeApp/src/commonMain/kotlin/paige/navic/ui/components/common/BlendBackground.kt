@@ -23,11 +23,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import org.koin.compose.koinInject
-import paige.navic.di.getStaticImageLoader
+import org.koin.core.qualifier.named
 import paige.navic.domain.manager.SessionManager
 import paige.navic.util.backwardsCompatibleBlur
 import kotlin.time.TimeSource
@@ -48,10 +49,7 @@ fun BlendBackground(
 	}
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
-
-	val staticImageLoader = remember(coilPlatformContext) {
-		getStaticImageLoader(coilPlatformContext)
-	}
+	val staticImageLoader = koinInject<ImageLoader>(named("static"))
 
 	val sessionManager = koinInject<SessionManager>()
 	val model = remember(coverArtId) {

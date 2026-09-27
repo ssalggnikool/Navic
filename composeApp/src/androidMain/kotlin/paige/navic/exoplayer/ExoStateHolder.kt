@@ -51,6 +51,7 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.exoplayer.impl.ExoAudioGainProcessor
 import paige.navic.exoplayer.impl.ExoArtworkLoader
 import paige.navic.shared.PlaybackService
+import paige.navic.util.createHttpClientWithPreferences
 
 @OptIn(UnstableApi::class)
 class ExoStateHolder: KoinComponent {
@@ -63,7 +64,6 @@ class ExoStateHolder: KoinComponent {
 	private var isInitialized = false
 
 	// PlaybackService and AudioGainManager depends on these fields below
-
 	lateinit var playerInstance: ExoPlayer
 	lateinit var mediaSession: MediaSession
 
@@ -124,7 +124,7 @@ class ExoStateHolder: KoinComponent {
 		)
 	}
 
-	private val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.api.httpClient)
+	private val httpDataSourceFactory = KtorDataSource.Factory(createHttpClientWithPreferences(preferenceManager))
 
 	private fun createRenderers(context: Context): RenderersFactory {
 		return RenderersFactory { handler, _, audioListener, _, _ ->
