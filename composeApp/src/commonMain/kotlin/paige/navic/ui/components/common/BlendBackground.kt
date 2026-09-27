@@ -29,7 +29,10 @@ import coil3.request.ImageRequest
 import org.koin.compose.koinInject
 import paige.navic.di.getStaticImageLoader
 import paige.navic.domain.manager.SessionManager
+import paige.navic.util.PlatformLayerComposable
 import paige.navic.util.backwardsCompatibleBlur
+import paige.navic.util.disableHardwareIfCucked
+import paige.navic.util.isUsingRenderShit
 import kotlin.time.TimeSource
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
@@ -56,6 +59,7 @@ fun BlendBackground(
 	val sessionManager = koinInject<SessionManager>()
 	val model = remember(coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
+			.disableHardwareIfCucked()
 			.data(coverArtId?.let { sessionManager.getCoverArtUrl(it) })
 			.memoryCacheKey(coverArtId?.let { "${it}_static" })
 			.diskCacheKey(coverArtId)
@@ -64,28 +68,31 @@ fun BlendBackground(
 			.build()
 	}
 
-	LaunchedEffect(isPaused) {
-		if (!isPaused) {
-			val timeSource = TimeSource.Monotonic
-			var lastFrameMark = timeSource.markNow()
+	if (!isUsingRenderShit()) {
+		LaunchedEffect(isPaused) {
+			if (!isPaused) {
+				val timeSource = TimeSource.Monotonic
+				var lastFrameMark = timeSource.markNow()
 
-			while (true) {
-				withFrameNanos { _ ->
-					val now = timeSource.markNow()
-					val elapsed = now - lastFrameMark
-					val elapsedMillis =
-						elapsed.toDouble(kotlin.time.DurationUnit.MILLISECONDS).toFloat()
-					lastFrameMark = now
+				while (true) {
+					withFrameNanos { _ ->
+						val now = timeSource.markNow()
+						val elapsed = now - lastFrameMark
+						val elapsedMillis =
+							elapsed.toDouble(kotlin.time.DurationUnit.MILLISECONDS).toFloat()
+						lastFrameMark = now
 
-					frameRotation -= (360f / 24000f) * elapsedMillis
-					topLeftRotation += (360f / 12000f) * elapsedMillis
-					botRightRotation += (360f / 20000f) * elapsedMillis
+						frameRotation -= (360f / 24000f) * elapsedMillis
+						topLeftRotation += (360f / 12000f) * elapsedMillis
+						botRightRotation += (360f / 20000f) * elapsedMillis
+					}
 				}
 			}
 		}
 	}
 
-	Box(
+
+	PlatformLayerComposable(
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
