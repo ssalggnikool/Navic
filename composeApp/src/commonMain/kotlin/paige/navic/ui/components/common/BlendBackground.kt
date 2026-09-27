@@ -32,7 +32,6 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.util.PlatformLayerComposable
 import paige.navic.util.backwardsCompatibleBlur
 import paige.navic.util.disableHardwareIfCucked
-import paige.navic.util.isUsingRenderShit
 import kotlin.time.TimeSource
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 

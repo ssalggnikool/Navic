@@ -22,7 +22,3 @@ actual fun PlatformLayerComposable(
 actual fun ImageRequest.Builder.disableHardwareIfCucked(): ImageRequest.Builder {
 	return this
 }
-
-actual fun isUsingRenderShit(): Boolean {
-	return false
-}

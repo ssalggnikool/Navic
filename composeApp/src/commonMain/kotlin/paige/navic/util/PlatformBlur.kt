@@ -14,5 +14,3 @@ expect fun PlatformLayerComposable(
 )
 
 expect fun ImageRequest.Builder.disableHardwareIfCucked(): ImageRequest.Builder
-
-expect fun isUsingRenderShit(): Boolean
