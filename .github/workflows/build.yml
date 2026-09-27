@@ -36,6 +36,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          submodules: 'recursive'
 
       - name: Setup JDK
         uses: actions/setup-java@v5
