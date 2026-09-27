@@ -127,10 +127,6 @@ class ExoStateHolder: KoinComponent {
 	private val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.api.httpClient)
 
 	private fun createRenderers(context: Context): RenderersFactory {
-		val audioSink = DefaultAudioSink.Builder(context)
-			.setAudioProcessors(arrayOf(gainProcessor))
-			.build()
-
 		return RenderersFactory { handler, _, audioListener, _, _ ->
 			arrayOf<BaseRenderer>(
 				FfmpegAudioRenderer(
@@ -144,7 +140,9 @@ class ExoStateHolder: KoinComponent {
 					MediaCodecSelector.DEFAULT,
 					handler,
 					audioListener,
-					audioSink
+					DefaultAudioSink.Builder(context)
+						.setAudioProcessors(arrayOf(gainProcessor))
+						.build()
 				)
 			)
 		}
