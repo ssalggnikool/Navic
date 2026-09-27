@@ -1,9 +1,12 @@
 @file:Suppress("UnstableApiUsage")
 
+import androidx.media3.buildlogic.includeMedia3
+
 rootProject.name = "Navic"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+	includeBuild("androidx-media/build-logic-settings")
 	repositories {
 		google {
 			mavenContent {
@@ -15,6 +18,10 @@ pluginManagement {
 		mavenCentral()
 		gradlePluginPortal()
 	}
+}
+
+plugins {
+	id("gradlebuild.media3-settings-logic")
 }
 
 dependencyResolutionManagement {
@@ -35,3 +42,4 @@ dependencyResolutionManagement {
 
 include(":composeApp")
 include(":androidApp")
+includeMedia3(file("androidx-media"))

@@ -129,4 +129,5 @@ dependencies {
 	implementation(libs.bundles.glance)
 	implementation(libs.bundles.coil)
 	implementation(libs.bundles.media3)
+	implementation(libs.androidx.media3.decoder.ffmpeg)
 }

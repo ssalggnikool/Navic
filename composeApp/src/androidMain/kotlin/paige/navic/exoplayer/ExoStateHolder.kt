@@ -13,6 +13,7 @@ import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.ktor.KtorDataSource
+import androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer
 import androidx.media3.exoplayer.BaseRenderer
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
@@ -126,16 +127,24 @@ class ExoStateHolder: KoinComponent {
 	private val httpDataSourceFactory = KtorDataSource.Factory(sessionManager.api.httpClient)
 
 	private fun createRenderers(context: Context): RenderersFactory {
+		val audioSink = DefaultAudioSink.Builder(context)
+			.setAudioProcessors(arrayOf(gainProcessor))
+			.build()
+
 		return RenderersFactory { handler, _, audioListener, _, _ ->
 			arrayOf<BaseRenderer>(
+				FfmpegAudioRenderer(
+					context,
+					handler,
+					audioListener,
+					gainProcessor
+				),
 				MediaCodecAudioRenderer(
 					context,
 					MediaCodecSelector.DEFAULT,
 					handler,
 					audioListener,
-					DefaultAudioSink.Builder(context)
-						.setAudioProcessors(arrayOf(gainProcessor))
-						.build()
+					audioSink
 				)
 			)
 		}
