@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -24,12 +23,16 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import org.koin.compose.koinInject
-import paige.navic.di.getStaticImageLoader
+import org.koin.core.qualifier.named
 import paige.navic.domain.manager.SessionManager
+import paige.navic.util.PlatformLayerComposable
+import paige.navic.util.backwardsCompatibleBlur
+import paige.navic.util.disableHardwareIfCucked
 import kotlin.time.TimeSource
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
@@ -48,14 +51,12 @@ fun BlendBackground(
 	}
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
-
-	val staticImageLoader = remember(coilPlatformContext) {
-		getStaticImageLoader(coilPlatformContext)
-	}
+	val staticImageLoader = koinInject<ImageLoader>(named("static"))
 
 	val sessionManager = koinInject<SessionManager>()
 	val model = remember(coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
+			.disableHardwareIfCucked()
 			.data(coverArtId?.let { sessionManager.getCoverArtUrl(it) })
 			.memoryCacheKey(coverArtId?.let { "${it}_static" })
 			.diskCacheKey(coverArtId)
@@ -63,6 +64,7 @@ fun BlendBackground(
 			.memoryCachePolicy(CachePolicy.ENABLED)
 			.build()
 	}
+
 
 	LaunchedEffect(isPaused) {
 		if (!isPaused) {
@@ -85,11 +87,12 @@ fun BlendBackground(
 		}
 	}
 
-	Box(
+
+	PlatformLayerComposable(
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
-			.blur(80.dp)
+			.backwardsCompatibleBlur(80.dp)
 	) {
 		AsyncImage(
 			model = model,

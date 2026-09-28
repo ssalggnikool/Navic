@@ -241,6 +241,7 @@ fun ArtistDetailScreen(
 							)
 							ArtistActionButtons(
 								onPlay = { viewModel.playArtistAlbums(player) },
+								onPlayShuffled = { viewModel.playArtistAlbumsShuffled(player) },
 								onDownload = {
 									showDownloadDialog = true
 								},

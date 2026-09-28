@@ -4,12 +4,16 @@ import coil3.ImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.size.Size
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.defaultRequest
+import dev.zt64.subsonic.api.model.SubsonicException
+import dev.zt64.subsonic.api.model.SubsonicResponse
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpResponseValidator
+import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.onDownload
-import io.ktor.client.request.header
 import io.ktor.client.request.prepareRequest
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
@@ -30,6 +34,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.getString
 import paige.navic.data.database.dao.AlbumDao
 import paige.navic.data.database.dao.DownloadDao
@@ -44,6 +49,7 @@ import paige.navic.domain.repositories.LyricsRepository
 import paige.navic.util.Logger
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.info_status_downloading
+import paige.navic.util.createHttpClientWithPreferences
 import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
@@ -61,7 +67,45 @@ class DownloadManager(
 	private val notificationManager: NotificationManager
 ) {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-	private val client = sessionManager.api.httpClient
+	private val client = createHttpClientWithPreferences(preferenceManager).apply {
+		config {
+			HttpResponseValidator {
+				validateResponse { response ->
+					when (response.status.value) {
+						in 400..499 -> throw ClientRequestException(
+							response,
+							cachedResponseText = response.bodyAsText()
+						)
+						in 500..599 -> throw ServerResponseException(
+							response,
+							cachedResponseText = response.bodyAsText()
+						)
+					}
+
+					val contentType = response.headers["content-type"]
+
+					if (contentType == ContentType.Application.Json.contentType) {
+						try {
+							val subsonicResponse =
+								Json.decodeFromString<SubsonicResponse<Any>>(response.bodyAsText())
+
+							if (subsonicResponse is SubsonicResponse.Error) {
+								// something has gone wrong with request, throw an error immediately
+								throw SubsonicException(
+									subsonicResponse.error.message,
+									subsonicResponse.error.code
+								)
+							}
+						} catch (e: Exception) {
+							if (e is SubsonicException) throw e
+							// probably not our business, let something else handle the exception
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private val activeDownloadsMutex = Mutex()
 	private val activeDownloads = mutableMapOf<String, Job>()
 	private val downloadSemaphore =

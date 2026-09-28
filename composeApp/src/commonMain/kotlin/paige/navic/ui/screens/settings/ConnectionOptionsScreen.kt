@@ -42,6 +42,7 @@ import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 import paige.navic.ui.screens.settings.components.SettingsNavItem
 import paige.navic.ui.screens.settings.components.SettingsToggleItem
+import paige.navic.util.PROXY_URL_REGEX
 
 @Composable
 fun SettingsConnectionOptionsScreen() {
@@ -54,14 +55,14 @@ fun SettingsConnectionOptionsScreen() {
 	var proxyUrlField by mutableStateOf(preferenceManager.proxyUrl)
 	val proxyUrlHasErrors by derivedStateOf {
 		if (proxyUrlField.isNotBlank()) {
-			!SessionManager.PROXY_URL_REGEX.matches(proxyUrlField)
+			!PROXY_URL_REGEX.matches(proxyUrlField)
 		} else {
 			false
 		}
 	}
 	val updateProxyUrl: (String) -> Unit = { url ->
 		proxyUrlField = url
-		if (SessionManager.PROXY_URL_REGEX.matches(proxyUrlField)) {
+		if (PROXY_URL_REGEX.matches(proxyUrlField)) {
 			preferenceManager.proxyUrl = url
 			sessionManager.refreshClient()
 		}

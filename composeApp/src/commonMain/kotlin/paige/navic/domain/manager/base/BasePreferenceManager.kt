@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import com.russhwolf.settings.set
+import kotlinx.serialization.json.Json
 import kotlin.enums.enumEntries
 import kotlin.reflect.KProperty
 
@@ -19,7 +20,8 @@ private typealias Setter<T> = (key: String, newValue: T) -> Unit
  */
 @Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 abstract class BasePreferenceManager(
-	protected val settings: Settings
+	@PublishedApi
+	internal val settings: Settings
 ) {
 	protected fun preference(
 		key: String?,
@@ -95,6 +97,33 @@ abstract class BasePreferenceManager(
 		return preference(null, defaultValue)
 	}
 
+	protected inline fun <reified T> jsonPreference(
+		key: String?,
+		defaultValue: T
+	): PreferenceProvider<T> {
+		val json = Json { ignoreUnknownKeys = true }
+		return PreferenceProvider(
+			key = key,
+			defaultValue = defaultValue,
+			getter = { k, default ->
+				val raw = settings.getString(k, "")
+				if (raw.isBlank()) default
+				else try {
+					json.decodeFromString<T>(raw)
+				} catch (_: Exception) {
+					default
+				}
+			},
+			setter = { k, newValue ->
+				settings.putString(k, json.encodeToString(newValue))
+			}
+		)
+	}
+
+	protected inline fun <reified T> jsonPreference(defaultValue: T): PreferenceProvider<T> {
+		return jsonPreference(null, defaultValue)
+	}
+
 	protected class Preferences<T>(
 		private val key: String,
 		defaultValue: T,
@@ -147,7 +176,8 @@ internal inline fun <reified E : Enum<E>> Settings.getEnum(
 	key: String,
 	defaultValue: E
 ): E {
-	return enumEntries<E>()[(getInt(key, defaultValue.ordinal))]
+	val ordinal = getInt(key, defaultValue.ordinal)
+	return enumEntries<E>().getOrNull(ordinal) ?: defaultValue
 }
 
 @PublishedApi

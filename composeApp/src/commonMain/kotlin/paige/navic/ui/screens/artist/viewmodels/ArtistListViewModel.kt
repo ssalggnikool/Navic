@@ -25,7 +25,7 @@ import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.core.UiState
 
 class ArtistListViewModel(
-	initialListType: DomainArtistListType = DomainArtistListType.AlphabeticalByName,
+	initialListType: DomainArtistListType? = null,
 	initialFilters: Set<DomainFilter>? = null,
 	private val repository: ArtistRepository,
 	private val albumDao: AlbumDao,
@@ -45,7 +45,7 @@ class ArtistListViewModel(
 		field = MutableStateFlow(null)
 
 	val listType: StateFlow<DomainArtistListType>
-		field = MutableStateFlow(initialListType)
+		field = MutableStateFlow(initialListType ?: preferenceManager.artistSortType)
 
 	val selectedFilters: StateFlow<Set<DomainFilter>>
 		field = MutableStateFlow(
@@ -121,6 +121,7 @@ class ArtistListViewModel(
 
 	fun setListType(newListType: DomainArtistListType) {
 		listType.value = newListType
+		preferenceManager.artistSortType = newListType
 		refreshArtists(false)
 	}
 

@@ -5,6 +5,7 @@ on:
     paths:
       - composeApp/**
       - gradle/**
+      - androidx-media
       - build.gradle.kts
       - settings.gradle.kts
       - .github/workflows/build.yml
@@ -17,6 +18,7 @@ on:
     paths:
       - composeApp/**
       - gradle/**
+      - androidx-media
       - build.gradle.kts
       - settings.gradle.kts
       - .github/workflows/build.yml
@@ -34,6 +36,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          submodules: 'recursive'
 
       - name: Setup JDK
         uses: actions/setup-java@v5
