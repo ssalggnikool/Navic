@@ -20,7 +20,8 @@ private typealias Setter<T> = (key: String, newValue: T) -> Unit
  */
 @Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 abstract class BasePreferenceManager(
-	protected val settings: Settings
+	@PublishedApi
+	internal val settings: Settings
 ) {
 	protected fun preference(
 		key: String?,
