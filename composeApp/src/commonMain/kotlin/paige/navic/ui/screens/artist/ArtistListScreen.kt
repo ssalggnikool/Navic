@@ -57,7 +57,7 @@ import paige.navic.ui.viewmodel.RootViewModel
 @Composable
 fun ArtistListScreen(
 	nested: Boolean = false,
-	listType: DomainArtistListType
+	listType: DomainArtistListType? = null
 ) {
 	val platformContext = LocalPlatformContext.current
 	val preferenceManager = koinInject<PreferenceManager>()

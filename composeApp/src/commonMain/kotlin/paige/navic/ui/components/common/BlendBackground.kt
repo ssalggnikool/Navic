@@ -29,7 +29,9 @@ import coil3.request.ImageRequest
 import org.koin.compose.koinInject
 import paige.navic.di.getStaticImageLoader
 import paige.navic.domain.manager.SessionManager
+import paige.navic.util.PlatformLayerComposable
 import paige.navic.util.backwardsCompatibleBlur
+import paige.navic.util.disableHardwareIfCucked
 import kotlin.time.TimeSource
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
@@ -56,6 +58,7 @@ fun BlendBackground(
 	val sessionManager = koinInject<SessionManager>()
 	val model = remember(coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
+			.disableHardwareIfCucked()
 			.data(coverArtId?.let { sessionManager.getCoverArtUrl(it) })
 			.memoryCacheKey(coverArtId?.let { "${it}_static" })
 			.diskCacheKey(coverArtId)
@@ -63,6 +66,7 @@ fun BlendBackground(
 			.memoryCachePolicy(CachePolicy.ENABLED)
 			.build()
 	}
+
 
 	LaunchedEffect(isPaused) {
 		if (!isPaused) {
@@ -85,7 +89,8 @@ fun BlendBackground(
 		}
 	}
 
-	Box(
+
+	PlatformLayerComposable(
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)

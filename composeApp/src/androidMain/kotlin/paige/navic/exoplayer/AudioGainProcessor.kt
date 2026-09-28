@@ -68,7 +68,7 @@ class AudioGainProcessor : BaseAudioProcessor() {
 	}
 
 	override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
-		if (inputAudioFormat.encoding == AudioFormat.ENCODING_PCM_16BIT) {
+		if (inputAudioFormat.encoding == AudioFormat.ENCODING_PCM_16BIT || inputAudioFormat.encoding == AudioFormat.ENCODING_PCM_32BIT) {
 			return inputAudioFormat
 		}
 		throw AudioProcessor.UnhandledAudioFormatException(inputAudioFormat)

@@ -254,13 +254,21 @@ class ArtistDetailViewModel(
 	}
 
 	fun playArtistAlbums(player: MediaPlayerViewModel) {
-		(artistState.value as? UiState.Success)?.data?.let { state ->
-			player.clearQueue()
-			state.albums.forEach { album ->
-				player.addToQueue(album, notify = false)
-			}
-			player.playAt(0)
-		}
+		val songs = (artistState.value as? UiState.Success)?.data
+			?.albums?.flatMap { it.songs }
+			?: return
+
+		if (songs.isEmpty()) return
+		player.playNow(songs)
+	}
+
+	fun playArtistAlbumsShuffled(player: MediaPlayerViewModel) {
+		val songs = (artistState.value as? UiState.Success)?.data
+			?.albums?.flatMap { it.songs }
+			?: return
+
+		if (songs.isEmpty()) return
+		player.playNow(songs.shuffled())
 	}
 
 	fun downloadSong(song: DomainSong) {
