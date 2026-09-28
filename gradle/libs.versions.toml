@@ -94,7 +94,7 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
-subsonicKotlin = { module = "dev.zt64.subsonic:subsonic-client", version = "1.0.0-SNAPSHOT" }
+subsonicKotlin = { module = "dev.zt64.subsonic:subsonic-client", version = "1.0.0-beta08-SNAPSHOT" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 
 [bundles]

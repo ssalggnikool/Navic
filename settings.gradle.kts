@@ -34,7 +34,11 @@ dependencyResolutionManagement {
 			}
 		}
 		maven {
-			url = uri("https://raw.githubusercontent.com/Nightdavisao/maven-repo/refs/heads/main/")
+			name = "Central Portal Snapshots"
+			url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+			content {
+				includeGroupAndSubgroups("dev.zt64.subsonic")
+			}
 		}
 		mavenCentral()
 	}
