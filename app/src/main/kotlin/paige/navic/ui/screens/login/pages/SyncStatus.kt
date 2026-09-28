@@ -1,0 +1,40 @@
+package paige.navic.ui.screens.login.pages
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import paige.navic.R
+import paige.navic.ui.core.LoginUiState
+
+@Composable
+fun LoginScreenSyncStatus(
+	loginUiState: LoginUiState
+) {
+	AnimatedVisibility(
+		modifier = Modifier.fillMaxWidth(),
+		visible = loginUiState is LoginUiState.Syncing,
+		enter = expandVertically() + fadeIn(),
+		exit = shrinkVertically() + fadeOut()
+	) {
+		val syncState = loginUiState as? LoginUiState.Syncing
+		Text(
+			text = stringResource(syncState?.message ?: R.string.info_syncing),
+			style = MaterialTheme.typography.bodySmall,
+			color = MaterialTheme.colorScheme.primary,
+			textAlign = TextAlign.Center,
+			modifier = Modifier.fillMaxWidth(),
+			maxLines = 1,
+			overflow = TextOverflow.Ellipsis
+		)
+	}
+}

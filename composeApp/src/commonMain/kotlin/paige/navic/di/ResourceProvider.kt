@@ -1,9 +1,0 @@
-package paige.navic.di
-
-// This class is a workaround for not being able to access :androidApp's R class inside :composeApp
-interface ResourceProvider {
-	val appIconDefault: Int
-	val appIconInverted: Int
-	val icNavic: Int
-	val animPause: Int
-}

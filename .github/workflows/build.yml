@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     paths:
-      - composeApp/**
+      - app/**
       - gradle/**
       - androidx-media
       - build.gradle.kts
@@ -16,7 +16,7 @@ on:
       - '*'
   pull_request:
     paths:
-      - composeApp/**
+      - app/**
       - gradle/**
       - androidx-media
       - build.gradle.kts
@@ -59,20 +59,20 @@ jobs:
           SIGNING_STORE_FILE: ${{ github.workspace }}/release.keystore
         run: |
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
-          ./gradlew :androidApp:packageRelease --stacktrace
-          mv androidApp/build/outputs/apk/**/*.apk ./
-          ./gradlew :androidApp:packageRelease -Pfdroid=true --stacktrace
-          mv androidApp/build/outputs/apk/**/*.apk ./
+          ./gradlew :app:packageRelease --stacktrace
+          mv app/build/outputs/apk/**/*.apk ./
+          ./gradlew :app:packageRelease -Pfdroid=true --stacktrace
+          mv app/build/outputs/apk/**/*.apk ./
           rm release.keystore
 
       - name: Build with Gradle (debug)
         id: build_debug
         if: github.event_name == 'pull_request'
         run: |
-          ./gradlew :androidApp:assembleDebug --stacktrace
-          mv androidApp/build/outputs/apk/**/*.apk ./
-          ./gradlew :androidApp:assembleDebug -Pfdroid=true --stacktrace
-          mv androidApp/build/outputs/apk/**/*.apk ./
+          ./gradlew :app:assembleDebug --stacktrace
+          mv app/build/outputs/apk/**/*.apk ./
+          ./gradlew :app:assembleDebug -Pfdroid=true --stacktrace
+          mv app/build/outputs/apk/**/*.apk ./
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v6

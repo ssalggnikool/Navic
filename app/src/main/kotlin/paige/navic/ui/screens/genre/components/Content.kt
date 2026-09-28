@@ -1,0 +1,39 @@
+package paige.navic.ui.screens.genre.components
+
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import paige.navic.R
+import paige.navic.domain.models.DomainGenre
+import paige.navic.ui.components.common.ContentUnavailable
+import paige.navic.ui.core.UiState
+
+fun LazyGridScope.genreListScreenContent(
+	state: UiState<List<DomainGenre>>
+) {
+	val data = state.data.orEmpty()
+	if (data.isNotEmpty()) {
+		items(data, { it.name }) { genre ->
+			GenreListScreenCard(
+				modifier = Modifier.animateItem(),
+				genre = genre
+			)
+		}
+	} else {
+		when (state) {
+			is UiState.Loading -> items(10) {
+				GenreListScreenCardPlaceholder()
+			}
+
+			else -> {
+				item(span = { GridItemSpan(maxLineSpan) }) {
+					ContentUnavailable(
+						label = stringResource(R.string.info_no_genres)
+					)
+				}
+			}
+		}
+	}
+}

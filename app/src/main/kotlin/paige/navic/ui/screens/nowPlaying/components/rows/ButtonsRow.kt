@@ -1,0 +1,208 @@
+package paige.navic.ui.screens.nowPlaying.components.rows
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.unit.dp
+import org.koin.compose.koinInject
+import paige.navic.R
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.RepeatOn
+import paige.navic.icons.filled.RepeatOneOn
+import paige.navic.icons.filled.ShuffleOn
+import paige.navic.icons.filled.SkipNext
+import paige.navic.icons.filled.SkipPrevious
+import paige.navic.icons.outlined.Repeat
+import paige.navic.icons.outlined.Shuffle
+import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.ui.util.playPauseIconPainter
+
+@Composable
+fun NowPlayingButtonsRow() {
+	val player = koinInject<MediaPlayerViewModel>()
+	val playerState by player.uiState.collectAsState()
+	val interactionSource = remember { MutableInteractionSource() }
+	val isPressed by interactionSource.collectIsPressedAsState()
+	val scale = remember { Animatable(1f) }
+	val enabled = playerState.currentSong != null
+	val haptic = LocalHapticFeedback.current
+
+	val hapticType = if (playerState.isPaused) {
+		HapticFeedbackType.ToggleOn
+	} else {
+		HapticFeedbackType.ToggleOff
+	}
+
+	val repeatStateDescription = stringResource(when (playerState.repeatMode) {
+		1 -> R.string.info_repeat_one
+		2 -> R.string.info_repeat_all
+		else -> R.string.info_repeat_off
+	})
+
+	LaunchedEffect(isPressed) {
+		if (!isPressed) {
+			if (scale.value != 1f) {
+				scale.animateTo(
+					targetValue = 1.2f,
+					animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing)
+				)
+				scale.animateTo(
+					targetValue = 1f,
+					animationSpec = spring(
+						dampingRatio = Spring.DampingRatioMediumBouncy,
+						stiffness = Spring.StiffnessLow
+					)
+				)
+			}
+		} else {
+			scale.animateTo(0.95f)
+		}
+	}
+
+	Row(
+		modifier = Modifier.widthIn(max = 400.dp),
+		horizontalArrangement = Arrangement.spacedBy(16.dp),
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		IconButton(
+			modifier = Modifier
+				.weight(1f)
+				.aspectRatio(1f)
+				.semantics {
+					toggleableState = ToggleableState(playerState.isShuffleEnabled)
+				},
+			onClick = {
+				player.toggleShuffle()
+			},
+			enabled = enabled,
+		) {
+			Icon(
+				imageVector = if (playerState.isShuffleEnabled)
+					Icons.Filled.ShuffleOn
+				else Icons.Outlined.Shuffle,
+				contentDescription = stringResource(R.string.action_shuffle),
+				modifier = Modifier.size(24.dp)
+			)
+		}
+		IconButton(
+			modifier = Modifier.weight(1f).aspectRatio(1f),
+			onClick = {
+				player.previous()
+			},
+			enabled = enabled
+		) {
+			Icon(
+				imageVector = Icons.Filled.SkipPrevious,
+				contentDescription = stringResource(R.string.action_previous_song),
+				modifier = Modifier.size(32.dp)
+			)
+		}
+		IconButton(
+			modifier = Modifier
+				.weight(1.3f)
+				.aspectRatio(1f)
+				.scale(scale.value)
+				.clip(CircleShape)
+				.indication(interactionSource, ripple(color = Color.Black)),
+			colors = IconButtonDefaults.filledIconButtonColors(),
+			onClick = {
+				haptic.performHapticFeedback(hapticType)
+				player.togglePlay()
+			},
+			enabled = enabled,
+			interactionSource = interactionSource
+		) {
+			val painter = playPauseIconPainter(playerState.isPaused)
+			val description = stringResource(
+				if (playerState.isPaused)
+					R.string.action_play
+				else R.string.action_pause
+			)
+			AnimatedContent(playerState.isLoading) { isBuffering ->
+				if (!isBuffering) {
+					Icon(
+						painter = painter,
+						contentDescription = description,
+						modifier = Modifier.size(40.dp)
+					)
+				} else {
+					CircularProgressIndicator(
+						Modifier.size(40.dp),
+						color = MaterialTheme.colorScheme.onPrimary,
+						trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = .5f),
+					)
+				}
+			}
+		}
+		IconButton(
+			modifier = Modifier.weight(1f).aspectRatio(1f),
+			onClick = {
+				player.next()
+			},
+			enabled = enabled,
+		) {
+			Icon(
+				imageVector = Icons.Filled.SkipNext,
+				contentDescription = stringResource(R.string.action_next_song),
+				modifier = Modifier.size(32.dp)
+			)
+		}
+		IconButton(
+			modifier = Modifier
+				.weight(1f)
+				.aspectRatio(1f)
+				.semantics {
+					stateDescription = repeatStateDescription
+				},
+			onClick = {
+				player.toggleRepeat()
+			},
+			enabled = enabled,
+		) {
+			Icon(
+				imageVector = when (playerState.repeatMode) {
+					1 -> Icons.Filled.RepeatOneOn
+					2 -> Icons.Filled.RepeatOn
+					else -> Icons.Outlined.Repeat
+				},
+				contentDescription = null,
+				modifier = Modifier.size(24.dp)
+			)
+		}
+	}
+}

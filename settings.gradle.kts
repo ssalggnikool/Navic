@@ -44,6 +44,5 @@ dependencyResolutionManagement {
 	}
 }
 
-include(":composeApp")
-include(":androidApp")
+include(":app")
 includeMedia3(file("androidx-media"))
