@@ -28,8 +28,12 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -76,15 +80,17 @@ import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.models.DomainSongListType
+import paige.navic.domain.models.settings.ArtistAlbumViewMode
 import paige.navic.domain.models.settings.BottomBarVisibilityMode
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.components.common.ErrorBox
 import paige.navic.ui.components.common.SongRow
 import paige.navic.ui.components.dialogs.BulkDownloadDialog
+import paige.navic.ui.screens.album.components.AlbumListScreenGridItem
+import paige.navic.ui.screens.album.components.AlbumListScreenListItem
 import paige.navic.ui.components.layouts.ArtCarousel
 import paige.navic.ui.components.layouts.ArtCarouselItem
 import paige.navic.ui.components.layouts.RootBottomBar
-import paige.navic.ui.components.sheets.CollectionSheet
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.artist.components.ArtistActionButtons
@@ -355,63 +361,112 @@ fun ArtistDetailScreen(
 											}
 										}
 									}
-								ArtCarousel(
-									stringResource(Res.string.title_albums),
-									state.albums.sortedByDescending { album -> album.playCount }
-										.toImmutableList()
-								) { album ->
-									val albumDownloadStatus by downloadManager
-										.getCollectionDownloadStatus(album.songs.map { it.id })
-										.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
-									ArtCarouselItem(
-										coverArtId = album.coverArtId,
-										title = album.name ?: "[unknown album]",
-										contentDescription = null,
-										onSelect = { viewModel.selectAlbum(album) },
-										onClick = dropUnlessResumed {
-											backStack.add(
-												Screen.CollectionDetail(
-													album.id,
-													"artist"
-												)
-											)
-										}
-									)
-									if (selectedAlbum == album) {
-										CollectionSheet(
-											onDismissRequest = { viewModel.clearAlbumSelection() },
-											collection = album,
-											starred = selectedAlbumIsStarred,
-											onShare = { shareId = album.id },
-											onPlayNext = { player.playNext(album) },
-											onAddToQueue = { player.addToQueue(album) },
-											onSetStarred = { viewModel.starAlbum(!selectedAlbumIsStarred) },
-											onAddAllToPlaylist = { playlistDialogShown = true },
-											downloadStatus = albumDownloadStatus,
-											onDownloadAll = {
-												scope.launch {
-													downloadManager.downloadCollection(album)
-													snackBarManager.notify(Res.string.notice_download_started)
-												}
-											},
-											onCancelDownloadAll = {
-												scope.launch {
-													album.songs.forEach {
-														downloadManager.cancelDownload(
-															it.id
+								if (state.albums.isNotEmpty()) {
+									val albumList = remember(state.albums) {
+										state.albums.sortedByDescending { album -> album.playCount }.toImmutableList()
+									}
+									val artistAlbumViewMode = preferenceManager.artistAlbumViewMode
+
+									Row(
+										modifier = Modifier
+											.heightIn(min = 32.dp)
+											.padding(top = 8.dp)
+											.padding(horizontal = 16.dp)
+											.fillMaxWidth(),
+										verticalAlignment = Alignment.CenterVertically,
+										horizontalArrangement = Arrangement.SpaceBetween
+									) {
+										Text(
+											stringResource(Res.string.title_albums),
+											style = MaterialTheme.typography.titleMediumEmphasized,
+											fontWeight = FontWeight(600)
+										)
+										SingleChoiceSegmentedButtonRow {
+											ArtistAlbumViewMode.entries.forEachIndexed { index, mode ->
+												SegmentedButton(
+													shape = SegmentedButtonDefaults.itemShape(
+														index = index,
+														count = ArtistAlbumViewMode.entries.size
+													),
+													onClick = { preferenceManager.artistAlbumViewMode = mode },
+													selected = artistAlbumViewMode == mode,
+													label = {
+														Icon(
+															imageVector = mode.icon,
+															contentDescription = stringResource(mode.displayName)
 														)
 													}
+												)
+											}
+										}
+									}
+
+									when (artistAlbumViewMode) {
+										ArtistAlbumViewMode.List -> {
+											Column(
+												modifier = Modifier
+													.fillMaxWidth()
+													.padding(vertical = 4.dp),
+												verticalArrangement = Arrangement.spacedBy(0.dp)
+											) {
+												albumList.forEach { album ->
+													AlbumListScreenListItem(
+														modifier = Modifier.fillMaxWidth(),
+														album = album,
+														selected = selectedAlbum == album,
+														starred = selectedAlbumIsStarred,
+														rating = selectedAlbumRating,
+														onSelect = { viewModel.selectAlbum(album) },
+														onDeselect = { viewModel.clearAlbumSelection() },
+														onSetStarred = { viewModel.starAlbum(!selectedAlbumIsStarred) },
+														onSetShareId = { shareId = it },
+														onPlayNext = { player.playNext(album) },
+														onAddToQueue = { player.addToQueue(album) },
+														onSetRating = { viewModel.rateSelectedAlbum(it) }
+													)
 												}
-											},
-											onDeleteDownloadAll = {
-												scope.launch {
-													downloadManager.deleteDownloadedCollection(album)
-													snackBarManager.notify(Res.string.notice_deleted_download)
+											}
+										}
+
+										ArtistAlbumViewMode.Grid -> {
+											val gridSize = preferenceManager.gridSize.value
+											Column(
+												modifier = Modifier
+													.fillMaxWidth()
+													.padding(horizontal = 16.dp, vertical = 8.dp),
+												verticalArrangement = Arrangement.spacedBy(12.dp)
+											) {
+												albumList.chunked(gridSize).forEach { rowAlbums ->
+													Row(
+														modifier = Modifier.fillMaxWidth(),
+														horizontalArrangement = Arrangement.spacedBy(12.dp)
+													) {
+														rowAlbums.forEach { album ->
+															Box(modifier = Modifier.weight(1f)) {
+																AlbumListScreenGridItem(
+																	modifier = Modifier.fillMaxWidth(),
+																	tab = "artist",
+																	album = album,
+																	selected = selectedAlbum == album,
+																	starred = selectedAlbumIsStarred,
+																	rating = selectedAlbumRating,
+																	onSelect = { viewModel.selectAlbum(album) },
+																	onDeselect = { viewModel.clearAlbumSelection() },
+																	onSetStarred = { viewModel.starAlbum(!selectedAlbumIsStarred) },
+																	onSetShareId = { shareId = it },
+																	onPlayNext = { player.playNext(album) },
+																	onAddToQueue = { player.addToQueue(album) },
+																	onSetRating = { viewModel.rateSelectedAlbum(it) }
+																)
+															}
+														}
+														repeat(gridSize - rowAlbums.size) {
+															Spacer(modifier = Modifier.weight(1f))
+														}
+													}
 												}
-											},
-											rating = selectedAlbumRating,
-											onSetRating = { viewModel.rateSelectedAlbum(it) }
-										)
+											}
+										}
 									}
 								}
 								if (state.similarArtists.isEmpty()) return@Column

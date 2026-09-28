@@ -17,6 +17,7 @@ import paige.navic.domain.models.settings.CoverArtTapAction
 import paige.navic.domain.models.settings.ExplicitContentPlayback
 import paige.navic.domain.models.settings.FontOption
 import paige.navic.domain.models.settings.GridSize
+import paige.navic.domain.models.settings.ArtistAlbumViewMode
 import paige.navic.domain.models.settings.ListViewMode
 import paige.navic.domain.models.settings.MarqueeSpeed
 import paige.navic.domain.models.settings.MiniPlayerProgressStyle
@@ -116,6 +117,7 @@ class PreferenceManager(
 	var albumListViewMode by preference(ListViewMode.Grid)
 	var playlistListViewMode by preference(ListViewMode.List)
 	var artistListViewMode by preference(ListViewMode.List)
+	var artistAlbumViewMode by preference(ArtistAlbumViewMode.Grid)
 
 	var albumSortType by jsonPreference<DomainAlbumListType>(DomainAlbumListType.AlphabeticalByArtist)
 	var albumSortReversed by preference(false)
