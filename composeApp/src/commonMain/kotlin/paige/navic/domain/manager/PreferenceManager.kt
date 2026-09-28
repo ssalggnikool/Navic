@@ -113,7 +113,7 @@ class PreferenceManager(
 	var albumListViewMode by preference(ListViewMode.Grid)
 	var playlistListViewMode by preference(ListViewMode.List)
 	var artistListViewMode by preference(ListViewMode.List)
-	var artistAlbumViewMode by preference(ArtistAlbumViewMode.Carousel)
+	var artistAlbumViewMode by preference(ArtistAlbumViewMode.Grid)
 
 	// these values are bitmasks of `DomainFilter`
 	var albumFilters by preference(0)

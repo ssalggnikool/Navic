@@ -11,7 +11,6 @@ import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -22,12 +21,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -94,7 +91,6 @@ import paige.navic.ui.screens.album.components.AlbumListScreenListItem
 import paige.navic.ui.components.layouts.ArtCarousel
 import paige.navic.ui.components.layouts.ArtCarouselItem
 import paige.navic.ui.components.layouts.RootBottomBar
-import paige.navic.ui.components.sheets.CollectionSheet
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screens.artist.components.ArtistActionButtons
@@ -405,72 +401,6 @@ fun ArtistDetailScreen(
 									}
 
 									when (artistAlbumViewMode) {
-										ArtistAlbumViewMode.Carousel -> {
-											LazyRow(
-												modifier = Modifier
-													.fillMaxWidth()
-													.padding(vertical = 8.dp),
-												horizontalArrangement = Arrangement.spacedBy(12.dp),
-												contentPadding = PaddingValues(horizontal = 16.dp)
-											) {
-												items(albumList, key = { it.id }) { album ->
-													val albumDownloadStatus by downloadManager
-														.getCollectionDownloadStatus(album.songs.map { it.id })
-														.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
-													ArtCarouselItem(
-														coverArtId = album.coverArtId,
-														title = album.name ?: "[unknown album]",
-														contentDescription = null,
-														onSelect = { viewModel.selectAlbum(album) },
-														onClick = dropUnlessResumed {
-															backStack.add(
-																Screen.CollectionDetail(
-																	album.id,
-																	"artist"
-																)
-															)
-														}
-													)
-													if (selectedAlbum == album) {
-														CollectionSheet(
-															onDismissRequest = { viewModel.clearAlbumSelection() },
-															collection = album,
-															starred = selectedAlbumIsStarred,
-															onShare = { shareId = album.id },
-															onPlayNext = { player.playNext(album) },
-															onAddToQueue = { player.addToQueue(album) },
-															onSetStarred = { viewModel.starAlbum(!selectedAlbumIsStarred) },
-															onAddAllToPlaylist = { playlistDialogShown = true },
-															downloadStatus = albumDownloadStatus,
-															onDownloadAll = {
-																scope.launch {
-																	downloadManager.downloadCollection(album)
-																	snackBarManager.notify(Res.string.notice_download_started)
-																}
-															},
-															onCancelDownloadAll = {
-																scope.launch {
-																	album.songs.forEach {
-																		downloadManager.cancelDownload(
-																			it.id
-																		)
-																	}
-																}
-															},
-															onDeleteDownloadAll = {
-																scope.launch {
-																	downloadManager.deleteDownloadedCollection(album)
-																	snackBarManager.notify(Res.string.notice_deleted_download)
-																}
-															},
-															rating = selectedAlbumRating,
-															onSetRating = { viewModel.rateSelectedAlbum(it) }
-														)
-													}
-												}
-											}
-										}
-
 										ArtistAlbumViewMode.List -> {
 											Column(
 												modifier = Modifier
