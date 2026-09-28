@@ -13,16 +13,22 @@ import android.renderscript.Allocation
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.renderscript.Element
+import android.view.View
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
+import coil3.request.ImageRequest
+import coil3.request.allowHardware
 
 
 @SuppressLint("UnnecessaryComposedModifier")
@@ -58,7 +64,7 @@ actual fun Modifier.backwardsCompatibleBlur(radius: Dp): Modifier  {
 				contentBitmap,
 				finalOutput,
 				radius.value,
-				0.2f
+				0.1f
 			)
 
 			drawIntoCanvas { canvas ->
@@ -122,4 +128,38 @@ fun blurBitmapWithRenderShit(
 	if (scaledInput != input) scaledInput.recycle()
 	scaledOutput.recycle()
 	return output
+}
+
+fun isHardwareRenderingCucked(): Boolean {
+	return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+}
+
+/*
+ * if we're running android < 12, this basically fixes the issue where
+ * blend rotation doesn't update in real time (it only did if you interacted with the now playing screen)
+ */
+@Composable
+actual fun PlatformLayerComposable(
+	modifier: Modifier,
+	content: @Composable (() -> Unit)
+) {
+	AndroidView(
+		factory = { context ->
+			ComposeView(context)
+		},
+		update = { composeView ->
+			composeView.setContent(content)
+		},
+		modifier = modifier,
+	)
+}
+
+/*
+ * if you don't disable this on the coil builder for the blend background,
+ * you'll always be greeted with this error on android 7 > x < 12:
+ *  "Software rendering doesn't support hardware bitmaps"
+ * ...how many people are on the island again, beatoriche?
+ */
+actual fun ImageRequest.Builder.disableHardwareIfCucked(): ImageRequest.Builder {
+	return this.allowHardware(!isHardwareRenderingCucked())
 }
