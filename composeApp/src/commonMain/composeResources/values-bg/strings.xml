@@ -74,8 +74,6 @@
     <string name="subtitle_developer">Отсраняване на грешки, тестване и сигнали</string>
     <string name="subtitle_check_for_updates">Провери GitHub за актуализации, когато приложението се отвори</string>
     <string name="subtitle_local_network_denied">Трябва да позволиш на Navic да има достъп до локалната ви мрежа за да може вашия сървър да е достъпен.</string>
-    <string name="subtitle_equaliser">Настрой и подобри звука</string>
-    <string name="subtitle_equaliser_disabled">Не е налично, когато разтоварване на звука е включено</string>
     <string name="subtitle_configure_lyric_providers">Променете от къде са взети текстовете</string>
     <string name="option_off">Изключено</string>
     <string name="title_logs">Логове</string>

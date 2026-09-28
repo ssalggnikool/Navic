@@ -83,8 +83,6 @@
     <string name="subtitle_dynamic_theming">Tự động thay đổi giao diện trang album và nghệ sĩ dựa trên ảnh bìa</string>
     <string name="subtitle_app_icon_designer">Thiết kế bởi: %1$s</string>
     <string name="subtitle_local_network_denied">Bạn cần cấp cho Navic quyền truy cập mạng cục bộ để có thể kết nối đến máy chủ của bạn.</string>
-    <string name="subtitle_equaliser">Tinh chỉnh &amp; nâng cao chất lượng âm thanh</string>
-    <string name="subtitle_equaliser_disabled">Không khả dụng khi tính năng audio offload được bật</string>
     <string name="subtitle_configure_lyric_providers">Chọn nơi cung cấp lời bài hát</string>
     <string name="option_off">Tắt</string>
     <string name="option_now_playing_background_style">Kiểu hình nền</string>
@@ -188,10 +186,5 @@
     <string name="option_cover_art_action">Hành động khi nhấn vào ảnh bìa</string>
     <string name="option_cover_art_action_disabled">Vô hiệu hoá</string>
     <string name="option_cover_art_action_show_lyrics">Hiện thị lời bài hát</string>
-    <string name="option_equaliser">Bộ cân bằng</string>
-    <string name="option_equaliser_mode">Nguồn bộ cân bằng</string>
-    <string name="option_equaliser_mode_disabled">Vô hiệu hoá</string>
-    <string name="option_equaliser_mode_builtin">Có sẵn</string>
-    <string name="option_equaliser_mode_external">Bên ngoài</string>
     <string name="option_list_view_mode">Chế độ xem</string>
 </resources>

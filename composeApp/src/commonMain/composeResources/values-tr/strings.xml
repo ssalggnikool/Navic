@@ -313,8 +313,6 @@
     <string name="option_explicit_playback_allowed">İzin verilmiş</string>
     <string name="option_cover_art_action_disabled">Devre dışı bırakılmış</string>
     <string name="option_cover_art_action_show_lyrics">Sözleri göster</string>
-    <string name="option_equaliser_mode_disabled">Devre dışı bırakılmış</string>
-    <string name="option_equaliser_mode_external">Harici</string>
     <string name="option_list_view_mode">İzleme modu</string>
     <string name="option_list_view_mode_list">Liste</string>
     <string name="info_progress">İlerleme</string>
@@ -340,7 +338,6 @@
     <string name="info_no_starred">Hiç bir şey yıldızlanmadı</string>
     <string name="info_repeat_one">Bir kere tekrarla</string>
     <string name="info_repeat_all">Her şeyi tekrarla</string>
-    <string name="info_equaliser_unsupported">Cihazınız bu özelliği desteklemiyor.</string>
     <string name="title_track_info">Parça bilgisi</string>
     <string name="title_lyric_providers">Söz sağlayıcıları</string>
     <string name="subtitle_configure_lyric_providers">Sözlerin nerden alındığını değiştir</string>
@@ -350,8 +347,6 @@
     <string name="option_quality_lossless">Kayıpsız(kodlama yok)</string>
     <string name="option_palette_style">Palet stili</string>
     <string name="option_dynamic_theming">Dinamik tema</string>
-    <string name="option_equaliser">Ekolayzer</string>
-    <string name="option_equaliser_mode">Ekolayzer modu</string>
     <string name="option_list_view_mode_grid">Izgara</string>
     <string name="info_in_use">(kullanımda)</string>
     <plurals name="count_hours_ago">
@@ -391,7 +386,6 @@
     <string name="option_palette_specification">Palet özellikleri</string>
     <string name="option_explicit_playback_skip">Müstehcen şarkıları atla</string>
     <string name="option_explicit_playback_skip_session">Müstehcen şarkıları bu oturum boyunca atla</string>
-    <string name="option_equaliser_mode_builtin">Yerleşik</string>
     <string name="info_status_downloading">İndirme işlemi ilerlemede...</string>
     <string name="info_explicit">Müstehcen</string>
     <string name="option_mini_player_style_detached">Bağımsız</string>
@@ -404,11 +398,8 @@
     <string name="notice_added_to_multiple_playlists">Birden fazla oynatma listesine eklendi.</string>
     <string name="notice_link_confirmation">Bu bağlantı sizi aşağıdaki siteye götürecek:</string>
     <string name="info_repeat_off">Tekrarlama kapalı</string>
-    <string name="info_equaliser_mode_not_builtin">Kontroller sadece yerleşik modda kullanılabilir.</string>
     <string name="subtitle_offline_mode">Uygulamanın ne zaman çevrimdışı moda geçmesi gerektiğini belirler. Uygulamanın yeniden başlatılmasını gerektirir</string>
     <string name="subtitle_local_network_denied">Sunucunuza erişilebilir olması için Navic'e yerel ağınıza erişim izni vermeniz gerekir.</string>
-    <string name="subtitle_equaliser">Sesi ayarla ve iyileştir</string>
-    <string name="subtitle_equaliser_disabled">Ses aktarımı etkinken kullanılamaz</string>
     <string name="option_cover_art_quality">Kapak tasarımı kalitesi</string>
     <string name="option_explicit_playback">Müstehcen içerikli oynatma</string>
     <string name="info_library_download_warning">Kütüphanenizin tamamını indirmek istediğinizden emin misiniz?\nBu işlem, daha önce indirdiğiniz öğeleri atlayacaktır, ancak yine de önemli miktarda depolama alanı ve veri tüketebilir.</string>

@@ -396,17 +396,10 @@
     <string name="title_github">GitHub</string>
     <string name="title_codeberg">Codeberg</string>
     <string name="title_link_confirmation">Saliendo de Navic</string>
-    <string name="subtitle_equaliser">Ajuste y mejore el audio</string>
-    <string name="subtitle_equaliser_disabled">No disponible mientras la relegación de audio esté activada</string>
     <string name="subtitle_configure_lyric_providers">Cambie el origen de las letras</string>
     <string name="option_auto_fill_queue">Auto-rellenar cola</string>
     <string name="subtitle_auto_fill_queue">Añadir una canción aleatoria a la cola cuando solo quede una</string>
     <string name="option_cover_art_action">Acción al pulsar la portada</string>
-    <string name="option_equaliser">Ecualizador</string>
-    <string name="option_equaliser_mode">Modo de ecualizador</string>
-    <string name="option_equaliser_mode_disabled">Deshabilitado</string>
-    <string name="option_equaliser_mode_builtin">Incorporado</string>
-    <string name="option_equaliser_mode_external">Externo</string>
     <string name="option_list_view_mode">Modo de visualización</string>
     <string name="option_list_view_mode_grid">Cuadrícula</string>
     <string name="option_list_view_mode_list">Lista</string>
@@ -439,7 +432,5 @@
     <string name="action_visit_site">Visitar el sitio</string>
     <string name="notice_link_confirmation">Este enlace le llevará al siguiente sitio web:</string>
     <string name="info_dynamic_replay_gain">ReplayGain dinámico</string>
-    <string name="info_equaliser_unsupported">Su dispositivo no soporta esta funcionalidad.</string>
-    <string name="info_equaliser_mode_not_builtin">Los controles solo están disponibles en el modo Incorporado.</string>
     <string name="info_lyric_provider_disclaimer">Habilitar LRCLIB y/o LyricsPlus generará peticiones a servicions web externos y no afiliados.</string>
 </resources>

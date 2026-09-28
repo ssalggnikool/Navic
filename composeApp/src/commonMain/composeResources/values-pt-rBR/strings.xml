@@ -295,11 +295,6 @@
     <string name="option_offline_mode_forced">Forçado</string>
     <string name="title_discord_server">Servidor do Discord</string>
     <string name="option_dynamic_theming">Tema dinâmico</string>
-    <string name="option_equaliser">Equalizador</string>
-    <string name="option_equaliser_mode">Modo do equalizador</string>
-    <string name="option_equaliser_mode_disabled">Desativado</string>
-    <string name="option_equaliser_mode_builtin">Nativo</string>
-    <string name="option_equaliser_mode_external">Externo</string>
     <string name="action_configure_lyric_providers">Configurar provedores de letras</string>
     <string name="subtitle_configure_lyric_providers">Selecionar de onde obter as letras</string>
     <string name="option_cover_art_action">Ação ao tocar na capa</string>
@@ -313,11 +308,8 @@
     <string name="info_repeat_one">Repetir atual</string>
     <string name="info_repeat_all">Repetir todas</string>
     <string name="info_app_icon">Alterar o ícone do aplicativo irá fechar o Navic, pois isso é uma exigência do Android. Talvez alguns ícones pareçam idênticos na sua tela inicial se o seu launcher aplica temas dinâmicos no ícone.</string>
-    <string name="info_equaliser_unsupported">Seu dispositivo não suporta essa opção.</string>
-    <string name="info_equaliser_mode_not_builtin">Por favor ajuste o equalizador externo usando o seu próprio aplicativo dedicado.</string>
     <string name="info_lyric_provider_disclaimer">Ativar o LRCLIB e/ou o LyricsPlus irá fazer requisições a serviços externos e não afiliados.</string>
     <string name="option_cover_art_quality">Qualidade da capa</string>
-    <string name="subtitle_equaliser">Ajustar e melhorar o áudio</string>
     <string name="option_stream_custom_quality">Usar qualidade alternativa para streaming</string>
     <string name="option_download_custom_quality">Usar qualidade alternativa para download</string>
     <plurals name="count_songs">
@@ -380,7 +372,6 @@
     <string name="notice_local_network_denied">Permissão negada</string>
     <string name="subtitle_local_network_denied">Você precisa permitir o acesso à rede local ao Navic para que seja possível acessar o seu servidor.</string>
     <string name="info_download_quality">Predefinições de qualidade mais altas utilizam mais espaço e dados. A transcodificação pode aumentar o tempo de download. Selecione "Lossless" se encontrar algum problema.</string>
-    <string name="subtitle_equaliser_disabled">Indisponível quando o offload de áudio está ativado</string>
     <string name="notice_added_to_queue">Adicionado à fila.</string>
     <string name="option_choose_app_icon">Ícone do aplicativo</string>
     <string name="option_max_bitrate_wifi">Bitrate máximo em Wi-fi (kbps)</string>

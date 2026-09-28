@@ -272,8 +272,6 @@
     <string name="subtitle_dynamic_theming">Pas kleuren automatisch aan de coverkleuren aan</string>
     <string name="subtitle_app_icon_designer">Ontworpen door: %1$s</string>
     <string name="subtitle_local_network_denied">U dient Navic netwerk toegang te geven om met een server te verbinden</string>
-    <string name="subtitle_equaliser">Radio beistellen en verbeteren</string>
-    <string name="subtitle_equaliser_disabled">Niet ondersteund in combinatie met audio-offload</string>
     <string name="subtitle_configure_lyric_providers">Bronnen voor songtexten aanpassen</string>
     <string name="option_off">Uit</string>
     <string name="option_now_playing_song_info">Technische informatie bij afspelen tonen</string>
@@ -322,11 +320,6 @@
     <string name="option_cover_art_action">Cover interactie functie</string>
     <string name="option_cover_art_action_disabled">Uitgeschakeld</string>
     <string name="option_cover_art_action_show_lyrics">Songtext tonen</string>
-    <string name="option_equaliser">Equalizer</string>
-    <string name="option_equaliser_mode">Equalizer modus</string>
-    <string name="option_equaliser_mode_disabled">Uitgeschakeld</string>
-    <string name="option_equaliser_mode_builtin">Intern</string>
-    <string name="option_equaliser_mode_external">Extern</string>
     <string name="option_list_view_mode">Weergave modus</string>
     <string name="option_list_view_mode_grid">Rooster</string>
     <string name="option_list_view_mode_list">Lijst</string>
@@ -426,7 +419,5 @@
     <string name="info_repeat_one">Herhaal huidig</string>
     <string name="info_repeat_all">Herhaal alle</string>
     <string name="info_app_icon">Het veranderen van het App Logo zal Navic afsluiten omdat dit voor android nodig is. Sommige Logos zien er mogelijk identiek uit als uw launcher deze aanpasst.</string>
-    <string name="info_equaliser_unsupported">Uw apparaat ondersteund deze functie niet.</string>
-    <string name="info_equaliser_mode_not_builtin">Bediening is alleen in de interne modus beschikbaar.</string>
     <string name="info_lyric_provider_disclaimer">Het gebruik van LRCLIB en/of LyricsPlus zal verbinding met externe en ongerelateerde webservices maken.</string>
 </resources>

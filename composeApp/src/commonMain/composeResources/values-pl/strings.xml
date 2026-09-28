@@ -404,19 +404,11 @@
     <string name="title_link_confirmation">Wyjście z Navic</string>
     <string name="action_visit_site">Odwiedź stronę</string>
     <string name="notice_link_confirmation">Ten link zabierze Ciebie do następującej strony:</string>
-    <string name="info_equaliser_unsupported">Twoje urządzenie nie obsługuje tej funkcji.</string>
     <string name="title_lyric_providers">Dostawcy Napisów</string>
-    <string name="subtitle_equaliser">Dostrajanie i wzmacnianie audio</string>
-    <string name="subtitle_equaliser_disabled">Niedostępne, jeżeli funkcja odciążania audio jest aktywna</string>
     <string name="subtitle_configure_lyric_providers">Zmień źródło tekstów piosenek</string>
     <string name="option_auto_fill_queue">Automatyczne wypełnianie kolejki</string>
     <string name="subtitle_auto_fill_queue">Automatycznie dodaj losowy utwór do kończącej się kolejki</string>
     <string name="option_cover_art_action">Akcja po naciśnięciu okładki</string>
-    <string name="option_equaliser">Equalizer</string>
-    <string name="option_equaliser_mode">Tryb equalizera</string>
-    <string name="option_equaliser_mode_disabled">Wyłączony</string>
-    <string name="option_equaliser_mode_builtin">Wbudowany</string>
-    <string name="option_equaliser_mode_external">Zewnętrzny</string>
     <string name="option_list_view_mode">Tryb wyświetlania</string>
     <string name="option_list_view_mode_grid">Siatka</string>
     <string name="option_list_view_mode_list">Lista</string>
@@ -450,6 +442,5 @@
     <string name="action_reset">Reset</string>
     <string name="action_configure_lyric_providers">Konfiguruj źródła tekstów</string>
     <string name="info_dynamic_replay_gain">Dynamiczny ReplayGain</string>
-    <string name="info_equaliser_mode_not_builtin">Sterowanie dostępne wyłącznie w trybie "Wbudowany".</string>
     <string name="info_lyric_provider_disclaimer">Aktywowanie LRCLIB i/lub LyricsPlus będzie się wiązać z wykonywaniem żądań do zewnętrznych serwisów.</string>
 </resources>

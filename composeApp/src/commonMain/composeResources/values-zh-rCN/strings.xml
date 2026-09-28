@@ -372,5 +372,4 @@
     <string name="action_open_settings">打开设置</string>
     <string name="notice_local_network_denied">权限被拒绝</string>
     <string name="info_download_quality">更高质量的预设会消耗更多存储和数据。转码可能会增加下载次数，若遇到问题选择无损。</string>
-    <string name="subtitle_equaliser">调整并增强音频</string>
 </resources>
