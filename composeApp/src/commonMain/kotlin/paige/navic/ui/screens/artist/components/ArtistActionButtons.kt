@@ -71,8 +71,7 @@ fun ArtistActionButtons(
 			Icon(
 				imageVector = Icons.Outlined.Shuffle,
 				contentDescription = stringResource(Res.string.action_shuffle),
-				modifier = Modifier.size(22.dp),
-				tint = MaterialTheme.colorScheme.primary
+				modifier = Modifier.size(22.dp)
 			)
 		}
 
