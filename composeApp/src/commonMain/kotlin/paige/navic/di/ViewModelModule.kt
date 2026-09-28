@@ -69,7 +69,7 @@ val viewModelModule = module {
 
 	viewModel { params ->
 		AlbumListViewModel(
-			initialListType = params.getOrNull<DomainAlbumListType>() ?: DomainAlbumListType.AlphabeticalByArtist,
+			initialListType = params.getOrNull<DomainAlbumListType>(),
 			initialFilters = params.getOrNull<Set<DomainFilter>>(),
 			repository = get(),
 			sessionManager = get(),
@@ -78,7 +78,7 @@ val viewModelModule = module {
 	}
 	viewModel { params ->
 		SongListViewModel(
-			initialListType = params.getOrNull<DomainSongListType>() ?: DomainSongListType.FrequentlyPlayed,
+			initialListType = params.getOrNull<DomainSongListType>(),
 			initialFilters = params.getOrNull<Set<DomainFilter>>(),
 			repository = get(),
 			downloadManager = get(),
@@ -89,7 +89,7 @@ val viewModelModule = module {
 	}
 	viewModel { params ->
 		ArtistListViewModel(
-			initialListType = params.getOrNull<DomainArtistListType>() ?: DomainArtistListType.AlphabeticalByName,
+			initialListType = params.getOrNull<DomainArtistListType>(),
 			initialFilters = params.getOrNull<Set<DomainFilter>>(),
 			repository = get(),
 			albumDao = get(),

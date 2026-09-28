@@ -3,6 +3,10 @@ package paige.navic.domain.manager
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import paige.navic.domain.manager.base.BasePreferenceManager
+import paige.navic.domain.models.DomainAlbumListType
+import paige.navic.domain.models.DomainArtistListType
+import paige.navic.domain.models.DomainPlaylistListType
+import paige.navic.domain.models.DomainSongListType
 import paige.navic.domain.models.settings.AnimationStyle
 import paige.navic.domain.models.settings.AppIconVariant
 import paige.navic.domain.models.settings.BottomBarCollapseMode
@@ -112,6 +116,17 @@ class PreferenceManager(
 	var albumListViewMode by preference(ListViewMode.Grid)
 	var playlistListViewMode by preference(ListViewMode.List)
 	var artistListViewMode by preference(ListViewMode.List)
+
+	var albumSortType by jsonPreference<DomainAlbumListType>(DomainAlbumListType.AlphabeticalByArtist)
+	var albumSortReversed by preference(false)
+
+	var songSortType by jsonPreference<DomainSongListType>(DomainSongListType.FrequentlyPlayed)
+	var songSortReversed by preference(false)
+
+	var artistSortType by preference(DomainArtistListType.AlphabeticalByName)
+
+	var playlistSortType by preference(DomainPlaylistListType.Name)
+	var playlistSortReversed by preference(false)
 
 	// these values are bitmasks of `DomainFilter`
 	var albumFilters by preference(0)

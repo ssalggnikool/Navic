@@ -19,7 +19,7 @@ import paige.navic.domain.repositories.AlbumRepository
 import paige.navic.ui.core.UiState
 
 class AlbumListViewModel(
-	initialListType: DomainAlbumListType = DomainAlbumListType.AlphabeticalByArtist,
+	initialListType: DomainAlbumListType? = null,
 	initialFilters: Set<DomainFilter>? = null,
 	private val repository: AlbumRepository,
 	private val sessionManager: SessionManager,
@@ -38,10 +38,10 @@ class AlbumListViewModel(
 		field = MutableStateFlow(0)
 
 	val listType: StateFlow<DomainAlbumListType>
-		field = MutableStateFlow(initialListType)
+		field = MutableStateFlow(initialListType ?: preferenceManager.albumSortType)
 
 	val selectedReversed: StateFlow<Boolean>
-		field = MutableStateFlow(false)
+		field = MutableStateFlow(preferenceManager.albumSortReversed)
 
 	val selectedFilters: StateFlow<Set<DomainFilter>>
 		field = MutableStateFlow(
@@ -107,11 +107,13 @@ class AlbumListViewModel(
 
 	fun setListType(newListType: DomainAlbumListType) {
 		listType.value = newListType
+		preferenceManager.albumSortType = newListType
 		refreshAlbums(false)
 	}
 
 	fun setReversed(reversed: Boolean) {
 		selectedReversed.value = reversed
+		preferenceManager.albumSortReversed = reversed
 		refreshAlbums(false)
 	}
 
