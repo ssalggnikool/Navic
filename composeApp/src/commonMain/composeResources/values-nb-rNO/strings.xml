@@ -360,11 +360,6 @@
     <string name="title_link_confirmation">Du forlater nå Navic</string>
     <string name="option_auto_fill_queue">Fyll avspillingskøen automatisk</string>
     <string name="subtitle_configure_lyric_providers">Endrer hvor sangtekster hentes fra</string>
-    <string name="option_equaliser_mode_builtin">Innebygd</string>
-    <string name="option_equaliser_mode_external">Ekstern</string>
-    <string name="option_equaliser_mode_disabled">Avslått</string>
-    <string name="option_equaliser">Tonekontroll</string>
-    <string name="option_equaliser_mode">Tonekontrollkilde</string>
     <string name="option_list_view_mode">Visningsmodus</string>
     <string name="option_list_view_mode_grid">Rutenett</string>
     <string name="option_list_view_mode_list">Liste</string>
@@ -387,8 +382,6 @@
     <string name="action_sleep_timer_songs">Stopp etter %1$d sanger</string>
     <string name="title_sleep_timer_time">Tid</string>
     <string name="title_sleep_timer_songs">Sanger</string>
-    <string name="info_equaliser_unsupported">Din enhet støtter ikke denne funksjonen.</string>
-    <string name="info_equaliser_mode_not_builtin">Bruk den eksterne tonekontrollen sin egen app.</string>
     <string name="action_visit_site">Besøk nettside</string>
     <string name="title_lyric_providers">Sangtekstkilder</string>
     <string name="action_configure_lyric_providers">Velg sangtekstkilder</string>
@@ -397,7 +390,6 @@
     <string name="action_reset">Nullstill</string>
     <string name="notice_link_confirmation">Denne lenken sender deg til følgende nettside:</string>
     <string name="info_lyric_provider_disclaimer">Når LRCLIB og/eller LyricsPlus brukes blir forespørsler sendt til eksterne tjenester.</string>
-    <string name="subtitle_equaliser">Juster og forbedre lyden</string>
     <string name="subtitle_audio_offload">Eksperimentelt. Krever omstart. Kan skape problemer med sømløsavspilling på noen enheter</string>
     <string name="option_gapless_playback">Sømløsavspilling</string>
     <string name="subtitle_dynamic_theming">Tilpass utseende på album- og artistskjermene dynamisk basert på albumbilde</string>
@@ -423,4 +415,32 @@
     <string name="option_preamp_tip">Setter du forforsterker valgene til veldig høye verdier kan det føre til forvrengning av lyden.</string>
     <string name="option_hide_bottom_bar_if_idle">Gjem minispiller hvis ingenting spilles</string>
     <string name="action_reset_dont_show_agains">Nullstill alle «Ikke vis igjen» valg</string>
+    <string name="title_statistics">Statistikk</string>
+    <string name="title_top_songs">Topp sanger</string>
+    <string name="title_top_artists">Topp artister</string>
+    <string name="title_top_albums">Topp album</string>
+    <string name="action_allow">Tillat</string>
+    <string name="info_duration_left">%1$s igjen</string>
+    <string name="info_starred_songs">Stjernemerkede sanger</string>
+    <string name="info_total_listening_time">Total lyttetid</string>
+    <string name="info_total_plays">Totalt antall avspillinger</string>
+    <string name="notice_image_saved">Bilde lagret.</string>
+    <string name="action_view_statistics">Se statistikk</string>
+    <string name="action_save">Lagre</string>
+    <plurals name="count_plays">
+        <item quantity="one">%1$d avspilling</item>
+        <item quantity="other">%1$d avspillinger</item>
+    </plurals>
+    <plurals name="count_remaining_songs">
+        <item quantity="one">%1$d sang igjen</item>
+        <item quantity="other">%1$d sanger igjen</item>
+    </plurals>
+    <string name="title_chat">Nettprat</string>
+    <string name="info_content_unavailable">Ingenting her</string>
+    <string name="action_edit">rediger</string>
+    <string name="option_ignore_ssl_certificates">Ignorer SSL sertifikater</string>
+    <string name="option_proxy_url">Nettadresse for mellomtjener</string>
+    <string name="option_proxy_settings">Instillinger for mellomtjener</string>
+    <string name="option_connection_options">Tilkoblingsinnstillinger</string>
+    <string name="action_send_message">Send melling</string>
 </resources>

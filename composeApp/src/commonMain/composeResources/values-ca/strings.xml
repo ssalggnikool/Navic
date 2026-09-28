@@ -391,28 +391,20 @@
     <string name="info_repeat_one">Repetir una</string>
     <string name="info_repeat_all">Repetir totes</string>
     <string name="info_app_icon">Canviar l'icona de l'app tancarà Navic; així ho requereix Android. Algunes icones poden veure's idèntiques en la vostra pantalla d'inici si el llançador del sistema aplica temes o colors dinàmics a les icones.</string>
-    <string name="subtitle_equaliser">Ajusta i millora l'àudio</string>
-    <string name="subtitle_equaliser_disabled">No disponible amb la relegació d'àudio activada</string>
     <string name="option_auto_fill_queue">Emplenament automàtic de la cua</string>
     <string name="subtitle_auto_fill_queue">Afegeix una cançó aleatòria a la cua quan només en queda una</string>
-    <string name="option_equaliser">Equalitzador</string>
     <string name="option_list_view_mode">Mode de visualització</string>
     <string name="option_list_view_mode_grid">Quadrícula</string>
     <string name="option_list_view_mode_list">Llista</string>
     <string name="info_external_song">Externa</string>
     <string name="info_external_song_description">Aquesta cançó ha estat marcada com a externa pel vostre servidor, és possible que no la pugueu escoltar.</string>
     <string name="action_reset">Reset</string>
-    <string name="info_equaliser_unsupported">El vostre dispositiu no suporta aquesta funcionalitat.</string>
     <string name="title_discord_server">Servidor de Discord</string>
     <string name="title_lyric_providers">Proveïdors de lletres</string>
     <string name="title_github">GitHub</string>
     <string name="title_codeberg">Codeberg</string>
     <string name="title_link_confirmation">Esteu sortint de Navic</string>
     <string name="subtitle_configure_lyric_providers">Canvieu la font des d'on s'obtenen les lletres</string>
-    <string name="option_equaliser_mode">Mode d'equalitzador</string>
-    <string name="option_equaliser_mode_disabled">Deshabilitat</string>
-    <string name="option_equaliser_mode_builtin">Integrat</string>
-    <string name="option_equaliser_mode_external">Extern</string>
     <plurals name="count_minutes_ago">
         <item quantity="one">Fa %1$d minut</item>
         <item quantity="many">Fa %1$d de minuts</item>
@@ -438,7 +430,6 @@
     <string name="action_configure_lyric_providers">Configureu proveïdors de lletres</string>
     <string name="action_visit_site">Visiteu el lloc web</string>
     <string name="notice_link_confirmation">Aquest enllaç us portarà al següent lloc web:</string>
-    <string name="info_equaliser_mode_not_builtin">Els controls només estàn disponibles en el mode Integrat.</string>
     <string name="info_lyric_provider_disclaimer">Habilitar LRCLIB i/o LyricsPlus generarà peticions a serveis webs externs i no afiliats.</string>
     <string name="info_dynamic_replay_gain">ReplayGain dinàmic</string>
 </resources>

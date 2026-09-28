@@ -83,8 +83,6 @@
     <string name="subtitle_dynamic_theming">Tematizați dinamic vederile albumului și ale artistului pe baza copertii</string>
     <string name="subtitle_app_icon_designer">Conceput de: %1$s</string>
     <string name="subtitle_local_network_denied">Trebuie să acordați Navic acces la rețeaua locală pentru ca serverul dumneavoastră să fie accesibil.</string>
-    <string name="subtitle_equaliser">Ajustați și îmbunătățiți sunetul</string>
-    <string name="subtitle_equaliser_disabled">Nu este disponibil când audio offload este activat</string>
     <string name="subtitle_configure_lyric_providers">Schimbați de unde sunt preluate versurile</string>
     <string name="option_off">Dezactivat</string>
     <string name="option_now_playing_background_style">Stil fundal</string>
@@ -181,11 +179,6 @@
     <string name="option_cover_art_action">Acțiune la atingerea copertii</string>
     <string name="option_cover_art_action_disabled">Desactivat</string>
     <string name="option_cover_art_action_show_lyrics">Afişarea versurilor</string>
-    <string name="option_equaliser">Egalizator</string>
-    <string name="option_equaliser_mode">Mod egalizator</string>
-    <string name="option_equaliser_mode_disabled">Desactivat</string>
-    <string name="option_equaliser_mode_builtin">Integrat</string>
-    <string name="option_equaliser_mode_external">Extern</string>
     <string name="option_list_view_mode">Mod vizualizare</string>
     <string name="option_list_view_mode_grid">Grilă</string>
     <string name="option_list_view_mode_list">Listă</string>
@@ -437,8 +430,6 @@
     <string name="info_repeat_one">Repetați una</string>
     <string name="info_repeat_all">Repetați toate</string>
     <string name="info_app_icon">Schimbarea pictogramei aplicației va închide Navic, deoarece Android necesită acest lucru. Unele iconițe pot arăta identic pe ecranul principal dacă lansatorul aplică dinamic teme de culoare al iconiței.</string>
-    <string name="info_equaliser_unsupported">Dispozitivul dvs. nu acceptă această funcție.</string>
-    <string name="info_equaliser_mode_not_builtin">Controalele sunt disponibile doar în modul Integrat.</string>
     <string name="info_lyric_provider_disclaimer">Activarea LRCLIB și/sau LyricsPlus va trimite cereri către servicii web externe și neafiliate cu Navic.</string>
     <string name="info_dynamic_replay_gain">ReplayGain Dinamic</string>
 </resources>

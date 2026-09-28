@@ -55,10 +55,6 @@
     <string name="option_quality_high">高</string>
     <string name="option_stream_custom_quality">使用自訂串流品質</string>
     <string name="option_download_custom_quality">使用自訂下載品質</string>
-    <string name="option_equaliser">等化器</string>
-    <string name="option_equaliser_mode">等化器來源</string>
-    <string name="option_equaliser_mode_builtin">內建</string>
-    <string name="option_equaliser_mode_external">外部</string>
     <string name="info_external_song">外部</string>
     <string name="option_list_view_mode">檢視模式</string>
     <string name="info_status_calculating">計算中...</string>
@@ -111,7 +107,6 @@
     <string name="info_no_search_results">無結果</string>
     <string name="info_syncing">同步中...</string>
     <string name="info_syncing_saving">儲存中...</string>
-    <string name="info_equaliser_unsupported">您的裝置不支援此功能。</string>
     <string name="title_songs">歌曲</string>
     <string name="option_now_playing_song_info">顯示歌曲技術資訊</string>
     <string name="option_playlist_songs">歌曲</string>
@@ -181,7 +176,6 @@
     <string name="title_miscellaneous">雜項</string>
     <string name="option_animation_style">動畫風格</string>
     <string name="option_cover_art_action_disabled">已停用</string>
-    <string name="option_equaliser_mode_disabled">已停用</string>
     <string name="option_list_view_mode_list">清單</string>
     <string name="option_list_view_mode_grid">網格</string>
     <string name="option_grid_items_per_row">網格大小</string>
