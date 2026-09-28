@@ -22,7 +22,7 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SyncManager
 import paige.navic.exoplayer.ExoStateHolder
-import paige.navic.exoplayer.impl.ExoEqualizerManager
+import paige.navic.exoplayer.impl.ExoEqualiserManager
 
 @UnstableApi
 class PlaybackService : MediaSessionService(), KoinComponent {
@@ -40,13 +40,13 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	private val preferenceManager: PreferenceManager by inject()
 	private val equaliserManager: EqualiserManager by inject()
 
-	private lateinit var exoEqualizerManager: ExoEqualizerManager
+	private lateinit var exoEqualiserManager: ExoEqualiserManager
 
 	private lateinit var scrobbleManager: AndroidScrobbleManager
 
 	override fun onCreate() {
 		super.onCreate()
-		exoEqualizerManager = ExoEqualizerManager(
+		exoEqualiserManager = ExoEqualiserManager(
 			equaliserManager,
 			this
 		)
@@ -71,9 +71,9 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 				preferenceManager
 			)
 
-			player.addListener(exoEqualizerManager)
+			player.addListener(exoEqualiserManager)
 
-			exoEqualizerManager.apply {
+			exoEqualiserManager.apply {
 				applyEqualiserMode(equaliserManager.config.value.mode)
 				scope.launch(Dispatchers.Main) {
 					equaliserManager.config.collect { updateEqualiser() }
@@ -91,7 +91,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	}
 
 	override fun onDestroy() {
-		exoEqualizerManager.releaseEqualiser()
+		exoEqualiserManager.releaseEqualiser()
 		scrobbleManager.release()
 		serviceScope.cancel()
 		stopForeground(STOP_FOREGROUND_REMOVE)

@@ -15,18 +15,18 @@ import paige.navic.domain.models.settings.EqualiserMode
 import paige.navic.util.Logger
 
 @UnstableApi
-class ExoEqualizerManager(
+class ExoEqualiserManager(
     private val equaliserManager: EqualiserManager,
     private val context: Context
 ): Player.Listener {
-	private var equalizerMode = EqualiserMode.Disabled
+	private var equaliserMode = EqualiserMode.Disabled
 	private val scope = CoroutineScope(Dispatchers.Default)
 	private var currentAudioSessionId = C.AUDIO_SESSION_ID_UNSET
 	private var equaliser: Equalizer? = null
 
 	override fun onAudioSessionIdChanged(audioSessionId: Int) {
 		currentAudioSessionId = audioSessionId
-		applyEqualiserMode(equalizerMode)
+		applyEqualiserMode(equaliserMode)
 	}
 
 	private fun createEqualiser(sessionId: Int) {
@@ -77,7 +77,7 @@ class ExoEqualizerManager(
 	}
 
 	fun applyEqualiserMode(mode: EqualiserMode) {
-		equalizerMode = mode
+		equaliserMode = mode
 		closeAudioEffectSession(currentAudioSessionId)
 		releaseEqualiser()
 
@@ -88,7 +88,7 @@ class ExoEqualizerManager(
 		}
 	}
 
-	// Announces our audio session to the system so external equalizer apps can attach effects to it
+	// Announces our audio session to the system so external equaliser apps can attach effects to it
 	private fun openAudioEffectSession(sessionId: Int) {
 		if (sessionId == C.AUDIO_SESSION_ID_UNSET) return
 		currentAudioSessionId = sessionId
@@ -102,7 +102,7 @@ class ExoEqualizerManager(
 		)
 	}
 
-	// Tells external equalizer apps our audio session is going away so they can release their effects
+	// Tells external equaliser apps our audio session is going away so they can release their effects
 	private fun closeAudioEffectSession(sessionId: Int) {
 		if (currentAudioSessionId == C.AUDIO_SESSION_ID_UNSET) return
 		context.sendBroadcast(
