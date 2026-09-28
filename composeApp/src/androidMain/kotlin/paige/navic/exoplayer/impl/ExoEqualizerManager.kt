@@ -10,41 +10,41 @@ import androidx.media3.common.util.UnstableApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import paige.navic.domain.manager.EqualiserManager
-import paige.navic.domain.models.settings.EqualiserMode
+import paige.navic.domain.manager.EqualizerManager
+import paige.navic.domain.models.settings.EqualizerMode
 import paige.navic.util.Logger
 
 @UnstableApi
-class ExoEqualiserManager(
-    private val equaliserManager: EqualiserManager,
-    private val context: Context
+class ExoEqualizerManager(
+	private val equalizerManager: EqualizerManager,
+	private val context: Context
 ): Player.Listener {
-	private var equaliserMode = EqualiserMode.Disabled
+	private var equalizerMode = EqualizerMode.Disabled
 	private val scope = CoroutineScope(Dispatchers.Default)
 	private var currentAudioSessionId = C.AUDIO_SESSION_ID_UNSET
-	private var equaliser: Equalizer? = null
+	private var equalizer: Equalizer? = null
 
 	override fun onAudioSessionIdChanged(audioSessionId: Int) {
 		currentAudioSessionId = audioSessionId
-		applyEqualiserMode(equaliserMode)
+		applyEqualizerMode(equalizerMode)
 	}
 
-	private fun createEqualiser(sessionId: Int) {
-		releaseEqualiser()
+	private fun createEqualizer(sessionId: Int) {
+		releaseEqualizer()
 		try {
-			val equaliser = Equalizer(0, sessionId).apply {
+			val equalizer = Equalizer(0, sessionId).apply {
 				enabled = true
 			}
 
-			this.equaliser = equaliser
+			this.equalizer = equalizer
 
-			val bandLowerRange = equaliser.bandLevelRange.firstOrNull()?.toFloat() ?: -1500f
-			val bandUpperRange = equaliser.bandLevelRange.lastOrNull()?.toFloat() ?: 1500f
-			val bandCount = equaliser.numberOfBands.toInt()
+			val bandLowerRange = equalizer.bandLevelRange.firstOrNull()?.toFloat() ?: -1500f
+			val bandUpperRange = equalizer.bandLevelRange.lastOrNull()?.toFloat() ?: 1500f
+			val bandCount = equalizer.numberOfBands.toInt()
 
 			scope.launch {
-				equaliserManager.setConfig(
-					equaliserManager.config.value.copy(
+				equalizerManager.setConfig(
+					equalizerManager.config.value.copy(
 						bandLowerRange = bandLowerRange,
 						bandUpperRange = bandUpperRange,
 						bandCount = bandCount
@@ -52,43 +52,43 @@ class ExoEqualiserManager(
 				)
 			}
 
-			updateEqualiser()
+			updateEqualizer()
 		} catch (ex: Exception) {
 			Logger.e("PlaybackService", "error while configuring eq", ex)
 		}
 	}
 
-	fun updateEqualiser() {
-		val equaliser = equaliser ?: return
-		val config = equaliserManager.config.value
+	fun updateEqualizer() {
+		val equalizer = this.equalizer ?: return
+		val config = equalizerManager.config.value
 		try {
 			// reset all band levels first in case an item in
 			// config.bandLevels was removed (e.g. user presses
-			// reset in the equaliser settings)
-			repeat(equaliser.numberOfBands.toInt()) { band ->
-				equaliser.setBandLevel(band.toShort(), 0)
+			// reset in the equalizer settings)
+			repeat(equalizer.numberOfBands.toInt()) { band ->
+				equalizer.setBandLevel(band.toShort(), 0)
 			}
 			config.bandLevels.forEach { (band, level) ->
-				equaliser.setBandLevel(band.toShort(), level.toInt().toShort())
+				equalizer.setBandLevel(band.toShort(), level.toInt().toShort())
 			}
 		} catch (ex: Exception) {
 			Logger.e("PlaybackService", "error while setting eq band levels", ex)
 		}
 	}
 
-	fun applyEqualiserMode(mode: EqualiserMode) {
-		equaliserMode = mode
+	fun applyEqualizerMode(mode: EqualizerMode) {
+		equalizerMode = mode
 		closeAudioEffectSession(currentAudioSessionId)
-		releaseEqualiser()
+		releaseEqualizer()
 
 		when (mode) {
-			EqualiserMode.BuiltIn -> createEqualiser(currentAudioSessionId)
-			EqualiserMode.External -> openAudioEffectSession(currentAudioSessionId)
-			EqualiserMode.Disabled -> Unit
+			EqualizerMode.BuiltIn -> createEqualizer(currentAudioSessionId)
+			EqualizerMode.External -> openAudioEffectSession(currentAudioSessionId)
+			EqualizerMode.Disabled -> Unit
 		}
 	}
 
-	// Announces our audio session to the system so external equaliser apps can attach effects to it
+	// Announces our audio session to the system so external equalizer apps can attach effects to it
 	private fun openAudioEffectSession(sessionId: Int) {
 		if (sessionId == C.AUDIO_SESSION_ID_UNSET) return
 		currentAudioSessionId = sessionId
@@ -102,7 +102,7 @@ class ExoEqualiserManager(
 		)
 	}
 
-	// Tells external equaliser apps our audio session is going away so they can release their effects
+	// Tells external equalizer apps our audio session is going away so they can release their effects
 	private fun closeAudioEffectSession(sessionId: Int) {
 		if (currentAudioSessionId == C.AUDIO_SESSION_ID_UNSET) return
 		context.sendBroadcast(
@@ -114,8 +114,8 @@ class ExoEqualiserManager(
 		currentAudioSessionId = C.AUDIO_SESSION_ID_UNSET
 	}
 
-	fun releaseEqualiser() {
-		this.equaliser = null
+	fun releaseEqualizer() {
+		this.equalizer = null
 		closeAudioEffectSession(currentAudioSessionId)
 	}
 }

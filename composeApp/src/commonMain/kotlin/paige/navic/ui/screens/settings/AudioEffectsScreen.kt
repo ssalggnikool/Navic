@@ -23,7 +23,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.option_audio_offload
 import navic.composeapp.generated.resources.option_dynamic_replaygain_tip
-import navic.composeapp.generated.resources.option_equaliser
+import navic.composeapp.generated.resources.option_equalizer
 import navic.composeapp.generated.resources.option_gapless_playback
 import navic.composeapp.generated.resources.option_preamp_tip
 import navic.composeapp.generated.resources.option_preamp_with_rg
@@ -31,8 +31,8 @@ import navic.composeapp.generated.resources.option_preamp_without_rg
 import navic.composeapp.generated.resources.option_replaygain_mode
 import navic.composeapp.generated.resources.option_title_preamp
 import navic.composeapp.generated.resources.subtitle_audio_offload
-import navic.composeapp.generated.resources.subtitle_equaliser
-import navic.composeapp.generated.resources.subtitle_equaliser_disabled
+import navic.composeapp.generated.resources.subtitle_equalizer
+import navic.composeapp.generated.resources.subtitle_equalizer_disabled
 import navic.composeapp.generated.resources.subtitle_gapless_playback
 import navic.composeapp.generated.resources.title_audio_effects
 import navic.composeapp.generated.resources.title_playback
@@ -81,15 +81,15 @@ fun AudioEffectsScreen() {
 			) {
 				SettingsGroup(title = { Text(stringResource(Res.string.title_playback)) }) {
 					SettingsNavItem(
-						onClick = dropUnlessResumed { backStack.add(Screen.Settings.Equaliser) },
-						content = { Text(stringResource(Res.string.option_equaliser)) },
+						onClick = dropUnlessResumed { backStack.add(Screen.Settings.Equalizer) },
+						content = { Text(stringResource(Res.string.option_equalizer)) },
 						enabled = !preferenceManager.audioOffload,
 						supportingContent = {
 							Text(
 								text = stringResource(
 									if (!preferenceManager.audioOffload)
-										Res.string.subtitle_equaliser
-									else Res.string.subtitle_equaliser_disabled
+										Res.string.subtitle_equalizer
+									else Res.string.subtitle_equalizer_disabled
 								)
 							)
 						},

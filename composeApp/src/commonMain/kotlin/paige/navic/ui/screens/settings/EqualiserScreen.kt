@@ -28,14 +28,14 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import navic.composeapp.generated.resources.Res
 import navic.composeapp.generated.resources.action_reset
-import navic.composeapp.generated.resources.info_equaliser_mode_not_builtin
-import navic.composeapp.generated.resources.info_equaliser_unsupported
-import navic.composeapp.generated.resources.option_equaliser
-import navic.composeapp.generated.resources.option_equaliser_mode
+import navic.composeapp.generated.resources.info_equalizer_mode_not_builtin
+import navic.composeapp.generated.resources.info_equalizer_unsupported
+import navic.composeapp.generated.resources.option_equalizer
+import navic.composeapp.generated.resources.option_equalizer_mode
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.EqualiserManager
-import paige.navic.domain.models.settings.EqualiserMode
+import paige.navic.domain.manager.EqualizerManager
+import paige.navic.domain.models.settings.EqualizerMode
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Refresh
 import paige.navic.ui.components.common.SegmentedListItemDefaults
@@ -47,25 +47,25 @@ import paige.navic.ui.screens.settings.components.SettingsGroup
 import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
 
 @Composable
-fun SettingsEqualiserScreen() {
-	val equaliserManager = koinInject<EqualiserManager>()
-	val config by equaliserManager.config.collectAsStateWithLifecycle()
+fun SettingsEqualizerScreen() {
+	val equalizerManager = koinInject<EqualizerManager>()
+	val config by equalizerManager.config.collectAsStateWithLifecycle()
 	val scope = rememberCoroutineScope()
 
 	Scaffold(
 		topBar = {
 			NestedTopBar(
-				title = { Text(stringResource(Res.string.option_equaliser)) },
+				title = { Text(stringResource(Res.string.option_equalizer)) },
 				actions = {
 					TopBarButton(
 						onClick = {
 							scope.launch {
-								equaliserManager.setConfig(
+								equalizerManager.setConfig(
 									config.copy(bandLevels = emptyMap())
 								)
 							}
 						},
-						enabled = config.bandLevels.isNotEmpty() && config.mode == EqualiserMode.BuiltIn
+						enabled = config.bandLevels.isNotEmpty() && config.mode == EqualizerMode.BuiltIn
 					) {
 						Icon(
 							imageVector = Icons.Outlined.Refresh,
@@ -89,32 +89,32 @@ fun SettingsEqualiserScreen() {
 			) {
 				SettingsGroup(modifier = Modifier.widthIn(max = 600.dp)) {
 					SettingsChoiceItem(
-						choices = EqualiserMode.entries.toImmutableList(),
+						choices = EqualizerMode.entries.toImmutableList(),
 						selectedChoice = config.mode,
 						onChoiceSelected = { mode ->
 							scope.launch {
-								equaliserManager.setConfig(config.copy(mode = mode))
+								equalizerManager.setConfig(config.copy(mode = mode))
 							}
 						},
-						content = { Text(stringResource(Res.string.option_equaliser_mode)) },
+						content = { Text(stringResource(Res.string.option_equalizer_mode)) },
 						label = { stringResource(it.displayName) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
 					)
 				}
 
-				if (config.mode != EqualiserMode.BuiltIn) {
-					Text(stringResource(Res.string.info_equaliser_mode_not_builtin))
+				if (config.mode != EqualizerMode.BuiltIn) {
+					Text(stringResource(Res.string.info_equalizer_mode_not_builtin))
 					return@Column
 				}
 
 				if (config.bandCount == 0) {
-					Text(stringResource(Res.string.info_equaliser_unsupported))
+					Text(stringResource(Res.string.info_equalizer_unsupported))
 					return@Column
 				}
 
 				Row(Modifier.widthIn(max = 600.dp)) {
 					repeat(config.bandCount) { band ->
-						EqualiserBand(
+						EqualizerBand(
 							level = config.bandLevels[band] ?: 0f,
 							onLevelChange = { level ->
 								val newLevels = config.bandLevels.toMutableMap().apply {
@@ -122,7 +122,7 @@ fun SettingsEqualiserScreen() {
 								}
 								val newConfig = config.copy(bandLevels = newLevels)
 								scope.launch {
-									equaliserManager.setConfig(newConfig)
+									equalizerManager.setConfig(newConfig)
 								}
 							},
 							levelRange = config.bandLowerRange..config.bandUpperRange
@@ -135,7 +135,7 @@ fun SettingsEqualiserScreen() {
 }
 
 @Composable
-private fun RowScope.EqualiserBand(
+private fun RowScope.EqualizerBand(
 	level: Float,
 	onLevelChange: (level: Float) -> Unit,
 	levelRange: ClosedFloatingPointRange<Float>

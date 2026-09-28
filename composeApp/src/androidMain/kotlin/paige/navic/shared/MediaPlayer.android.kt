@@ -17,12 +17,12 @@ import org.koin.core.component.inject
 import paige.navic.di.ResourceProvider
 import paige.navic.domain.manager.AndroidScrobbleManager
 import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.EqualiserManager
+import paige.navic.domain.manager.EqualizerManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SyncManager
 import paige.navic.exoplayer.ExoStateHolder
-import paige.navic.exoplayer.impl.ExoEqualiserManager
+import paige.navic.exoplayer.impl.ExoEqualizerManager
 
 @UnstableApi
 class PlaybackService : MediaSessionService(), KoinComponent {
@@ -38,16 +38,16 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	private val syncManager: SyncManager by inject()
 	private val sessionManager: SessionManager by inject()
 	private val preferenceManager: PreferenceManager by inject()
-	private val equaliserManager: EqualiserManager by inject()
+	private val equalizerManager: EqualizerManager by inject()
 
-	private lateinit var exoEqualiserManager: ExoEqualiserManager
+	private lateinit var exoEqualizerManager: ExoEqualizerManager
 
 	private lateinit var scrobbleManager: AndroidScrobbleManager
 
 	override fun onCreate() {
 		super.onCreate()
-		exoEqualiserManager = ExoEqualiserManager(
-			equaliserManager,
+		exoEqualizerManager = ExoEqualizerManager(
+			equalizerManager,
 			this
 		)
 		stateHolder.initState()
@@ -71,12 +71,12 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 				preferenceManager
 			)
 
-			player.addListener(exoEqualiserManager)
+			player.addListener(exoEqualizerManager)
 
-			exoEqualiserManager.apply {
-				applyEqualiserMode(equaliserManager.config.value.mode)
+			exoEqualizerManager.apply {
+				applyEqualizerMode(equalizerManager.config.value.mode)
 				scope.launch(Dispatchers.Main) {
-					equaliserManager.config.collect { updateEqualiser() }
+					equalizerManager.config.collect { updateEqualizer() }
 				}
 			}
 		}
@@ -91,7 +91,7 @@ class PlaybackService : MediaSessionService(), KoinComponent {
 	}
 
 	override fun onDestroy() {
-		exoEqualiserManager.releaseEqualiser()
+		exoEqualizerManager.releaseEqualizer()
 		scrobbleManager.release()
 		serviceScope.cancel()
 		stopForeground(STOP_FOREGROUND_REMOVE)

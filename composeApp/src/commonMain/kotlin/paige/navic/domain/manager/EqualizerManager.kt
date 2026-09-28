@@ -14,10 +14,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import paige.navic.domain.models.settings.EqualiserConfig
+import paige.navic.domain.models.settings.EqualizerConfig
 import paige.navic.util.Logger
 
-class EqualiserManager(
+class EqualizerManager(
 	private val preferences: DataStore<Preferences>
 ) {
 	private val json = Json
@@ -25,25 +25,25 @@ class EqualiserManager(
 
 	val config = preferenceStateFlow {
 		return@preferenceStateFlow try {
-			json.decodeFromString<EqualiserConfig>(
-				it[KEY_CONFIG] ?: return@preferenceStateFlow EqualiserConfig()
+			json.decodeFromString<EqualizerConfig>(
+				it[KEY_CONFIG] ?: return@preferenceStateFlow EqualizerConfig()
 			)
 		} catch(ex: SerializationException) {
-			Logger.e("EqualiserManager", "failed to deserialise config", ex)
-			EqualiserConfig()
+			Logger.e("EqualizerManager", "failed to deserialise config", ex)
+			EqualizerConfig()
 		} catch(ex: Exception) {
-			Logger.e("EqualiserManager", "failed to read config", ex)
-			EqualiserConfig()
+			Logger.e("EqualizerManager", "failed to read config", ex)
+			EqualizerConfig()
 		}
 	}
 
-	suspend fun setConfig(value: EqualiserConfig) {
+	suspend fun setConfig(value: EqualizerConfig) {
 		try {
 			preferences.edit { it[KEY_CONFIG] = json.encodeToString(value) }
 		} catch (ex: SerializationException) {
-			Logger.e("EqualiserManager", "failed to serialise config", ex)
+			Logger.e("EqualizerManager", "failed to serialise config", ex)
 		} catch (ex: Exception) {
-			Logger.e("EqualiserManager", "failed to save config", ex)
+			Logger.e("EqualizerManager", "failed to save config", ex)
 		}
 	}
 
@@ -58,6 +58,6 @@ class EqualiserManager(
 	}
 
 	private companion object {
-		val KEY_CONFIG = stringPreferencesKey("equaliser_config")
+		val KEY_CONFIG = stringPreferencesKey("equalizer_config")
 	}
 }
