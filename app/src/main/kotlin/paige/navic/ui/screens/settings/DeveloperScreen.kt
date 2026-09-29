@@ -77,7 +77,7 @@ fun SettingsDeveloperScreen() {
 							}
 						},
 						content = { Text(stringResource(R.string.option_connection_options)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4)
 					)
 
 					SettingsNavItem(
@@ -85,7 +85,7 @@ fun SettingsDeveloperScreen() {
 							preferenceManager.shushQueueDuplicateDialog = false
 						},
 						content = { Text(stringResource(R.string.action_reset_dont_show_agains)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
 					)
 
 					SettingsNavItem(
@@ -97,7 +97,19 @@ fun SettingsDeveloperScreen() {
 							}
 						},
 						content = { Text(stringResource(R.string.title_logs)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
+					)
+
+					SettingsNavItem(
+						onClick = dropUnlessResumed {
+							backStack.lastOrNull()?.let {
+								if (it is Screen.Settings.Developer) {
+									backStack.add(Screen.Settings.PlayerDebugging)
+								}
+							}
+						},
+						content = { Text("Player debugging") },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
 					)
 				}
 

@@ -8,9 +8,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import coil3.ImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
+import com.kmpalette.DominantColorState
 import com.kmpalette.rememberDominantColorState
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
@@ -23,12 +25,9 @@ import paige.navic.shared.MediaPlayerViewModel
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable
-fun rememberColorSchemeFromCoverArt(
-	coverArtId: String?,
-	forceDark: Boolean = false,
-	style: PaletteStyle = PaletteStyle.Content,
-	specVersion: ColorSpec.SpecVersion = ColorSpec.SpecVersion.SPEC_2021
-): ColorScheme {
+fun rememberDominantColorFromCoverArt(
+	coverArtId: String?
+): DominantColorState<ImageBitmap> {
 	val sessionManager = koinInject<SessionManager>()
 	val coverArtUri = remember(coverArtId) {
 		coverArtId?.let { sessionManager.getCoverArtUrl(it) }
@@ -54,6 +53,18 @@ fun rememberColorSchemeFromCoverArt(
 		}
 	}
 
+	return dominantColorState
+}
+
+@Composable
+fun rememberColorSchemeFromCoverArt(
+	coverArtId: String?,
+	forceDark: Boolean = false,
+	style: PaletteStyle = PaletteStyle.Content,
+	specVersion: ColorSpec.SpecVersion = ColorSpec.SpecVersion.SPEC_2021
+): ColorScheme {
+	val dominantColorState = rememberDominantColorFromCoverArt(coverArtId)
+
 	val preferenceManager = koinInject<PreferenceManager>()
 	val inDarkTheme = isSystemInDarkTheme()
 	val isDark = remember(forceDark, preferenceManager.themeMode) {
@@ -75,14 +86,17 @@ fun rememberColorSchemeFromCoverArt(
 }
 
 @Composable
-fun rememberColorSchemeForCurrentSong(forceDark: Boolean = true): ColorScheme {
+fun rememberColorSchemeForCurrentSong(
+	forceDark: Boolean = true,
+	style: PaletteStyle = PaletteStyle.Content
+): ColorScheme {
 	val player = koinInject<MediaPlayerViewModel>()
 	val playerState by player.uiState.collectAsState()
 	val coverArtId = playerState.currentSong?.coverArtId
 	return rememberColorSchemeFromCoverArt(
 		coverArtId = coverArtId,
 		forceDark = forceDark,
-		style = if (coverArtId != null) PaletteStyle.Content else PaletteStyle.Monochrome
+		style = if (coverArtId != null) style else PaletteStyle.Monochrome
 	)
 }
 

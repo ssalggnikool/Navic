@@ -111,6 +111,7 @@ import paige.navic.ui.screens.settings.SettingsEqualizerScreen
 import paige.navic.ui.screens.settings.SettingsLogsScreen
 import paige.navic.ui.screens.settings.SettingsNowPlayingScreen
 import paige.navic.ui.screens.settings.SettingsPlaybackScreen
+import paige.navic.ui.screens.settings.SettingsPlayerDebuggingScreen
 import paige.navic.ui.screens.settings.SettingsScreen
 import paige.navic.ui.screens.settings.SettingsStreamingQualityScreen
 import paige.navic.ui.screens.settings.SettingsThemesScreen
@@ -425,6 +426,9 @@ private fun entryProvider(
 		}
 		entry<Screen.Settings.Logs> {
 			SettingsLogsScreen()
+		}
+		entry<Screen.Settings.PlayerDebugging> {
+			SettingsPlayerDebuggingScreen()
 		}
 		entry<Screen.Settings.AppIcon>(metadata = detailPane("settings")) {
 			SettingsAppIconScreen()

@@ -63,6 +63,7 @@ androidx-media3-ktor = { module = "androidx.media3:media3-datasource-ktor", vers
 androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "androidx-glance" }
 androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "androidx-glance" }
 androidx-browser = { module = "androidx.browser:browser", version = "1.10.0" }
+androidx-palette = { module = "androidx.palette:palette", version = "1.0.0" }
 
 # Kotlinx
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.8.0" }
@@ -110,7 +111,7 @@ glance = ["androidx-glance-appwidget", "androidx-glance-material3"]
 ktor = ["ktor-client-core", "ktor-client-contentNegotiation", "ktor-serialization-json"]
 ktor-android = ["ktor-client-okhttp"]
 cmpThirdParty = ["capsule", "wavySlider", "kmpalette-core", "kmpalette-network", "materialKolor", "composePipette", "multiplatformSettings"]
-androidx-android = ["androidx-activity-compose", "androidx-datastore-preferences", "androidx-animation-graphics", "androidx-browser"]
+androidx-android = ["androidx-activity-compose", "androidx-datastore-preferences", "androidx-animation-graphics", "androidx-browser", "androidx-palette"]
 androidx-lifecycle = ["androidx-lifecycle-viewmodel", "androidx-lifecycle-runtime"]
 room = ["androidx-room3-runtime", "androidx-sqlite-bundled"]
 koin = ["koin-core", "koin-compose", "koin-compose-viewmodel"]

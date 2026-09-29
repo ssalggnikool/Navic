@@ -38,6 +38,14 @@ fun NowPlayingProgressBar() {
 			6.dp
 		else 0.dp
 	)
+	// TODO: wavyslider crashes after kmp removal
+	Slider(
+		value = playerState.progress,
+		onValueChange = { player.seek(it) },
+		modifier = Modifier.padding(horizontal = 16.dp),
+		enabled = enabled
+	)
+	return
 
 	when (preferenceManager.nowPlayingSliderStyle) {
 		NowPlayingSliderStyle.Flat -> {
