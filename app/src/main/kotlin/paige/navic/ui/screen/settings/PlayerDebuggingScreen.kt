@@ -1,4 +1,10 @@
-package paige.navic.ui.screens.settings
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.screen.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,17 +46,17 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.repositories.SongRepository
+import paige.navic.domain.repository.SongRepository
 import paige.navic.shared.MediaPlayerViewModel
-import paige.navic.ui.components.common.SegmentedListItem
-import paige.navic.ui.components.common.SegmentedListItemDefaults
-import paige.navic.ui.components.layouts.MiniPlayer
-import paige.navic.ui.components.layouts.NestedTopBar
+import paige.navic.ui.component.common.SegmentedListItem
+import paige.navic.ui.component.common.SegmentedListItemDefaults
+import paige.navic.ui.component.layout.MiniPlayer
+import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.settings.components.SettingsChoiceItem
-import paige.navic.ui.screens.settings.components.SettingsGroup
-import paige.navic.ui.screens.settings.components.SettingsGroupDefaults
-import paige.navic.ui.screens.settings.components.SettingsNavItem
+import paige.navic.ui.screen.settings.component.SettingsChoiceItem
+import paige.navic.ui.screen.settings.component.SettingsGroup
+import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
+import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.util.label
 import paige.navic.ui.util.rememberColorSchemeForCurrentSong
 import paige.navic.ui.util.rememberDominantColorFromCoverArt
