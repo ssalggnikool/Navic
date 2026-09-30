@@ -192,7 +192,7 @@
     <string name="info_library_download">Зберегти всю синхронізовану музику для прослуховування без мережі</string>
     <string name="info_progress">Прогрес</string>
     <string name="info_in_use">(використовується)</string>
-    <string name="info_explicit">Explicit</string>
+    <string name="info_explicit">Відвертий вміст</string>
     <string name="info_transcoding_defaults">Якщо залишити будь-яке з цих полів порожнім, параметр не буде передано, а значення визначить сервер.</string>
     <string name="info_external_song">Зовнішня</string>
     <string name="info_external_song_description">Сервер позначив цю пісню як зовнішню, тому її відтворення може бути недоступним.</string>
@@ -505,4 +505,13 @@
     <string name="info_proxy_url_placeholder">Наприклад, http://127.0.0.1:8080</string>
     <string name="info_incorrect_proxy_url_format">Неправильний формат URL-адреси проксі-сервера. Підтримуються лише протоколи HTTP та SOCKS.</string>
     <string name="info_content_unavailable">Тут нічого немає</string>
+    <string name="subtitle_equalizer">Налаштування та покращення звучання</string>
+    <string name="subtitle_equalizer_disabled">Недоступно, коли ввімкнено апаратне розвантаження аудіо</string>
+    <string name="option_equalizer">Еквалайзер</string>
+    <string name="option_equalizer_mode">Режим еквалайзера</string>
+    <string name="option_equalizer_mode_disabled">Вимкнено</string>
+    <string name="option_equalizer_mode_builtin">Вбудований</string>
+    <string name="option_equalizer_mode_external">Зовнішній</string>
+    <string name="info_equalizer_unsupported">Ваш пристрій не підтримує цю функцію.</string>
+    <string name="info_equalizer_mode_not_builtin">Будь ласка, налаштуйте зовнішній еквалайзер за допомогою відповідного застосунку.</string>
 </resources>

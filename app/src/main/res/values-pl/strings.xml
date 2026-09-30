@@ -443,4 +443,26 @@
     <string name="action_configure_lyric_providers">Konfiguruj źródła tekstów</string>
     <string name="info_dynamic_replay_gain">Dynamiczny ReplayGain</string>
     <string name="info_lyric_provider_disclaimer">Aktywowanie LRCLIB i/lub LyricsPlus będzie się wiązać z wykonywaniem żądań do zewnętrznych serwisów.</string>
+    <string name="title_statistics">Statystyki</string>
+    <string name="title_audio_effects">Efekty dźwiękowe</string>
+    <string name="title_chat">Czat</string>
+    <string name="subtitle_notifications_denied">Zezwól aplikacji Navic na wysyłanie powiadomień, aby otrzymywać informacje o pobieraniu i synchronizacji.</string>
+    <string name="subtitle_equalizer">Strojenie i ulepszanie dźwięku</string>
+    <string name="subtitle_audio_effects">Dostosuj brzmienie muzyki</string>
+    <string name="subtitle_enable_ratings">Włącz 5-gwiazdkowe oceny muzyki</string>
+    <string name="subtitle_custom_headers">Dodatkowe informacje dołączane do każdego żądania</string>
+    <string name="subtitle_ignore_ssl_certificates">Włącz tę opcję tylko wtedy, gdy wiesz, co robisz. Przydatne, jeśli używasz serwera proxy do analizy żądań.</string>
+    <string name="option_account_instance">URL instancji</string>
+    <string name="subtitle_lyrics_fake_beat_by_beat">Symuluj synchronizację na poziomie słów, gdy jej brakuje</string>
+    <string name="option_replaygain_mode">Tryb ReplayGain</string>
+    <string name="option_title_preamp">Ustawienia Preamp</string>
+    <string name="option_preamp_with_rg">Z tagami ReplayGain</string>
+    <string name="option_preamp_without_rg">Bez tagów ReplayGain</string>
+    <string name="option_preamp_tip">Ustawienie którejkolwiek z opcji przedwzmocnienia na bardzo wysoką wartość może powodować zniekształcenia dźwięku.</string>
+    <string name="option_connection_options">Opcje połączenia</string>
+    <string name="option_use_amoled_theme">Używaj motywu AMOLED</string>
+    <string name="option_equalizer">Korektor</string>
+    <string name="option_equalizer_mode_disabled">Wyłączony</string>
+    <string name="option_equalizer_mode_builtin">Wbudowany</string>
+    <string name="option_equalizer_mode_external">Zewnętrzny</string>
 </resources>

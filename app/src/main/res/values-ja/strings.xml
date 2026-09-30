@@ -410,7 +410,7 @@
     <string name="info_dynamic_replay_gain">ダイナミック</string>
     <string name="info_total_plays">総再生回数</string>
     <string name="info_total_listening_time">総再生時間</string>
-    <string name="info_listening_stats_ratio">総再生時間の%1$d</string>
+    <string name="info_listening_stats_ratio">総再生時間の%1$s</string>
     <string name="info_track_replay_gain_effective">ReplayGain実効値</string>
     <string name="info_update">バージョン%1$sがリリースされました</string>
     <string name="info_shared_by">%1$sが共有しました</string>
@@ -466,4 +466,13 @@
     <string name="option_queue_info_type">キュー情報</string>
     <string name="option_queue_info_type_remining">残りの曲数と時間を表示</string>
     <string name="option_queue_info_type_full">キュー全体の曲数と時間を表示</string>
+    <string name="subtitle_equalizer">音声の調整と強化</string>
+    <string name="subtitle_equalizer_disabled">オーディオオフロードが有効な場合、利用できません</string>
+    <string name="option_equalizer">イコライザー</string>
+    <string name="option_equalizer_mode">イコライザーのソース</string>
+    <string name="option_equalizer_mode_disabled">無効</string>
+    <string name="option_equalizer_mode_builtin">内蔵</string>
+    <string name="option_equalizer_mode_external">外部</string>
+    <string name="info_equalizer_unsupported">お使いのデバイスはこの機能をサポートしていません。</string>
+    <string name="info_equalizer_mode_not_builtin">専用アプリを使用し、イコライザーを調整してください。</string>
 </resources>

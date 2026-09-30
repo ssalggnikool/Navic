@@ -493,4 +493,13 @@
     <string name="info_proxy_url_placeholder">Es. http://127.0.0.1:8080</string>
     <string name="info_incorrect_proxy_url_format">Formato dell’URL proxy non valido. I protocolli supportati sono HTTP e SOCKS.</string>
     <string name="info_content_unavailable">Niente qui</string>
+    <string name="subtitle_equalizer">Regola &amp; migliora l\'audio</string>
+    <string name="subtitle_equalizer_disabled">Non dispon se l\'offload audio è attivato</string>
+    <string name="option_equalizer">Equalizzatore</string>
+    <string name="option_equalizer_mode">Fonte equalizzatore</string>
+    <string name="option_equalizer_mode_disabled">Disattivato</string>
+    <string name="option_equalizer_mode_builtin">Integrato</string>
+    <string name="option_equalizer_mode_external">Esterno</string>
+    <string name="info_equalizer_unsupported">Il tuo dispositivo non supporta questa funzione.</string>
+    <string name="info_equalizer_mode_not_builtin">Per favore, regola l\'equalizzatore esterno dalla sua app dedicata.</string>
 </resources>

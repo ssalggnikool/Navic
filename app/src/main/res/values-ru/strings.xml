@@ -506,4 +506,13 @@
     <string name="info_incorrect_proxy_url_format">Неверный формат URL-адреса прокси. Поддерживаемые протоколы: HTTP и SOCKS.</string>
     <string name="info_content_unavailable">Здесь ничего нет</string>
     <string name="action_edit">редактировать</string>
+    <string name="info_equalizer_mode_not_builtin">Пожалуйста, настройте внешний эквалайзер с помощью отдельного приложения.</string>
+    <string name="subtitle_equalizer">Настройка и улучшение звука</string>
+    <string name="subtitle_equalizer_disabled">Недоступно при включенном выносе аудиообработки</string>
+    <string name="option_equalizer">Эквалайзер</string>
+    <string name="option_equalizer_mode">Источник эквалайзера</string>
+    <string name="option_equalizer_mode_disabled">Отключен</string>
+    <string name="option_equalizer_mode_builtin">Встроенный</string>
+    <string name="option_equalizer_mode_external">Внешний</string>
+    <string name="info_equalizer_unsupported">Ваше устройство не поддерживает эту функцию.</string>
 </resources>
