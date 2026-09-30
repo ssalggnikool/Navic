@@ -1,13 +1,18 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.manager
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import paige.navic.data.database.entities.SyncActionType
+import paige.navic.data.database.entity.SyncActionType
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 

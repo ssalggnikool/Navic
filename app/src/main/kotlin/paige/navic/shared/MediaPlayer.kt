@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.shared
 
 import androidx.lifecycle.ViewModel
@@ -8,19 +14,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.models.DomainExplicitStatus
-import paige.navic.domain.models.DomainRadio
-import paige.navic.domain.models.DomainSong
-import paige.navic.domain.models.DomainSongCollection
-import paige.navic.domain.models.settings.ExplicitContentPlayback
-import paige.navic.domain.repositories.PlayerStateRepository
-import paige.navic.domain.repositories.SongRepository
+import paige.navic.domain.model.DomainExplicitStatus
+import paige.navic.domain.model.DomainRadio
+import paige.navic.domain.model.DomainSong
+import paige.navic.domain.model.DomainSongCollection
+import paige.navic.domain.model.settings.ExplicitContentPlayback
+import paige.navic.domain.repository.PlayerStateRepository
+import paige.navic.domain.repository.SongRepository
 import paige.navic.ui.core.PlayerUiState
 import kotlin.time.Duration.Companion.seconds
 
@@ -116,15 +121,10 @@ abstract class MediaPlayerViewModel(
 	}
 
 	private suspend fun restoreState() {
-		val savedState = stateRepository.state
-			.filterNotNull()
-			.firstOrNull()
-			?.copy(isPaused = true, isLoading = false)
-		if (savedState != null) {
-			_uiState.value = savedState
-			syncPlayerWithState(savedState)
-			checkAndAutoFillQueue()
-		}
+		val savedState = stateRepository.state.first().copy(isPaused = true, isLoading = false)
+		_uiState.value = savedState
+		syncPlayerWithState(savedState)
+		checkAndAutoFillQueue()
 	}
 
 	@OptIn(FlowPreview::class)

@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.ui.util
 
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -20,7 +26,7 @@ import com.materialkolor.rememberDynamicColorScheme
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.models.settings.ThemeMode
+import paige.navic.domain.model.settings.ThemeMode
 import paige.navic.shared.MediaPlayerViewModel
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 

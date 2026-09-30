@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.parser
 
 import kotlinx.serialization.Serializable
@@ -5,8 +11,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import paige.navic.domain.models.lyrics.LyricsLine
-import paige.navic.domain.models.lyrics.LyricsWord
+import paige.navic.domain.model.lyrics.LyricsLine
+import paige.navic.domain.model.lyrics.LyricsWord
 import paige.navic.util.Logger
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes

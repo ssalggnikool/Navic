@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.manager
 
 import android.annotation.SuppressLint
@@ -18,7 +24,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
-import paige.navic.domain.models.settings.OfflineMode
+import paige.navic.domain.model.settings.OfflineMode
 import android.net.ConnectivityManager as AndroidConnectivityManager
 
 private data class NetworkStatus(

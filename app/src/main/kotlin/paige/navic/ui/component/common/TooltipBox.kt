@@ -1,0 +1,34 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.component.common
+
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
+import androidx.compose.runtime.Composable
+
+/**
+ * wrapper for `androidx.compose.material3.TooltipBox` but simpler to use
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TooltipBox(
+	text: String,
+	content: @Composable () -> Unit
+) {
+	androidx.compose.material3.TooltipBox(
+		positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+			positioning = TooltipAnchorPosition.Above
+		),
+		tooltip = { PlainTooltip { Text(text) } },
+		state = rememberTooltipState(),
+		content = content
+	)
+}

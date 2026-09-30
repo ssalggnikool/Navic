@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.di
 
 import org.koin.core.module.dsl.singleOf
@@ -22,26 +28,26 @@ import paige.navic.domain.manager.SyncManager
 import paige.navic.exoplayer.ExoStateHolder
 
 val managerModule = module {
+	singleOf(::AppIconManager)
+	singleOf(::AudioGainManager)
+	singleOf(::ConnectivityManager)
+	singleOf(::DownloadManager)
+	singleOf(::EqualizerManager)
+	singleOf(::LinkManager)
+	singleOf(::LogManager)
+	singleOf(::LoginManager)
+	singleOf(::NotificationManager)
+	singleOf(::PermissionManager)
+	singleOf(::PreferenceManager)
+	singleOf(::SessionManager)
+	singleOf(::ShareManager)
 	singleOf(::SleepTimerManager)
+	singleOf(::SnackBarManager)
+	singleOf(::StorageManager)
 	single(createdAtStart = true) {
 		SyncManager(get(), get(), get(), get(), get(), get()).apply {
 			startPeriodicSync()
 		}
 	}
-	singleOf(::DownloadManager)
-	singleOf(::SessionManager)
-	singleOf(::PreferenceManager)
-	singleOf(::SnackBarManager)
-	singleOf(::LoginManager)
-	singleOf(::EqualizerManager)
-	singleOf(::ShareManager)
-	singleOf(::NotificationManager)
-	singleOf(::StorageManager)
-	singleOf(::ConnectivityManager)
-	singleOf(::LogManager)
-	singleOf(::AppIconManager)
-	singleOf(::PermissionManager)
-	singleOf(::LinkManager)
 	singleOf(::ExoStateHolder)
-	singleOf(::AudioGainManager)
 }

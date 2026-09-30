@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.di
 
 import androidx.room3.Room
@@ -31,12 +37,12 @@ val databaseModule = module {
 	}
 
 	single { get<CacheDatabase>().albumDao() }
-	single { get<CacheDatabase>().genreDao() }
-	single { get<CacheDatabase>().playlistDao() }
-	single { get<CacheDatabase>().songDao() }
 	single { get<CacheDatabase>().artistDao() }
-	single { get<CacheDatabase>().radioDao() }
+	single { get<CacheDatabase>().genreDao() }
 	single { get<CacheDatabase>().lyricDao() }
+	single { get<CacheDatabase>().playlistDao() }
+	single { get<CacheDatabase>().radioDao() }
+	single { get<CacheDatabase>().songDao() }
 	single { get<CacheDatabase>().syncActionDao() }
 	single { get<DownloadDatabase>().downloadDao() }
 }

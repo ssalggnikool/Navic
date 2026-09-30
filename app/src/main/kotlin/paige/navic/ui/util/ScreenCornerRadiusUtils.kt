@@ -1,6 +1,8 @@
-// Modified from https://github.com/wxxsfxyzm/InstallerX-Revived/blob/04b0a5b3d07d7f819954bdfbd29c4beba2f6df2e/app/src/main/java/com/rosan/installer/ui/util/CornerRadiusUtil.kt
-// SPDX-License-Identifier: GPL-3.0-only
-// Copyright (C) 2025-2026 InstallerX Revived contributors
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 
 package paige.navic.ui.util
 

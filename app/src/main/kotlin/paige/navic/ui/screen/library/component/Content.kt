@@ -1,0 +1,228 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.screen.library.component
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import kotlinx.collections.immutable.ImmutableList
+import paige.navic.R
+import paige.navic.di.LocalNavStack
+import paige.navic.domain.model.DomainAlbum
+import paige.navic.domain.model.DomainAlbumListType
+import paige.navic.domain.model.DomainArtist
+import paige.navic.domain.model.DomainGenre
+import paige.navic.domain.model.DomainPlaylist
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.History
+import paige.navic.icons.outlined.LibraryAdd
+import paige.navic.icons.outlined.Shuffle
+import paige.navic.icons.outlined.Star
+import paige.navic.ui.component.layout.horizontalSection
+import paige.navic.ui.core.UiState
+import paige.navic.ui.navigation.Screen
+import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
+import paige.navic.ui.screen.artist.ArtistListScreenGridItem
+import paige.navic.ui.screen.genre.component.GenreListScreenCard
+import paige.navic.ui.screen.playlist.component.PlaylistListScreenGridItem
+import paige.navic.ui.screen.stats.viewmodel.StatisticsState
+import paige.navic.ui.util.withoutTop
+
+@Composable
+fun LibraryScreenContent(
+	state: LazyGridState,
+	scrollBehavior: TopAppBarScrollBehavior,
+	innerPadding: PaddingValues,
+	onSetShareId: (String) -> Unit,
+
+	// albums
+	albumsState: UiState<ImmutableList<DomainAlbum>>,
+	selectedAlbum: DomainAlbum?,
+	selectedAlbumIsStarred: Boolean,
+	selectedAlbumRating: Int,
+	onSelectAlbum: (DomainAlbum) -> Unit,
+	onClearAlbumSelection: () -> Unit,
+	onStarSelectedAlbum: (Boolean) -> Unit,
+	onRateSelectedAlbum: (Int) -> Unit,
+	onPlayAlbumNext: () -> Unit,
+	onAddAlbumToQueue: () -> Unit,
+
+	// artists
+	artistsState: UiState<ImmutableList<DomainArtist>>,
+	selectedArtist: DomainArtist?,
+	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistIsStarred: Boolean,
+	onSelectArtist: (DomainArtist) -> Unit,
+	onClearArtistSelection: () -> Unit,
+	onStarSelectedArtist: (Boolean) -> Unit,
+	onPlayArtistNext: () -> Unit,
+	onAddArtistToQueue: () -> Unit,
+
+	// playlists
+	playlistsState: UiState<ImmutableList<DomainPlaylist>>,
+	selectedPlaylist: DomainPlaylist?,
+	onSelectPlaylist: (DomainPlaylist) -> Unit,
+	onClearPlaylistSelection: () -> Unit,
+	onDeletePlaylist: (String) -> Unit,
+	onPlayPlaylistNext: () -> Unit,
+	onAddPlaylistToQueue: () -> Unit,
+
+	// genres
+	genresState: UiState<ImmutableList<DomainGenre>>,
+
+	// stats
+	statsState: StatisticsState
+) {
+	LazyVerticalGrid(
+		modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+		columns = GridCells.Fixed(2),
+		contentPadding = innerPadding.withoutTop() + PaddingValues(top = 8.dp),
+		verticalArrangement = Arrangement.spacedBy(5.dp),
+		horizontalArrangement = Arrangement.spacedBy(5.dp),
+		state = state
+	) {
+		libraryScreenOverviewButton(
+			icon = Icons.Outlined.LibraryAdd,
+			label = R.string.option_sort_newest,
+			destination = Screen.AlbumList(true, DomainAlbumListType.Newest),
+			start = true
+		)
+		libraryScreenOverviewButton(
+			icon = Icons.Outlined.Shuffle,
+			label = R.string.option_sort_random,
+			destination = Screen.AlbumList(true, DomainAlbumListType.Random),
+			start = false
+		)
+		libraryScreenOverviewButton(
+			icon = Icons.Outlined.Star,
+			label = R.string.option_sort_starred,
+			destination = Screen.Starred(),
+			start = true
+		)
+		libraryScreenOverviewButton(
+			icon = Icons.Outlined.History,
+			label = R.string.option_sort_frequent,
+			destination = Screen.AlbumList(true, DomainAlbumListType.Frequent),
+			start = false
+		)
+
+		horizontalSection(
+			title = R.string.option_sort_recent,
+			destination = Screen.AlbumList(true, DomainAlbumListType.Recent),
+			state = albumsState,
+			key = { it.id },
+			seeAll = true
+		) { album ->
+			AlbumListScreenGridItem(
+				modifier = Modifier.animateItem().width(150.dp),
+				tab = "library",
+				album = album,
+				selected = album == selectedAlbum,
+				starred = selectedAlbumIsStarred,
+				onSelect = { onSelectAlbum(album) },
+				onDeselect = { onClearAlbumSelection() },
+				onSetStarred = { onStarSelectedAlbum(it) },
+				onSetShareId = { onSetShareId(it) },
+				onPlayNext = onPlayAlbumNext,
+				onAddToQueue = onAddAlbumToQueue,
+				rating = selectedAlbumRating,
+				onSetRating = onRateSelectedAlbum
+			)
+		}
+
+		horizontalSection(
+			title = R.string.title_playlists,
+			destination = Screen.PlaylistList(true),
+			state = playlistsState,
+			key = { it.id },
+			seeAll = true
+		) { playlist ->
+			PlaylistListScreenGridItem(
+				modifier = Modifier.animateItem().width(150.dp),
+				tab = "library",
+				playlist = playlist,
+				selected = playlist == selectedPlaylist,
+				onSelect = { onSelectPlaylist(playlist) },
+				onDeselect = { onClearPlaylistSelection() },
+				onSetDeletionId = { onDeletePlaylist(it) },
+				onSetShareId = { onSetShareId(it) },
+				onPlayNext = onPlayPlaylistNext,
+				onAddToQueue = onAddPlaylistToQueue
+			)
+		}
+
+		horizontalSection(
+			title = R.string.title_artists,
+			destination = Screen.ArtistList(true),
+			state = artistsState,
+			key = { it.id },
+			seeAll = true
+		) { artist ->
+			ArtistListScreenGridItem(
+				modifier = Modifier.animateItem().width(150.dp),
+				tab = "library",
+				artist = artist,
+				selected = artist == selectedArtist,
+				selectedArtistAlbums = selectedArtistAlbums,
+				starred = selectedArtistIsStarred,
+				onSelect = { onSelectArtist(artist) },
+				onDeselect = { onClearArtistSelection() },
+				onSetStarred = { onStarSelectedArtist(it) },
+				onPlayNext = onPlayArtistNext,
+				onAddToQueue = onAddArtistToQueue
+			)
+		}
+
+		horizontalSection(
+			title = R.string.title_genres,
+			destination = Screen.GenreList(true),
+			state = genresState,
+			key = { it.name },
+			seeAll = true
+		) { genreWithAlbums ->
+			GenreListScreenCard(genre = genreWithAlbums)
+		}
+
+		item(span = { GridItemSpan(maxLineSpan) }) {
+			Text(
+				text = stringResource(R.string.title_statistics),
+				style = MaterialTheme.typography.titleMediumEmphasized,
+				fontWeight = FontWeight(600),
+				modifier = Modifier
+					.heightIn(min = 32.dp)
+					.padding(top = 12.dp, start = 16.dp)
+					.semantics { heading() }
+			)
+		}
+
+		item(span = { GridItemSpan(maxLineSpan) }) {
+			val backStack = LocalNavStack.current
+			StatisticsOverviewCard(
+				statsState = statsState,
+				onClick = { backStack.add(Screen.Statistics(true)) }
+			)
+		}
+	}
+}

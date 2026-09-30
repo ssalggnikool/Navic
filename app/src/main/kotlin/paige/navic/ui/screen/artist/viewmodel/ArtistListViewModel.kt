@@ -1,0 +1,149 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.screen.artist.viewmodel
+
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import paige.navic.data.database.dao.AlbumDao
+import paige.navic.data.database.mapper.toDomainModel
+import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.SessionManager
+import paige.navic.domain.model.DomainAlbum
+import paige.navic.domain.model.DomainArtist
+import paige.navic.domain.model.DomainArtistListType
+import paige.navic.domain.model.DomainFilter
+import paige.navic.domain.model.toBitmask
+import paige.navic.domain.model.toDomainFilters
+import paige.navic.domain.repository.ArtistRepository
+import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.ui.core.UiState
+
+class ArtistListViewModel(
+	initialListType: DomainArtistListType? = null,
+	initialFilters: Set<DomainFilter>? = null,
+	private val repository: ArtistRepository,
+	private val albumDao: AlbumDao,
+	private val sessionManager: SessionManager,
+	private val preferenceManager: PreferenceManager
+) : ViewModel() {
+	val artistsState: StateFlow<UiState<ImmutableList<DomainArtist>>>
+		field = MutableStateFlow<UiState<ImmutableList<DomainArtist>>>(UiState.Loading())
+
+	val starred: StateFlow<Boolean>
+		field = MutableStateFlow(false)
+
+	val selectedArtist: StateFlow<DomainArtist?>
+		field = MutableStateFlow(null)
+
+	val selectedArtistAlbums: StateFlow<ImmutableList<DomainAlbum>?>
+		field = MutableStateFlow(null)
+
+	val listType: StateFlow<DomainArtistListType>
+		field = MutableStateFlow(initialListType ?: preferenceManager.artistSortType)
+
+	val selectedFilters: StateFlow<Set<DomainFilter>>
+		field = MutableStateFlow(
+			initialFilters ?: preferenceManager.artistFilters.toDomainFilters()
+		)
+
+	val gridState = LazyGridState()
+
+	init {
+		viewModelScope.launch {
+			sessionManager.isLoggedIn.collect { if (it) refreshArtists(false) }
+		}
+	}
+
+	fun refreshArtists(fullRefresh: Boolean) {
+		viewModelScope.launch {
+			repository.getArtistsFlow(fullRefresh, listType.value, selectedFilters.value)
+				.collect {
+					artistsState.value = it
+				}
+		}
+	}
+
+	fun selectArtist(artist: DomainArtist) {
+		viewModelScope.launch {
+			selectedArtist.value = artist
+			val artistAlbums =
+				albumDao.getAlbumsByArtist(artist.id).firstOrNull() ?: emptyList()
+			selectedArtistAlbums.value = artistAlbums.map { it.toDomainModel() }.toImmutableList()
+			starred.value = repository.isArtistStarred(artist)
+		}
+	}
+
+	fun clearSelection() {
+		selectedArtist.value = null
+	}
+
+	fun starArtist(isStarred: Boolean) {
+		val artist = selectedArtist.value ?: return
+		viewModelScope.launch {
+			runCatching {
+				if (isStarred) {
+					repository.starArtist(artist)
+				} else {
+					repository.unstarArtist(artist)
+				}
+				starred.value = isStarred
+			}
+		}
+	}
+
+	fun addArtistAlbumsToQueue(player: MediaPlayerViewModel) {
+		val artist = selectedArtist.value ?: return
+		viewModelScope.launch {
+			val artistAlbums =
+				albumDao.getAlbumsByArtist(artist.id).firstOrNull() ?: emptyList()
+			artistAlbums.map { it.toDomainModel() }.forEach { album ->
+				player.addToQueue(album)
+			}
+		}
+	}
+
+	fun playArtistAlbumsNext(player: MediaPlayerViewModel) {
+		val artist = selectedArtist.value ?: return
+		viewModelScope.launch {
+			val artistAlbums =
+				albumDao.getAlbumsByArtist(artist.id).firstOrNull() ?: emptyList()
+			artistAlbums.map { it.toDomainModel() }.forEach { album ->
+				player.playNext(album)
+			}
+		}
+	}
+
+	fun setListType(newListType: DomainArtistListType) {
+		listType.value = newListType
+		preferenceManager.artistSortType = newListType
+		refreshArtists(false)
+	}
+
+	fun toggleFilter(filter: DomainFilter) {
+		val current = selectedFilters.value
+		val newFilters = if (current.contains(filter)) {
+			current - filter
+		} else {
+			current + filter
+		}
+		selectedFilters.value = newFilters
+		preferenceManager.artistFilters = newFilters.toBitmask()
+		refreshArtists(false)
+	}
+
+	fun clearError() {
+		artistsState.value = UiState.Success(artistsState.value.data ?: persistentListOf())
+	}
+}

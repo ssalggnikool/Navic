@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.shared
 
 import android.app.Application
@@ -25,21 +31,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.mappers.toDomainModel
+import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.domain.manager.AudioGainManager
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
-import paige.navic.domain.models.DomainAlbum
-import paige.navic.domain.models.DomainExplicitStatus
-import paige.navic.domain.models.DomainRadio
-import paige.navic.domain.models.DomainSong
-import paige.navic.domain.models.DomainSongCollection
-import paige.navic.domain.models.settings.ReplayGainMode
-import paige.navic.domain.repositories.PlayerStateRepository
-import paige.navic.domain.repositories.SongRepository
+import paige.navic.domain.model.DomainAlbum
+import paige.navic.domain.model.DomainExplicitStatus
+import paige.navic.domain.model.DomainRadio
+import paige.navic.domain.model.DomainSong
+import paige.navic.domain.model.DomainSongCollection
+import paige.navic.domain.model.settings.ReplayGainMode
+import paige.navic.domain.repository.PlayerStateRepository
+import paige.navic.domain.repository.SongRepository
 import paige.navic.exoplayer.ExoStateHolder
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger

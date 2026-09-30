@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.manager
 
 import android.content.ComponentName
@@ -8,7 +14,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import paige.navic.R
-import paige.navic.domain.models.settings.AppIconVariant
+import paige.navic.domain.model.settings.AppIconVariant
 
 class AppIconManager(
 	private val context: Context,

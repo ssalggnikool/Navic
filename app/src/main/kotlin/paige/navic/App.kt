@@ -1,6 +1,13 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -27,7 +34,9 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.detailPane
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.listPane
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -62,65 +71,64 @@ import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.koinInject
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
-import paige.navic.di.LocalPlatformContext
 import paige.navic.di.LocalSharedTransitionScope
+import paige.navic.di.LocalSizeClass
 import paige.navic.di.LocalSnackBarState
-import paige.navic.di.rememberPlatformContext
 import paige.navic.domain.manager.BottomBarScrollManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
-import paige.navic.domain.models.settings.ExplicitContentPlayback
+import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.generated.BuildInfo
 import paige.navic.shared.MediaPlayerViewModel
-import paige.navic.ui.components.layouts.SideBar
-import paige.navic.ui.components.sheets.ChangelogSheet
-import paige.navic.ui.components.snackbars.NavicSnackBar
+import paige.navic.ui.component.layout.SideBar
+import paige.navic.ui.component.sheet.ChangelogSheet
+import paige.navic.ui.component.snackbar.NavicSnackBar
 import paige.navic.ui.navigation.BottomSheetSceneStrategy
 import paige.navic.ui.navigation.NowPlayingSceneStrategy
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.screens.album.AlbumListScreen
-import paige.navic.ui.screens.artist.ArtistDetailScreen
-import paige.navic.ui.screens.artist.ArtistListScreen
-import paige.navic.ui.screens.chat.ChatScreen
-import paige.navic.ui.screens.collection.CollectionDetailScreen
-import paige.navic.ui.screens.genre.GenreDetailScreen
-import paige.navic.ui.screens.genre.GenreListScreen
-import paige.navic.ui.screens.imageView.ImageViewScreen
-import paige.navic.ui.screens.library.LibraryScreen
-import paige.navic.ui.screens.login.LoginScreen
-import paige.navic.ui.screens.lyrics.LyricsScreen
-import paige.navic.ui.screens.nowPlaying.NowPlayingScreen
-import paige.navic.ui.screens.nowPlaying.PlaybackSpeedScreen
-import paige.navic.ui.screens.playlist.PlaylistListScreen
-import paige.navic.ui.screens.queue.QueueScreen
-import paige.navic.ui.screens.radio.RadioListScreen
-import paige.navic.ui.screens.search.SearchScreen
-import paige.navic.ui.screens.settings.AudioEffectsScreen
-import paige.navic.ui.screens.settings.BottomBarScreen
-import paige.navic.ui.screens.settings.FontsScreen
-import paige.navic.ui.screens.settings.SettingsAboutScreen
-import paige.navic.ui.screens.settings.SettingsAppIconScreen
-import paige.navic.ui.screens.settings.SettingsAppearanceScreen
-import paige.navic.ui.screens.settings.SettingsConnectionOptionsScreen
-import paige.navic.ui.screens.settings.SettingsCustomHeadersScreen
-import paige.navic.ui.screens.settings.SettingsDataStorageScreen
-import paige.navic.ui.screens.settings.SettingsDeveloperScreen
-import paige.navic.ui.screens.settings.SettingsDownloadQualityScreen
-import paige.navic.ui.screens.settings.SettingsEqualizerScreen
-import paige.navic.ui.screens.settings.SettingsLogsScreen
-import paige.navic.ui.screens.settings.SettingsNowPlayingScreen
-import paige.navic.ui.screens.settings.SettingsPlaybackScreen
-import paige.navic.ui.screens.settings.SettingsPlayerDebuggingScreen
-import paige.navic.ui.screens.settings.SettingsScreen
-import paige.navic.ui.screens.settings.SettingsStreamingQualityScreen
-import paige.navic.ui.screens.settings.SettingsThemesScreen
-import paige.navic.ui.screens.share.ShareListScreen
-import paige.navic.ui.screens.song.SongDetailScreen
-import paige.navic.ui.screens.song.SongDetailSheet
-import paige.navic.ui.screens.song.SongListScreen
-import paige.navic.ui.screens.starred.StarredScreen
-import paige.navic.ui.screens.stats.StatisticsScreen
+import paige.navic.ui.screen.album.AlbumListScreen
+import paige.navic.ui.screen.artist.ArtistDetailScreen
+import paige.navic.ui.screen.artist.ArtistListScreen
+import paige.navic.ui.screen.chat.ChatScreen
+import paige.navic.ui.screen.collection.CollectionDetailScreen
+import paige.navic.ui.screen.genre.GenreDetailScreen
+import paige.navic.ui.screen.genre.GenreListScreen
+import paige.navic.ui.screen.imageView.ImageViewScreen
+import paige.navic.ui.screen.library.LibraryScreen
+import paige.navic.ui.screen.login.LoginScreen
+import paige.navic.ui.screen.lyrics.LyricsScreen
+import paige.navic.ui.screen.nowPlaying.NowPlayingScreen
+import paige.navic.ui.screen.nowPlaying.PlaybackSpeedScreen
+import paige.navic.ui.screen.playlist.PlaylistListScreen
+import paige.navic.ui.screen.queue.QueueScreen
+import paige.navic.ui.screen.radio.RadioListScreen
+import paige.navic.ui.screen.search.SearchScreen
+import paige.navic.ui.screen.settings.AudioEffectsScreen
+import paige.navic.ui.screen.settings.BottomBarScreen
+import paige.navic.ui.screen.settings.FontsScreen
+import paige.navic.ui.screen.settings.SettingsAboutScreen
+import paige.navic.ui.screen.settings.SettingsAppIconScreen
+import paige.navic.ui.screen.settings.SettingsAppearanceScreen
+import paige.navic.ui.screen.settings.SettingsConnectionOptionsScreen
+import paige.navic.ui.screen.settings.SettingsCustomHeadersScreen
+import paige.navic.ui.screen.settings.SettingsDataStorageScreen
+import paige.navic.ui.screen.settings.SettingsDeveloperScreen
+import paige.navic.ui.screen.settings.SettingsDownloadQualityScreen
+import paige.navic.ui.screen.settings.SettingsEqualizerScreen
+import paige.navic.ui.screen.settings.SettingsLogsScreen
+import paige.navic.ui.screen.settings.SettingsNowPlayingScreen
+import paige.navic.ui.screen.settings.SettingsPlaybackScreen
+import paige.navic.ui.screen.settings.SettingsPlayerDebuggingScreen
+import paige.navic.ui.screen.settings.SettingsScreen
+import paige.navic.ui.screen.settings.SettingsStreamingQualityScreen
+import paige.navic.ui.screen.settings.SettingsThemesScreen
+import paige.navic.ui.screen.share.ShareListScreen
+import paige.navic.ui.screen.song.SongDetailScreen
+import paige.navic.ui.screen.song.SongDetailSheet
+import paige.navic.ui.screen.song.SongListScreen
+import paige.navic.ui.screen.starred.StarredScreen
+import paige.navic.ui.screen.stats.StatisticsScreen
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.Material3Transitions
 
@@ -133,11 +141,14 @@ private val config = SavedStateConfiguration {
 	}
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun App() {
+	val density = LocalDensity.current
+	val activity = LocalActivity.current!!
 	val resources = LocalResources.current
-	val platformContext = rememberPlatformContext()
+
+	val sizeClass = calculateWindowSizeClass(activity)
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
 
@@ -160,7 +171,6 @@ fun App() {
 		}
 	}
 
-	val density = LocalDensity.current
 	val scrollManager = remember {
 		BottomBarScrollManager(with(density) { 50.dp.toPx() })
 	}
@@ -178,15 +188,15 @@ fun App() {
 
 	SharedTransitionLayout {
 		CompositionLocalProvider(
-			LocalPlatformContext provides platformContext,
 			LocalNavStack provides backStack,
 			LocalSnackBarState provides snackBarState,
 			LocalSharedTransitionScope provides this@SharedTransitionLayout,
-			LocalBottomBarScrollManager provides scrollManager
+			LocalBottomBarScrollManager provides scrollManager,
+			LocalSizeClass provides sizeClass
 		) {
 			NavicTheme {
 				Row(modifier = Modifier.fillMaxSize()) {
-					if (platformContext.sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+					if (sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 						&& Screen.Login !in backStack) {
 						SideBar()
 					}

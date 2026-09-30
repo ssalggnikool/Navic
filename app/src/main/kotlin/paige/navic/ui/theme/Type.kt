@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.ui.theme
 
 import androidx.compose.material3.Typography
@@ -9,7 +15,7 @@ import androidx.compose.ui.text.font.FontVariation
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.models.settings.FontOption
+import paige.navic.domain.model.settings.FontOption
 
 private val defaultTypography = Typography()
 

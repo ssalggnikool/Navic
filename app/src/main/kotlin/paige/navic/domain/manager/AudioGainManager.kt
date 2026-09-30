@@ -1,10 +1,16 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.manager
 
 import androidx.media3.common.util.UnstableApi
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import paige.navic.domain.models.DomainReplayGain
-import paige.navic.domain.models.settings.ReplayGainMode
+import paige.navic.domain.model.DomainReplayGain
+import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.exoplayer.ExoStateHolder
 
 @UnstableApi

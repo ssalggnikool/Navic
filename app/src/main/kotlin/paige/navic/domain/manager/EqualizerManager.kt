@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.manager
 
 import androidx.datastore.core.DataStore
@@ -14,7 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import paige.navic.domain.models.settings.EqualizerConfig
+import paige.navic.domain.model.settings.EqualizerConfig
 import paige.navic.util.Logger
 
 class EqualizerManager(

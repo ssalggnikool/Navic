@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools">
 
@@ -100,7 +106,7 @@
 
 		<!-- miniplayer receiver -->
 		<receiver
-			android:name=".widgets.miniplayer.MiniPlayerReceiver"
+			android:name=".widget.miniplayer.MiniPlayerReceiver"
 			android:exported="false"
 			android:label="Mini Player">
 			<intent-filter>
@@ -114,7 +120,7 @@
 
 		<!-- turn table receiver -->
 		<receiver
-			android:name=".widgets.turntable.TurnTableReceiver"
+			android:name=".widget.turntable.TurnTableReceiver"
 			android:exported="false"
 			android:label="Turn Table">
 			<intent-filter>

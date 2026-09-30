@@ -1,6 +1,8 @@
-// Taken from https://github.com/Aliucord/Manager/blob/main/app/src/main/kotlin/com/aliucord/manager/di/ActivityProvider.kt
-// SPDX-License-Identifier: OSL-3.0
-// Copyright (c) 2022 Juby210 & zt
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2022-2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 
 package paige.navic.di
 

@@ -63,7 +63,6 @@ androidx-media3-ktor = { module = "androidx.media3:media3-datasource-ktor", vers
 androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "androidx-glance" }
 androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "androidx-glance" }
 androidx-browser = { module = "androidx.browser:browser", version = "1.10.0" }
-androidx-palette = { module = "androidx.palette:palette", version = "1.0.0" }
 
 # Kotlinx
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.8.0" }
@@ -81,7 +80,6 @@ coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 
 # Compose 3rd party
 capsule = { module = "top.ltfan.capsule:capsule", version = "1.1.1" }
-wavySlider = { module = "ir.mahozad.multiplatform:wavy-slider", version = "2.2.0" }
 kmpalette-core = { module = "com.kmpalette:kmpalette-core", version.ref = "kmpalette" }
 kmpalette-network = { module = "com.kmpalette:extensions-network", version.ref = "kmpalette" }
 materialKolor = { module = "com.materialkolor:material-kolor", version = "5.0.1" }
@@ -110,8 +108,8 @@ media3 = ["androidx-media3-exoplayer", "androidx-media3-session", "androidx-medi
 glance = ["androidx-glance-appwidget", "androidx-glance-material3"]
 ktor = ["ktor-client-core", "ktor-client-contentNegotiation", "ktor-serialization-json"]
 ktor-android = ["ktor-client-okhttp"]
-cmpThirdParty = ["capsule", "wavySlider", "kmpalette-core", "kmpalette-network", "materialKolor", "composePipette", "multiplatformSettings"]
-androidx-android = ["androidx-activity-compose", "androidx-datastore-preferences", "androidx-animation-graphics", "androidx-browser", "androidx-palette"]
+cmpThirdParty = ["capsule", "kmpalette-core", "kmpalette-network", "materialKolor", "composePipette", "multiplatformSettings"]
+androidx-android = ["androidx-activity-compose", "androidx-datastore-preferences", "androidx-animation-graphics", "androidx-browser"]
 androidx-lifecycle = ["androidx-lifecycle-viewmodel", "androidx-lifecycle-runtime"]
 room = ["androidx-room3-runtime", "androidx-sqlite-bundled"]
 koin = ["koin-core", "koin-compose", "koin-compose-viewmodel"]

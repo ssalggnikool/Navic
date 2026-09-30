@@ -1,0 +1,157 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.screen.album.component
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import paige.navic.R
+import paige.navic.domain.model.DomainAlbum
+import paige.navic.domain.model.DomainAlbumListType
+import paige.navic.domain.model.settings.ListViewMode
+import paige.navic.ui.component.common.ContentUnavailable
+import paige.navic.ui.component.layout.artGridPlaceholder
+import paige.navic.ui.core.UiState
+
+fun LazyGridScope.albumListScreenContent(
+	state: UiState<List<DomainAlbum>>,
+	starred: Boolean,
+	selectedSorting: DomainAlbumListType,
+	selectedAlbum: DomainAlbum?,
+	selectedAlbumRating: Int,
+	selectedViewMode: ListViewMode,
+	onUpdateSelection: (DomainAlbum) -> Unit,
+	onClearSelection: () -> Unit,
+	onSetShareId: (String) -> Unit,
+	onSetStarred: (Boolean) -> Unit,
+	onPlayNext: () -> Unit,
+	onAddToQueue: () -> Unit,
+	onRateSelectedAlbum: (Int) -> Unit
+) {
+	val data = state.data.orEmpty()
+	if (data.isNotEmpty()) {
+		if (selectedSorting == DomainAlbumListType.AlphabeticalByName) {
+			val grouped = data.groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
+				.toList()
+				.sortedBy { it.first }
+
+			val textPadding = PaddingValues(
+				horizontal = if (selectedViewMode == ListViewMode.List) 16.dp else 0.dp,
+				vertical = 8.dp
+			)
+
+			grouped.forEach { (letter, albums) ->
+				stickyHeader {
+					Row(
+						modifier = Modifier
+							.background(MaterialTheme.colorScheme.surface)
+							.padding(textPadding),
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						Text(
+							text = letter.toString(),
+							color = MaterialTheme.colorScheme.onSurfaceVariant
+						)
+					}
+				}
+				items(albums, { it.id }) { album ->
+					if (selectedViewMode == ListViewMode.Grid) {
+						AlbumListScreenGridItem(
+							modifier = Modifier.animateItem(),
+							tab = "albums",
+							album = album,
+							selected = album == selectedAlbum,
+							starred = starred,
+							onSelect = { onUpdateSelection(album) },
+							onDeselect = { onClearSelection() },
+							onSetStarred = { onSetStarred(it) },
+							onSetShareId = onSetShareId,
+							onPlayNext = onPlayNext,
+							onAddToQueue = onAddToQueue,
+							rating = selectedAlbumRating,
+							onSetRating = onRateSelectedAlbum
+						)
+					} else {
+						AlbumListScreenListItem(
+							modifier = Modifier.animateItem(),
+							album = album,
+							selected = album == selectedAlbum,
+							starred = starred,
+							onSelect = { onUpdateSelection(album) },
+							onDeselect = { onClearSelection() },
+							onSetStarred = { onSetStarred(it) },
+							onSetShareId = onSetShareId,
+							onPlayNext = onPlayNext,
+							onAddToQueue = onAddToQueue,
+							rating = selectedAlbumRating,
+							onSetRating = onRateSelectedAlbum
+						)
+					}
+				}
+			}
+		} else {
+			items(data, { it.id }) { album ->
+				if (selectedViewMode == ListViewMode.Grid) {
+					AlbumListScreenGridItem(
+						modifier = Modifier.animateItem(),
+						tab = "albums",
+						album = album,
+						selected = album == selectedAlbum,
+						starred = starred,
+						onSelect = { onUpdateSelection(album) },
+						onDeselect = { onClearSelection() },
+						onSetStarred = { onSetStarred(it) },
+						onSetShareId = onSetShareId,
+						onPlayNext = onPlayNext,
+						onAddToQueue = onAddToQueue,
+						rating = selectedAlbumRating,
+						onSetRating = onRateSelectedAlbum
+					)
+				} else {
+					AlbumListScreenListItem(
+						modifier = Modifier.animateItem(),
+						album = album,
+						selected = album == selectedAlbum,
+						starred = starred,
+						onSelect = { onUpdateSelection(album) },
+						onDeselect = { onClearSelection() },
+						onSetStarred = { onSetStarred(it) },
+						onSetShareId = onSetShareId,
+						onPlayNext = onPlayNext,
+						onAddToQueue = onAddToQueue,
+						rating = selectedAlbumRating,
+						onSetRating = onRateSelectedAlbum
+					)
+				}
+			}
+		}
+	} else {
+		when (state) {
+			is UiState.Loading -> {
+				artGridPlaceholder(viewMode = selectedViewMode)
+			}
+
+			else -> {
+				item(span = { GridItemSpan(maxLineSpan) }) {
+					ContentUnavailable(
+						label = stringResource(R.string.info_no_albums)
+					)
+				}
+			}
+		}
+	}
+}

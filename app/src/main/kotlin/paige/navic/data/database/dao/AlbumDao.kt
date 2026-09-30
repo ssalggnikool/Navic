@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.data.database.dao
 
 import androidx.room3.Dao
@@ -8,8 +14,8 @@ import androidx.room3.RawQuery
 import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
-import paige.navic.data.database.entities.AlbumEntity
-import paige.navic.data.database.relations.AlbumWithSongs
+import paige.navic.data.database.entity.AlbumEntity
+import paige.navic.data.database.relation.AlbumWithSongs
 import paige.navic.util.Logger
 
 @Dao

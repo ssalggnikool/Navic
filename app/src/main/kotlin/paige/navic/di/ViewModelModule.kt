@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.di
 
 import androidx.media3.common.util.UnstableApi
@@ -5,38 +11,38 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import paige.navic.domain.models.DomainAlbumListType
-import paige.navic.domain.models.DomainArtistListType
-import paige.navic.domain.models.DomainFilter
-import paige.navic.domain.models.DomainSong
-import paige.navic.domain.models.DomainSongListType
+import paige.navic.domain.model.DomainAlbumListType
+import paige.navic.domain.model.DomainArtistListType
+import paige.navic.domain.model.DomainFilter
+import paige.navic.domain.model.DomainSong
+import paige.navic.domain.model.DomainSongListType
 import paige.navic.shared.AndroidMediaPlayerViewModel
 import paige.navic.shared.MediaPlayerViewModel
-import paige.navic.ui.components.dialogs.DeletionViewModel
-import paige.navic.ui.components.sheets.ChangelogViewModel
-import paige.navic.ui.screens.album.viewmodels.AlbumListViewModel
-import paige.navic.ui.screens.artist.viewmodels.ArtistDetailViewModel
-import paige.navic.ui.screens.artist.viewmodels.ArtistListViewModel
-import paige.navic.ui.screens.chat.viewmodels.ChatViewModel
-import paige.navic.ui.screens.collection.viewmodels.CollectionDetailViewModel
-import paige.navic.ui.screens.genre.viewmodels.GenreListViewModel
-import paige.navic.ui.screens.lyrics.viewmodels.LyricsScreenViewModel
-import paige.navic.ui.screens.nowPlaying.viewmodels.NowPlayingViewModel
-import paige.navic.ui.screens.playlist.viewmodels.PlaylistCreateDialogViewModel
-import paige.navic.ui.screens.playlist.viewmodels.PlaylistListViewModel
-import paige.navic.ui.screens.playlist.viewmodels.PlaylistUpdateDialogViewModel
-import paige.navic.ui.screens.queue.viewmodels.QueueViewModel
-import paige.navic.ui.screens.radio.viewmodels.RadioCreateDialogViewModel
-import paige.navic.ui.screens.radio.viewmodels.RadioListViewModel
-import paige.navic.ui.screens.search.viewmodels.SearchViewModel
-import paige.navic.ui.screens.settings.viewmodels.LyricsPriorityViewModel
-import paige.navic.ui.screens.settings.viewmodels.NavtabsViewModel
-import paige.navic.ui.screens.settings.viewmodels.SettingsDataStorageViewModel
-import paige.navic.ui.screens.share.viewmodels.ShareDialogViewModel
-import paige.navic.ui.screens.share.viewmodels.ShareListViewModel
-import paige.navic.ui.screens.song.viewmodels.SongDetailViewModel
-import paige.navic.ui.screens.song.viewmodels.SongListViewModel
-import paige.navic.ui.screens.stats.viewmodels.StatisticsViewModel
+import paige.navic.ui.component.dialog.DeletionViewModel
+import paige.navic.ui.component.sheet.ChangelogViewModel
+import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
+import paige.navic.ui.screen.artist.viewmodel.ArtistDetailViewModel
+import paige.navic.ui.screen.artist.viewmodel.ArtistListViewModel
+import paige.navic.ui.screen.chat.viewmodel.ChatViewModel
+import paige.navic.ui.screen.collection.viewmodel.CollectionDetailViewModel
+import paige.navic.ui.screen.genre.viewmodel.GenreListViewModel
+import paige.navic.ui.screen.lyrics.viewmodel.LyricsScreenViewModel
+import paige.navic.ui.screen.nowPlaying.viewmodel.NowPlayingViewModel
+import paige.navic.ui.screen.playlist.viewmodel.PlaylistCreateDialogViewModel
+import paige.navic.ui.screen.playlist.viewmodel.PlaylistListViewModel
+import paige.navic.ui.screen.playlist.viewmodel.PlaylistUpdateDialogViewModel
+import paige.navic.ui.screen.queue.viewmodel.QueueViewModel
+import paige.navic.ui.screen.radio.viewmodel.RadioCreateDialogViewModel
+import paige.navic.ui.screen.radio.viewmodel.RadioListViewModel
+import paige.navic.ui.screen.search.viewmodel.SearchViewModel
+import paige.navic.ui.screen.settings.viewmodel.LyricsPriorityViewModel
+import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
+import paige.navic.ui.screen.settings.viewmodel.SettingsDataStorageViewModel
+import paige.navic.ui.screen.share.viewmodel.ShareDialogViewModel
+import paige.navic.ui.screen.share.viewmodel.ShareListViewModel
+import paige.navic.ui.screen.song.viewmodel.SongDetailViewModel
+import paige.navic.ui.screen.song.viewmodel.SongListViewModel
+import paige.navic.ui.screen.stats.viewmodel.StatisticsViewModel
 import paige.navic.ui.viewmodel.RootViewModel
 
 @UnstableApi

@@ -1,4 +1,6 @@
 .idea
+!.idea/icon.svg
+!.idea/copyright/**
 .kotlin
 .gradle
 

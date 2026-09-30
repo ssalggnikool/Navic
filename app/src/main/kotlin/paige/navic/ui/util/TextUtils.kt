@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.ui.util
 
 import androidx.compose.foundation.text.InlineTextContent
@@ -22,8 +28,8 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 import paige.navic.R
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.models.DomainSong
-import paige.navic.domain.models.DomainSongArtist
+import paige.navic.domain.model.DomainSong
+import paige.navic.domain.model.DomainSongArtist
 import paige.navic.icons.Icons
 import paige.navic.icons.filled.Explicit
 import paige.navic.ui.theme.warning

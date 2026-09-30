@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 @file:OptIn(ExperimentalMaterial3Api::class)
 @file:Suppress("UNCHECKED_CAST")
 
@@ -33,9 +39,9 @@ import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
 import com.kyant.capsule.ContinuousCapsule
 import paige.navic.di.LocalNavStack
-import paige.navic.ui.components.sheets.ModalBottomSheet
-import paige.navic.ui.theme.NavicTheme
 import paige.navic.di.LocalSheetState
+import paige.navic.ui.component.sheet.ModalBottomSheet
+import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeForCurrentSong
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 

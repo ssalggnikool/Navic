@@ -1,36 +1,42 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.manager
 
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import paige.navic.domain.manager.base.BasePreferenceManager
-import paige.navic.domain.models.DomainAlbumListType
-import paige.navic.domain.models.DomainArtistListType
-import paige.navic.domain.models.DomainPlaylistListType
-import paige.navic.domain.models.DomainSongListType
-import paige.navic.domain.models.settings.AnimationStyle
-import paige.navic.domain.models.settings.AppIconVariant
-import paige.navic.domain.models.settings.BottomBarCollapseMode
-import paige.navic.domain.models.settings.BottomBarVisibilityMode
-import paige.navic.domain.models.settings.CoverArtQuality
-import paige.navic.domain.models.settings.CoverArtShape
-import paige.navic.domain.models.settings.CoverArtTapAction
-import paige.navic.domain.models.settings.ExplicitContentPlayback
-import paige.navic.domain.models.settings.FontOption
-import paige.navic.domain.models.settings.GridSize
-import paige.navic.domain.models.settings.ArtistAlbumViewMode
-import paige.navic.domain.models.settings.ListViewMode
-import paige.navic.domain.models.settings.MarqueeSpeed
-import paige.navic.domain.models.settings.MiniPlayerProgressStyle
-import paige.navic.domain.models.settings.MiniPlayerStyle
-import paige.navic.domain.models.settings.NowPlayingBackgroundStyle
-import paige.navic.domain.models.settings.NowPlayingSliderStyle
-import paige.navic.domain.models.settings.OfflineMode
-import paige.navic.domain.models.settings.QueueInfoType
-import paige.navic.domain.models.settings.ReplayGainMode
-import paige.navic.domain.models.settings.StreamingQuality
-import paige.navic.domain.models.settings.Theme
-import paige.navic.domain.models.settings.ThemeMode
-import paige.navic.domain.models.settings.ToolbarPosition
+import paige.navic.domain.model.DomainAlbumListType
+import paige.navic.domain.model.DomainArtistListType
+import paige.navic.domain.model.DomainPlaylistListType
+import paige.navic.domain.model.DomainSongListType
+import paige.navic.domain.model.settings.AnimationStyle
+import paige.navic.domain.model.settings.AppIconVariant
+import paige.navic.domain.model.settings.BottomBarCollapseMode
+import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.domain.model.settings.CoverArtQuality
+import paige.navic.domain.model.settings.CoverArtShape
+import paige.navic.domain.model.settings.CoverArtTapAction
+import paige.navic.domain.model.settings.ExplicitContentPlayback
+import paige.navic.domain.model.settings.FontOption
+import paige.navic.domain.model.settings.GridSize
+import paige.navic.domain.model.settings.ArtistAlbumViewMode
+import paige.navic.domain.model.settings.ListViewMode
+import paige.navic.domain.model.settings.MarqueeSpeed
+import paige.navic.domain.model.settings.MiniPlayerProgressStyle
+import paige.navic.domain.model.settings.MiniPlayerStyle
+import paige.navic.domain.model.settings.NowPlayingBackgroundStyle
+import paige.navic.domain.model.settings.NowPlayingSliderStyle
+import paige.navic.domain.model.settings.OfflineMode
+import paige.navic.domain.model.settings.QueueInfoType
+import paige.navic.domain.model.settings.ReplayGainMode
+import paige.navic.domain.model.settings.StreamingQuality
+import paige.navic.domain.model.settings.Theme
+import paige.navic.domain.model.settings.ThemeMode
+import paige.navic.domain.model.settings.ToolbarPosition
 import com.russhwolf.settings.Settings as KmpSettings
 
 class PreferenceManager(

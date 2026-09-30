@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.manager
 
 import androidx.annotation.StringRes
@@ -9,7 +15,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import paige.navic.R
-import paige.navic.domain.models.snackbars.PlayerEvent
+import paige.navic.domain.model.snackbars.PlayerEvent
 
 class SnackBarManager {
 	private val _events = MutableSharedFlow<PlayerEvent>()

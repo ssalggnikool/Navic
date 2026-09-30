@@ -1,3 +1,9 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 package paige.navic.domain.manager
 
 import android.content.Context
@@ -35,17 +41,17 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.json.Json
+import paige.navic.R
 import paige.navic.data.database.dao.AlbumDao
 import paige.navic.data.database.dao.DownloadDao
 import paige.navic.data.database.dao.LyricDao
-import paige.navic.data.database.entities.DownloadEntity
-import paige.navic.data.database.entities.DownloadStatus
-import paige.navic.data.database.entities.LyricEntity
-import paige.navic.domain.models.DomainSong
-import paige.navic.domain.models.DomainSongCollection
-import paige.navic.domain.repositories.LyricsRepository
+import paige.navic.data.database.entity.DownloadEntity
+import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.data.database.entity.LyricEntity
+import paige.navic.domain.model.DomainSong
+import paige.navic.domain.model.DomainSongCollection
+import paige.navic.domain.repository.LyricsRepository
 import paige.navic.util.Logger
-import paige.navic.R
 import paige.navic.util.createHttpClientWithPreferences
 import coil3.PlatformContext as CoilPlatformContext
 
