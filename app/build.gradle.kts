@@ -236,6 +236,7 @@ dependencies {
 	implementation(libs.bundles.media3)
 	implementation(libs.bundles.ktor.android)
 	implementation(libs.androidx.media3.decoder.ffmpeg)
+	implementation(libs.antisocialcord.kt)
 
 	ksp(libs.androidx.room3.compiler)
 }

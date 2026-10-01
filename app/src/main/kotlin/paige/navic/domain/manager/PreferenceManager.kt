@@ -158,6 +158,7 @@ class PreferenceManager(
 
 	var offlineMode by preference(OfflineMode.Auto)
 
+	var discordIntegrationEnabled by preference(false)
 	var proxyUrl by preference("")
 	var dangerousSslNoopEnabled by preference(false)
 }

@@ -7,6 +7,7 @@ android-minSdk = "24"
 #noinspection UnusedVersionCatalogEntry
 android-targetSdk = "37"
 annotation = "1.11.0"
+antisocialcordKt = "master-SNAPSHOT"
 desugar_jdk_libs = "2.1.5"
 kotlin = "2.4.20"
 
@@ -40,6 +41,7 @@ koin = "4.2.2"
 # Compose
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 androidx-media3-decoder-ffmpeg = { module = "androidx.media3:media3-decoder-ffmpeg", version.ref = "androidx-media3" }
+antisocialcord-kt = { module = "com.github.Nightdavisao:antisocialcord-kt", version.ref = "antisocialcordKt" }
 compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
