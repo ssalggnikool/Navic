@@ -34,6 +34,13 @@
 		android:protectionLevel="signature" />
 	<uses-permission android:name="${applicationId}.permission.PLAYBACK_SERVICE" />
 
+	<queries>
+		<intent>
+			<action android:name="com.discord.socialsdk.rpc.IDiscordRpcService" />
+		</intent>
+		<package android:name="com.discord" />
+	</queries>
+
 	<application
 		android:name=".Application"
 		android:allowBackup="true"

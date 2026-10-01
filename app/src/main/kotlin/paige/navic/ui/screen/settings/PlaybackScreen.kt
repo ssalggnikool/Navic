@@ -107,15 +107,24 @@ fun SettingsPlaybackScreen() {
 				}
 
 				SettingsGroup(title = { Text(stringResource(R.string.title_behaviour)) }) {
+					val enableDiscordIntegration = preferenceManager.discordIntegrationEnabled
 					val enableScrobbling = preferenceManager.enableScrobbling
-					val count = if (enableScrobbling) 3 else 1
+					val count = if (enableScrobbling) 4 else 2
+
+					SettingsToggleItem(
+						checked = enableDiscordIntegration,
+						onCheckedChange = { preferenceManager.discordIntegrationEnabled = it },
+						content = { Text("Discord integration") },
+						supportingContent = { Text("Show off on Discord what music you're currently listening to") },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
+					)
 
 					SettingsToggleItem(
 						checked = enableScrobbling,
 						onCheckedChange = { preferenceManager.enableScrobbling = it },
 						content = { Text(stringResource(R.string.option_enable_scrobbling)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_enable_scrobbling)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = count)
 					)
 
 					AnimatedVisibility(visible = enableScrobbling) {
@@ -125,7 +134,7 @@ fun SettingsPlaybackScreen() {
 							onValueChange = { preferenceManager.scrobblePercentage = it },
 							trailingContent = { Text("${(preferenceManager.scrobblePercentage * 100).roundToInt()}%") },
 							content = { Text(stringResource(R.string.option_scrobble_percentage)) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = count)
+							shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = count)
 						)
 					}
 
@@ -137,7 +146,7 @@ fun SettingsPlaybackScreen() {
 							onValueChange = { preferenceManager.minDurationToScrobble = it },
 							trailingContent = { Text("${preferenceManager.minDurationToScrobble.toInt()}s") },
 							content = { Text(stringResource(R.string.option_min_duration_to_scrobble)) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = count)
+							shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = count)
 						)
 					}
 				}

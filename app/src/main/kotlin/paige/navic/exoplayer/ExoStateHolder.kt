@@ -52,6 +52,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.exoplayer.impl.ExoArtworkLoader
 import paige.navic.exoplayer.impl.ExoAudioGainProcessor
@@ -240,6 +241,8 @@ class ExoStateHolder: KoinComponent {
 						mediaSession.setCustomLayout(makeButtons(it))
 					}
 				})
+
+				it.addListener(ExoDiscordIntegration(context, it, preferenceManager))
 			}
 
 		return playerInstance
