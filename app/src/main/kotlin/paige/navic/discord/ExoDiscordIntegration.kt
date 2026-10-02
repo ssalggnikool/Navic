@@ -8,7 +8,6 @@ package paige.navic.discord
 
 import android.content.Context
 import android.util.Log
-import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import kotlinx.coroutines.CoroutineScope
@@ -38,24 +37,14 @@ class ExoDiscordIntegration(
 	private val client = DiscordRpcClient(context)
 	private val scope = CoroutineScope(Dispatchers.Main)
 	private val mutex = Mutex()
-	private var lastMediaItem: MediaItem? = null
 
 	fun isIntegrationEnabled(): Boolean {
 		return preferenceManager.discordIntegrationEnabled
 	}
 
-	override fun onMediaItemTransition(
-		mediaItem: MediaItem?,
-		reason: @Player.MediaItemTransitionReason Int
-	) {
-		if (lastMediaItem?.mediaId != mediaItem?.mediaId) {
-			lastMediaItem = mediaItem
-		}
-	}
-
 	override fun onPlaybackStateChanged(playbackState: @Player.State Int) {
 		if (playbackState == Player.STATE_READY) {
-			setCurrentActivity(lastMediaItem ?: player.currentMediaItem)
+			setCurrentActivity(player.currentMediaItem)
 		}
 	}
 
@@ -71,8 +60,8 @@ class ExoDiscordIntegration(
 		val wasFurtherAlong = oldPosition.positionMs > 10000L
 
 		if (isSeekOrRepeat && jumpedToStart && wasFurtherAlong) {
-			if (lastMediaItem != null) {
-				setCurrentActivity(lastMediaItem)
+			if (player.currentMediaItem != null) {
+				setCurrentActivity(player.currentMediaItem)
 			}
 		}
 	}
@@ -81,7 +70,7 @@ class ExoDiscordIntegration(
 		if (!isPlaying) {
 			setCurrentActivity(null)
 		} else {
-			setCurrentActivity(lastMediaItem)
+			setCurrentActivity(player.currentMediaItem)
 		}
 	}
 

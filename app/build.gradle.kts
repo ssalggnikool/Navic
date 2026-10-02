@@ -223,17 +223,16 @@ dependencies {
 	implementation(libs.coil.network.ktor3)
 	implementation(libs.coil.gif)
 
-	implementation(libs.subsonicKotlin)
-	implementation(libs.koin.android)
-	implementation(libs.koin.core)
-	implementation(libs.bundles.glance)
-	implementation(libs.bundles.coil)
-	implementation(libs.bundles.media3)
-	implementation(libs.bundles.ktor.android)
-	implementation(libs.androidx.media3.decoder.ffmpeg)
+	// Compose 3rd party
+	implementation(libs.capsule)
+	implementation(libs.kmpalette.core)
+	implementation(libs.kmpalette.network)
+	implementation(libs.materialKolor)
+	implementation(libs.composePipette)
+	implementation(libs.multiplatformSettings)
 
 	// Misc
-	implementation(libs.antisocialcord.kt)
+	implementation(libs.antisocialcord)
 	implementation(libs.koin.core)
 	implementation(libs.koin.android)
 	implementation(libs.koin.compose)
