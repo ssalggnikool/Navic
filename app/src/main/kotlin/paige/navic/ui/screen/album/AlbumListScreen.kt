@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.media3.common.util.UnstableApi
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -59,6 +60,7 @@ import paige.navic.ui.util.withoutTop
 import paige.navic.ui.viewmodel.RootViewModel
 import kotlin.time.Duration
 
+@UnstableApi
 @Composable
 fun AlbumListScreen(
 	nested: Boolean = false,
@@ -181,7 +183,13 @@ fun AlbumListScreen(
 						selectedAlbumRating = rating,
 						selectedViewMode = selectedViewMode,
 						onPlayNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
-						onAddToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
+						onAddToQueue = {
+							if (selectedAlbum != null) {
+								player.addToQueue(
+									selectedAlbum as DomainSongCollection
+								)
+							}
+						},
 						onUpdateSelection = { viewModel.selectAlbum(it) },
 						onClearSelection = { viewModel.clearSelection() },
 						onSetShareId = { newShareId ->

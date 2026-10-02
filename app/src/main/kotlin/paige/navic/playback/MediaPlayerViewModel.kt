@@ -63,7 +63,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-@UnstableApi
+@androidx.annotation.OptIn(UnstableApi::class)
 class MediaPlayerViewModel(
 	private val stateRepository: PlayerStateRepository,
 	private val songRepository: SongRepository,
@@ -91,6 +91,35 @@ class MediaPlayerViewModel(
 		viewModelScope.launch {
 			restoreState()
 			observeAndSaveState()
+		}
+	}
+
+	fun playNow(song: DomainSong) {
+		clearQueue()
+		addToQueueSingle(song, notify = false)
+		playAt(0)
+		checkAndAutoFillQueue()
+	}
+
+	fun playNow(collection: DomainSongCollection, startIndex: Int = 0) {
+		clearQueue()
+		addToQueue(collection, notify = false)
+		playAt(startIndex)
+		checkAndAutoFillQueue()
+	}
+
+	fun playNow(songs: List<DomainSong>, startIndex: Int = 0) {
+		clearQueue()
+		addToQueue(songs, notify = false)
+		playAt(startIndex)
+		checkAndAutoFillQueue()
+	}
+
+	fun togglePlay() {
+		if (!uiState.value.isPaused) {
+			pause()
+		} else {
+			resume()
 		}
 	}
 
@@ -472,7 +501,8 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun addToQueueSingle(song: DomainSong, notify: Boolean) = launchInView {
+	@UnstableApi
+	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) = launchInView {
 		controller?.addMediaItem(song.toMediaItem())
 		_uiState.update { state ->
 			val newQueue = state.queue + song
@@ -485,7 +515,7 @@ class MediaPlayerViewModel(
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
-	fun addToQueue(collection: DomainSongCollection, notify: Boolean) {
+	fun addToQueue(collection: DomainSongCollection, notify: Boolean = true) {
 		addToQueue(
 			if (collection is DomainAlbum) collection.songs.sortedWith(
 				compareBy(
@@ -497,7 +527,7 @@ class MediaPlayerViewModel(
 		)
 	}
 
-	fun addToQueue(songs: List<DomainSong>, notify: Boolean) = launchInView {
+	fun addToQueue(songs: List<DomainSong>, notify: Boolean = true) = launchInView {
 		val items = songs.map { it.toMediaItem() }
 		controller?.addMediaItems(items)
 		_uiState.update { state ->
