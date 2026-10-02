@@ -202,7 +202,6 @@ fun CollectionDetailScreenSongRow(
 					MarqueeText(
 						text = buildSongInfoString(
 							song = song,
-							onClickArtist = { backStack.add(Screen.ArtistDetail(it)) },
 							showYear = false,
 							showAlbum = false
 						),
