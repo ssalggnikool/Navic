@@ -12,7 +12,6 @@ plugins {
 	alias(libs.plugins.android.application)
 	alias(libs.plugins.compose.compiler)
 	alias(libs.plugins.kotlin.serialization)
-	alias(libs.plugins.valkyrie)
 	alias(libs.plugins.ksp)
 	alias(libs.plugins.androidx.room3)
 }
@@ -23,32 +22,6 @@ configurations.all {
 	exclude(group = "androidx.compose.material", module = "material")
 	// cache SNAPSHOT dependencies for less time, default 24h
 	resolutionStrategy.cacheChangingModulesFor(1, "hours")
-}
-
-valkyrie {
-	packageName = "paige.navic.icons"
-	generateAtSync = true
-	outputDirectory = layout.buildDirectory.dir("generated/sources/valkyrie")
-
-	iconPack {
-		name = "Icons"
-		targetSourceSet = "main"
-
-		nested {
-			name = "Brand"
-			sourceFolder = "brand"
-		}
-
-		nested {
-			name = "Outlined"
-			sourceFolder = "outlined"
-		}
-
-		nested {
-			name = "Filled"
-			sourceFolder = "filled"
-		}
-	}
 }
 
 val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
@@ -78,13 +51,11 @@ val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
 }
 
 tasks.withType<KotlinCompilationTask<*>>().configureEach {
-	dependsOn("generateValkyrieImageVector")
 	dependsOn(generateBuildInfo)
 }
 
-// no idea why ksp tasks depend on these
+// no idea why ksp tasks depend on this
 tasks.withType<KspAATask>().configureEach {
-	dependsOn("generateValkyrieImageVector")
 	dependsOn(generateBuildInfo)
 }
 
@@ -105,6 +76,7 @@ val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdro
 android {
 	namespace = "paige.navic"
 	compileSdk = libs.versions.android.compileSdk.get().toInt()
+	compileSdkMinor = libs.versions.android.compileSdkMinor.get().toInt()
 
 	buildFeatures {
 		resValues = true
@@ -136,9 +108,8 @@ android {
 	}
 
 	buildTypes {
-		getByName("release") {
+		release {
 			isMinifyEnabled = true
-			isDebuggable = false
 			isProfileable = false
 			isJniDebuggable = false
 			isShrinkResources = true
@@ -149,7 +120,7 @@ android {
 			)
 		}
 
-		getByName("debug") {
+		debug {
 			applicationIdSuffix = ".debug"
 			resValue("string", "app_name", "Navic (Dev)")
 		}
@@ -212,20 +183,44 @@ room3 {
 }
 
 dependencies {
-	coreLibraryDesugaring(libs.desugar.jdk.libs)
-	implementation(libs.bundles.compose)
-	implementation(libs.bundles.ktor)
-	implementation(libs.bundles.cmpThirdParty)
-	implementation(libs.bundles.androidx.lifecycle)
-	implementation(libs.bundles.androidx.android)
-	implementation(libs.bundles.room)
-	implementation(libs.bundles.koin)
+	// Compose
+	implementation(libs.compose.runtime)
+	implementation(libs.compose.foundation)
+	implementation(libs.compose.ui)
+	implementation(libs.compose.material3)
+	implementation(libs.compose.material3.adaptive.nav)
+	implementation(libs.compose.material3.windowSize)
 
+	// Androidx
+	implementation(libs.androidx.activity.compose)
+	implementation(libs.androidx.lifecycle.viewmodel)
+	implementation(libs.androidx.lifecycle.runtime)
+	implementation(libs.androidx.datastore.preferences)
+	implementation(libs.androidx.animation.graphics)
+	implementation(libs.androidx.sqlite.bundled)
+	implementation(libs.androidx.room3.runtime)
 	implementation(libs.androidx.navigation3.ui)
+	implementation(libs.androidx.media3.exoplayer)
+	implementation(libs.androidx.media3.session)
+	implementation(libs.androidx.media3.ktor)
+	implementation(libs.androidx.media3.decoder.ffmpeg)
+	implementation(libs.androidx.annotation)
+	implementation(libs.androidx.glance.appwidget)
+	implementation(libs.androidx.glance.material3)
+	implementation(libs.androidx.browser)
+
+	// Kotlinx
 	implementation(libs.kotlinx.datetime)
 	implementation(libs.kotlinx.serialization.json)
 	implementation(libs.kotlinx.collections.immutable)
-	implementation(libs.androidx.datastore.preferences)
+
+	// Networking
+	implementation(libs.ktor.client.core)
+	implementation(libs.ktor.client.okhttp)
+	implementation(libs.ktor.client.contentNegotiation)
+	implementation(libs.ktor.serialization.json)
+	implementation(libs.coil.compose)
+	implementation(libs.coil.network.ktor3)
 	implementation(libs.coil.gif)
 
 	implementation(libs.subsonicKotlin)
@@ -236,7 +231,14 @@ dependencies {
 	implementation(libs.bundles.media3)
 	implementation(libs.bundles.ktor.android)
 	implementation(libs.androidx.media3.decoder.ffmpeg)
-	implementation(libs.antisocialcord.kt)
 
+	// Misc
+	implementation(libs.antisocialcord.kt)
+	implementation(libs.koin.core)
+	implementation(libs.koin.android)
+	implementation(libs.koin.compose)
+	implementation(libs.koin.compose.viewmodel)
+	implementation(libs.subsonicKotlin)
 	ksp(libs.androidx.room3.compiler)
+	coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

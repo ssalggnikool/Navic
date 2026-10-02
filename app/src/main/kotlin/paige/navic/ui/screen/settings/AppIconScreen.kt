@@ -39,8 +39,8 @@ import paige.navic.R
 import paige.navic.domain.manager.AppIconManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.AppIconVariant
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Info
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar

@@ -35,11 +35,11 @@ import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainGenre
 import paige.navic.domain.model.DomainPlaylist
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.History
-import paige.navic.icons.outlined.LibraryAdd
-import paige.navic.icons.outlined.Shuffle
-import paige.navic.icons.outlined.Star
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.History
+import paige.navic.ui.icons.outlined.LibraryAdd
+import paige.navic.ui.icons.outlined.Shuffle
+import paige.navic.ui.icons.outlined.Star
 import paige.navic.ui.component.layout.horizontalSection
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen

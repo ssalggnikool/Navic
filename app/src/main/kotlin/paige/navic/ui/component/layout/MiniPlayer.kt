@@ -72,13 +72,13 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
 import paige.navic.domain.model.settings.MiniPlayerStyle
 import paige.navic.domain.model.settings.NavbarConfig
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.Note
-import paige.navic.icons.filled.SkipNext
-import paige.navic.icons.outlined.Radio
+import paige.navic.ui.icons.filled.Note
+import paige.navic.ui.icons.filled.SkipNext
+import paige.navic.ui.icons.outlined.Radio
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
 import paige.navic.ui.util.playPauseIconPainter

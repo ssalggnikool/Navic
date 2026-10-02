@@ -35,9 +35,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.ArrowBack
-import paige.navic.icons.outlined.Close
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.ArrowBack
+import paige.navic.ui.icons.outlined.Close
 import paige.navic.ui.theme.defaultFont
 
 @Composable

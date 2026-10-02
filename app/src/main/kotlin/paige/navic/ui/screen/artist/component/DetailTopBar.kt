@@ -27,8 +27,8 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.toPersistentList
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.MoreVert
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.MoreVert
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton

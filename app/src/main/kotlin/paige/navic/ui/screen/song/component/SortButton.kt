@@ -16,8 +16,8 @@ import androidx.compose.runtime.setValue
 import kotlinx.collections.immutable.persistentListOf
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSongListType
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Sort
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Sort
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.SortSheet
 import paige.navic.ui.util.label

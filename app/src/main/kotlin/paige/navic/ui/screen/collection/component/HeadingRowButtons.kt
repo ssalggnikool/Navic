@@ -38,13 +38,13 @@ import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.Play
-import paige.navic.icons.outlined.Close
-import paige.navic.icons.outlined.Delete
-import paige.navic.icons.outlined.Download
-import paige.navic.icons.outlined.DownloadOff
-import paige.navic.icons.outlined.Shuffle
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Play
+import paige.navic.ui.icons.outlined.Close
+import paige.navic.ui.icons.outlined.Delete
+import paige.navic.ui.icons.outlined.Download
+import paige.navic.ui.icons.outlined.DownloadOff
+import paige.navic.ui.icons.outlined.Shuffle
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.theme.defaultFont
 

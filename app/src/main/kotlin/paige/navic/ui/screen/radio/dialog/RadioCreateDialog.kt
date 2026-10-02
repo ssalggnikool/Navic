@@ -26,8 +26,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Radio
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Radio
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog

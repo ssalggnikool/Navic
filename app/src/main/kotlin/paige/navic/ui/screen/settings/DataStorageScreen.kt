@@ -59,8 +59,8 @@ import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.OfflineMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Offline
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.BulkDownloadDialog

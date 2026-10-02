@@ -33,8 +33,8 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.AudioGainManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.ReplayGainMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Info
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar

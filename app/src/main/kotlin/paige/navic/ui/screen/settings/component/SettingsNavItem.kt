@@ -9,8 +9,8 @@ package paige.navic.ui.screen.settings.component
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.runtime.Composable
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.ChevronForward
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.ChevronForward
 import paige.navic.ui.component.common.SegmentedListItem
 
 @Composable

@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.ArrowBack
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.ArrowBack
 
 
 object NestedTopBarDefaults {

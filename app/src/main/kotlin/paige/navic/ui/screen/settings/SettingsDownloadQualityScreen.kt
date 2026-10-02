@@ -39,8 +39,8 @@ import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.StreamingQuality
 import paige.navic.domain.model.settings.description
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Info
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.screen.settings.component.SettingsGroup

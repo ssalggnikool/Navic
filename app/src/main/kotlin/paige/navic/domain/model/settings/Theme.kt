@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
-import dev.zt64.compose.pipette.HsvColor
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.PreferenceManager
@@ -91,11 +90,11 @@ enum class Theme(val title: Int) {
 				}
 
 			Seeded -> rememberDynamicColorScheme(
-				seedColor = HsvColor(
+				seedColor = Color.hsv(
 					hue = preferenceManager.paletteAccentH,
-					saturation = 1f,
-					value = 1f
-				).toColor(),
+					saturation = preferenceManager.paletteAccentS,
+					value = preferenceManager.paletteAccentV
+				),
 				isDark = isDark,
 				specVersion = ColorSpec.SpecVersion.SPEC_2025,
 				style = preferenceManager.paletteStyle,

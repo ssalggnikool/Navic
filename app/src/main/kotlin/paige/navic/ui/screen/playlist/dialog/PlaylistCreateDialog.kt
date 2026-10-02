@@ -28,8 +28,8 @@ import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainSong
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.PlaylistAdd
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog

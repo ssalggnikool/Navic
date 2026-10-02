@@ -36,8 +36,8 @@ import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalSnackBarState
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Share
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.component.common.DurationPicker
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults

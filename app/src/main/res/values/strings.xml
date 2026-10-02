@@ -1,3 +1,9 @@
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="app_name" translatable="false">Navic</string>
 
@@ -340,6 +346,7 @@
 
 	<string name="action_start">Start</string>
 	<string name="action_ok">OK</string>
+	<string name="action_copy">Copy</string>
 	<string name="action_play">Play</string>
 	<string name="action_next_song">Next song</string>
 	<string name="action_previous_song">Previous song</string>

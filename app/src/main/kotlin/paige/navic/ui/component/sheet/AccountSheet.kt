@@ -50,11 +50,11 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SleepTimerMode
 import paige.navic.domain.manager.canUserShare
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Bedtime
-import paige.navic.icons.outlined.Forum
-import paige.navic.icons.outlined.Logout
-import paige.navic.icons.outlined.Share
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Bedtime
+import paige.navic.ui.icons.outlined.Forum
+import paige.navic.ui.icons.outlined.Logout
+import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.component.common.Monogram
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults

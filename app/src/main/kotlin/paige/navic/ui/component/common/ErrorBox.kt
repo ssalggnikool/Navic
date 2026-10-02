@@ -37,10 +37,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.materialkolor.ktx.darken
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.KeyboardArrowDown
-import paige.navic.icons.outlined.Refresh
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.KeyboardArrowDown
+import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.util.Logger
 
 @Composable

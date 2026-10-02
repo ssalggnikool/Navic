@@ -37,8 +37,8 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.EqualizerManager
 import paige.navic.domain.model.settings.EqualizerMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Refresh
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.VerticalSlider
 import paige.navic.ui.component.layout.NestedTopBar

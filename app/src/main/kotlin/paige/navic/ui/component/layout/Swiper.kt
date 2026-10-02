@@ -44,9 +44,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.SkipNext
-import paige.navic.icons.filled.SkipPrevious
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.SkipNext
+import paige.navic.ui.icons.filled.SkipPrevious
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

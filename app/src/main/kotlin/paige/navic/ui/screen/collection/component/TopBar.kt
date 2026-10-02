@@ -26,8 +26,8 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.MoreVert
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.MoreVert
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.CollectionSheet

@@ -25,9 +25,9 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.Star
-import paige.navic.icons.outlined.Star
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Star
+import paige.navic.ui.icons.outlined.Star
 
 @Composable
 fun RatingRow(

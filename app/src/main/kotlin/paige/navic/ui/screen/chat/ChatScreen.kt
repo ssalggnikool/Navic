@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Send
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Send
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.screen.chat.component.ChatInputBar

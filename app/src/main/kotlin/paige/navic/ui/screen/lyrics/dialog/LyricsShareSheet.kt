@@ -28,15 +28,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -46,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,7 +69,6 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import com.materialkolor.rememberDynamicColorScheme
 import com.materialkolor.utils.ColorUtils.calculateLuminance
-import dev.zt64.compose.pipette.CircularColorPicker
 import dev.zt64.compose.pipette.HsvColor
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
@@ -82,12 +78,15 @@ import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.model.DomainSong
-import paige.navic.icons.Icons
-import paige.navic.icons.brand.Navic
-import paige.navic.icons.outlined.Check
-import paige.navic.icons.outlined.Picker
-import paige.navic.icons.outlined.Share
+import paige.navic.ui.component.sheet.ColorPickerSheet
+import paige.navic.ui.component.sheet.ModalBottomSheet
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.brand.Navic
+import paige.navic.ui.icons.outlined.Check
+import paige.navic.ui.icons.outlined.Picker
+import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.theme.blue
+import paige.navic.ui.theme.defaultFont
 import paige.navic.ui.theme.pink
 import paige.navic.ui.theme.positive
 import paige.navic.ui.theme.purple
@@ -144,7 +143,7 @@ fun LyricsShareSheet(
 	val colorScheme = rememberDynamicColorScheme(selectedColor, isSystemInDarkTheme())
 
 	var customHsv by remember { mutableStateOf(HsvColor(210f, 1f, 1f)) }
-	var expanded by remember { mutableStateOf(false) }
+	var colorPickerOpen by rememberSaveable { mutableStateOf(false) }
 
 	val graphicsLayer = rememberGraphicsLayer()
 	val scope = rememberCoroutineScope()
@@ -163,7 +162,7 @@ fun LyricsShareSheet(
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			Text(
-				stringResource(R.string.action_share_lyrics),
+				text = stringResource(R.string.action_share_lyrics),
 				style = MaterialTheme.typography.titleMedium,
 				modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
 			)
@@ -179,7 +178,7 @@ fun LyricsShareSheet(
 					}
 					.fillMaxWidth()
 					.aspectRatio(4f / 5f),
-				shape = RoundedCornerShape(24.dp),
+				shape = MaterialTheme.shapes.extraLarge,
 				color = colorScheme.primary,
 				contentColor = colorScheme.onPrimary
 			) {
@@ -268,31 +267,15 @@ fun LyricsShareSheet(
 				}
 
 				item {
-					Box {
-						ColorCircle(
-							color = customHsv.toColor(),
-							isSelected = selectedColor == customHsv.toColor(),
-							onClick = {
-								selectedColor = customHsv.toColor()
-								expanded = true
-							},
-							isPicker = true
-						)
-
-						// TODO: make a proper colour picker sheet
-						DropdownMenu(
-							expanded = expanded,
-							onDismissRequest = { expanded = false }
-						) {
-							CircularColorPicker(
-								color = { customHsv },
-								onColorChange = { newHsv ->
-									customHsv = newHsv
-									selectedColor = newHsv.toColor()
-								}
-							)
-						}
-					}
+					ColorCircle(
+						color = customHsv.toColor(),
+						isSelected = selectedColor == customHsv.toColor(),
+						onClick = {
+							selectedColor = customHsv.toColor()
+							colorPickerOpen = true
+						},
+						isPicker = true
+					)
 				}
 			}
 
@@ -318,10 +301,6 @@ fun LyricsShareSheet(
 					.fillMaxWidth()
 					.padding(horizontal = 24.dp)
 					.height(56.dp),
-				colors = ButtonDefaults.buttonColors(
-					containerColor = MaterialTheme.colorScheme.primary,
-					contentColor = MaterialTheme.colorScheme.onPrimary
-				),
 				shape = MaterialTheme.shapes.extraLarge
 			) {
 				Icon(Icons.Outlined.Share, null)
@@ -332,6 +311,14 @@ fun LyricsShareSheet(
 				)
 			}
 		}
+	}
+
+	if (colorPickerOpen) {
+		ColorPickerSheet(
+			onDismissRequest = { colorPickerOpen = false },
+			color = customHsv,
+			onColorChange = { customHsv = it }
+		)
 	}
 }
 
@@ -390,10 +377,12 @@ fun AutoResizedText(
 		val initialFontSize =
 			if (proportionalBaseSize < maxFontSize) proportionalBaseSize else maxFontSize
 
+		val fontFamily = defaultFont(grade = 50, round = 100f)
 		var scaledStyle by remember(text, initialFontSize) {
 			mutableStateOf(
 				TextStyle(
 					fontSize = initialFontSize,
+					fontFamily = fontFamily,
 					lineHeight = initialFontSize.value.sp * 1.3f,
 					fontWeight = FontWeight.Bold
 				)

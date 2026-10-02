@@ -25,8 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Question
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Question
 
 @Composable
 fun ContentUnavailable(

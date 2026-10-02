@@ -22,8 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Check
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Check
 import paige.navic.ui.screen.search.SearchCategory
 
 @Composable

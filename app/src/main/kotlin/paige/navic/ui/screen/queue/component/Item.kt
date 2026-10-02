@@ -38,11 +38,11 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Delete
-import paige.navic.icons.outlined.DragHandle
-import paige.navic.icons.outlined.Lock
-import paige.navic.icons.outlined.Offline
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Delete
+import paige.navic.ui.icons.outlined.DragHandle
+import paige.navic.ui.icons.outlined.Lock
+import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SegmentedListItem

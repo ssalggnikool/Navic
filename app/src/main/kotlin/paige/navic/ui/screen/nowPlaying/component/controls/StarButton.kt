@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.Star
-import paige.navic.icons.outlined.Star
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Star
+import paige.navic.ui.icons.outlined.Star
 import paige.navic.shared.MediaPlayerViewModel
 
 @Composable

@@ -48,8 +48,8 @@ import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Add
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Add
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar

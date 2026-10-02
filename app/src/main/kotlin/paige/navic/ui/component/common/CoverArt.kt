@@ -45,8 +45,8 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Error
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Error
 import paige.navic.ui.theme.defaultFont
 import paige.navic.util.Logger
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext

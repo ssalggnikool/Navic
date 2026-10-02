@@ -34,11 +34,11 @@ import paige.navic.data.database.entity.SyncActionType
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.manager.SyncManager
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Delete
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Delete
 
 enum class DeletionEndpoint(
 	@StringRes val questionText: Int,

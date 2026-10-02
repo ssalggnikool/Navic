@@ -46,11 +46,11 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.settings.NavbarConfig
 import paige.navic.domain.model.settings.NavbarTab
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.Note
-import paige.navic.icons.outlined.Menu
-import paige.navic.icons.outlined.MenuOpen
-import paige.navic.icons.outlined.Radio
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Note
+import paige.navic.ui.icons.outlined.Menu
+import paige.navic.ui.icons.outlined.MenuOpen
+import paige.navic.ui.icons.outlined.Radio
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.WideNavigationRailItem

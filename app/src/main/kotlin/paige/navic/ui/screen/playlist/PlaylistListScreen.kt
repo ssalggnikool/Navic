@@ -54,8 +54,8 @@ import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Add
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Add
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.component.dialog.DeletionDialog
 import paige.navic.ui.component.dialog.DeletionEndpoint

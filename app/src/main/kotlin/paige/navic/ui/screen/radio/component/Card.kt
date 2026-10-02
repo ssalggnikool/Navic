@@ -37,8 +37,8 @@ import paige.navic.R
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainRadio
 import paige.navic.domain.model.settings.ThemeMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Radio
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Radio
 import paige.navic.ui.theme.defaultFont
 import kotlin.math.abs
 

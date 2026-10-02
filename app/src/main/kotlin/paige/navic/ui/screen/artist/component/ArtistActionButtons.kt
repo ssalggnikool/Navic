@@ -35,13 +35,13 @@ import androidx.compose.ui.unit.sp
 import com.kyant.capsule.ContinuousCapsule
 import paige.navic.R
 import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.Play
-import paige.navic.icons.outlined.Close
-import paige.navic.icons.outlined.Delete
-import paige.navic.icons.outlined.Download
-import paige.navic.icons.outlined.DownloadOff
-import paige.navic.icons.outlined.Shuffle
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Play
+import paige.navic.ui.icons.outlined.Close
+import paige.navic.ui.icons.outlined.Delete
+import paige.navic.ui.icons.outlined.Download
+import paige.navic.ui.icons.outlined.DownloadOff
+import paige.navic.ui.icons.outlined.Shuffle
 import paige.navic.ui.theme.defaultFont
 
 @Composable

@@ -1,0 +1,88 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.icons.outlined
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.unit.dp
+import paige.navic.ui.icons.Icons
+
+val Icons.Outlined.Info: ImageVector
+	get() {
+		if (_Info != null) {
+			return _Info!!
+		}
+		_Info = ImageVector.Builder(
+			name = "Outlined.Info",
+			defaultWidth = 24.dp,
+			defaultHeight = 24.dp,
+			viewportWidth = 960f,
+			viewportHeight = 960f
+		).apply {
+			path(fill = SolidColor(Color(0xFFE3E3E3))) {
+				moveTo(508.5f, 668.5f)
+				quadTo(520f, 657f, 520f, 640f)
+				verticalLineToRelative(-160f)
+				quadToRelative(0f, -17f, -11.5f, -28.5f)
+				reflectiveQuadTo(480f, 440f)
+				quadToRelative(-17f, 0f, -28.5f, 11.5f)
+				reflectiveQuadTo(440f, 480f)
+				verticalLineToRelative(160f)
+				quadToRelative(0f, 17f, 11.5f, 28.5f)
+				reflectiveQuadTo(480f, 680f)
+				quadToRelative(17f, 0f, 28.5f, -11.5f)
+				close()
+				moveTo(508.5f, 348.5f)
+				quadTo(520f, 337f, 520f, 320f)
+				reflectiveQuadToRelative(-11.5f, -28.5f)
+				quadTo(497f, 280f, 480f, 280f)
+				reflectiveQuadToRelative(-28.5f, 11.5f)
+				quadTo(440f, 303f, 440f, 320f)
+				reflectiveQuadToRelative(11.5f, 28.5f)
+				quadTo(463f, 360f, 480f, 360f)
+				reflectiveQuadToRelative(28.5f, -11.5f)
+				close()
+				moveTo(480f, 880f)
+				quadToRelative(-83f, 0f, -156f, -31.5f)
+				reflectiveQuadTo(197f, 763f)
+				quadToRelative(-54f, -54f, -85.5f, -127f)
+				reflectiveQuadTo(80f, 480f)
+				quadToRelative(0f, -83f, 31.5f, -156f)
+				reflectiveQuadTo(197f, 197f)
+				quadToRelative(54f, -54f, 127f, -85.5f)
+				reflectiveQuadTo(480f, 80f)
+				quadToRelative(83f, 0f, 156f, 31.5f)
+				reflectiveQuadTo(763f, 197f)
+				quadToRelative(54f, 54f, 85.5f, 127f)
+				reflectiveQuadTo(880f, 480f)
+				quadToRelative(0f, 83f, -31.5f, 156f)
+				reflectiveQuadTo(763f, 763f)
+				quadToRelative(-54f, 54f, -127f, 85.5f)
+				reflectiveQuadTo(480f, 880f)
+				close()
+				moveTo(480f, 800f)
+				quadToRelative(134f, 0f, 227f, -93f)
+				reflectiveQuadToRelative(93f, -227f)
+				quadToRelative(0f, -134f, -93f, -227f)
+				reflectiveQuadToRelative(-227f, -93f)
+				quadToRelative(-134f, 0f, -227f, 93f)
+				reflectiveQuadToRelative(-93f, 227f)
+				quadToRelative(0f, 134f, 93f, 227f)
+				reflectiveQuadToRelative(227f, 93f)
+				close()
+				moveTo(480f, 480f)
+				close()
+			}
+		}.build()
+
+		return _Info!!
+	}
+
+@Suppress("ObjectPropertyName")
+private var _Info: ImageVector? = null

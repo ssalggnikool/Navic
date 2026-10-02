@@ -44,25 +44,25 @@ import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.icons.Icons
-import paige.navic.icons.brand.Lastfm
-import paige.navic.icons.brand.Musicbrainz
-import paige.navic.icons.filled.Star
-import paige.navic.icons.outlined.Artist
-import paige.navic.icons.outlined.Close
-import paige.navic.icons.outlined.Delete
-import paige.navic.icons.outlined.Download
-import paige.navic.icons.outlined.DownloadOff
-import paige.navic.icons.outlined.PlaylistAdd
-import paige.navic.icons.outlined.PlaylistRemove
-import paige.navic.icons.outlined.Queue
-import paige.navic.icons.outlined.QueuePlayNext
-import paige.navic.icons.outlined.Share
-import paige.navic.icons.outlined.Star
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.RatingRow
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.brand.LastFM
+import paige.navic.ui.icons.brand.MusicBrainz
+import paige.navic.ui.icons.filled.Star
+import paige.navic.ui.icons.outlined.Artist
+import paige.navic.ui.icons.outlined.Close
+import paige.navic.ui.icons.outlined.Delete
+import paige.navic.ui.icons.outlined.Download
+import paige.navic.ui.icons.outlined.DownloadOff
+import paige.navic.ui.icons.outlined.PlaylistAdd
+import paige.navic.ui.icons.outlined.PlaylistRemove
+import paige.navic.ui.icons.outlined.Queue
+import paige.navic.ui.icons.outlined.QueuePlayNext
+import paige.navic.ui.icons.outlined.Share
+import paige.navic.ui.icons.outlined.Star
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -148,7 +148,7 @@ fun CollectionSheet(
 			if (albumInfo?.lastFmUrl != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_view_on_lastfm)) },
-					leadingContent = { Icon(Icons.Brand.Lastfm, null) },
+					leadingContent = { Icon(Icons.Brand.LastFM, null) },
 					onClick = {
 						linkToOpen = albumInfo.lastFmUrl
 					},
@@ -160,7 +160,7 @@ fun CollectionSheet(
 			if (albumInfo?.musicBrainzId != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_view_on_musicbrainz)) },
-					leadingContent = { Icon(Icons.Brand.Musicbrainz, null) },
+					leadingContent = { Icon(Icons.Brand.MusicBrainz, null) },
 					onClick = {
 						linkToOpen = "https://musicbrainz.org/release/${albumInfo.musicBrainzId}"
 					},

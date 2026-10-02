@@ -15,6 +15,7 @@ import paige.navic.domain.model.DomainPlaylistListType
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.AnimationStyle
 import paige.navic.domain.model.settings.AppIconVariant
+import paige.navic.domain.model.settings.ArtistAlbumViewMode
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.CoverArtQuality
@@ -23,7 +24,6 @@ import paige.navic.domain.model.settings.CoverArtTapAction
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.FontOption
 import paige.navic.domain.model.settings.GridSize
-import paige.navic.domain.model.settings.ArtistAlbumViewMode
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.domain.model.settings.MarqueeSpeed
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
@@ -115,6 +115,8 @@ class PreferenceManager(
 	var paletteStyle by preference(PaletteStyle.TonalSpot)
 	var paletteSpec by preference(ColorSpec.SpecVersion.SPEC_2025)
 	var paletteAccentH by preference(0f)
+	var paletteAccentS by preference(1f)
+	var paletteAccentV by preference(1f)
 
 	// sync related settings
 	var lastFullSyncTime by preference(0L)

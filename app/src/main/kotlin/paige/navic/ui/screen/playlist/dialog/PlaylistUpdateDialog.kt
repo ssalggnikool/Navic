@@ -40,9 +40,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.domain.model.DomainSong
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.PlaylistAdd
-import paige.navic.icons.outlined.Refresh
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.PlaylistAdd
+import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults

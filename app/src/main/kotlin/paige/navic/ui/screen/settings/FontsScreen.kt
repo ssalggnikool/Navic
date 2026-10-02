@@ -37,8 +37,8 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.FontOption
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Check
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Check
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar

@@ -23,11 +23,11 @@ import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import kotlinx.collections.immutable.ImmutableList
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.ArrowBack
-import paige.navic.icons.outlined.Check
-import paige.navic.icons.outlined.KeyboardArrowDown
-import paige.navic.icons.outlined.Share
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.ArrowBack
+import paige.navic.ui.icons.outlined.Check
+import paige.navic.ui.icons.outlined.KeyboardArrowDown
+import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.toolbar.SheetToolbar
 

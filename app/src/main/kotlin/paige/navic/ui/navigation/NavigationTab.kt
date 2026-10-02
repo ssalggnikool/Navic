@@ -8,21 +8,21 @@ package paige.navic.ui.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.filled.Album
-import paige.navic.icons.filled.Artist
-import paige.navic.icons.filled.Genre
-import paige.navic.icons.filled.LibraryMusic
-import paige.navic.icons.filled.Radio
-import paige.navic.icons.outlined.Album
-import paige.navic.icons.outlined.Artist
-import paige.navic.icons.outlined.Genre
-import paige.navic.icons.outlined.LibraryMusic
-import paige.navic.icons.outlined.Note
-import paige.navic.icons.outlined.PlaylistPlay
-import paige.navic.icons.outlined.Radio
-import paige.navic.icons.outlined.Search
-import paige.navic.icons.outlined.Statistics
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Album
+import paige.navic.ui.icons.filled.Artist
+import paige.navic.ui.icons.filled.Genre
+import paige.navic.ui.icons.filled.LibraryMusic
+import paige.navic.ui.icons.filled.Radio
+import paige.navic.ui.icons.outlined.Album
+import paige.navic.ui.icons.outlined.Artist
+import paige.navic.ui.icons.outlined.Genre
+import paige.navic.ui.icons.outlined.LibraryMusic
+import paige.navic.ui.icons.outlined.Note
+import paige.navic.ui.icons.outlined.PlaylistPlay
+import paige.navic.ui.icons.outlined.Radio
+import paige.navic.ui.icons.outlined.Search
+import paige.navic.ui.icons.outlined.Statistics
 
 enum class NavigationTab(
 	val destination: Screen,

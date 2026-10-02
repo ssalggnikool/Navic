@@ -30,7 +30,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -43,6 +42,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,19 +60,19 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import dev.zt64.compose.pipette.HsvColor
-import dev.zt64.compose.pipette.RingColorPicker
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.Theme
 import paige.navic.domain.model.settings.ThemeMode
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Picker
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.TooltipBox
 import paige.navic.ui.component.layout.NestedTopBar
+import paige.navic.ui.component.sheet.ColorPickerSheet
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Picker
 import paige.navic.ui.screen.settings.component.SettingsChoiceItem
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
@@ -306,42 +306,36 @@ private fun ThemeAccentPicker(
 	shapes: ListItemShapes
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	var expanded by remember { mutableStateOf(false) }
+	var expanded by rememberSaveable { mutableStateOf(false) }
 
 	SegmentedListItem(
 		onClick = { expanded = true },
 		content = { Text(stringResource(R.string.option_accent_colour)) },
 		trailingContent = {
-			Box {
-				Box(
-					Modifier
-						.clip(CircleShape)
-						.background(MaterialTheme.colorScheme.primary)
-						.size(40.dp)
-						.clickable {
-							expanded = true
-						}
-				)
-				// TODO: make a proper colour picker sheet
-				DropdownMenu(
-					expanded = expanded,
-					onDismissRequest = { expanded = false }
-				) {
-					RingColorPicker(
-						color = {
-							HsvColor(
-								hue = preferenceManager.paletteAccentH,
-								saturation = 1f,
-								value = 1f
-							)
-						},
-						onColorChange = { color ->
-							preferenceManager.paletteAccentH = color.hue
-						}
-					)
-				}
-			}
+			Box(
+				modifier = Modifier
+					.clip(CircleShape)
+					.background(MaterialTheme.colorScheme.primary)
+					.size(40.dp)
+					.clickable { expanded = true }
+			)
 		},
 		shapes = shapes
 	)
+
+	if (expanded) {
+		ColorPickerSheet(
+			onDismissRequest = { expanded = false },
+			color = HsvColor(
+				hue = preferenceManager.paletteAccentH,
+				saturation = preferenceManager.paletteAccentS,
+				value = preferenceManager.paletteAccentV
+			),
+			onColorChange = {
+				preferenceManager.paletteAccentH = it.hue
+				preferenceManager.paletteAccentS = it.saturation
+				preferenceManager.paletteAccentV = it.value
+			}
+		)
+	}
 }

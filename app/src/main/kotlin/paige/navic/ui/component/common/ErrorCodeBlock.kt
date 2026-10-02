@@ -31,9 +31,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Check
-import paige.navic.icons.outlined.Copy
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Check
+import paige.navic.ui.icons.outlined.Copy
 import kotlin.time.Duration.Companion.seconds
 
 @Composable

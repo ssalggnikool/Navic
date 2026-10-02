@@ -13,10 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import paige.navic.R
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Download
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Download
 
 @Composable
 fun BulkDownloadDialog(
