@@ -76,13 +76,17 @@ fun AnnotatedString.Builder.appendArtists(
 		onClick?.invoke(artistId)
 	}
 	artists.forEachIndexed { index, artist ->
-		withLink(
-			link = LinkAnnotation.Clickable(
-				linkInteractionListener = listener,
-				tag = artist.id,
-				styles = TextLinkStyles()
-			)
-		) {
+		if (onClick != null) {
+			withLink(
+				link = LinkAnnotation.Clickable(
+					linkInteractionListener = listener,
+					tag = artist.id,
+					styles = TextLinkStyles()
+				)
+			) {
+				append(artist.name)
+			}
+		} else {
 			append(artist.name)
 		}
 		if (index != artists.lastIndex) {
