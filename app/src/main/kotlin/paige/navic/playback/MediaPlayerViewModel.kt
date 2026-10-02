@@ -501,7 +501,6 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	@UnstableApi
 	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) = launchInView {
 		controller?.addMediaItem(song.toMediaItem())
 		_uiState.update { state ->

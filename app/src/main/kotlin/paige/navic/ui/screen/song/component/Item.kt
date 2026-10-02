@@ -145,10 +145,7 @@ fun SongListScreenItem(
 				supportingContent = {
 					Column {
 						MarqueeText(
-							buildSongInfoString(
-								song = song,
-								onClickArtist = { backStack.add(Screen.ArtistDetail(it)) }
-							)
+							buildSongInfoString(song)
 						)
 						if (song.userRating != null && song.userRating != 0) {
 							SmallRatingRow(rating = song.userRating)
