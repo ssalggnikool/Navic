@@ -514,4 +514,5 @@
     <string name="option_equalizer_mode_external">Зовнішній</string>
     <string name="info_equalizer_unsupported">Ваш пристрій не підтримує цю функцію.</string>
     <string name="info_equalizer_mode_not_builtin">Будь ласка, налаштуйте зовнішній еквалайзер за допомогою відповідного застосунку.</string>
+    <string name="action_copy">Скопіювати</string>
 </resources>
