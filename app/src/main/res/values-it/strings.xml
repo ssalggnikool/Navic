@@ -502,4 +502,5 @@
     <string name="option_equalizer_mode_external">Esterno</string>
     <string name="info_equalizer_unsupported">Il tuo dispositivo non supporta questa funzione.</string>
     <string name="info_equalizer_mode_not_builtin">Per favore, regola l\'equalizzatore esterno dalla sua app dedicata.</string>
+    <string name="action_copy">Copia</string>
 </resources>

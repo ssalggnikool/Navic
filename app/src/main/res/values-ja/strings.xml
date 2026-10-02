@@ -475,4 +475,5 @@
     <string name="option_equalizer_mode_external">外部</string>
     <string name="info_equalizer_unsupported">お使いのデバイスはこの機能をサポートしていません。</string>
     <string name="info_equalizer_mode_not_builtin">専用アプリを使用し、イコライザーを調整してください。</string>
+    <string name="action_copy">コピー</string>
 </resources>
