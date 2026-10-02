@@ -25,7 +25,7 @@ import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.manager.StorageManager
 import paige.navic.domain.manager.SyncManager
-import paige.navic.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.ExoStateHolder
 
 val managerModule = module {
 	singleOf(::AppIconManager)

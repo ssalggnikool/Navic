@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.shared
+package paige.navic.playback
 
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
-import androidx.annotation.OptIn
 import androidx.core.net.toUri
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -25,7 +25,13 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,36 +49,36 @@ import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainRadio
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
+import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.domain.repository.SongRepository
-import paige.navic.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.ExoStateHolder
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
 import java.io.File
+import kotlin.OptIn
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
-@UnstableApi
-class AndroidMediaPlayerViewModel(
-	stateRepository: PlayerStateRepository,
-	songRepository: SongRepository,
-	downloadManager: DownloadManager,
-	connectivityManager: ConnectivityManager,
-	preferenceManager: PreferenceManager,
+@androidx.annotation.OptIn(UnstableApi::class)
+class MediaPlayerViewModel(
+	private val stateRepository: PlayerStateRepository,
+	private val songRepository: SongRepository,
+	private val downloadManager: DownloadManager,
+	private val connectivityManager: ConnectivityManager,
+	private val preferenceManager: PreferenceManager,
 	private val audioGainManager: AudioGainManager,
 	private val application: Application,
 	private val albumDao: AlbumDao,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
-) : MediaPlayerViewModel(
-	stateRepository = stateRepository,
-	songRepository = songRepository,
-	connectivityManager = connectivityManager,
-	downloadManager = downloadManager,
-	preferenceManager = preferenceManager
-) {
+) : ViewModel() {
+	private val _uiState = MutableStateFlow(PlayerUiState())
+	val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
+
 	private var controller: MediaController? = null
 	private var controllerFuture: ListenableFuture<MediaController>? = null
 
@@ -82,6 +88,92 @@ class AndroidMediaPlayerViewModel(
 
 	init {
 		connectToService()
+		viewModelScope.launch {
+			restoreState()
+			observeAndSaveState()
+		}
+	}
+
+	fun playNow(song: DomainSong) {
+		clearQueue()
+		addToQueueSingle(song, notify = false)
+		playAt(0)
+		checkAndAutoFillQueue()
+	}
+
+	fun playNow(collection: DomainSongCollection, startIndex: Int = 0) {
+		clearQueue()
+		addToQueue(collection, notify = false)
+		playAt(startIndex)
+		checkAndAutoFillQueue()
+	}
+
+	fun playNow(songs: List<DomainSong>, startIndex: Int = 0) {
+		clearQueue()
+		addToQueue(songs, notify = false)
+		playAt(startIndex)
+		checkAndAutoFillQueue()
+	}
+
+	fun togglePlay() {
+		if (!uiState.value.isPaused) {
+			pause()
+		} else {
+			resume()
+		}
+	}
+
+	private fun isExplicit(song: DomainSong): Boolean {
+		return song.explicitStatus == DomainExplicitStatus.Explicit
+			&& preferenceManager.explicitContentPlayback != ExplicitContentPlayback.Allowed
+	}
+
+	private fun checkAndAutoFillQueue() {
+		if (!preferenceManager.autoFillQueue) return
+
+		val state = uiState.value
+		if (state.queue.isEmpty()) return
+
+		val remainingCount = state.queue.size - state.currentIndex
+
+		if (remainingCount <= 1) {
+			viewModelScope.launch {
+				val randomSongs = songRepository.getRandomSongs(1)
+				addToQueue(randomSongs, notify = false)
+			}
+		}
+	}
+
+	private suspend fun restoreState() {
+		val savedState = stateRepository.state.first().copy(isPaused = true, isLoading = false)
+		_uiState.value = savedState
+		syncPlayerWithState(savedState)
+		checkAndAutoFillQueue()
+	}
+
+	@OptIn(FlowPreview::class)
+	private fun observeAndSaveState() {
+		viewModelScope.launch {
+			uiState
+				.distinctUntilChanged { old, new ->
+					old.currentIndex == new.currentIndex &&
+						old.queue == new.queue &&
+						old.isPaused == new.isPaused &&
+						old.repeatMode == new.repeatMode &&
+						old.isShuffleEnabled == new.isShuffleEnabled
+				}
+				.collect { state ->
+					stateRepository.setState(state)
+				}
+		}
+
+		viewModelScope.launch {
+			uiState
+				.debounce(2.seconds)
+				.collect { state ->
+					stateRepository.setState(state)
+				}
+		}
 	}
 
 	// just because I hate writing boilerplate every single line
@@ -323,7 +415,7 @@ class AndroidMediaPlayerViewModel(
 		resetGain()
 	}
 
-	override fun syncPlayerWithState(state: PlayerUiState) = launchInView {
+	fun syncPlayerWithState(state: PlayerUiState) = launchInView {
 		val player = controller
 
 		if (player == null) {
@@ -387,7 +479,7 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	@OptIn(UnstableApi::class)
+	@UnstableApi
 	private fun updatePlaybackProperties(tracks: Tracks) {
 		val audioGroup =
 			tracks.groups.firstOrNull { it.type == C.TRACK_TYPE_AUDIO && it.isSelected }
@@ -409,7 +501,8 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun addToQueueSingle(song: DomainSong, notify: Boolean) = launchInView {
+	@UnstableApi
+	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) = launchInView {
 		controller?.addMediaItem(song.toMediaItem())
 		_uiState.update { state ->
 			val newQueue = state.queue + song
@@ -422,7 +515,7 @@ class AndroidMediaPlayerViewModel(
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
-	override fun addToQueue(collection: DomainSongCollection, notify: Boolean) {
+	fun addToQueue(collection: DomainSongCollection, notify: Boolean = true) {
 		addToQueue(
 			if (collection is DomainAlbum) collection.songs.sortedWith(
 				compareBy(
@@ -434,7 +527,7 @@ class AndroidMediaPlayerViewModel(
 		)
 	}
 
-	override fun addToQueue(songs: List<DomainSong>, notify: Boolean) = launchInView {
+	fun addToQueue(songs: List<DomainSong>, notify: Boolean = true) = launchInView {
 		val items = songs.map { it.toMediaItem() }
 		controller?.addMediaItems(items)
 		_uiState.update { state ->
@@ -448,7 +541,7 @@ class AndroidMediaPlayerViewModel(
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
-	override fun removeFromQueue(index: Int) = launchInView {
+	fun removeFromQueue(index: Int) = launchInView {
 		controller?.removeMediaItem(index)
 		_uiState.update { state ->
 			val newQueue = state.queue.toMutableList().apply { removeAt(index) }
@@ -468,7 +561,7 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun moveQueueItem(fromIndex: Int, toIndex: Int) = launchInView {
+	fun moveQueueItem(fromIndex: Int, toIndex: Int) = launchInView {
 		controller?.moveMediaItem(fromIndex, toIndex)
 		_uiState.update { state ->
 			val newQueue = state.queue.toMutableList().apply {
@@ -489,7 +582,7 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun clearQueue() = launchInView {
+	fun clearQueue() = launchInView {
 		_uiState.update {
 			it.copy(
 				queue = emptyList(),
@@ -501,7 +594,7 @@ class AndroidMediaPlayerViewModel(
 		controller?.clearMediaItems()
 	}
 
-	override fun playAt(index: Int) = launchInView {
+	fun playAt(index: Int) = launchInView {
 		controller?.let { player ->
 			if (index in 0 until player.mediaItemCount) {
 				player.seekTo(index, 0L)
@@ -510,7 +603,7 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun playNextSingle(song: DomainSong) = launchInView {
+	fun playNextSingle(song: DomainSong) = launchInView {
 		controller?.addMediaItem(
 			_uiState.value.currentIndex + 1,
             withContext(Dispatchers.Default) { song.toMediaItem() }
@@ -530,7 +623,7 @@ class AndroidMediaPlayerViewModel(
 		snackBarManager.notifyPlayNext()
 	}
 
-	override fun playNext(collection: DomainSongCollection) = launchInView {
+	fun playNext(collection: DomainSongCollection) = launchInView {
 		val (items, newCollection) = withContext(Dispatchers.Default) {
             val newCollection =
                 if (collection is DomainAlbum) collection.songs.sortedWith(
@@ -558,7 +651,7 @@ class AndroidMediaPlayerViewModel(
 		snackBarManager.notifyPlayNext()
 	}
 
-	override fun playRadio(radio: DomainRadio) = launchInView {
+	fun playRadio(radio: DomainRadio) = launchInView {
 		val radioId = "radio_${radio.name.hashCode()}"
 
 		val dummyRadioSong = DomainSong(
@@ -632,7 +725,7 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun shufflePlay(collection: DomainSongCollection) = launchInView {
+	fun shufflePlay(collection: DomainSongCollection) = launchInView {
 		val (shuffledSongs, mediaItems) = withContext(Dispatchers.Default) {
             val songs = collection.songs.shuffled()
             songs to songs.map { it.toMediaItem() }
@@ -654,11 +747,11 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun pause() = launchInView(true) {
+	fun pause() = launchInView(true) {
 		controller?.pause()
 	}
 
-	override fun resume() = launchInView(true) {
+	fun resume() = launchInView(true) {
 		controller?.let { player ->
 			if (player.playbackState == Player.STATE_ENDED) {
 				player.seekTo(0, 0L)
@@ -667,11 +760,11 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun next() = launchInView(true) {
+	fun next() = launchInView(true) {
 		if (controller?.hasNextMediaItem() == true) controller?.seekToNextMediaItem()
 	}
 
-	override fun previous() = launchInView(true) {
+	fun previous() = launchInView(true) {
 		val controller = controller ?: return@launchInView
 		if (controller.hasPreviousMediaItem() && controller.currentPosition <= 1000) {
 			controller.seekToPreviousMediaItem()
@@ -680,7 +773,7 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun toggleShuffle() {
+	fun toggleShuffle() {
 		viewModelScope.launch {
 			controller?.let { player ->
 				player.shuffleModeEnabled = !player.shuffleModeEnabled
@@ -688,7 +781,7 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun toggleRepeat() = launchInView {
+	fun toggleRepeat() = launchInView {
 		controller?.let { player ->
 			player.repeatMode = when (player.repeatMode) {
 				Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
@@ -698,7 +791,7 @@ class AndroidMediaPlayerViewModel(
 		}
 	}
 
-	override fun seek(normalized: Float) = launchInView(true) {
+	fun seek(normalized: Float) = launchInView(true) {
 		controller?.let {
 			val target = (it.duration * normalized).toLong()
 			it.seekTo(target)
@@ -710,11 +803,10 @@ class AndroidMediaPlayerViewModel(
 	}
 
 	override fun onCleared() = launchInView {
-		super.onCleared()
 		controllerFuture?.let { MediaController.releaseFuture(it) }
 	}
 
-	override fun setPlaybackSpeed(value: Float) = launchInView {
+	fun setPlaybackSpeed(value: Float) = launchInView {
 		controller?.setPlaybackSpeed(value)
 		_uiState.update { it.copy(playbackSpeed = value) }
 	}

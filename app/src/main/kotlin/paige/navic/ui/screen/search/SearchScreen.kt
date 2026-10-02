@@ -74,7 +74,7 @@ import paige.navic.ui.icons.outlined.History
 import paige.navic.ui.icons.outlined.Lock
 import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.icons.outlined.Queue
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.ErrorBox

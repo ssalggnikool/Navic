@@ -92,7 +92,7 @@
 			android:theme="@style/Theme.Navic" />
 
 		<service
-			android:name="paige.navic.exoplayer.ExoPlaybackService"
+			android:name="paige.navic.playback.exoplayer.ExoPlaybackService"
 			android:enabled="true"
 			android:exported="true"
 			android:foregroundServiceType="mediaPlayback">

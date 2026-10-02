@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.exoplayer
+package paige.navic.playback.exoplayer
 
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -53,8 +53,8 @@ import kotlinx.coroutines.sync.withLock
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.exoplayer.impl.ExoArtworkLoader
-import paige.navic.exoplayer.impl.ExoAudioGainProcessor
+import paige.navic.playback.exoplayer.impl.ExoArtworkLoader
+import paige.navic.playback.exoplayer.impl.ExoAudioGainProcessor
 import paige.navic.util.createHttpClientWithPreferences
 
 @OptIn(UnstableApi::class)
@@ -247,10 +247,10 @@ class ExoStateHolder: KoinComponent {
 
 	private suspend fun createMediaSession(): MediaSession = mutex.withLock {
 		val bitmapLoader = ExoArtworkLoader(
-			context,
-			dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory),
-			imageLoader
-		)
+            context,
+            dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory),
+            imageLoader
+        )
 		val sessionIntent = context.packageManager
 			.getLaunchIntentForPackage(context.packageName)
 			?.apply {

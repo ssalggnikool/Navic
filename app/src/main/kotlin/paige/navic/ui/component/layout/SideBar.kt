@@ -51,7 +51,7 @@ import paige.navic.ui.icons.filled.Note
 import paige.navic.ui.icons.outlined.Menu
 import paige.navic.ui.icons.outlined.MenuOpen
 import paige.navic.ui.icons.outlined.Radio
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.WideNavigationRailItem
 import paige.navic.ui.navigation.NavigationTab

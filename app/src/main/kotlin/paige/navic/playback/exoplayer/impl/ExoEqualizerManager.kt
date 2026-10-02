@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.exoplayer.impl
+package paige.navic.playback.exoplayer.impl
 
 import android.content.Context
 import android.content.Intent

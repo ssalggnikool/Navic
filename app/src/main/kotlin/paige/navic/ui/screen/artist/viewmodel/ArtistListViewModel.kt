@@ -27,7 +27,7 @@ import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.toBitmask
 import paige.navic.domain.model.toDomainFilters
 import paige.navic.domain.repository.ArtistRepository
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.core.UiState
 
 class ArtistListViewModel(
