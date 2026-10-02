@@ -47,24 +47,14 @@ class ExoDiscordIntegration(
 	private val client = DiscordRpcClient(context)
 	private val scope = CoroutineScope(Dispatchers.Main)
 	private val mutex = Mutex()
-	private var lastMediaItem: MediaItem? = null
 
 	fun isIntegrationEnabled(): Boolean {
 		return preferenceManager.enableDiscordIntegration
 	}
 
-	override fun onMediaItemTransition(
-		mediaItem: MediaItem?,
-		reason: @Player.MediaItemTransitionReason Int
-	) {
-		if (lastMediaItem?.mediaId != mediaItem?.mediaId) {
-			lastMediaItem = mediaItem
-		}
-	}
-
 	override fun onPlaybackStateChanged(playbackState: @Player.State Int) {
 		if (playbackState == Player.STATE_READY) {
-			setCurrentActivity(lastMediaItem ?: player.currentMediaItem)
+			setCurrentActivity(player.currentMediaItem)
 		}
 	}
 
@@ -80,8 +70,8 @@ class ExoDiscordIntegration(
 		val wasFurtherAlong = oldPosition.positionMs > 10000L
 
 		if (isSeekOrRepeat && jumpedToStart && wasFurtherAlong) {
-			if (lastMediaItem != null) {
-				setCurrentActivity(lastMediaItem)
+			if (player.currentMediaItem != null) {
+				setCurrentActivity(player.currentMediaItem)
 			}
 		}
 	}
@@ -90,7 +80,7 @@ class ExoDiscordIntegration(
 		if (!isPlaying) {
 			setCurrentActivity(null)
 		} else {
-			setCurrentActivity(lastMediaItem)
+			setCurrentActivity(player.currentMediaItem)
 		}
 	}
 

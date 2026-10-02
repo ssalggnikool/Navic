@@ -89,6 +89,7 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 subsonicKotlin = { module = "dev.zt64.subsonic:subsonic-client", version = "1.0.0-beta08-SNAPSHOT" }
 antisocialcord-kt = { module = "com.github.Nightdavisao:antisocialcord-kt", version = "master-SNAPSHOT" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version = "2.1.5" }
+antisocialcord = { module = "com.github.Nightdavisao:antisocialcord-kt", version = "master-SNAPSHOT" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
