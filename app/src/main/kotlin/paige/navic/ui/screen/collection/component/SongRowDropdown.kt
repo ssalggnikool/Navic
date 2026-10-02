@@ -21,7 +21,7 @@ import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.navigation.Screen

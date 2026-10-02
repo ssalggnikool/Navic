@@ -45,7 +45,7 @@ import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.DownloadOff
 import paige.navic.ui.icons.outlined.Shuffle
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.theme.defaultFont
 
 @Composable

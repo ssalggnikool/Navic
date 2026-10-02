@@ -41,7 +41,7 @@ import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.AlphabeticalScroller
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar

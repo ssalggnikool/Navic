@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingSliderStyle
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.SlimSlider
 import paige.navic.ui.component.common.SpermSlider
 import paige.navic.ui.component.common.SpermSliderDefaults

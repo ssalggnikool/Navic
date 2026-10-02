@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.shared
+package paige.navic.playback
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

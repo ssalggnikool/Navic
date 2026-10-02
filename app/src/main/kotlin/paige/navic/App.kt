@@ -80,7 +80,7 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.generated.BuildInfo
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.layout.SideBar
 import paige.navic.ui.component.sheet.ChangelogSheet
 import paige.navic.ui.component.snackbar.NavicSnackBar

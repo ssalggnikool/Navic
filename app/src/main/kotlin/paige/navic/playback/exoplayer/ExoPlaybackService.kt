@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.exoplayer
+package paige.navic.playback.exoplayer
 
 import android.content.Intent
 import androidx.media3.common.Player
@@ -27,7 +27,7 @@ import paige.navic.domain.manager.EqualizerManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SyncManager
-import paige.navic.exoplayer.impl.ExoEqualizerManager
+import paige.navic.playback.exoplayer.impl.ExoEqualizerManager
 
 @UnstableApi
 class ExoPlaybackService : MediaSessionService(), KoinComponent {

@@ -25,7 +25,7 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Note
 import paige.navic.ui.icons.outlined.Radio
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.CoverArt
 
 @Composable

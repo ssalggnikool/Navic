@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.shared
+package paige.navic.playback
 
 import android.app.Application
 import android.content.Intent
@@ -46,7 +46,7 @@ import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.domain.repository.SongRepository
-import paige.navic.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.ExoStateHolder
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
 import java.io.File

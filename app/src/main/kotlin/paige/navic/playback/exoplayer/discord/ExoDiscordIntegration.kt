@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.discord
+package paige.navic.playback.exoplayer.discord
 
 import android.content.Context
 import android.util.Log

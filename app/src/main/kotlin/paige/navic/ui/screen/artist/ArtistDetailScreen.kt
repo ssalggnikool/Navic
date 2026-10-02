@@ -79,7 +79,7 @@ import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.ArtistAlbumViewMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SongRow
 import paige.navic.ui.component.dialog.BulkDownloadDialog
