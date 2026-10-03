@@ -114,8 +114,8 @@ fun SettingsPlaybackScreen() {
 					SettingsToggleItem(
 						checked = enableDiscordIntegration,
 						onCheckedChange = { preferenceManager.discordIntegrationEnabled = it },
-						content = { Text("Discord integration") },
-						supportingContent = { Text("Show off on Discord what music you're currently listening to") },
+						content = { Text(stringResource(R.string.option_discord_integration)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_discord_integration)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
 					)
 

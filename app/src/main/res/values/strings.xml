@@ -524,4 +524,6 @@
 	<string name="info_chat_unsupported">Your server does not support this feature, or you are offline</string>
 	<string name="info_content_unavailable">Nothing here</string>
 	<string name="action_allow">Allow</string>
+    <string name="option_discord_integration">Discord integration</string>
+	<string name="subtitle_discord_integration">Show off on Discord what music you\'re currently listening to</string>
 </resources>
