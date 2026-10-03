@@ -1,0 +1,11 @@
+CREATE TABLE Lyric (
+	songId TEXT PRIMARY KEY,
+	rawContent TEXT,
+	providerName TEXT
+);
+
+getLyrics:
+SELECT * FROM Lyric WHERE songId = :songId;
+
+clearAllLyrics:
+DELETE FROM Lyric;

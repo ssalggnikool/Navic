@@ -1,0 +1,26 @@
+CREATE TABLE Genre (
+	genreName TEXT PRIMARY KEY,
+	albumCount INTEGER,
+	songCount INTEGER
+);
+
+deleteGenre:
+DELETE FROM Genre WHERE genreName = :genreName;
+
+getGenres:
+SELECT * FROM Genre ORDER BY albumCount DESC;
+
+getGenresFlow:
+SELECT * FROM Genre ORDER BY albumCount DESC;
+
+getGenresWithAlbums:
+SELECT * FROM Genre ORDER BY albumCount DESC;
+
+getGenresWithAlbumsFlow:
+SELECT * FROM Genre ORDER BY albumCount DESC;
+
+clearAllGenres:
+DELETE FROM Genre;
+
+getAllGenreNames:
+SELECT genreName FROM Genre;

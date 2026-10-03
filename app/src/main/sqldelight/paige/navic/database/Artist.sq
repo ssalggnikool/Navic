@@ -1,0 +1,67 @@
+CREATE TABLE Artist (
+    artistId TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    albumCount INTEGER DEFAULT 0,
+    coverArtId TEXT,
+    artistImageUrl TEXT,
+    starredAt TEXT,
+    userRating INTEGER,
+    sortName TEXT,
+    musicBrainzId TEXT,
+    lastFmUrl TEXT,
+    roles TEXT, -- todo: different table for this (this is a list)
+    biography TEXT,
+    similarArtistIds TEXT -- todo: different table for this
+);
+
+
+getArtistsAlphabeticalByName:
+SELECT * FROM Artist ORDER BY name COLLATE NOCASE ASC;
+
+
+getArtistsRandom:
+SELECT * FROM Artist ORDER BY RANDOM();
+
+
+getArtistsStarred:
+SELECT * FROM Artist WHERE starredAt IS NOT NULL ORDER BY starredAt DESC;
+
+
+getAllArtists:
+SELECT * FROM Artist;
+
+
+getAllArtistsList:
+SELECT * FROM Artist;
+
+
+getArtistById:
+SELECT * FROM Artist WHERE artistId = :artistId LIMIT 1;
+
+
+isArtistStarred:
+SELECT EXISTS(SELECT 1 FROM Artist WHERE artistId = :artistId AND starredAt IS NOT NULL);
+
+
+searchArtistsList:
+SELECT * FROM Artist WHERE name LIKE '%' || :query || '%' COLLATE NOCASE;
+
+
+deleteArtist:
+DELETE FROM Artist WHERE artistId = :artistId;
+
+
+clearAllArtists:
+DELETE FROM Artist;
+
+
+getAllArtistIds:
+SELECT artistId FROM Artist;
+
+
+getArtistsByIds:
+SELECT * FROM Artist WHERE artistId IN (:ids);
+
+
+deleteObsoleteArtists:
+DELETE FROM Artist WHERE artistId NOT IN (:remoteIds);

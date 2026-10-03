@@ -1,0 +1,24 @@
+CREATE TABLE Download (
+    songId TEXT PRIMARY KEY,
+    status TEXT NOT NULL CHECK (status IN ('NOT_DOWNLOADED', 'DOWNLOADING', 'DOWNLOADED', 'FAILED')),
+    progress REAL DEFAULT 0.0,
+    filePath TEXT
+);
+
+getDownloadById:
+SELECT * FROM Download WHERE songId = :songId;
+
+getAllDownloads:
+SELECT * FROM Download;
+
+getDownloadsCount:
+SELECT COUNT(*) FROM Download WHERE status = :status;
+
+deleteDownload:
+DELETE FROM Download WHERE songId = :songId;
+
+updateProgress:
+UPDATE Download SET status = :status, progress = :progress WHERE songId = :songId;
+
+clearAllDownloads:
+DELETE FROM Download;

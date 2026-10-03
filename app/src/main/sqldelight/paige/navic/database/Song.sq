@@ -1,0 +1,110 @@
+CREATE TABLE Song (
+    songId TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    artistName TEXT,
+    artistId TEXT NOT NULL,
+    albumTitle TEXT,
+    belongsToAlbumId TEXT,
+    parentId TEXT,
+    comment TEXT,
+    trackNumber INTEGER,
+    discNumber INTEGER,
+    isrc TEXT, -- json list
+    year INTEGER,
+    genre TEXT,
+    genres TEXT, -- json list
+    moods TEXT, -- json list
+    duration INTEGER NOT NULL,
+    bpm INTEGER,
+    contributors TEXT, -- json list
+    playCount INTEGER DEFAULT 0,
+    userRating INTEGER,
+    averageRating REAL,
+    bitRate INTEGER,
+    bitDepth INTEGER,
+    sampleRate INTEGER,
+    audioChannelCount INTEGER,
+    replayGain TEXT, -- JSON string
+    fileSize INTEGER NOT NULL,
+    fileExtension TEXT,
+    mimeType TEXT,
+    filePath TEXT,
+    starredAt TEXT,
+    coverArtId TEXT,
+    musicBrainzId TEXT,
+    explicitStatus TEXT NOT NULL, -- idk
+    artists TEXT, -- JSON list
+    albumArtists TEXT, -- JSON list
+    isExternal INTEGER NOT NULL
+);
+
+
+getSongById:
+SELECT * FROM Song WHERE songId = :songId LIMIT 1;
+
+insertSong:
+INSERT INTO Song (songId, title, artistName, artistId, albumTitle, belongsToAlbumId, parentId, comment, trackNumber, discNumber, isrc, year, genre, genres, moods, duration, bpm, contributors, playCount, userRating, averageRating, bitRate, bitDepth, sampleRate, audioChannelCount, replayGain, fileSize, fileExtension, mimeType, filePath, starredAt, coverArtId, musicBrainzId, explicitStatus, artists, albumArtists, isExternal)
+VALUES (:songId, :title, :artistName, :artistId, :albumTitle, :belongsToAlbumId, :parentId, :comment, :trackNumber, :discNumber, :isrc, :year, :genre, :genres, :moods, :duration, :bpm, :contributors, :playCount, :userRating, :averageRating, :bitRate, :bitDepth, :sampleRate, :audioChannelCount, :replayGain, :fileSize, :fileExtension, :mimeType, :filePath, :starredAt, :coverArtId, :musicBrainzId, :explicitStatus, :artists, :albumArtists, :isExternal);
+
+getAllSongs:
+SELECT * FROM Song;
+
+getTotalPlayCount:
+SELECT SUM(playCount) FROM Song;
+
+getTotalListeningTime:
+SELECT SUM(duration * playCount) FROM Song;
+
+getTopSongs:
+SELECT * FROM Song WHERE playCount > 0 ORDER BY playCount DESC LIMIT :limit;
+
+getStarredSongs:
+SELECT * FROM Song WHERE starredAt IS NOT NULL;
+
+getTopAlbumIds:
+SELECT belongsToAlbumId FROM Song WHERE playCount > 0 GROUP BY belongsToAlbumId ORDER BY SUM(playCount) DESC LIMIT :limit;
+
+getTopArtistIds:
+SELECT artistId FROM Song WHERE playCount > 0 GROUP BY artistId ORDER BY SUM(playCount) DESC LIMIT :limit;
+
+getArtistPlayCount:
+SELECT SUM(playCount) FROM Song WHERE artistId = :artistId;
+
+getArtistListeningTime:
+SELECT SUM(duration * playCount) FROM Song WHERE artistId = :artistId;
+
+getAlbumListeningTime:
+SELECT SUM(duration * playCount) FROM Song WHERE belongsToAlbumId = :albumId;
+
+getSongsByAlbumId:
+SELECT * FROM Song WHERE belongsToAlbumId = :albumId;
+
+deleteSong:
+DELETE FROM Song WHERE songId = :songId;
+
+isSongStarred:
+SELECT EXISTS(SELECT 1 FROM Song WHERE songId = :songId AND starredAt IS NOT NULL);
+
+getSongRating:
+SELECT userRating FROM Song WHERE songId = :songId;
+
+clearAllSongs:
+DELETE FROM Song;
+
+getAllSongIds:
+SELECT songId FROM Song;
+
+getSongsByIds:
+SELECT * FROM Song WHERE songId IN (:ids);
+
+getRandomSongs:
+SELECT * FROM Song ORDER BY RANDOM() LIMIT :count;
+
+searchSongsList:
+SELECT * FROM Song WHERE title LIKE '%' || :query || '%' COLLATE NOCASE;
+
+getSongsByArtistId:
+SELECT * FROM Song WHERE artistId = :artistId;
+
+deleteObsoleteSongs:
+DELETE FROM Song WHERE songId NOT IN (:remoteIds);

@@ -14,6 +14,7 @@ plugins {
 	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.ksp)
 	alias(libs.plugins.androidx.room3)
+	id("app.cash.sqldelight") version "2.4.0"
 }
 
 configurations.all {
@@ -182,6 +183,14 @@ room3 {
 	schemaDirectory("$projectDir/schemas")
 }
 
+sqldelight {
+	databases {
+		register("Database") {
+			packageName.set("paige.navic.database")
+		}
+	}
+}
+
 dependencies {
 	// Compose
 	implementation(libs.compose.runtime)
@@ -240,4 +249,11 @@ dependencies {
 	implementation(libs.subsonicKotlin)
 	ksp(libs.androidx.room3.compiler)
 	coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+	// Database
+	implementation(libs.sqldelight.android.driver)
+	implementation(libs.androidx.paging3.extensions)
+	implementation(libs.androidx.paging.common)
+	implementation(libs.androidx.paging.compose)
+	implementation(libs.sqldelight.coroutines.extensions)
 }

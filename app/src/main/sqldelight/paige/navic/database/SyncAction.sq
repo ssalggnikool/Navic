@@ -1,0 +1,16 @@
+CREATE TABLE SyncAction (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    actionType TEXT NOT NULL CHECK (actionType IN ('STAR', 'UNSTAR', 'DELETE_PLAYLIST', 'SCROBBLE', 'STAR_0', 'STAR_1', 'STAR_2', 'STAR_3', 'STAR_4', 'STAR_5')),
+    itemId TEXT NOT NULL,
+    time TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+
+getPendingActions:
+SELECT * FROM SyncAction ORDER BY id ASC;
+
+removeAction:
+DELETE FROM SyncAction WHERE id = :id;
+
+clearAllActions:
+DELETE FROM SyncAction;

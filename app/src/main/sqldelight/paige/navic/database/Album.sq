@@ -1,0 +1,62 @@
+CREATE TABLE Album (
+	albumId TEXT PRIMARY KEY,
+	name TEXT,
+	artistName TEXT,
+	artistId TEXT,
+	year INTEGER,
+	coverArtId TEXT,
+	genre TEXT,
+	genres TEXT,
+	songCount INTEGER,
+	-- datetime types..?
+	duration TEXT,
+	createdAt TEXT,
+	starredAt TEXT,
+	lastPlayedAt TEXT,
+	playCount INTEGER DEFAULT 0,
+	userRating INTEGER,
+	version INTEGER,
+	musicBrainzId TEXT,
+	isExternal INTEGER
+);
+
+getAlbumsByGenre:
+SELECT * FROM Album WHERE genre = :genreName OR genres LIKE '%' || :genreName || '%' ORDER BY year DESC, name COLLATE NOCASE ASC;
+
+getAllAlbums:
+SELECT * FROM Album WHERE genre = :genreName OR genres LIKE '%' || :genreName || '%' ORDER BY year DESC, name COLLATE NOCASE ASC;
+
+-- missing: getAlbumsByQuery
+
+getAlbumsCount:
+SELECT COUNT(albumId) FROM Album;
+
+getAlbumById:
+SELECT * FROM Album WHERE albumId = :albumId LIMIT 1;
+
+isAlbumStarred:
+SELECT userRating FROM Album WHERE albumId = :albumId;
+
+getAlbumRating:
+SELECT userRating FROM Album WHERE albumId = :albumId;
+
+getAlbumsByArtist:
+SELECT * FROM Album WHERE artistId = :artistId ORDER BY year DESC;
+
+getAlbumsByArtistExcluding:
+SELECT * FROM Album WHERE artistName = :artistName ORDER BY year DESC;
+
+searchAlbums:
+SELECT * FROM Album WHERE name LIKE '%' || :query || '%' COLLATE NOCASE;
+
+deleteAlbums:
+DELETE FROM Album WHERE albumId = :albumId;
+
+clearAllAbums:
+DELETE FROM Album;
+
+getAllAlbumsIds:
+SELECT albumId FROM Album;
+
+getAlbumsByIds:
+SELECT * FROM Album WHERE albumId IN (:ids);

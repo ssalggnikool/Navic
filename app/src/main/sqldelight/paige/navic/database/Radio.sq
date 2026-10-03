@@ -1,0 +1,18 @@
+CREATE TABLE Radio (
+	radioId TEXT PRIMARY KEY,
+	name TEXT,
+	streamUrl TEXT,
+	homepageUrl TEXT
+);
+
+getRadios:
+SELECT * FROM Radio ORDER BY name ASC;
+
+deleteRadio:
+DELETE FROM Radio WHERE radioId = :radioId;
+
+clearAllRadios:
+DELETE FROM Radio;
+
+getAllRadioIds:
+SELECT radioId FROM Radio;

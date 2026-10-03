@@ -1,0 +1,8 @@
+CREATE TABLE PlaylistSongCrossRef (
+    playlistId TEXT,
+    songId TEXT,
+    position INTEGER NOT NULL,
+    PRIMARY KEY (playlistId, songId, position),
+    FOREIGN KEY (playlistId) REFERENCES Playlist(playlistId) ON DELETE CASCADE,
+    FOREIGN KEY (songId) REFERENCES Song(songId) ON DELETE CASCADE
+);

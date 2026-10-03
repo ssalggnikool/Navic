@@ -1,0 +1,67 @@
+CREATE TABLE Playlist (
+    playlistId TEXT PRIMARY KEY,
+    name TEXT,
+    comment TEXT,
+    owner TEXT,
+    coverArtId TEXT,
+    songCount INTEGER NOT NULL,
+    duration INTEGER NOT NULL,
+    public INTEGER,
+    readOnly INTEGER,
+    createdAt TEXT NOT NULL,
+    modifiedAt TEXT NOT NULL,
+    validUntil TEXT,
+    allowedUsers TEXT
+);
+
+
+getAllPlaylistsByName:
+SELECT * FROM Playlist ORDER BY name ASC;
+
+
+getAllPlaylistsByDateAdded:
+SELECT * FROM Playlist ORDER BY createdAt DESC;
+
+
+getAllPlaylistsByDuration:
+SELECT * FROM Playlist ORDER BY duration DESC;
+
+
+getAllPlaylistsRandom:
+SELECT * FROM Playlist ORDER BY RANDOM();
+
+
+getAllPlaylistsFlow:
+SELECT * FROM Playlist ORDER BY name ASC;
+
+
+getPlaylistById:
+SELECT * FROM Playlist WHERE playlistId = :playlistId LIMIT 1;
+
+
+deletePlaylist:
+DELETE FROM Playlist WHERE playlistId = :playlistId;
+
+
+deletePlaylistSongCrossRefs:
+DELETE FROM PlaylistSongCrossRef WHERE playlistId = :playlistId;
+
+
+replacePlaylistSongs:
+DELETE FROM PlaylistSongCrossRef WHERE playlistId = :playlistId;
+
+
+getPlaylistCount:
+SELECT COUNT(*) FROM Playlist;
+
+
+clearAllPlaylists:
+DELETE FROM Playlist;
+
+
+getAllPlaylistIds:
+SELECT playlistId FROM Playlist;
+
+
+searchPlaylistsList:
+SELECT * FROM Playlist WHERE name LIKE '%' || :query || '%' COLLATE NOCASE;

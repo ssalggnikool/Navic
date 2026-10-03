@@ -6,14 +6,27 @@
 
 package paige.navic.di
 
+import android.content.Context
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 import paige.navic.data.database.CacheDatabase
 import paige.navic.data.database.DownloadDatabase
+import paige.navic.database.Database
 
 val databaseModule = module {
+	single {
+		val driver = AndroidSqliteDriver(
+			schema = Database.Schema,
+			context = get(),
+			name = "navic.db"
+		)
+
+		Database(driver)
+	}
+
 	single<CacheDatabase> {
 		val dbPath = androidApplication()
 			.getDatabasePath("cache.db")
