@@ -18,6 +18,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,6 +88,21 @@ fun AlbumListScreen(
 	var shareId by remember { mutableStateOf<String?>(null) }
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+	val shouldLoadMore = remember {
+		derivedStateOf {
+			val layoutInfo = viewModel.gridState.layoutInfo
+			val totalItems = layoutInfo.totalItemsCount
+			val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+			totalItems > 0 && lastVisibleItem >= totalItems - 6
+		}
+	}
+
+	LaunchedEffect(shouldLoadMore.value) {
+		if (shouldLoadMore.value) {
+			viewModel.loadNextPage()
+		}
+	}
 
 	val actions: @Composable RowScope.() -> Unit = {
 		AlbumListScreenSortButton(

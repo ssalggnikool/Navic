@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -56,6 +57,11 @@ class AlbumListViewModel(
 
 	val gridState = LazyGridState()
 
+	private val pageSize = 30
+	private var currentPage = 0
+	private var canLoadMore = true
+	private var isLoadingPage = false
+
 	init {
 		viewModelScope.launch {
 			sessionManager.isLoggedIn.collect { if (it) refreshAlbums(false) }
@@ -64,13 +70,59 @@ class AlbumListViewModel(
 
 	fun refreshAlbums(fullRefresh: Boolean) {
 		viewModelScope.launch {
-			repository.getAlbumsFlow(
-				fullRefresh,
-				listType.value,
-				selectedReversed.value,
-				selectedFilters.value
-			).collect {
-				albumsState.value = it
+			currentPage = 0
+			canLoadMore = true
+			isLoadingPage = true
+
+			val currentData = if (fullRefresh) persistentListOf() else (albumsState.value.data ?: persistentListOf())
+			albumsState.value = UiState.Loading(data = currentData)
+
+			try {
+				if (fullRefresh) {
+					repository.syncLibrary()
+				}
+				val initialPage = repository.getAlbumsPage(
+					page = 0,
+					pageSize = pageSize,
+					listType = listType.value,
+					reversed = selectedReversed.value,
+					filters = selectedFilters.value
+				)
+				canLoadMore = initialPage.size >= pageSize
+				albumsState.value = UiState.Success(data = initialPage)
+			} catch (error: Exception) {
+				albumsState.value = UiState.Error(error = error, data = albumsState.value.data ?: persistentListOf())
+			} finally {
+				isLoadingPage = false
+			}
+		}
+	}
+
+	fun loadNextPage() {
+		if (!canLoadMore || isLoadingPage) return
+		viewModelScope.launch {
+			isLoadingPage = true
+			try {
+				val nextPage = currentPage + 1
+				val newItems = repository.getAlbumsPage(
+					page = nextPage,
+					pageSize = pageSize,
+					listType = listType.value,
+					reversed = selectedReversed.value,
+					filters = selectedFilters.value
+				)
+				if (newItems.isEmpty()) {
+					canLoadMore = false
+				} else {
+					currentPage = nextPage
+					canLoadMore = newItems.size >= pageSize
+					val currentList = albumsState.value.data ?: persistentListOf()
+					albumsState.value = UiState.Success(data = (currentList + newItems).toImmutableList())
+				}
+			} catch (error: Exception) {
+				albumsState.value = UiState.Error(error = error, data = albumsState.value.data ?: persistentListOf())
+			} finally {
+				isLoadingPage = false
 			}
 		}
 	}

@@ -32,7 +32,9 @@ class AlbumRepository(
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
-	private suspend fun getLocalData(
+	suspend fun getAlbumsPage(
+		page: Int,
+		pageSize: Int,
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
@@ -44,28 +46,24 @@ class AlbumRepository(
 				.toSet()
 		} else null
 
+		val query = listType.toSqlQuery(
+			limit = pageSize,
+			offset = page * pageSize,
+			reversed = reversed,
+			filters = filters
+		)
+
 		return albumDao
-			.getAlbumsByQuery(listType.toSqlQuery())
+			.getAlbumsByQuery(query)
 			.map { it.toDomainModel() }
 			.filter { album ->
-				filters.all { filter ->
-					when (filter) {
-						DomainFilter.Starred -> album.starredAt != null
-						DomainFilter.Downloaded -> downloadedSongIds != null && downloadedSongIds.containsAll(album.songs.map { it.id })
-					}
-				}
+				downloadedSongIds == null || downloadedSongIds.containsAll(album.songs.map { it.id })
 			}
-			.let { if (reversed) it.asReversed() else it }
 			.toImmutableList()
 	}
 
-	private suspend fun refreshLocalData(
-		listType: DomainAlbumListType,
-		reversed: Boolean,
-		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainAlbum> {
-		dbRepository.syncLibrarySongs().getOrThrow()
-		return getLocalData(listType, reversed, filters)
+	suspend fun syncLibrary(): Result<Unit> {
+		return dbRepository.syncLibrarySongs().map { }
 	}
 
 	fun getAlbumsFlow(
@@ -74,11 +72,12 @@ class AlbumRepository(
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
 	): Flow<UiState<ImmutableList<DomainAlbum>>> = flow {
-		val localData = getLocalData(listType, reversed, filters)
+		val localData = getAlbumsPage(0, Int.MAX_VALUE, listType, reversed, filters)
 		if (fullRefresh) {
 			emit(UiState.Loading(data = localData))
 			try {
-				emit(UiState.Success(data = refreshLocalData(listType, reversed, filters)))
+				dbRepository.syncLibrarySongs().getOrThrow()
+				emit(UiState.Success(data = getAlbumsPage(0, Int.MAX_VALUE, listType, reversed, filters)))
 			} catch (error: Exception) {
 				emit(UiState.Error(error = error, data = localData))
 			}
