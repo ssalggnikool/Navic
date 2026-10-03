@@ -25,7 +25,7 @@
     <string name="subtitle_bottom_app_bar">Alterar a barra do player e navegação</string>
     <string name="subtitle_about">Versão, licenças</string>
     <string name="subtitle_playlist">Playlist</string>
-    <string name="subtitle_enable_scrobbling">Fazer scrobble das músicas tocadas para seu servidor Navidrome</string>
+    <string name="subtitle_enable_scrobbling">Fazer scrobble das músicas tocadas para seu servidor Subsonic</string>
     <string name="option_accent_colour">Cor de destaque</string>
     <string name="option_swipe_to_skip">Deslizar para pular músicas</string>
 	<string name="option_hide_bottom_bar_if_idle">Esconder caso esteja ocioso</string>
