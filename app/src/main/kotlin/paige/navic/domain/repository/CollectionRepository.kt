@@ -58,17 +58,12 @@ class CollectionRepository(
 	fun getCollectionFlow(
 		fullRefresh: Boolean,
 		collectionId: String
-	): Flow<UiState<DomainSongCollection>> = flow {
+	): Flow<DomainSongCollection> = flow {
 		val localData = getLocalData(collectionId)
 		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData(collectionId)))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+			emit(refreshLocalData(collectionId))
 		} else {
-			emit(UiState.Success(data = localData))
+			emit(localData)
 		}
 	}.flowOn(Dispatchers.IO)
 
