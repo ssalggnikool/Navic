@@ -43,7 +43,7 @@ import paige.navic.ui.util.withoutTop
 
 @Composable
 fun ArtistListScreenContent(
-	state: UiState<ImmutableList<DomainArtist>>,
+	state: UiState<List<DomainArtist>>,
 	starred: Boolean,
 	selectedSorting: DomainArtistListType,
 	gridState: LazyGridState,
@@ -51,7 +51,7 @@ fun ArtistListScreenContent(
 	innerPadding: PaddingValues,
 	nested: Boolean,
 	selectedArtist: DomainArtist?,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	selectedViewMode: ListViewMode,
 	onUpdateSelection: (DomainArtist) -> Unit,
 	onClearSelection: () -> Unit,

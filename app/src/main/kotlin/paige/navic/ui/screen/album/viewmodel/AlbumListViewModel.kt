@@ -31,8 +31,8 @@ class AlbumListViewModel(
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager
 ) : ViewModel() {
-	val albumsState: StateFlow<UiState<ImmutableList<DomainAlbum>>>
-		field = MutableStateFlow<UiState<ImmutableList<DomainAlbum>>>(UiState.Loading())
+	val albumsState: StateFlow<UiState<List<DomainAlbum>>>
+		field = MutableStateFlow<UiState<List<DomainAlbum>>>(UiState.Loading())
 
 	val selectedAlbum: StateFlow<DomainAlbum?>
 		field = MutableStateFlow(null)
@@ -70,7 +70,7 @@ class AlbumListViewModel(
 				selectedReversed.value,
 				selectedFilters.value
 			).collect {
-				albumsState.value = it
+				albumsState.value = UiState.Success(it)
 			}
 		}
 	}

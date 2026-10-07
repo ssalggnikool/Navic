@@ -55,10 +55,7 @@ fun GenreDetailScreen(
 		key = "genre_detail_songs_$genreName",
 		parameters = { parametersOf(DomainSongListType.ByGenre(genreName)) }
 	)
-	val songsState by songsViewModel.songsState.collectAsStateWithLifecycle()
-	val selectedSong by songsViewModel.selectedSong.collectAsStateWithLifecycle()
-	val selectedSongIsStarred by songsViewModel.starred.collectAsStateWithLifecycle()
-	val selectedSongRating by songsViewModel.selectedSongRating.collectAsStateWithLifecycle()
+	val songsState by songsViewModel.uiState.collectAsStateWithLifecycle()
 
 	val albumsViewModel = koinViewModel<AlbumListViewModel>(
 		key = "genre_detail_albums_$genreName",
@@ -106,10 +103,9 @@ fun GenreDetailScreen(
 				onSetShareId = { shareId = it },
 				isOnline = isOnline,
 
-				songsState = songsState,
-				selectedSong = selectedSong,
-				selectedSongIsStarred = selectedSongIsStarred,
-				selectedSongRating = selectedSongRating,
+				songs = songsState.data?.items.orEmpty(),
+				selectedSong = songsState.data?.selectedItem,
+				selectedSongRating = songsState.data?.selectedItem?.userRating ?: 0,
 				allDownloads = allDownloads,
 				onSelectSong = { songsViewModel.selectSong(it) },
 				onClearSongSelection = { songsViewModel.clearSelection() },
@@ -130,7 +126,7 @@ fun GenreDetailScreen(
 					}
 				},
 				onPlaySong = { index ->
-					player.playNow(songsState.data.orEmpty(), index)
+					player.playNow(songsState.data?.items.orEmpty(), index)
 				},
 				onSetSongRating = { songsViewModel.rateSelectedSong(it) },
 				onDownloadSong = { songsViewModel.downloadSong(it) },
@@ -141,7 +137,7 @@ fun GenreDetailScreen(
 					songsViewModel.deleteDownload(song.id)
 				},
 
-				albumsState = albumsState,
+				albumsState = albumsState.data.orEmpty(),
 				selectedAlbum = selectedAlbum,
 				selectedAlbumIsStarred = selectedAlbumIsStarred,
 				selectedAlbumRating = selectedAlbumRating,

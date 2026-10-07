@@ -112,10 +112,10 @@ class CollectionDetailViewModel(
 	fun refreshCollection(fullRefresh: Boolean) {
 		viewModelScope.launch {
 			repository.getCollectionFlow(fullRefresh, collectionId).collect {
-				collectionState.value = it
-				if (it.data is DomainAlbum) {
-					starred.value = albumRepository.isAlbumStarred(it.data as DomainAlbum)
-					rating.value = albumRepository.getAlbumRating(it.data as DomainAlbum)
+				collectionState.value = UiState.Success(it)
+				if (it is DomainAlbum) {
+					starred.value = albumRepository.isAlbumStarred(it)
+					rating.value = albumRepository.getAlbumRating(it)
 					try {
 						val albumInfo = repository.getAlbumInfo(collectionId)
 						albumInfoState.value = UiState.Success(albumInfo.toDomainModel())

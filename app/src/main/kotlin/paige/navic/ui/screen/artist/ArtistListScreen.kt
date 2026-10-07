@@ -169,7 +169,7 @@ fun ArtistListScreenGridItem(
 	tab: String,
 	artist: DomainArtist,
 	selected: Boolean,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	starred: Boolean,
 	onSelect: () -> Unit,
 	onDeselect: () -> Unit,

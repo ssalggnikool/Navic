@@ -37,7 +37,7 @@ class GenreListViewModel(
 	fun refreshGenres(fullRefresh: Boolean) {
 		viewModelScope.launch {
 			repository.getGenresFlow(fullRefresh).collect {
-				genresState.value = it
+				genresState.value = UiState.Success(it)
 			}
 		}
 	}
