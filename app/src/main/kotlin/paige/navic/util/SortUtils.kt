@@ -11,10 +11,10 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
-import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 
+// TODO: sort with sql instead
 fun ImmutableList<DomainSong>.sortedByListType(
 	listType: DomainSongListType,
 	albums: List<DomainAlbum>
@@ -43,56 +43,44 @@ fun ImmutableList<DomainSong>.sortedByListType(
 	}.toImmutableList()
 }
 
-fun DomainAlbumListType.toSqlQuery(
-	limit: Int? = null,
-	offset: Int? = null,
-	reversed: Boolean = false,
-	filters: Set<DomainFilter> = emptySet()
-): RoomRawQuery {
-	val conditions = mutableListOf<String>()
+fun DomainAlbumListType.toSqlQuery(): RoomRawQuery {
+	var where: String? = null
+	var orderBy: String
 	val args = mutableListOf<Any>()
 
-	val orderBy = when (this) {
-		DomainAlbumListType.AlphabeticalByArtist -> if (reversed) "LOWER(artistName) DESC" else "LOWER(artistName) ASC"
-		DomainAlbumListType.AlphabeticalByName -> if (reversed) "LOWER(name) DESC" else "LOWER(name) ASC"
+	when (this) {
+		DomainAlbumListType.AlphabeticalByArtist -> orderBy = "LOWER(artistName) ASC"
+		DomainAlbumListType.AlphabeticalByName -> orderBy = "LOWER(name) ASC"
 		DomainAlbumListType.Frequent -> {
-			conditions.add("playCount != 0")
-			if (reversed) "playCount ASC" else "playCount DESC"
+			where = "playCount != 0"
+			orderBy = "playCount DESC"
 		}
 
-		DomainAlbumListType.Highest -> if (reversed) "userRating ASC" else "userRating DESC"
-		DomainAlbumListType.Newest -> if (reversed) "createdAt ASC" else "createdAt DESC"
-		DomainAlbumListType.Random -> "RANDOM()"
-		DomainAlbumListType.Recent -> if (reversed) "lastPlayedAt ASC" else "lastPlayedAt DESC"
+		DomainAlbumListType.Highest -> orderBy = "userRating DESC"
+		DomainAlbumListType.Newest -> orderBy = "createdAt DESC"
+		DomainAlbumListType.Random -> orderBy = "RANDOM()"
+		DomainAlbumListType.Recent -> orderBy = "lastPlayedAt DESC"
 
-		DomainAlbumListType.Year -> if (reversed) "year ASC" else "year DESC"
+		DomainAlbumListType.Year -> {
+			orderBy = "year DESC"
+		}
 
 		is DomainAlbumListType.ByGenre -> {
-			conditions.add("genre = ?")
+			where = "genre = ?"
+			orderBy = "LOWER(name) ASC"
 			args.add(genre)
-			if (reversed) "LOWER(name) DESC" else "LOWER(name) ASC"
 		}
 
 		is DomainAlbumListType.ByYear -> {
-			conditions.add("COALESCE(year, 0) BETWEEN ? AND ?")
+			where = "COALESCE(year, 0) BETWEEN ? AND ?"
+			orderBy = "LOWER(name) ASC"
 			args.add(fromYear)
 			args.add(toYear)
-			if (reversed) "LOWER(name) DESC" else "LOWER(name) ASC"
 		}
 	}
 
-	if (filters.contains(DomainFilter.Starred)) {
-		conditions.add("starredAt IS NOT NULL")
-	}
-
-	val whereClause = if (conditions.isNotEmpty()) " WHERE ${conditions.joinToString(" AND ")}" else ""
-	var sql = "SELECT * FROM AlbumEntity$whereClause ORDER BY $orderBy"
-
-	if (limit != null && offset != null) {
-		sql += " LIMIT ? OFFSET ?"
-		args.add(limit)
-		args.add(offset)
-	}
+	val whereClause = where?.let { " WHERE $it" } ?: ""
+	val sql = "SELECT * FROM AlbumEntity$whereClause ORDER BY $orderBy"
 
 	return RoomRawQuery(sql) { statement ->
 		args.forEachIndexed { index, arg ->

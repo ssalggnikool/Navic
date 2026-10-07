@@ -32,9 +32,7 @@ class AlbumRepository(
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
-	suspend fun getAlbumsPage(
-		page: Int,
-		pageSize: Int,
+	private suspend fun getLocalData(
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
@@ -46,24 +44,28 @@ class AlbumRepository(
 				.toSet()
 		} else null
 
-		val query = listType.toSqlQuery(
-			limit = pageSize,
-			offset = page * pageSize,
-			reversed = reversed,
-			filters = filters
-		)
-
 		return albumDao
-			.getAlbumsByQuery(query)
+			.getAlbumsByQuery(listType.toSqlQuery())
 			.map { it.toDomainModel() }
 			.filter { album ->
-				downloadedSongIds == null || downloadedSongIds.containsAll(album.songs.map { it.id })
+				filters.all { filter ->
+					when (filter) {
+						DomainFilter.Starred -> album.starredAt != null
+						DomainFilter.Downloaded -> downloadedSongIds != null && downloadedSongIds.containsAll(album.songs.map { it.id })
+					}
+				}
 			}
+			.let { if (reversed) it.asReversed() else it }
 			.toImmutableList()
 	}
 
-	suspend fun syncLibrary(): Result<Unit> {
-		return dbRepository.syncLibrarySongs().map { }
+	private suspend fun refreshLocalData(
+		listType: DomainAlbumListType,
+		reversed: Boolean,
+		filters: Set<DomainFilter> = emptySet()
+	): ImmutableList<DomainAlbum> {
+		dbRepository.syncLibrarySongs().getOrThrow()
+		return getLocalData(listType, reversed, filters)
 	}
 
 	fun getAlbumsFlow(
@@ -72,12 +74,11 @@ class AlbumRepository(
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
 	): Flow<UiState<ImmutableList<DomainAlbum>>> = flow {
-		val localData = getAlbumsPage(0, Int.MAX_VALUE, listType, reversed, filters)
+		val localData = getLocalData(listType, reversed, filters)
 		if (fullRefresh) {
 			emit(UiState.Loading(data = localData))
 			try {
-				dbRepository.syncLibrarySongs().getOrThrow()
-				emit(UiState.Success(data = getAlbumsPage(0, Int.MAX_VALUE, listType, reversed, filters)))
+				emit(UiState.Success(data = refreshLocalData(listType, reversed, filters)))
 			} catch (error: Exception) {
 				emit(UiState.Error(error = error, data = localData))
 			}
