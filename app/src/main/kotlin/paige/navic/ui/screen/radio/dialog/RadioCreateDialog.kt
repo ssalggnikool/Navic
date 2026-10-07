@@ -40,7 +40,7 @@ fun RadioCreateDialog(
 	onRefresh: () -> Unit
 ) {
 	val viewModel = koinViewModel<RadioCreateDialogViewModel>()
-	val state by viewModel.creationState.collectAsState()
+	val state by viewModel.uiState.collectAsState()
 
 	LaunchedEffect(Unit) {
 		viewModel.events.collect { event ->

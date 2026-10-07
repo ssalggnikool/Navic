@@ -39,7 +39,7 @@ fun ArtistListScreenListItem(
 	modifier: Modifier = Modifier,
 	artist: DomainArtist,
 	selected: Boolean,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	starred: Boolean,
 	onSelect: () -> Unit,
 	onDeselect: () -> Unit,

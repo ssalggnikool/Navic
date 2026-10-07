@@ -39,13 +39,11 @@ fun <T> LazyGridScope.horizontalSection(
 	seeAll: Boolean,
 	title: Int,
 	destination: NavKey,
-	state: UiState<List<T>>,
+	state: List<T>,
 	key: (T) -> Any,
 	itemContent: @Composable LazyItemScope.(T) -> Unit,
 ) {
-	val data = state.data.orEmpty()
-
-	if (data.isEmpty() && state !is UiState.Loading) return
+	if (state.isEmpty()) return
 
 	header(title, destination = destination, active = seeAll)
 
@@ -56,12 +54,12 @@ fun <T> LazyGridScope.horizontalSection(
 			horizontalArrangement = Arrangement.spacedBy(12.dp),
 			contentPadding = PaddingValues(horizontal = 16.dp)
 		) {
-			if (state is UiState.Loading && data.isEmpty()) {
+			if (state.isEmpty()) {
 				items(8) {
 					ArtGridPlaceholder(Modifier.width(150.dp))
 				}
 			} else {
-				items(data, key = key) { item ->
+				items(state, key = key) { item ->
 					itemContent(item)
 				}
 			}
