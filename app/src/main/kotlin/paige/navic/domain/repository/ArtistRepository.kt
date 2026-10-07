@@ -70,17 +70,12 @@ class ArtistRepository(
 		fullRefresh: Boolean,
 		listType: DomainArtistListType,
 		filters: Set<DomainFilter> = emptySet()
-	): Flow<UiState<ImmutableList<DomainArtist>>> = flow {
+	): Flow<ImmutableList<DomainArtist>> = flow {
 		val localData = getLocalData(listType, filters)
 		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData(listType, filters)))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+			emit(refreshLocalData(listType, filters))
 		} else {
-			emit(UiState.Success(data = localData))
+			emit(localData)
 		}
 	}.flowOn(Dispatchers.IO)
 
