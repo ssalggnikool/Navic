@@ -29,8 +29,8 @@ class PlaylistListViewModel(
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager
 ) : ViewModel() {
-	val playlistsState: StateFlow<UiState<ImmutableList<DomainPlaylist>>>
-		field = MutableStateFlow<UiState<ImmutableList<DomainPlaylist>>>(UiState.Loading())
+	val playlistsState: StateFlow<UiState<List<DomainPlaylist>>>
+		field = MutableStateFlow<UiState<List<DomainPlaylist>>>(UiState.Loading())
 
 	val selectedPlaylist: StateFlow<DomainPlaylist?>
 		field = MutableStateFlow(null)
@@ -68,7 +68,7 @@ class PlaylistListViewModel(
 				selectedReversed.value,
 				selectedFilters.value
 			).collect {
-				playlistsState.value = it
+				playlistsState.value = UiState.Success(it)
 			}
 		}
 	}

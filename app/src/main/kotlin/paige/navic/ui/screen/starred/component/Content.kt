@@ -74,11 +74,11 @@ fun StarredScreenContent(
 	onSetShareId: (String) -> Unit,
 	isOnline: Boolean = false,
 
-	songsState: UiState<ImmutableList<DomainSong>>,
+	songs: List<DomainSong>,
 	selectedSong: DomainSong?,
 	selectedSongIsStarred: Boolean,
 	selectedSongRating: Int,
-	allDownloads: ImmutableList<DownloadEntity>,
+	allDownloads: List<DownloadEntity>,
 	onSelectSong: (DomainSong) -> Unit,
 	onClearSongSelection: () -> Unit,
 	onAddSongStar: () -> Unit,
@@ -92,7 +92,7 @@ fun StarredScreenContent(
 	onDeleteDownloadSong: (DomainSong) -> Unit,
 
 	// albums
-	albumsState: UiState<ImmutableList<DomainAlbum>>,
+	albums: List<DomainAlbum>,
 	selectedAlbum: DomainAlbum?,
 	selectedAlbumIsStarred: Boolean,
 	selectedAlbumRating: Int,
@@ -104,9 +104,9 @@ fun StarredScreenContent(
 	onAddAlbumToQueue: () -> Unit,
 
 	// artists
-	artistsState: UiState<ImmutableList<DomainArtist>>,
+	artistsState: UiState<List<DomainArtist>>,
 	selectedArtist: DomainArtist?,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	selectedArtistIsStarred: Boolean,
 	onSelectArtist: (DomainArtist) -> Unit,
 	onClearArtistSelection: () -> Unit,
@@ -116,8 +116,6 @@ fun StarredScreenContent(
 ) {
 	val gridState = rememberLazyGridState()
 	val backStack = LocalNavStack.current
-	val albums = albumsState.data.orEmpty()
-	val songs = songsState.data.orEmpty()
 	val artists = artistsState.data.orEmpty()
 	val downloadManager = koinInject<DownloadManager>()
 
@@ -163,7 +161,7 @@ fun StarredScreenContent(
 				),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
-			if (!songs.isEmpty()) {
+			if (songs.isNotEmpty()) {
 				Row(
 					modifier = Modifier
 						.heightIn(min = 32.dp)

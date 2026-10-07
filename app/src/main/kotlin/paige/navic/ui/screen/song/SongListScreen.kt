@@ -34,13 +34,16 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
+import paige.navic.R.string.info_no_songs
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.domain.repository.SongRepository
 import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -49,8 +52,8 @@ import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.screen.song.component.SongListScreenItem
 import paige.navic.ui.screen.song.component.SongListScreenSortButton
-import paige.navic.ui.screen.song.component.songListScreenContent
 import paige.navic.ui.screen.song.viewmodel.SongListViewModel
 import paige.navic.ui.util.withoutTop
 import paige.navic.ui.viewmodel.RootViewModel
@@ -72,13 +75,11 @@ fun SongListScreen(
 	)
 	val preferenceManager = koinInject<PreferenceManager>()
 	val player = koinInject<MediaPlayerViewModel>()
-	val songsState by viewModel.songsState.collectAsStateWithLifecycle()
-	val selectedSong by viewModel.selectedSong.collectAsStateWithLifecycle()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
+
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
-	val starred by viewModel.starred.collectAsStateWithLifecycle()
-	val selectedSongRating by viewModel.selectedSongRating.collectAsStateWithLifecycle()
 	val allDownloads by viewModel.allDownloads.collectAsStateWithLifecycle()
 
 	var shareId by remember { mutableStateOf<String?>(null) }
@@ -138,54 +139,89 @@ fun SongListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = songsState !is UiState.Loading,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshSongs(true) },
-			key = songsState
+			key = state
 		) {
 			LazyColumn(
 				modifier = if (!nested)
 					Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection)
 				else Modifier.fillMaxSize(),
 				contentPadding = innerPadding.withoutTop(),
-				verticalArrangement = if ((songsState as? UiState.Success)?.data?.isEmpty() == true)
+				verticalArrangement = if ((state as? UiState.Success)?.data?.items?.isEmpty() == true)
 					Arrangement.Center
 				else Arrangement.spacedBy(12.dp),
 				state = listState
 			) {
-				songListScreenContent(
-					state = songsState,
-					selectedSongIsStarred = starred,
-					selectedSongRating = selectedSongRating,
-					selectedSong = selectedSong,
-					onUpdateSelection = { viewModel.selectSong(it) },
-					onClearSelection = { viewModel.clearSelection() },
-					onSetShareId = { newShareId ->
-						shareId = newShareId
-					},
-					onSetStarred = { viewModel.starSong(it) },
-					onPlayNext = { song ->
-						if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
-							songToQueue = song
-						} else {
-							player.playNextSingle(song)
+				val songs = state.data?.items.orEmpty()
+				if (songs.isNotEmpty()) {
+					items(songs.size) { index ->
+						val song = songs[index]
+
+						val download = allDownloads.find { it.songId == song.id }
+						SongListScreenItem(
+							modifier = Modifier.animateItem(),
+							song = song,
+							selected = song == state.data?.selectedItem,
+							starred = song.starredAt != null,
+							rating = song.userRating ?: 0,
+							onSelect = {
+								viewModel.selectSong(song)
+							},
+							onDeselect = {
+								viewModel.clearSelection()
+							},
+							onSetStarred = {
+								viewModel.starSong(it)
+							},
+							onSetShareId = { newShareId: String ->
+								shareId = newShareId
+							},
+							onPlayNext = {
+								if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+									songToQueue = song
+								} else {
+									player.playNextSingle(song)
+								}
+							},
+							onAddToQueue = {
+								if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+									songToQueue = song
+								} else {
+									player.addToQueueSingle(song)
+								}
+							},
+							onClick = {
+								player.playNow(song)
+							},
+							onSetRating = { it: Int -> viewModel.rateSelectedSong(it) },
+							download = download,
+							onDownload = {
+								viewModel.downloadSong(song)
+							},
+							onCancelDownload = {
+								viewModel.cancelDownload(song.id)
+							},
+							onDeleteDownload = {
+								viewModel.deleteDownload(song.id)
+							}
+						)
+					}
+				} else {
+					when (state) {
+						is UiState.Loading -> {
+							// TODO
 						}
-					},
-					onAddToQueue = { song ->
-						if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
-							songToQueue = song
-						} else {
-							player.addToQueueSingle(song)
+
+						else -> {
+							item {
+								ContentUnavailable(
+									label = stringResource(info_no_songs)
+								)
+							}
 						}
-					},
-					onPlaySong = { song ->
-						player.playNow(song)
-					},
-					onSetRating = { viewModel.rateSelectedSong(it) },
-					onDownload = { viewModel.downloadSong(it) },
-					allDownloads = allDownloads,
-					onCancelDownload = { viewModel.cancelDownload(it.id) },
-					onDeleteDownload = { viewModel.deleteDownload(it.id) }
-				)
+					}
+				}
 			}
 		}
 	}

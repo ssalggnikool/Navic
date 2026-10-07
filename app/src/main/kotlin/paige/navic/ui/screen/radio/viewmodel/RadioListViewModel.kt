@@ -23,8 +23,8 @@ class RadioListViewModel(
 	private val repository: RadioRepository,
 	private val sessionManager: SessionManager
 ) : ViewModel() {
-	val radiosState: StateFlow<UiState<ImmutableList<DomainRadio>>>
-		field = MutableStateFlow<UiState<ImmutableList<DomainRadio>>>(UiState.Loading())
+	val radiosState: StateFlow<UiState<List<DomainRadio>>>
+		field = MutableStateFlow<UiState<List<DomainRadio>>>(UiState.Loading())
 
 	val selectedRadio: StateFlow<DomainRadio?>
 		field = MutableStateFlow<DomainRadio?>(null)
@@ -46,7 +46,7 @@ class RadioListViewModel(
 	fun refreshRadios(fullRefresh: Boolean) {
 		viewModelScope.launch {
 			repository.getRadiosFlow(fullRefresh).collect {
-				radiosState.value = it
+				radiosState.value = UiState.Success(it)
 			}
 		}
 	}

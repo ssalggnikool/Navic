@@ -151,7 +151,7 @@ fun LibraryScreen() {
 				innerPadding = innerPadding,
 				onSetShareId = { shareId = it },
 
-				albumsState = albumsState,
+				albumsState = albumsState.data.orEmpty(),
 				selectedAlbum = selectedAlbum,
 				selectedAlbumIsStarred = selectedAlbumIsStarred,
 				selectedAlbumRating = selectedAlbumRating,
@@ -180,7 +180,7 @@ fun LibraryScreen() {
 					)
 				},
 
-				playlistsState = playlistsState,
+				playlistsState = playlistsState.data.orEmpty(),
 				selectedPlaylist = selectedPlaylist,
 				onSelectPlaylist = { playlistsViewModel.selectPlaylist(it) },
 				onClearPlaylistSelection = { playlistsViewModel.clearSelection() },

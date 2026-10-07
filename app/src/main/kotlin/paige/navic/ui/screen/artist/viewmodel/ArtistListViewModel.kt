@@ -38,8 +38,8 @@ class ArtistListViewModel(
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager
 ) : ViewModel() {
-	val artistsState: StateFlow<UiState<ImmutableList<DomainArtist>>>
-		field = MutableStateFlow<UiState<ImmutableList<DomainArtist>>>(UiState.Loading())
+	val artistsState: StateFlow<UiState<List<DomainArtist>>>
+		field = MutableStateFlow<UiState<List<DomainArtist>>>(UiState.Loading())
 
 	val starred: StateFlow<Boolean>
 		field = MutableStateFlow(false)
@@ -70,7 +70,7 @@ class ArtistListViewModel(
 		viewModelScope.launch {
 			repository.getArtistsFlow(fullRefresh, listType.value, selectedFilters.value)
 				.collect {
-					artistsState.value = it
+					artistsState.value = UiState.Success(it)
 				}
 		}
 	}

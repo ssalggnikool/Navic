@@ -397,7 +397,7 @@ fun SearchScreen(
 							horizontalSection(
 								title = R.string.title_albums,
 								destination = Screen.AlbumList(true),
-								state = UiState.Success(albums),
+								state = albums,
 								key = { it.id },
 								seeAll = false
 							) { album ->
@@ -422,7 +422,7 @@ fun SearchScreen(
 							horizontalSection(
 								title = R.string.title_artists,
 								destination = Screen.ArtistList(true),
-								state = UiState.Success(artists),
+								state = artists,
 								key = { it.id },
 								seeAll = false
 							) { artist ->
