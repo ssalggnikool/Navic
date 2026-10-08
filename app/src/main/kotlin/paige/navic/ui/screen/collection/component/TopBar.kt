@@ -31,14 +31,13 @@ import paige.navic.ui.icons.outlined.MoreVert
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.CollectionSheet
-import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 
 @Composable
 fun CollectionDetailScreenTopBar(
 	collection: DomainSongCollection?,
-	albumInfoState: UiState<DomainAlbumInfo>,
+	albumInfo: DomainAlbumInfo,
 	titleAlpha: Float,
 	onSetShareId: (shareId: String?) -> Unit,
 	onDownloadAll: () -> Unit,
@@ -80,7 +79,7 @@ fun CollectionDetailScreenTopBar(
 					CollectionSheet(
 						onDismissRequest = { expanded = false },
 						collection = collection,
-						albumInfo = (albumInfoState as? UiState.Success)?.data,
+						albumInfo = albumInfo,
 						onDownloadAll = onDownloadAll,
 						onCancelDownloadAll = onCancelDownloadAll,
 						downloadStatus = downloadStatus,
