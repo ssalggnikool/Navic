@@ -44,10 +44,28 @@ body:
       required: true
 
   - type: input
+    id: device
+    attributes:
+      label: Device
+      description: The device that you are using
+      placeholder: eg. Pixel 8a
+    validations:
+      required: true
+
+  - type: input
     id: app-version
     attributes:
       label: App Version
-      placeholder: eg. v1.0.0-alpha49
+      description: The version of Navic. Find this in Settings > About
+      placeholder: eg. v1.0.0-alpha59
+    validations:
+      required: true
+
+  - type: input
+    id: server-version
+    attributes:
+      label: Server Version
+      description: The music server you use, and its version
     validations:
       required: true
 
