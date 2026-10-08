@@ -24,11 +24,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,14 +38,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.materialkolor.dynamiccolor.ColorSpec
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
+import paige.navic.R.string.title_more_by_artist
 import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
+import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
@@ -53,18 +62,23 @@ import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Album
 import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.ContentUnavailable
+import paige.navic.ui.component.layout.ArtCarousel
+import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
+import paige.navic.ui.component.sheet.CollectionSheet
 import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
+import paige.navic.ui.navigation.Screen.ArtistDetail
+import paige.navic.ui.navigation.Screen.CollectionDetail
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenFooterRow
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenHeadingRow
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenHeadingRowButtons
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenSongRow
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenSongRowDropdown
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenTopBar
-import paige.navic.ui.screen.collection.component.collectionDetailScreenMoreByArtistRow
 import paige.navic.ui.screen.collection.viewmodel.CollectionDetailViewModel
+import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 import paige.navic.ui.screen.share.dialog.ShareDialog
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
@@ -86,27 +100,24 @@ fun CollectionDetailScreen(
 	val player = koinInject<MediaPlayerViewModel>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
-	val collectionState by viewModel.collectionState.collectAsState()
-	val collection = collectionState.data
-	val selection by viewModel.selectedSong.collectAsState()
-	val selectedAlbum by viewModel.selectedAlbum.collectAsState()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val collection = state.data?.collection
+
+	val selectedAlbum = state.data?.selectedAlbum
 	val isOnline by viewModel.isOnline.collectAsState()
-	val starred by viewModel.starred.collectAsState()
 
 	var shareId by remember { mutableStateOf<String?>(null) }
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 
-	val albumInfoState by viewModel.albumInfoState.collectAsState()
-	val selectedSongIsStarred by viewModel.selectedSongIsStarred.collectAsStateWithLifecycle()
-	val selectedSongRating by viewModel.selectedSongRating.collectAsStateWithLifecycle()
-	val selectedAlbumIsStarred by viewModel.selectedAlbumIsStarred.collectAsStateWithLifecycle()
-	val selectedAlbumRating by viewModel.selectedAlbumRating.collectAsStateWithLifecycle()
 	val otherAlbums by viewModel.otherAlbums.collectAsState()
 	val allDownloads by viewModel.allDownloads.collectAsState()
+
+	val downloadManager = koinInject<DownloadManager>()
 	val downloadStatus by viewModel.collectionDownloadStatus()
 		.collectAsState(DownloadStatus.NOT_DOWNLOADED)
 
-	val rating by viewModel.rating.collectAsStateWithLifecycle()
+	val backStack = LocalNavStack.current
+	val scope = rememberCoroutineScope()
 
 	val titleAlpha by remember {
 		derivedStateOf {
@@ -138,7 +149,7 @@ fun CollectionDetailScreen(
 		Scaffold(
 			topBar = {
 				CollectionDetailScreenTopBar(
-					albumInfoState = albumInfoState,
+					albumInfo = state.data?.albumInfo!!,
 					collection = collection,
 					titleAlpha = titleAlpha,
 					onSetShareId = { shareId = it },
@@ -147,11 +158,11 @@ fun CollectionDetailScreen(
 					onPlayNext = { if (collection != null) player.playNext(collection) },
 					onAddToQueue = { if (collection != null) player.addToQueue(collection) },
 					downloadStatus = downloadStatus,
-					rating = if (collection !is DomainPlaylist) rating else null,
+					rating = state.data?.rating,
 					onSetRating = if (collection !is DomainPlaylist) {
 						{ viewModel.rateAlbum(it) }
 					} else null,
-					starred = if (collection !is DomainPlaylist) starred else null,
+					starred = state.data?.starred,
 					onSetStarred = if (collection !is DomainPlaylist) {
 						{ viewModel.starAlbum(it) }
 					} else null,
@@ -172,9 +183,9 @@ fun CollectionDetailScreen(
 				modifier = Modifier
 					.padding(top = contentPadding.calculateTopPadding())
 					.background(MaterialTheme.colorScheme.surface),
-				finished = collectionState !is UiState.Loading,
+				finished = state !is UiState.Loading,
 				onRefresh = { viewModel.refreshCollection(true) },
-				key = collectionState
+				key = state
 			) {
 				LazyColumn(
 					modifier = Modifier
@@ -270,12 +281,12 @@ fun CollectionDetailScreen(
 											onAddToQueue = {
 												player.addToQueueSingle(song)
 											},
-											isStarred = if (selection == song) selectedSongIsStarred else song.starredAt != null,
+											isStarred = song.starredAt != null,
 											download = download,
 											isOffline = !isOnline
 										)
 										CollectionDetailScreenSongRowDropdown(
-											expanded = selection == song,
+											expanded = state.data?.selectedSong == song,
 											onDismissRequest = { viewModel.clearSelection() },
 											onRemoveStar = { viewModel.unstarSelectedSong() },
 											onAddStar = { viewModel.starSelectedSong() },
@@ -283,14 +294,14 @@ fun CollectionDetailScreen(
 											collection = collection,
 											song = song,
 											onRemoveFromPlaylist = { viewModel.removeFromPlaylist() },
-											starred = selectedSongIsStarred,
+											starred = song.starredAt != null,
 											downloadStatus = download?.status,
 											onDownload = { viewModel.downloadSong(song) },
 											onCancelDownload = { viewModel.cancelDownload(song.id) },
 											onDeleteDownload = { viewModel.deleteDownload(song.id) },
 											onPlayNext = { player.playNextSingle(song) },
 											onAddToQueue = { player.addToQueueSingle(song) },
-											rating = selectedSongRating,
+											rating = song.userRating ?: 0,
 											onSetRating = { viewModel.rateSelectedSong(it) }
 										)
 									}
@@ -322,12 +333,12 @@ fun CollectionDetailScreen(
 									onAddToQueue = {
 										player.addToQueueSingle(song)
 									},
-									isStarred = if (selection == song) selectedSongIsStarred else song.starredAt != null,
+									isStarred = song.starredAt != null,
 									download = download,
 									isOffline = !isOnline
 								)
 								CollectionDetailScreenSongRowDropdown(
-									expanded = selection == song,
+									expanded = state.data?.selectedSong == song,
 									onDismissRequest = { viewModel.clearSelection() },
 									onRemoveStar = { viewModel.unstarSelectedSong() },
 									onAddStar = { viewModel.starSelectedSong() },
@@ -335,14 +346,14 @@ fun CollectionDetailScreen(
 									collection = collection,
 									song = song,
 									onRemoveFromPlaylist = { viewModel.removeFromPlaylist() },
-									starred = selectedSongIsStarred,
+									starred = song.starredAt != null,
 									downloadStatus = download?.status,
 									onDownload = { viewModel.downloadSong(song) },
 									onCancelDownload = { viewModel.cancelDownload(song.id) },
 									onDeleteDownload = { viewModel.deleteDownload(song.id) },
 									onPlayNext = { player.playNextSingle(song) },
 									onAddToQueue = { player.addToQueueSingle(song) },
-									rating = selectedSongRating,
+									rating = song.userRating ?: 0,
 									onSetRating = { viewModel.rateSelectedSong(it) }
 								)
 							}
@@ -360,32 +371,86 @@ fun CollectionDetailScreen(
 					item { CollectionDetailScreenFooterRow(collection) }
 
 					(collection as? DomainAlbum)?.artistName?.let { artistName ->
-						collectionDetailScreenMoreByArtistRow(
-							artistName = artistName,
-							artistAlbums = otherAlbums,
-							selectedAlbum = selectedAlbum,
-							onSetShareId = { shareId = it },
-							onPlayNext = if (selectedAlbum != null) {
-								{ player.playNext(selectedAlbum as DomainSongCollection) }
-							} else null,
-							onAddToQueue = if (selectedAlbum != null) {
-								{ player.addToQueue(selectedAlbum as DomainSongCollection) }
-							} else null,
-							selectedAlbumRating = selectedAlbumRating,
-							selectedAlbumStarred = selectedAlbumIsStarred,
-							onSetAlbumRating = { viewModel.rateSelectedAlbum(it) },
-							onSetAlbumStarred = { viewModel.starSelectedAlbum(it) },
-							onSelect = { viewModel.selectAlbum(it) },
-							onDeselect = { viewModel.clearSelection() },
-							tab = tab
-						)
+						item {
+							var albumToAddToPlaylist by remember<MutableState<DomainAlbum?>> { mutableStateOf(null) }
+
+							ArtCarousel(
+								title = stringResource(
+									title_more_by_artist,
+									formatArgs = arrayOf(artistName)
+								),
+								items = otherAlbums.sortedByDescending { it.playCount }.toImmutableList()
+							) { album ->
+								val downloadStatus by downloadManager
+									.getCollectionDownloadStatus(album.songs.map { it.id })
+									.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
+								ArtCarouselItem(
+									coverArtId = album.coverArtId,
+									title = album.name ?: "[unknown album]",
+									contentDescription = album.name,
+									onSelect = {
+										viewModel.selectAlbum(album)
+									},
+									onClick = dropUnlessResumed {
+										backStack.add(CollectionDetail(album.id, tab = tab))
+									}
+								)
+								if (selectedAlbum != null && selectedAlbum == album) {
+									val isStarred = album.starredAt != null
+
+									CollectionSheet(
+										onDismissRequest = { viewModel.clearSelection() },
+										collection = album,
+										onDownloadAll = {
+											scope.launch {
+												downloadManager.downloadCollection(album)
+											}
+										},
+										onCancelDownloadAll = {
+											scope.launch {
+												album.songs.forEach { downloadManager.cancelDownload(it.id) }
+											}
+										},
+										onDeleteDownloadAll = {
+											scope.launch {
+												downloadManager.deleteDownloadedCollection(album)
+											}
+										},
+										downloadStatus = downloadStatus,
+										onShare = {
+											shareId = album.id
+										},
+										onPlayNext = { player.playNext(selectedAlbum as DomainSongCollection) },
+										onAddToQueue = { player.addToQueue(selectedAlbum as DomainSongCollection) },
+										onAddAllToPlaylist = { albumToAddToPlaylist = album },
+										onViewArtist = dropUnlessResumed { backStack.add(
+											ArtistDetail(album.artistId)
+										) },
+										rating = album.userRating ?: 0,
+										onSetRating = { it: Int -> viewModel.rateSelectedAlbum(it) },
+										starred = isStarred,
+										onSetStarred = {
+											viewModel.starSelectedAlbum(!isStarred)
+										}
+									)
+								}
+							}
+							if (albumToAddToPlaylist != null) {
+								albumToAddToPlaylist?.let {
+									PlaylistUpdateDialog(
+										songs = it.songs.toPersistentList(),
+										onDismissRequest = { albumToAddToPlaylist = null }
+									)
+								}
+							}
+						}
 					}
 				}
 			}
 		}
 
 		ErrorSnackBar(
-			error = (collectionState as? UiState.Error)?.error,
+			error = (state as? UiState.Error)?.error,
 			onClearError = { viewModel.clearError() }
 		)
 
