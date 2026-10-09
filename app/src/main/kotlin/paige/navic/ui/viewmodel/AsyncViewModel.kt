@@ -16,11 +16,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import paige.navic.ui.core.UiState
 
-data class SelectionData<T>(
-	val items: List<T> = emptyList(),
-	val selectedItem: T? = null
-)
-
 abstract class AsyncViewModel<T>(
 	initialState: UiState<T> = UiState.Loading(),
 	initialValue: T? = null
@@ -34,12 +29,12 @@ abstract class AsyncViewModel<T>(
 		}
 	}
 
-	protected fun execute(block: suspend CoroutineScope.(T) -> T) {
+	protected fun execute(block: suspend CoroutineScope.(T?) -> T) {
 		viewModelScope.launch {
 			setLoading()
 
 			runCatching {
-				block.invoke(this, _uiState.value.data as T)
+				block.invoke(this, _uiState.value.data)
 			}.onSuccess { result ->
 				_uiState.value = UiState.Success(result)
 			}.onFailure { error ->

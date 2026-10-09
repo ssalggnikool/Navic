@@ -51,17 +51,17 @@ class ArtistListViewModel(
 		}
 	}
 
-	fun refreshArtists(fullRefresh: Boolean) = execute {
-		it.copy(
-			items = repository.getArtists(
-				fullRefresh,
-				listType.value,
-				selectedFilters.value
-			)
+	fun refreshArtists(fullRefresh: Boolean) = launch {
+		items = repository.getArtists(
+			fullRefresh,
+			listType.value,
+			selectedFilters.value
 		)
 	}
 
-	fun selectArtist(artist: DomainArtist?) = select(artist)
+	fun selectArtist(artist: DomainArtist?) {
+		selected = artist
+	}
 
 	fun clearSelection() = selectArtist(null)
 
