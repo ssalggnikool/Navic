@@ -58,7 +58,10 @@ fun WideNavigationRailItem(
 		noLabelIndicatorPadding = WNRItemNoLabelIndicatorPadding,
 		startIconToLabelHorizontalPadding = NavigationRailHorizontalItemTokens.IconLabelSpace,
 		itemHorizontalPadding = WNRItemHorizontalPadding,
-		colors = colors,
+		textColor =
+			colors.textColor(selected, enabled, iconPosition == NavigationItemIconPosition.Top),
+		iconColor = colors.iconColor(selected, enabled),
+		indicatorColor = colors.selectedIndicatorColor,
 		modifier = modifier,
 		enabled = enabled,
 		label = label,
