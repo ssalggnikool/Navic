@@ -231,18 +231,18 @@ class ExoStateHolder: KoinComponent {
 							.build()
 					).build()
 			}
-			.also {
-				it.addListener(object : Player.Listener {
+			.also { player ->
+				player.addListener(object : Player.Listener {
 					override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-						mediaSession.setCustomLayout(makeButtons(it))
+						mediaSession.setCustomLayout(makeButtons(player))
 					}
 
 					override fun onRepeatModeChanged(repeatMode: Int) {
-						mediaSession.setCustomLayout(makeButtons(it))
+						mediaSession.setCustomLayout(makeButtons(player))
 					}
 				})
 
-				it.addListener(ExoDiscordIntegration(context, it, preferenceManager))
+				player.addListener(ExoDiscordIntegration(player))
 			}
 
 		return playerInstance

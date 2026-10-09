@@ -8,7 +8,6 @@ package paige.navic.discord
 
 import android.content.Context
 import android.util.Log
-import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import kotlinx.coroutines.CoroutineScope
@@ -22,13 +21,23 @@ import night.milkyway.antisocialcord.model.ActivityAssets
 import night.milkyway.antisocialcord.model.ActivityTimestamps
 import night.milkyway.antisocialcord.model.ActivityType
 import night.milkyway.antisocialcord.model.StatusDisplayType
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.model.DomainAlbum
+import paige.navic.domain.model.DomainSong
+import paige.navic.domain.repository.AlbumRepository
+import paige.navic.domain.repository.SongRepository
 
 class ExoDiscordIntegration(
-	context: Context,
 	val player: Player,
-	val preferenceManager: PreferenceManager
-) : Player.Listener {
+) : Player.Listener, KoinComponent {
+	private val context: Context by inject()
+	private val preferenceManager: PreferenceManager by inject()
+
+	private val songRepository: SongRepository by inject()
+	private val albumRepository: AlbumRepository by inject()
+
 	companion object {
 		const val DISCORD_APPLICATION_ID = 1554936646405984446L
 		const val INVISIBLE_CHARACTER = '\u00A0'
@@ -94,8 +103,11 @@ class ExoDiscordIntegration(
 							client.connect(DISCORD_APPLICATION_ID)
 						}
 
-						if (mediaItem != null) {
-							val activity = createDiscordActivity(mediaItem)
+						val song = mediaItem?.let { songRepository.getSongById(it.mediaId) }
+						val album = song?.albumId?.let { albumRepository.getAlbumById(it) }
+
+						if (song != null) {
+							val activity = createDiscordActivity(song = song, album = album)
 							client.setActivity(activity)
 							return@withLock
 						}
@@ -113,9 +125,7 @@ class ExoDiscordIntegration(
 		}
 	}
 
-	private fun createDiscordActivity(mediaItem: MediaItem): Activity {
-		val metadata = mediaItem.mediaMetadata
-
+	private fun createDiscordActivity(song: DomainSong, album: DomainAlbum?): Activity {
 		val nowMs = System.currentTimeMillis()
 		val currentPosMs = player.currentPosition.coerceAtLeast(0L)
 		val startSec = (nowMs - currentPosMs)
@@ -125,33 +135,25 @@ class ExoDiscordIntegration(
 			null
 		}
 
-		val artworkUrl = metadata.artworkUri?.toString()?.let {
-			if (it.length > 256) {
-				null
-			} else {
-				it
-			}
+		val largeImage = album?.musicBrainzId?.let { mbzId ->
+			"https://coverartarchive.org/release/$mbzId/front-250"
 		}
 
 		return Activity(
 			name = "Navic",
 			activityType = ActivityType.LISTENING,
-			state = metadata.artist?.toString()?.padEnd(2, INVISIBLE_CHARACTER),
-			details = metadata.title?.toString()?.padEnd(2, INVISIBLE_CHARACTER),
+			state = song.artistName?.padEnd(2, INVISIBLE_CHARACTER),
+			details = song.title.padEnd(2, INVISIBLE_CHARACTER),
 			statusDisplayType = StatusDisplayType.STATE,
 			assets = ActivityAssets(
 				largeUrl = null,
-				largeImage = artworkUrl,
-				largeText = metadata.albumTitle?.toString()?.padEnd(2, INVISIBLE_CHARACTER),
+				largeImage = largeImage,
+				largeText = song.albumTitle?.padEnd(2, INVISIBLE_CHARACTER),
 				smallImage = null,
 				smallText = null,
 				smallUrl = null
 			),
-			timestamps = if (endSec != null) {
-				ActivityTimestamps(startSec, endSec)
-			} else {
-				null
-			}
+			timestamps = endSec?.let { ActivityTimestamps(startSec, endSec) }
 		)
 	}
 }

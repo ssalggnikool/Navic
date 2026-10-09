@@ -34,6 +34,8 @@ class SongRepository(
 	private val dbRepository: DbRepository,
 	private val syncManager: SyncManager
 ) {
+	suspend fun getSongById(id: String) = songDao.getSongById(id)?.toDomainModel()
+
 	suspend fun getAllSongs(): List<DomainSong> {
 		return songDao.getAllSongs().map { it.toDomainModel() }
 	}
