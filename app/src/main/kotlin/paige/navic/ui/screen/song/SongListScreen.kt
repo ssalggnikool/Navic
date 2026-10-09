@@ -41,7 +41,6 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.domain.repository.SongRepository
 import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
@@ -166,10 +165,10 @@ fun SongListScreen(
 							starred = song.starredAt != null,
 							rating = song.userRating ?: 0,
 							onSelect = {
-								viewModel.selectSong(song)
+								viewModel.selected = song
 							},
 							onDeselect = {
-								viewModel.clearSelection()
+								viewModel.clear()
 							},
 							onSetStarred = {
 								viewModel.starSong(it)

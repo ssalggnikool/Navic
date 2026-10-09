@@ -45,12 +45,6 @@ class PlaylistListViewModel(
 		}
 	}
 
-	fun selectPlaylist(playlist: DomainPlaylist?) {
-		selected = playlist
-	}
-
-	fun clearSelection() = clear()
-
 	fun refreshPlaylists(fullRefresh: Boolean) = launch {
 		items = repository.getPlaylists(
 			fullRefresh,

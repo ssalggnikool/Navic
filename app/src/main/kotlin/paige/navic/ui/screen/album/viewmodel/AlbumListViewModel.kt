@@ -54,12 +54,6 @@ class AlbumListViewModel(
 		)
 	}
 
-	fun selectAlbum(album: DomainAlbum?) {
-		selected = album
-	}
-
-	fun clearSelection() = selectAlbum(null)
-
 	fun starAlbum(isStarred: Boolean) {
 		launch {
 			val selection = selected ?: return@launch

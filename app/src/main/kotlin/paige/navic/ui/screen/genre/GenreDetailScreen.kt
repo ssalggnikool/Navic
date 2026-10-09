@@ -13,7 +13,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -105,8 +104,10 @@ fun GenreDetailScreen(
 				selectedSong = songsState.data?.selected,
 				selectedSongRating = songsState.data?.selected?.userRating ?: 0,
 				allDownloads = allDownloads,
-				onSelectSong = { songsViewModel.selectSong(it) },
-				onClearSongSelection = { songsViewModel.clearSelection() },
+				onSelectSong = {
+					songsViewModel.selected = it
+				},
+				onClearSongSelection = { songsViewModel.clear() },
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
 				onPlaySongNext = { song ->
@@ -139,8 +140,12 @@ fun GenreDetailScreen(
 				selectedAlbum = albumsState.data?.selected,
 				selectedAlbumIsStarred = albumsState.data?.selected?.starredAt != null,
 				selectedAlbumRating = albumsState.data?.selected?.userRating ?: 0,
-				onSelectAlbum = { albumsViewModel.selectAlbum(it) },
-				onClearAlbumSelection = { albumsViewModel.clearSelection() },
+				onSelectAlbum = {
+					albumsViewModel.selected = it
+				},
+				onClearAlbumSelection = {
+					albumsViewModel.selected = null
+				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
 				onPlayAlbumNext = { albumsState.data?.selected.let { player.playNext(it as DomainSongCollection) } },
 				onAddAlbumToQueue = { albumsState.data?.selected.let { player.addToQueue(it as DomainSongCollection) } },
