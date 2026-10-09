@@ -219,8 +219,10 @@ fun PlaylistListScreen(
 					state = UiState.Success(uiState.data?.items.orEmpty()),
 					selectedPlaylist = selectedPlaylist,
 					selectedViewMode = selectedViewMode,
-					onUpdateSelection = { viewModel.selectPlaylist(it) },
-					onClearSelection = { viewModel.clearSelection() },
+					onUpdateSelection = {
+						viewModel.selected = it
+					},
+					onClearSelection = { viewModel.clear() },
 					onSetShareId = { newShareId ->
 						shareId = newShareId
 					},

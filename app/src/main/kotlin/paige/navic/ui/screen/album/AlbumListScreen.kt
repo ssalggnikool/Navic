@@ -188,8 +188,12 @@ fun AlbumListScreen(
 								)
 							}
 						},
-						onUpdateSelection = { viewModel.selectAlbum(it) },
-						onClearSelection = { viewModel.clearSelection() },
+						onUpdateSelection = {
+							viewModel.selected = it
+						},
+						onClearSelection = {
+							viewModel.selected = null
+						},
 						onSetShareId = { newShareId ->
 							shareId = newShareId
 						},

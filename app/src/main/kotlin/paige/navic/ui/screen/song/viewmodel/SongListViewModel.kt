@@ -57,12 +57,6 @@ class SongListViewModel(
 		}
 	}
 
-	fun selectSong(song: DomainSong?) {
-		selected = song
-	}
-
-	fun clearSelection() = clear()
-
 	fun refreshSongs(fullRefresh: Boolean) = launch {
 		items = repository.getSongs(
 			fullRefresh,
