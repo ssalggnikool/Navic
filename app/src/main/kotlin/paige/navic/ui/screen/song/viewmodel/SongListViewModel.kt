@@ -57,21 +57,19 @@ class SongListViewModel(
 		}
 	}
 
-	fun selectSong(song: DomainSong?) = select(song)
+	fun selectSong(song: DomainSong?) {
+		selected = song
+	}
 
-	fun clearSelection() = selectSong(null)
+	fun clearSelection() = clear()
 
-	fun refreshSongs(fullRefresh: Boolean) {
-		execute {
-			it.copy(
-				items = repository.getSongs(
-					fullRefresh,
-					selectedSorting.value,
-					selectedReversed.value,
-					selectedFilters.value
-				)
-			)
-		}
+	fun refreshSongs(fullRefresh: Boolean) = launch {
+		items = repository.getSongs(
+			fullRefresh,
+			selectedSorting.value,
+			selectedReversed.value,
+			selectedFilters.value
+		)
 	}
 
 	fun starSong(isStarred: Boolean) {

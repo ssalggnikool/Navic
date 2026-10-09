@@ -16,20 +16,29 @@ abstract class SelectableViewModel<T> : AsyncViewModel<Selectable<T>>() {
 	val data
 		get() = uiState.value.data
 
-	val items
+	var items
 		get() = data?.items
-
-	val selected
-		get() = data?.selected
-
-	fun select(item: T?) {
-		execute {
-			Selectable(
-				items = uiState.value.data?.items ?: emptyList(),
-				selected = item
-			)
+		set(value) {
+			execute {
+				Selectable(
+					items = value ?: emptyList(),
+					selected = selected
+				)
+			}
 		}
-	}
 
-	fun clear() = select(null)
+	var selected
+		get() = data?.selected
+		set(value) {
+			execute {
+				Selectable(
+					items = items ?: emptyList(),
+					selected = value
+				)
+			}
+		}
+
+	fun clear() {
+		selected = null
+	}
 }

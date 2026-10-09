@@ -45,21 +45,19 @@ class PlaylistListViewModel(
 		}
 	}
 
-	fun selectPlaylist(playlist: DomainPlaylist?) = select(playlist)
+	fun selectPlaylist(playlist: DomainPlaylist?) {
+		selected = playlist
+	}
 
-	fun clearSelection() = select(null)
+	fun clearSelection() = clear()
 
-	fun refreshPlaylists(fullRefresh: Boolean) {
-		execute {
-			it.copy(
-				items = repository.getPlaylists(
-					fullRefresh,
-					selectedSorting.value,
-					selectedReversed.value,
-					selectedFilters.value
-				)
-			)
-		}
+	fun refreshPlaylists(fullRefresh: Boolean) = launch {
+		items = repository.getPlaylists(
+			fullRefresh,
+			selectedSorting.value,
+			selectedReversed.value,
+			selectedFilters.value
+		)
 	}
 
 	fun setSorting(sorting: DomainPlaylistListType) {

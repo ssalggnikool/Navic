@@ -46,19 +46,17 @@ class AlbumListViewModel(
 		}
 	}
 
-	fun refreshAlbums(fullRefresh: Boolean) {
-		execute {
-			it.copy(
-				items = repository.getAlbums(
-					fullRefresh, listType.value,
-					selectedReversed.value,
-					selectedFilters.value
-				)
-			)
-		}
+	fun refreshAlbums(fullRefresh: Boolean) = launch {
+		items = repository.getAlbums(
+			fullRefresh, listType.value,
+			selectedReversed.value,
+			selectedFilters.value
+		)
 	}
 
-	fun selectAlbum(album: DomainAlbum?) = select(album)
+	fun selectAlbum(album: DomainAlbum?) {
+		selected = album
+	}
 
 	fun clearSelection() = selectAlbum(null)
 
