@@ -107,15 +107,15 @@ fun SettingsPlaybackScreen() {
 				}
 
 				SettingsGroup(title = { Text(stringResource(R.string.title_behaviour)) }) {
-					val enableDiscordIntegration = preferenceManager.discordIntegrationEnabled
+					val enableDiscordIntegration = preferenceManager.enableDiscordIntegration
 					val enableScrobbling = preferenceManager.enableScrobbling
 					val count = if (enableScrobbling) 4 else 2
 
 					SettingsToggleItem(
 						checked = enableDiscordIntegration,
-						onCheckedChange = { preferenceManager.discordIntegrationEnabled = it },
-						content = { Text("Discord integration") },
-						supportingContent = { Text("Show off on Discord what music you're currently listening to") },
+						onCheckedChange = { preferenceManager.enableDiscordIntegration = it },
+						content = { Text(stringResource(R.string.option_enable_discord_integration)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_enable_discord_integration)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
 					)
 

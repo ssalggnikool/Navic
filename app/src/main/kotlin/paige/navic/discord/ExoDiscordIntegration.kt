@@ -50,7 +50,7 @@ class ExoDiscordIntegration(
 	private var lastMediaItem: MediaItem? = null
 
 	fun isIntegrationEnabled(): Boolean {
-		return preferenceManager.discordIntegrationEnabled
+		return preferenceManager.enableDiscordIntegration
 	}
 
 	override fun onMediaItemTransition(
