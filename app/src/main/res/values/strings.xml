@@ -105,6 +105,7 @@
 	<string name="subtitle_enable_ratings">Enable 5-star ratings for music</string>
 	<string name="subtitle_custom_headers">Additional information attached to each request</string>
 	<string name="subtitle_ignore_ssl_certificates">Only enable this if you know what you\'re doing. Useful if you\'re using a proxy for inspecting requests.</string>
+	<string name="subtitle_enable_discord_integration">Show off on Discord what music you\'re currently listening to</string>
 
 	<string name="option_off">Off</string>
 	<string name="option_now_playing_background_style">Background style</string>
@@ -223,6 +224,7 @@
 	<string name="option_list_view_mode_list">List</string>
 	<string name="option_enable_ratings">Enable ratings</string>
 	<string name="option_enable_predictive_back_animations">Enable predictive back animations</string>
+	<string name="option_enable_discord_integration">Enable Discord integration</string>
 
 	<string name="info_status_idle">Idle</string>
 	<string name="info_status_calculating">Calculating...</string>
@@ -413,11 +415,13 @@
 	<string name="action_dont_show_again">Don\'t show again</string>
 	<string name="action_open_settings">Open settings</string>
 	<string name="action_reset">Reset</string>
+	<string name="action_reset_to_default">Reset to default</string>
 	<string name="action_configure_lyric_providers">Configure lyric providers</string>
 	<string name="action_visit_site">Visit site</string>
 	<string name="action_scroll_down">Scroll down</string>
 	<string name="action_reset_dont_show_agains">Reset "don't show again" dialogs</string>
 	<string name="action_send_message">Send message</string>
+	<string name="action_edit_discord_app_id">Edit Discord app ID</string>
 	<string name="subtitle_rebuild_database">Wipes all local metadata and forces a fresh sync</string>
 
 	<string name="notice_deleted_playlist">Playlist deleted.</string>

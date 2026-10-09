@@ -8,6 +8,7 @@ package paige.navic.domain.manager
 
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
+import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.base.BasePreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
@@ -160,6 +161,8 @@ class PreferenceManager(
 
 	var offlineMode by preference(OfflineMode.Auto)
 
+	var enableDiscordIntegration by preference(false)
+	var discordAppId by preference(ExoDiscordIntegration.DISCORD_APPLICATION_ID)
 	var proxyUrl by preference("")
 	var dangerousSslNoopEnabled by preference(false)
 }

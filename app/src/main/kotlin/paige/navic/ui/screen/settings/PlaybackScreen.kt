@@ -27,6 +27,7 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
+import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.ui.component.common.SegmentedListItemDefaults
@@ -36,6 +37,7 @@ import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.component.SettingsChoiceItem
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
+import paige.navic.ui.screen.settings.component.SettingsInputItem
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.component.SettingsSliderItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
@@ -107,15 +109,43 @@ fun SettingsPlaybackScreen() {
 				}
 
 				SettingsGroup(title = { Text(stringResource(R.string.title_behaviour)) }) {
+					val enableDiscordIntegration = preferenceManager.enableDiscordIntegration
 					val enableScrobbling = preferenceManager.enableScrobbling
-					val count = if (enableScrobbling) 3 else 1
+					var count = 2
+					if (enableDiscordIntegration) count += 1
+					if (enableScrobbling) count += 2
+
+					SettingsToggleItem(
+						checked = enableDiscordIntegration,
+						onCheckedChange = { preferenceManager.enableDiscordIntegration = it },
+						content = { Text(stringResource(R.string.option_enable_discord_integration)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_enable_discord_integration)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
+					)
+
+					AnimatedVisibility(visible = enableDiscordIntegration) {
+						SettingsInputItem(
+							value = preferenceManager.discordAppId,
+							onValueChanged = { preferenceManager.discordAppId = it.trim() },
+							defaultValue = ExoDiscordIntegration.DISCORD_APPLICATION_ID,
+							onValidate = { it.isNotBlank() && it.toLongOrNull() != null },
+							content = { Text(stringResource(R.string.action_edit_discord_app_id)) },
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 1,
+								count = count
+							)
+						)
+					}
 
 					SettingsToggleItem(
 						checked = enableScrobbling,
 						onCheckedChange = { preferenceManager.enableScrobbling = it },
 						content = { Text(stringResource(R.string.option_enable_scrobbling)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_enable_scrobbling)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = if (enableDiscordIntegration) 2 else 1,
+							count = count
+						)
 					)
 
 					AnimatedVisibility(visible = enableScrobbling) {
@@ -125,7 +155,10 @@ fun SettingsPlaybackScreen() {
 							onValueChange = { preferenceManager.scrobblePercentage = it },
 							trailingContent = { Text("${(preferenceManager.scrobblePercentage * 100).roundToInt()}%") },
 							content = { Text(stringResource(R.string.option_scrobble_percentage)) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = count)
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = if (enableDiscordIntegration) 3 else 2,
+								count = count
+							)
 						)
 					}
 
@@ -137,7 +170,10 @@ fun SettingsPlaybackScreen() {
 							onValueChange = { preferenceManager.minDurationToScrobble = it },
 							trailingContent = { Text("${preferenceManager.minDurationToScrobble.toInt()}s") },
 							content = { Text(stringResource(R.string.option_min_duration_to_scrobble)) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = count)
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = if (enableDiscordIntegration) 4 else 3,
+								count = count
+							)
 						)
 					}
 				}

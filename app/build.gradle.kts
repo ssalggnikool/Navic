@@ -237,6 +237,7 @@ dependencies {
 	implementation(libs.koin.compose)
 	implementation(libs.koin.compose.viewmodel)
 	implementation(libs.subsonicKotlin)
+	implementation(libs.antisocialcord)
 	ksp(libs.androidx.room3.compiler)
 	coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

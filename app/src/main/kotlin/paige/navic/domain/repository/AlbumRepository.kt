@@ -32,6 +32,8 @@ class AlbumRepository(
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
+	suspend fun getAlbumById(id: String) = albumDao.getAlbumById(id)?.toDomainModel()
+
 	private suspend fun getLocalData(
 		listType: DomainAlbumListType,
 		reversed: Boolean,
