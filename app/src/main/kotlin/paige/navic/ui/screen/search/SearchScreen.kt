@@ -404,8 +404,12 @@ fun SearchScreen(
 									album = album,
 									selected = album == albumListSelection.data?.selected,
 									starred = albumListSelection.data?.selected?.starredAt != null,
-									onSelect = { albumListViewModel.selectAlbum(album) },
-									onDeselect = { albumListViewModel.clearSelection() },
+									onSelect = {
+										albumListViewModel.selected = album
+									},
+									onDeselect = {
+										albumListViewModel.selected = null
+									},
 									onSetStarred = { albumListViewModel.starAlbum(it) },
 									onSetShareId = { },
 									onPlayNext = { player.playNext(album as DomainSongCollection) },

@@ -151,8 +151,12 @@ fun LibraryScreen() {
 				selectedAlbum = albumsState.data?.selected,
 				selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
 				selectedAlbumRating = selectedAlbum?.userRating ?: 0,
-				onSelectAlbum = { albumsViewModel.selectAlbum(it) },
-				onClearAlbumSelection = { albumsViewModel.clearSelection() },
+				onSelectAlbum = {
+					albumsViewModel.selected = it
+				},
+				onClearAlbumSelection = {
+					albumsViewModel.selected = null
+				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
 				onPlayAlbumNext = { selectedAlbum?.let { player.playNext(it as DomainSongCollection) } },
 				onAddAlbumToQueue = { selectedAlbum?.let { player.addToQueue(selectedAlbum as DomainSongCollection) } },
@@ -178,8 +182,10 @@ fun LibraryScreen() {
 
 				playlistsState = playlistsState.data?.items ?: emptyList(),
 				selectedPlaylist = selectedPlaylist,
-				onSelectPlaylist = { playlistsViewModel.selectPlaylist(it) },
-				onClearPlaylistSelection = { playlistsViewModel.clearSelection() },
+				onSelectPlaylist = {
+					playlistsViewModel.selected = it
+				},
+				onClearPlaylistSelection = { playlistsViewModel.clear() },
 				onDeletePlaylist = { playlistDeletionId = it },
 				onPlayPlaylistNext = {
 					if (selectedPlaylist != null) player.playNext(

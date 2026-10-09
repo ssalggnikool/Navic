@@ -143,9 +143,9 @@ fun StarredScreen() {
 					}
 				},
 				onSelectSong = {
-					songsViewModel.selectSong(it)
+					songsViewModel.selected = it
 				},
-				onClearSongSelection = { songsViewModel.clearSelection() },
+				onClearSongSelection = { songsViewModel.clear() },
 				selectedSongIsStarred = songsState.data?.selected?.starredAt != null,
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
@@ -177,8 +177,12 @@ fun StarredScreen() {
 				selectedAlbum = selectedAlbum,
 				selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
 				selectedAlbumRating = albumsState.data?.selected?.userRating ?: 0,
-				onSelectAlbum = { albumsViewModel.selectAlbum(it) },
-				onClearAlbumSelection = { albumsViewModel.clearSelection() },
+				onSelectAlbum = {
+					albumsViewModel.selected = it
+				},
+				onClearAlbumSelection = {
+					albumsViewModel.selected = null
+				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
 				onPlayAlbumNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
 				onAddAlbumToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
