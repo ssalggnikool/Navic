@@ -39,7 +39,7 @@ class ExoDiscordIntegration(
 	private val albumRepository: AlbumRepository by inject()
 
 	companion object {
-		const val DISCORD_APPLICATION_ID = 1554936646405984446L
+		const val DISCORD_APPLICATION_ID = "1554936646405984446"
 		const val INVISIBLE_CHARACTER = '\u00A0'
 		const val TAG = "ExoDiscordIntegration"
 	}
@@ -100,7 +100,7 @@ class ExoDiscordIntegration(
 				try {
 					if (isIntegrationEnabled()) {
 						if (!client.isConnectionReady) {
-							client.connect(DISCORD_APPLICATION_ID)
+							client.connect(preferenceManager.discordAppId)
 						}
 
 						val song = mediaItem?.let { songRepository.getSongById(it.mediaId) }
