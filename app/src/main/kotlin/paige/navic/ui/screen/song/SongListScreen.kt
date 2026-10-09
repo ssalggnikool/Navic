@@ -162,7 +162,7 @@ fun SongListScreen(
 						SongListScreenItem(
 							modifier = Modifier.animateItem(),
 							song = song,
-							selected = song == state.data?.selectedItem,
+							selected = song == state.data?.selected,
 							starred = song.starredAt != null,
 							rating = song.userRating ?: 0,
 							onSelect = {

@@ -104,7 +104,7 @@ fun StarredScreenContent(
 	onAddAlbumToQueue: () -> Unit,
 
 	// artists
-	artistsState: UiState<List<DomainArtist>>,
+	artists: List<DomainArtist>,
 	selectedArtist: DomainArtist?,
 	selectedArtistAlbums: List<DomainAlbum>?,
 	selectedArtistIsStarred: Boolean,
@@ -116,7 +116,6 @@ fun StarredScreenContent(
 ) {
 	val gridState = rememberLazyGridState()
 	val backStack = LocalNavStack.current
-	val artists = artistsState.data.orEmpty()
 	val downloadManager = koinInject<DownloadManager>()
 
 	val scope = rememberCoroutineScope()

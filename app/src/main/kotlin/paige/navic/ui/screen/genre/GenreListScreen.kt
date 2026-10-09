@@ -56,7 +56,7 @@ fun GenreListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val genresState by viewModel.genresState.collectAsState()
+	val genresState by viewModel.uiState.collectAsState()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
 	val rootViewModel = koinViewModel<RootViewModel>()

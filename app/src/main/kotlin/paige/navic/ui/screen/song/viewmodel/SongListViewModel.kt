@@ -21,7 +21,7 @@ import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.toBitmask
 import paige.navic.domain.model.toDomainFilters
 import paige.navic.domain.repository.SongRepository
-import paige.navic.ui.viewmodel.AsyncViewModel
+import paige.navic.ui.viewmodel.SelectableViewModel
 
 
 class SongListViewModel(
@@ -32,7 +32,7 @@ class SongListViewModel(
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager,
 	connectivityManager: ConnectivityManager
-) : AsyncViewModel<AsyncViewModel.SelectionData<DomainSong>?>() {
+) : SelectableViewModel<DomainSong>() {
 
 	val allDownloads = downloadManager.allDownloads
 		.stateIn(
@@ -57,42 +57,26 @@ class SongListViewModel(
 		}
 	}
 
-	fun selectSong(song: DomainSong) {
-		execute {
-			uiState.value.data?.copy(
-				selectedItem = song
-			)
-		}
-	}
+	fun selectSong(song: DomainSong?) = select(song)
 
-	fun clearSelection() {
-		execute {
-			uiState.value.data?.copy(
-				selectedItem = null
-			)
-		}
-	}
+	fun clearSelection() = selectSong(null)
 
 	fun refreshSongs(fullRefresh: Boolean) {
-		launch {
-			repository.getSongsFlow(
-				fullRefresh,
-				selectedSorting.value,
-				selectedReversed.value,
-				selectedFilters.value
-			).collect { songs ->
-				execute {
-					uiState.value.data?.copy(
-						items = songs
-					)
-				}
-			}
+		execute {
+			it.copy(
+				items = repository.getSongs(
+					fullRefresh,
+					selectedSorting.value,
+					selectedReversed.value,
+					selectedFilters.value
+				)
+			)
 		}
 	}
 
 	fun starSong(isStarred: Boolean) {
 		launch {
-			val selection = uiState.value.data?.selectedItem ?: return@launch
+			val selection = selected ?: return@launch
 			if (isStarred) {
 				repository.starSong(selection)
 			} else {
@@ -104,10 +88,8 @@ class SongListViewModel(
 
 	fun rateSelectedSong(rating: Int) {
 		launch {
-			val selection = uiState.value.data?.selectedItem ?: return@launch
-			runCatching {
-				repository.rateSong(selection, rating)
-			}
+			val selection = selected ?: return@launch
+			repository.rateSong(selection, rating)
 		}
 	}
 

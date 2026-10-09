@@ -90,6 +90,20 @@ class SongRepository(
 		return getLocalData(listType, reversed, filters)
 	}
 
+	suspend fun getSongs(
+		fullRefresh: Boolean,
+		listType: DomainSongListType,
+		reversed: Boolean,
+		filters: Set<DomainFilter>
+	): ImmutableList<DomainSong> {
+		val localData = getLocalData(listType, reversed, filters)
+		return if (fullRefresh) {
+			refreshLocalData(listType, reversed, filters)
+		} else {
+			localData
+		}
+	}
+
 	fun getSongsFlow(
 		fullRefresh: Boolean,
 		listType: DomainSongListType,

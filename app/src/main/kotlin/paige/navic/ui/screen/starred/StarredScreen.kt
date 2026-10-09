@@ -77,10 +77,7 @@ fun StarredScreen() {
 		},
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val albumsState by albumsViewModel.albumsState.collectAsStateWithLifecycle()
-	val selectedAlbum by albumsViewModel.selectedAlbum.collectAsStateWithLifecycle()
-	val selectedAlbumIsStarred by albumsViewModel.starred.collectAsStateWithLifecycle()
-	val selectedAlbumRating by albumsViewModel.rating.collectAsStateWithLifecycle()
+	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
 
 	val artistsViewModel = koinViewModel<ArtistListViewModel>(
 		key = "starredArtists",
@@ -92,10 +89,7 @@ fun StarredScreen() {
 		},
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val artistsState by artistsViewModel.artistsState.collectAsStateWithLifecycle()
-	val selectedArtist by artistsViewModel.selectedArtist.collectAsStateWithLifecycle()
-	val selectedArtistAlbums by artistsViewModel.selectedArtistAlbums.collectAsStateWithLifecycle()
-	val selectedArtistIsStarred by artistsViewModel.starred.collectAsStateWithLifecycle()
+	val artistsState by artistsViewModel.uiState.collectAsStateWithLifecycle()
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
@@ -132,13 +126,16 @@ fun StarredScreen() {
 			},
 			key = listOf(albumsState, artistsState, songsState)
 		) {
+			val selectedAlbum = albumsState.data?.selected
+			val selectedArtist = artistsState.data?.selected
+
 			StarredScreenContent(
 				innerPadding = innerPadding,
 				onSetShareId = { shareId = it },
 				isOnline = isOnline,
 
 				songs = songsState.data?.items.orEmpty(),
-				selectedSong = songsState.data?.selectedItem,
+				selectedSong = songsState.data?.selected,
 				allDownloads = allDownloads,
 				onPlaySong = { index ->
 					songsState.data?.items.let {
@@ -149,7 +146,7 @@ fun StarredScreen() {
 					songsViewModel.selectSong(it)
 				},
 				onClearSongSelection = { songsViewModel.clearSelection() },
-				selectedSongIsStarred = songsState.data?.selectedItem?.starredAt != null,
+				selectedSongIsStarred = songsState.data?.selected?.starredAt != null,
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
 				onDownloadSong = { songsViewModel.downloadSong(it) },
@@ -173,13 +170,13 @@ fun StarredScreen() {
 						player.addToQueueSingle(song)
 					}
 				},
-				selectedSongRating = songsState.data?.selectedItem?.userRating ?: 0,
+				selectedSongRating = songsState.data?.selected?.userRating ?: 0,
 				onSetSongRating = { songsViewModel.rateSelectedSong(it) },
 
-				albums = albumsState.data.orEmpty(),
+				albums = albumsState.data?.items ?: emptyList(),
 				selectedAlbum = selectedAlbum,
-				selectedAlbumIsStarred = selectedAlbumIsStarred,
-				selectedAlbumRating = selectedAlbumRating,
+				selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
+				selectedAlbumRating = albumsState.data?.selected?.userRating ?: 0,
 				onSelectAlbum = { albumsViewModel.selectAlbum(it) },
 				onClearAlbumSelection = { albumsViewModel.clearSelection() },
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
@@ -187,10 +184,11 @@ fun StarredScreen() {
 				onAddAlbumToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 
-				artistsState = artistsState,
-				selectedArtist = selectedArtist,
-				selectedArtistAlbums = selectedArtistAlbums,
-				selectedArtistIsStarred = selectedArtistIsStarred,
+				artists = artistsState.data?.items ?: emptyList(),
+				selectedArtist = artistsState.data?.selected,
+				// TODO: artist albums
+				selectedArtistAlbums = emptyList(),
+				selectedArtistIsStarred = false,
 				onSelectArtist = { artistsViewModel.selectArtist(it) },
 				onClearArtistSelection = { artistsViewModel.clearSelection() },
 				onStarSelectedArtist = { artistsViewModel.starArtist(it) },

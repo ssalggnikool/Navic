@@ -33,14 +33,14 @@ class RadioRepository(
 		return getLocalData()
 	}
 
-	fun getRadiosFlow(
+	suspend fun getRadios(
 		fullRefresh: Boolean
-	): Flow<ImmutableList<DomainRadio>> = flow {
+	): ImmutableList<DomainRadio> {
 		val localData = getLocalData()
-		if (fullRefresh) {
-			emit(refreshLocalData())
+		return if (fullRefresh) {
+			refreshLocalData()
 		} else {
-			emit(localData)
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 }

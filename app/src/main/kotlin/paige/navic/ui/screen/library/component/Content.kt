@@ -70,7 +70,7 @@ fun LibraryScreenContent(
 	onAddAlbumToQueue: () -> Unit,
 
 	// artists
-	artistsState: UiState<List<DomainArtist>>,
+	artistsState: List<DomainArtist>,
 	selectedArtist: DomainArtist?,
 	selectedArtistAlbums: List<DomainAlbum>?,
 	selectedArtistIsStarred: Boolean,
@@ -176,7 +176,7 @@ fun LibraryScreenContent(
 		horizontalSection(
 			title = R.string.title_artists,
 			destination = Screen.ArtistList(true),
-			state = artistsState.data.orEmpty(),
+			state = artistsState,
 			key = { it.id },
 			seeAll = true
 		) { artist ->

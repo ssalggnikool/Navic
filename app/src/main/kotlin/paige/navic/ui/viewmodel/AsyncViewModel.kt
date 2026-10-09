@@ -16,37 +16,57 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import paige.navic.ui.core.UiState
 
-abstract class AsyncViewModel<T>(
-	initialState: UiState<T> = UiState.Loading()
-) : ViewModel() {
-	data class SelectionData<T>(
-		val items: List<T> = emptyList(),
-		val selectedItem: T? = null
-	)
+data class SelectionData<T>(
+	val items: List<T> = emptyList(),
+	val selectedItem: T? = null
+)
 
+abstract class AsyncViewModel<T>(
+	initialState: UiState<T> = UiState.Loading(),
+	initialValue: T? = null
+) : ViewModel() {
 	private val _uiState = MutableStateFlow<UiState<T>>(initialState)
 	val uiState: StateFlow<UiState<T>> = _uiState.asStateFlow()
 
-	protected fun execute(block: suspend CoroutineScope.() -> T) {
+	init {
+	    if (initialValue != null) {
+			_uiState.value = UiState.Loading(initialValue)
+		}
+	}
+
+	protected fun execute(block: suspend CoroutineScope.(T) -> T) {
 		viewModelScope.launch {
-			_uiState.value = UiState.Loading()
+			setLoading()
+
 			runCatching {
-				block()
+				block.invoke(this, _uiState.value.data as T)
 			}.onSuccess { result ->
 				_uiState.value = UiState.Success(result)
 			}.onFailure { error ->
-				_uiState.value = UiState.Error(Exception(error))
+				updateState { UiState.Error(Exception(error), it.data) }
 			}
 		}
 	}
 
 	protected fun launch(block: suspend CoroutineScope.() -> Unit) {
 		viewModelScope.launch {
-			block()
+			runCatching {
+				block()
+			}.onFailure { error ->
+				updateState { UiState.Error(Exception(error), it.data) }
+			}
 		}
 	}
 
 	protected fun updateState(transform: (UiState<T>) -> UiState<T>) {
 		_uiState.update(transform)
+	}
+
+	protected fun setLoading() {
+		updateState { UiState.Loading() }
+	}
+
+	protected fun setSuccess(data: T) {
+		_uiState.value = UiState.Success(data)
 	}
 }

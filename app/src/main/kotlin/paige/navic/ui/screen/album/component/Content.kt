@@ -25,10 +25,9 @@ import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.layout.artGridPlaceholder
-import paige.navic.ui.core.UiState
 
 fun LazyGridScope.albumListScreenContent(
-	state: UiState<List<DomainAlbum>>,
+	albums: List<DomainAlbum>,
 	starred: Boolean,
 	selectedSorting: DomainAlbumListType,
 	selectedAlbum: DomainAlbum?,
@@ -42,7 +41,7 @@ fun LazyGridScope.albumListScreenContent(
 	onAddToQueue: () -> Unit,
 	onRateSelectedAlbum: (Int) -> Unit
 ) {
-	val data = state.data.orEmpty()
+	val data = albums
 	if (data.isNotEmpty()) {
 		if (selectedSorting == DomainAlbumListType.AlphabeticalByName) {
 			val grouped = data.groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
@@ -140,18 +139,8 @@ fun LazyGridScope.albumListScreenContent(
 			}
 		}
 	} else {
-		when (state) {
-			is UiState.Loading -> {
-				artGridPlaceholder(viewMode = selectedViewMode)
-			}
-
-			else -> {
-				item(span = { GridItemSpan(maxLineSpan) }) {
-					ContentUnavailable(
-						label = stringResource(R.string.info_no_albums)
-					)
-				}
-			}
+		item(span = { GridItemSpan(maxLineSpan) }) {
+			ContentUnavailable(label = stringResource(R.string.info_no_albums))
 		}
 	}
 }

@@ -73,17 +73,17 @@ class PlaylistRepository(
 		return getLocalData(listType, reversed, filters)
 	}
 
-	fun getPlaylistsFlow(
+	suspend fun getPlaylists(
 		fullRefresh: Boolean,
 		listType: DomainPlaylistListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): Flow<ImmutableList<DomainPlaylist>> = flow {
+	): ImmutableList<DomainPlaylist> {
 		val localData = getLocalData(listType, reversed, filters)
-		if (fullRefresh) {
-				emit(refreshLocalData(listType, reversed, filters))
+		return if (fullRefresh) {
+			refreshLocalData(listType, reversed, filters)
 		} else {
-			emit(localData)
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 }
