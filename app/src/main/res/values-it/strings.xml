@@ -218,7 +218,7 @@
     <string name="title_danger_zone">Area pericolosa</string>
     <string name="subtitle_data_storage">Sincronizzazione, cache, dati</string>
     <string name="subtitle_trigger_sync">Forza il download completo della libreria</string>
-    <string name="subtitle_pending_actions">%1$s elementi in attesa di rete</string>
+    <string name="subtitle_pending_actions">%1$d elementi in attesa di rete</string>
     <string name="option_lyrics_keep_alive">Mantieni lo schermo acceso nella visualizzazione del testo</string>
     <string name="option_live_status">Stato in tempo reale</string>
     <string name="option_image_cache_size">Dimensione cache delle immagini</string>
@@ -426,9 +426,9 @@
     <string name="notice_link_confirmation">Questo link ti sta portando al seguente sito:</string>
     <string name="info_lyric_provider_disclaimer">Attivare LRCLIB e/o LyricsPlus farà richieste a servizi web terzi e non affiliati.</string>
     <string name="action_start">Inizia</string>
-    <string name="action_sleep_timer_songs_enabled">Sleep timer - %1$s brani rimanenti</string>
+    <string name="action_sleep_timer_songs_enabled">Sleep timer - %1$d brani rimanenti</string>
     <string name="action_sleep_timer_queue_enabled">Sleep timer - fine della coda</string>
-    <string name="action_sleep_timer_songs">Fermati dopo %1$s tracce</string>
+    <string name="action_sleep_timer_songs">Fermati dopo %1$d tracce</string>
     <string name="action_sleep_timer_queue">Fermati alla fine della coda</string>
     <string name="title_sleep_timer_time">Tempo</string>
     <string name="title_sleep_timer_songs">Tracce</string>
@@ -502,4 +502,5 @@
     <string name="option_equalizer_mode_external">Esterno</string>
     <string name="info_equalizer_unsupported">Il tuo dispositivo non supporta questa funzione.</string>
     <string name="info_equalizer_mode_not_builtin">Per favore, regola l\'equalizzatore esterno dalla sua app dedicata.</string>
+    <string name="action_copy">Copia</string>
 </resources>
