@@ -11,7 +11,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.domain.model.DomainReplayGain
 import paige.navic.domain.model.settings.ReplayGainMode
-import paige.navic.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.ExoStateHolder
 
 @UnstableApi
 class AudioGainManager: KoinComponent {

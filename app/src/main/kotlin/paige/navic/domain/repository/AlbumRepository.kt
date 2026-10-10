@@ -68,24 +68,19 @@ class AlbumRepository(
 		return getLocalData(listType, reversed, filters)
 	}
 
-	fun getAlbumsFlow(
+	suspend fun getAlbums(
 		fullRefresh: Boolean,
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): Flow<UiState<ImmutableList<DomainAlbum>>> = flow {
+	): ImmutableList<DomainAlbum> {
 		val localData = getLocalData(listType, reversed, filters)
-		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData(listType, reversed, filters)))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+		return if (fullRefresh) {
+			refreshLocalData(listType, reversed, filters)
 		} else {
-			emit(UiState.Success(data = localData))
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 
 	suspend fun isAlbumStarred(album: DomainAlbum) = albumDao.isAlbumStarred(album.id)
 	suspend fun getAlbumRating(album: DomainAlbum) = albumDao.getAlbumRating(album.id) ?: 0

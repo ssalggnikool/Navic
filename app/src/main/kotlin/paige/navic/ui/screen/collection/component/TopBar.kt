@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.collections.immutable.toPersistentList
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
@@ -31,21 +30,17 @@ import paige.navic.ui.icons.outlined.MoreVert
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.CollectionSheet
-import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 
 @Composable
 fun CollectionDetailScreenTopBar(
 	collection: DomainSongCollection?,
-	albumInfoState: UiState<DomainAlbumInfo>,
+	albumInfo: DomainAlbumInfo?,
 	titleAlpha: Float,
 	onSetShareId: (shareId: String?) -> Unit,
-	onDownloadAll: () -> Unit,
-	onCancelDownloadAll: () -> Unit,
 	onPlayNext: () -> Unit,
 	onAddToQueue: () -> Unit,
-	downloadStatus: DownloadStatus,
 	rating: Int?,
 	onSetRating: ((Int) -> Unit)?,
 	starred: Boolean?,
@@ -76,15 +71,12 @@ fun CollectionDetailScreenTopBar(
 						stringResource(R.string.action_more)
 					)
 				}
-				if (expanded) {
+				if (expanded && collection != null) {
 					CollectionSheet(
 						onDismissRequest = { expanded = false },
 						collection = collection,
-						albumInfo = (albumInfoState as? UiState.Success)?.data,
-						onDownloadAll = onDownloadAll,
-						onCancelDownloadAll = onCancelDownloadAll,
-						downloadStatus = downloadStatus,
-						onShare = { onSetShareId(collection?.id) },
+						albumInfo = albumInfo,
+						onShare = { onSetShareId(collection.id) },
 						onPlayNext = onPlayNext,
 						onAddToQueue = onAddToQueue,
 						onAddAllToPlaylist = { playlistDialogShown = true },

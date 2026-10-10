@@ -33,19 +33,14 @@ class RadioRepository(
 		return getLocalData()
 	}
 
-	fun getRadiosFlow(
+	suspend fun getRadios(
 		fullRefresh: Boolean
-	): Flow<UiState<ImmutableList<DomainRadio>>> = flow {
+	): ImmutableList<DomainRadio> {
 		val localData = getLocalData()
-		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData()))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+		return if (fullRefresh) {
+			refreshLocalData()
 		} else {
-			emit(UiState.Success(data = localData))
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 }

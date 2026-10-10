@@ -58,7 +58,7 @@ fun LibraryScreenContent(
 	onSetShareId: (String) -> Unit,
 
 	// albums
-	albumsState: UiState<ImmutableList<DomainAlbum>>,
+	albumsState: List<DomainAlbum>,
 	selectedAlbum: DomainAlbum?,
 	selectedAlbumIsStarred: Boolean,
 	selectedAlbumRating: Int,
@@ -70,9 +70,9 @@ fun LibraryScreenContent(
 	onAddAlbumToQueue: () -> Unit,
 
 	// artists
-	artistsState: UiState<ImmutableList<DomainArtist>>,
+	artistsState: List<DomainArtist>,
 	selectedArtist: DomainArtist?,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	selectedArtistIsStarred: Boolean,
 	onSelectArtist: (DomainArtist) -> Unit,
 	onClearArtistSelection: () -> Unit,
@@ -81,7 +81,7 @@ fun LibraryScreenContent(
 	onAddArtistToQueue: () -> Unit,
 
 	// playlists
-	playlistsState: UiState<ImmutableList<DomainPlaylist>>,
+	playlistsState: List<DomainPlaylist>,
 	selectedPlaylist: DomainPlaylist?,
 	onSelectPlaylist: (DomainPlaylist) -> Unit,
 	onClearPlaylistSelection: () -> Unit,
@@ -198,7 +198,7 @@ fun LibraryScreenContent(
 		horizontalSection(
 			title = R.string.title_genres,
 			destination = Screen.GenreList(true),
-			state = genresState,
+			state = genresState.data.orEmpty(),
 			key = { it.name },
 			seeAll = true
 		) { genreWithAlbums ->

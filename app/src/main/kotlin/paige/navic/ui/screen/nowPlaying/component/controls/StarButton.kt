@@ -21,14 +21,14 @@ import paige.navic.R
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Star
 import paige.navic.ui.icons.outlined.Star
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 
 @Composable
 fun NowPlayingStarButton(
 	songIsStarred: Boolean,
 	onSetSongIsStarred: (Boolean) -> Unit
 ) {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	IconButton(
 		onClick = {

@@ -27,7 +27,7 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.MoreHoriz
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.sheet.SleepTimerSheet
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.navigation.Screen
@@ -43,7 +43,7 @@ fun NowPlayingMoreButton(
 	onSetSongRating: (Int) -> Unit
 ) {
 	val backStack = LocalNavStack.current
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsState()
 	val song = playerState.currentSong
 	var expanded by remember { mutableStateOf(false) }
