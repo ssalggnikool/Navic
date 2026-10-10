@@ -236,9 +236,6 @@ fun StarredScreenContent(
 				albums.toImmutableList(),
 				Screen.AlbumList(true, DomainAlbumListType.AlphabeticalByArtist)
 			) { album ->
-				val albumDownloadStatus by downloadManager
-					.getCollectionDownloadStatus(album.songs.map { it.id })
-					.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 				ArtCarouselItem(
 					coverArtId = album.coverArtId,
 					title = album.name ?: "[unknown album]",
@@ -260,22 +257,6 @@ fun StarredScreenContent(
 						onSetStarred = { onStarSelectedAlbum(!selectedAlbumIsStarred) },
 						onAddAllToPlaylist = {
 							songsToAddToPlaylist = selectedAlbum.songs.toImmutableList()
-						},
-						downloadStatus = albumDownloadStatus,
-						onDownloadAll = {
-							scope.launch {
-								downloadManager.downloadCollection(album)
-							}
-						},
-						onCancelDownloadAll = {
-							scope.launch {
-								album.songs.forEach { downloadManager.cancelDownload(it.id) }
-							}
-						},
-						onDeleteDownloadAll = {
-							scope.launch {
-								downloadManager.deleteDownloadedCollection(album)
-							}
 						},
 						rating = selectedAlbumRating,
 						onSetRating = onRateSelectedAlbum
