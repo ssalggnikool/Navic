@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import paige.navic.data.database.dao.RadioDao
 import paige.navic.data.database.mapper.toDomainModel
+import paige.navic.data.database.query.toRadioSqlQuery
 import paige.navic.domain.model.DomainRadio
 import paige.navic.ui.core.UiState
 
@@ -23,7 +24,7 @@ class RadioRepository(
 ) {
 	private suspend fun getLocalData(): ImmutableList<DomainRadio> {
 		return radioDao
-			.getRadios()
+			.getRadiosByQuery(toRadioSqlQuery())
 			.map { it.toDomainModel() }
 			.toImmutableList()
 	}
