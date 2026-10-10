@@ -60,10 +60,26 @@ abstract class AsyncViewModel<T>(
 	}
 
 	protected fun setLoading() {
-		updateState { UiState.Loading() }
+		updateState { UiState.Loading(it.data) }
 	}
 
 	protected fun setSuccess(data: T) {
 		_uiState.value = UiState.Success(data)
+	}
+
+	protected fun updateData(transform: (T) -> T) {
+		updateState { state ->
+			state.data?.let { UiState.Success(transform(it)) } ?: state
+		}
+	}
+
+	fun clearError() {
+		updateState { state ->
+			if (state is UiState.Error) {
+				state.data?.let { UiState.Success(it) } ?: UiState.Loading()
+			} else {
+				state
+			}
+		}
 	}
 }

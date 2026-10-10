@@ -113,7 +113,4 @@ class ArtistListViewModel(
 		refreshArtists(false)
 	}
 
-	fun clearError() {
-		// ?
-	}
 }
