@@ -52,7 +52,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.exoplayer.impl.ExoArtworkLoader
 import paige.navic.exoplayer.impl.ExoAudioGainProcessor
@@ -231,18 +230,16 @@ class ExoStateHolder: KoinComponent {
 							.build()
 					).build()
 			}
-			.also { player ->
-				player.addListener(object : Player.Listener {
+			.also {
+				it.addListener(object : Player.Listener {
 					override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-						mediaSession.setCustomLayout(makeButtons(player))
+						mediaSession.setCustomLayout(makeButtons(it))
 					}
 
 					override fun onRepeatModeChanged(repeatMode: Int) {
-						mediaSession.setCustomLayout(makeButtons(player))
+						mediaSession.setCustomLayout(makeButtons(it))
 					}
 				})
-
-				player.addListener(ExoDiscordIntegration(player))
 			}
 
 		return playerInstance

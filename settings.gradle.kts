@@ -46,13 +46,6 @@ dependencyResolutionManagement {
 				includeGroupAndSubgroups("dev.zt64.subsonic")
 			}
 		}
-		maven {
-			name = "Jitpack"
-			url = uri("https://jitpack.io")
-			content {
-				includeGroupAndSubgroups("com.github.Nightdavisao")
-			}
-		}
 		mavenCentral()
 	}
 }
