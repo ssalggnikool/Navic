@@ -65,7 +65,9 @@ fun GenreDetailScreen(
 	)
 	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
 
-	val allDownloads by songsViewModel.allDownloads.collectAsStateWithLifecycle()
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
 	val isOnline by songsViewModel.isOnline.collectAsStateWithLifecycle()
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }

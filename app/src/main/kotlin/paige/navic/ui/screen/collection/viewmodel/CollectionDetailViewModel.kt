@@ -10,17 +10,13 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainAlbum
@@ -47,7 +43,6 @@ class CollectionDetailViewModel(
 	private val repository: CollectionRepository,
 	private val songRepository: SongRepository,
 	private val albumRepository: AlbumRepository,
-	private val downloadManager: DownloadManager,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager,
 	connectivityManager: ConnectivityManager
@@ -65,13 +60,6 @@ class CollectionDetailViewModel(
 
 	val isOnline = connectivityManager.isOnline
 
-	val allDownloads = downloadManager.allDownloads
-		.stateIn(
-			scope = viewModelScope,
-			started = SharingStarted.Lazily,
-			initialValue = emptyList()
-		)
-
 	val otherAlbums = uiState
 		.map { state -> (state.data?.collection as? DomainAlbum) }
 		.flatMapLatest { album ->
@@ -82,15 +70,6 @@ class CollectionDetailViewModel(
 		started = SharingStarted.Lazily,
 		initialValue = emptyList()
 	)
-
-	val collectionDownloadStatus: StateFlow<DownloadStatus> =
-		uiState.mapNotNull { state -> state.data?.collection?.songs?.map { it.id } }
-			.flatMapLatest(downloadManager::getCollectionDownloadStatus)
-		.stateIn(
-			scope = viewModelScope,
-			started = SharingStarted.Lazily,
-			initialValue = DownloadStatus.NOT_DOWNLOADED
-		)
 
 	init {
 		launch {
@@ -189,34 +168,6 @@ class CollectionDetailViewModel(
 			} else {
 				albumRepository.unstarAlbum(album)
 			}
-		}
-	}
-
-	fun downloadSong(song: DomainSong) {
-		downloadManager.downloadSong(song)
-		snackBarManager.notify(R.string.notice_download_started)
-	}
-
-	fun cancelDownload(songId: String) {
-		downloadManager.cancelDownload(songId)
-	}
-
-	fun deleteDownload(songId: String) {
-		downloadManager.deleteDownload(songId)
-		snackBarManager.notify(R.string.notice_deleted_download)
-	}
-
-	fun downloadAll() {
-		val collection = uiState.value.data?.collection ?: return
-		launch {
-			downloadManager.downloadCollection(collection)
-			snackBarManager.notify(R.string.notice_download_started)
-		}
-	}
-
-	fun cancelDownloadAll() {
-		uiState.value.data?.collection?.songs?.forEach {
-			downloadManager.cancelDownload(it.id)
 		}
 	}
 

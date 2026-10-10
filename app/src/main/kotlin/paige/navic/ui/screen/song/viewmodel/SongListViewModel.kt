@@ -6,13 +6,8 @@
 
 package paige.navic.ui.screen.song.viewmodel
 
-import androidx.lifecycle.viewModelScope
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainFilter
@@ -28,18 +23,10 @@ class SongListViewModel(
 	initialListType: DomainSongListType? = null,
 	initialFilters: Set<DomainFilter>? = null,
 	private val repository: SongRepository,
-	private val downloadManager: DownloadManager,
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager,
 	connectivityManager: ConnectivityManager
 ) : SelectableViewModel<DomainSong>() {
-
-	val allDownloads = downloadManager.allDownloads
-		.stateIn(
-			scope = viewModelScope,
-			started = SharingStarted.Lazily,
-			initialValue = persistentListOf()
-		)
 
 	val selectedSorting = MutableStateFlow(initialListType ?: preferenceManager.songSortType)
 
@@ -109,15 +96,4 @@ class SongListViewModel(
 		refreshSongs(false)
 	}
 
-	fun downloadSong(song: DomainSong) {
-		downloadManager.downloadSong(song)
-	}
-
-	fun cancelDownload(songId: String) {
-		downloadManager.cancelDownload(songId)
-	}
-
-	fun deleteDownload(songId: String) {
-		downloadManager.deleteDownload(songId)
-	}
 }

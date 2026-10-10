@@ -110,10 +110,11 @@ fun CollectionDetailScreen(
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 
 	val otherAlbums by viewModel.otherAlbums.collectAsState()
-	val allDownloads by viewModel.allDownloads.collectAsState()
-
 	val downloadManager = koinInject<DownloadManager>()
-	val downloadStatus by viewModel.collectionDownloadStatus.collectAsState()
+	val allDownloads by downloadManager.allDownloads.collectAsState(emptyList())
+	val downloadStatus by downloadManager
+		.getCollectionDownloadStatus(collection?.songs.orEmpty().map { it.id })
+		.collectAsState(DownloadStatus.NOT_DOWNLOADED)
 
 	val backStack = LocalNavStack.current
 	val scope = rememberCoroutineScope()
@@ -152,8 +153,12 @@ fun CollectionDetailScreen(
 					collection = collection,
 					titleAlpha = titleAlpha,
 					onSetShareId = { shareId = it },
-					onDownloadAll = { viewModel.downloadAll() },
-					onCancelDownloadAll = { viewModel.cancelDownloadAll() },
+					onDownloadAll = {
+						collection?.let { scope.launch { downloadManager.downloadCollection(it) } }
+					},
+					onCancelDownloadAll = {
+						collection?.songs?.forEach { downloadManager.cancelDownload(it.id) }
+					},
 					onPlayNext = { if (collection != null) player.playNext(collection) },
 					onAddToQueue = { if (collection != null) player.addToQueue(collection) },
 					downloadStatus = downloadStatus,
@@ -295,9 +300,9 @@ fun CollectionDetailScreen(
 											onRemoveFromPlaylist = { viewModel.removeFromPlaylist() },
 											starred = song.starredAt != null,
 											downloadStatus = download?.status,
-											onDownload = { viewModel.downloadSong(song) },
-											onCancelDownload = { viewModel.cancelDownload(song.id) },
-											onDeleteDownload = { viewModel.deleteDownload(song.id) },
+											onDownload = { downloadManager.downloadSong(song) },
+											onCancelDownload = { downloadManager.cancelDownload(song.id) },
+											onDeleteDownload = { downloadManager.deleteDownload(song.id) },
 											onPlayNext = { player.playNextSingle(song) },
 											onAddToQueue = { player.addToQueueSingle(song) },
 											rating = song.userRating ?: 0,
@@ -347,9 +352,9 @@ fun CollectionDetailScreen(
 									onRemoveFromPlaylist = { viewModel.removeFromPlaylist() },
 									starred = song.starredAt != null,
 									downloadStatus = download?.status,
-									onDownload = { viewModel.downloadSong(song) },
-									onCancelDownload = { viewModel.cancelDownload(song.id) },
-									onDeleteDownload = { viewModel.deleteDownload(song.id) },
+									onDownload = { downloadManager.downloadSong(song) },
+									onCancelDownload = { downloadManager.cancelDownload(song.id) },
+									onDeleteDownload = { downloadManager.deleteDownload(song.id) },
 									onPlayNext = { player.playNextSingle(song) },
 									onAddToQueue = { player.addToQueueSingle(song) },
 									rating = song.userRating ?: 0,

@@ -67,7 +67,9 @@ fun StarredScreen() {
 	)
 	val downloadManager = koinInject<DownloadManager>()
 	val songsState by songsViewModel.uiState.collectAsStateWithLifecycle()
-	val allDownloads by songsViewModel.allDownloads.collectAsStateWithLifecycle()
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
 
 	val albumsViewModel = koinViewModel<AlbumListViewModel>(
 		key = "starredAlbums",
