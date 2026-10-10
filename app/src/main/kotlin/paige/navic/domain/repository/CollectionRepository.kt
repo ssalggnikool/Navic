@@ -12,6 +12,8 @@ import paige.navic.data.database.dao.PlaylistDao
 import paige.navic.data.database.dao.SongDao
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.data.database.mapper.toEntity
+import paige.navic.data.database.query.toAlbumByIdSqlQuery
+import paige.navic.data.database.query.toPlaylistByIdSqlQuery
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
@@ -37,14 +39,14 @@ class CollectionRepository(
 				val album = sessionManager.api.getAlbum(collection.id)
 				songDao.updateSongsByAlbumId(album.id, album.songs.map { it.toEntity() })
 				albumDao.insertAlbum(album.toEntity())
-				albumDao.getAlbumById(album.id)!!.toDomainModel()
+				albumDao.getAlbumsByQuery(toAlbumByIdSqlQuery(album.id)).first().toDomainModel()
 			}
 
 			is DomainPlaylist -> {
 				val playlist = sessionManager.api.getPlaylist(collection.id)
 				playlistDao.insertPlaylist(playlist.toEntity())
 				dbRepository.syncPlaylistSongs(collection.id)
-				playlistDao.getPlaylistById(playlist.id)!!.toDomainModel()
+				playlistDao.getPlaylistsByQuery(toPlaylistByIdSqlQuery(playlist.id)).first().toDomainModel()
 			}
 		}
 		return getLocalData(collectionId)
