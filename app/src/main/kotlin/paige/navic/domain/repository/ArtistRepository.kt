@@ -13,12 +13,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import paige.navic.data.database.dao.ArtistDao
-import paige.navic.data.database.dao.DownloadDao
-import paige.navic.data.database.dao.SongDao
-import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.data.database.entity.SyncActionType
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.data.database.mapper.toEntity
+import paige.navic.data.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType
@@ -28,34 +26,18 @@ import kotlin.time.Clock
 
 class ArtistRepository(
 	private val artistDao: ArtistDao,
-	private val songDao: SongDao,
-	private val downloadDao: DownloadDao,
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
 	private suspend fun getLocalData(
 		listType: DomainArtistListType,
-		filters: Set<DomainFilter> = emptySet()
+		filters: Set<DomainFilter> = emptySet(),
+		reversed: Boolean = false,
 	): ImmutableList<DomainArtist> {
-		val artists = when (listType) {
-			DomainArtistListType.AlphabeticalByName -> artistDao.getArtistsAlphabeticalByName()
-			DomainArtistListType.Random -> artistDao.getArtistsRandom()
-		}.map { it.toDomainModel() }
-
-		return artists.filter { artist ->
-			filters.all { filter ->
-				when (filter) {
-					DomainFilter.Starred -> artist.starredAt != null
-					DomainFilter.Downloaded -> songDao
-						.getSongsByArtistId(artist.id)
-						.takeIf { it.isNotEmpty() }
-						?.all {
-							val download = downloadDao.getDownloadById(it.songId)
-							return@all download?.status == DownloadStatus.DOWNLOADED
-						} ?: false
-				}
-			}
-		}.toImmutableList()
+		return artistDao
+			.getArtistsByQuery(listType.toSqlQuery(reversed, filters))
+			.map { it.toDomainModel() }
+			.toImmutableList()
 	}
 
 	private suspend fun refreshLocalData(

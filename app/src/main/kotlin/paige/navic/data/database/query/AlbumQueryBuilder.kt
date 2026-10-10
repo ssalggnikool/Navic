@@ -12,7 +12,7 @@ import paige.navic.domain.model.DomainFilter
 
 fun DomainAlbumListType.toSqlQuery(
 	reversed: Boolean = false,
-	filters: Set<DomainFilter> = emptySet(),
+	filters: Set<DomainFilter> = emptySet()
 ): RoomRawQuery {
 	val whereClauses = mutableListOf<String>()
 	val args = mutableListOf<Any>()
