@@ -25,6 +25,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
+import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSong
@@ -50,6 +51,7 @@ fun GenreDetailScreen(
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 	val player = koinInject<MediaPlayerViewModel>()
+	val downloadManager = koinInject<DownloadManager>()
 
 	val songsViewModel = koinViewModel<SongListViewModel>(
 		key = "genre_detail_songs_$genreName",
@@ -128,12 +130,12 @@ fun GenreDetailScreen(
 					player.playNow(songsState.data?.items.orEmpty(), index)
 				},
 				onSetSongRating = { songsViewModel.rateSelectedSong(it) },
-				onDownloadSong = { songsViewModel.downloadSong(it) },
+				onDownloadSong = { downloadManager.downloadSong(it) },
 				onCancelDownloadSong = { song ->
-					songsViewModel.cancelDownload(song.id)
+					downloadManager.cancelDownload(song.id)
 				},
 				onDeleteDownloadSong = { song ->
-					songsViewModel.deleteDownload(song.id)
+					downloadManager.deleteDownload(song.id)
 				},
 
 				albumsState = albumsState.data?.items.orEmpty(),

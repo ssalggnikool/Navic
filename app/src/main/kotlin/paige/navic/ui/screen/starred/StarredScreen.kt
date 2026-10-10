@@ -27,6 +27,7 @@ import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
+import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
@@ -64,6 +65,7 @@ fun StarredScreen() {
 		},
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
+	val downloadManager = koinInject<DownloadManager>()
 	val songsState by songsViewModel.uiState.collectAsStateWithLifecycle()
 	val allDownloads by songsViewModel.allDownloads.collectAsStateWithLifecycle()
 
@@ -149,12 +151,12 @@ fun StarredScreen() {
 				selectedSongIsStarred = songsState.data?.selected?.starredAt != null,
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
-				onDownloadSong = { songsViewModel.downloadSong(it) },
+				onDownloadSong = { downloadManager.downloadSong(it) },
 				onCancelDownloadSong = { song ->
-					songsViewModel.cancelDownload(song.id)
+					downloadManager.cancelDownload(song.id)
 				},
 				onDeleteDownloadSong = { song ->
-					songsViewModel.deleteDownload(song.id)
+					downloadManager.deleteDownload(song.id)
 				},
 				onPlaySongNext = { song ->
 					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
