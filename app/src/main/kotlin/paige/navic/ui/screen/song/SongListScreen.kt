@@ -37,6 +37,7 @@ import paige.navic.R
 import paige.navic.R.string.info_no_songs
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
+import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
@@ -75,6 +76,7 @@ fun SongListScreen(
 	val preferenceManager = koinInject<PreferenceManager>()
 	val player = koinInject<MediaPlayerViewModel>()
 	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val downloadManager = koinInject<DownloadManager>()
 
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
@@ -196,13 +198,13 @@ fun SongListScreen(
 							onSetRating = { it: Int -> viewModel.rateSelectedSong(it) },
 							download = download,
 							onDownload = {
-								viewModel.downloadSong(song)
+								downloadManager.downloadSong(song)
 							},
 							onCancelDownload = {
-								viewModel.cancelDownload(song.id)
+								downloadManager.cancelDownload(song.id)
 							},
 							onDeleteDownload = {
-								viewModel.deleteDownload(song.id)
+								downloadManager.deleteDownload(song.id)
 							}
 						)
 					}
