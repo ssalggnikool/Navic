@@ -12,25 +12,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.DownloadDao
 import paige.navic.data.database.dao.SongDao
-import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.data.database.entity.SyncActionType
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.data.database.mapper.toEntity
+import paige.navic.data.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.ui.core.UiState
-import paige.navic.util.sortedByListType
 import kotlin.time.Clock
 
 class SongRepository(
 	private val songDao: SongDao,
-	private val albumDao: AlbumDao,
-	private val downloadDao: DownloadDao,
 	private val dbRepository: DbRepository,
 	private val syncManager: SyncManager
 ) {
@@ -46,47 +41,19 @@ class SongRepository(
 
 	private suspend fun getLocalData(
 		listType: DomainSongListType,
-		reversed: Boolean,
+		reversed: Boolean = false,
 		filters: Set<DomainFilter> = emptySet()
 	): ImmutableList<DomainSong> {
-		val songs = songDao
-			.getAllSongs()
+		return songDao
+			.getSongsByQuery(listType.toSqlQuery(reversed, filters))
 			.map { it.toDomainModel() }
-
-		val downloadedIds = if (filters.contains(DomainFilter.Downloaded)) {
-			downloadDao.getAllDownloadsList()
-				.filter { it.status == DownloadStatus.DOWNLOADED }
-				.map { it.songId }
-				.toSet()
-		} else emptySet()
-
-		val filteredByFilters = songs.filter { song ->
-			filters.all { filter ->
-				when (filter) {
-					DomainFilter.Starred -> song.starredAt != null
-					DomainFilter.Downloaded -> downloadedIds.contains(song.id)
-				}
-			}
-		}
-
-		val sorted = filteredByFilters
 			.toImmutableList()
-			.sortedByListType(
-				listType,
-				albums = albumDao.getAllAlbumsList().map { it.toDomainModel() }
-			)
-
-		return if (reversed) {
-			sorted.reversed().toImmutableList()
-		} else {
-			sorted
-		}
 	}
 
 	private suspend fun refreshLocalData(
 		listType: DomainSongListType,
-		reversed: Boolean,
-		filters: Set<DomainFilter>
+		reversed: Boolean = false,
+		filters: Set<DomainFilter> = emptySet()
 	): ImmutableList<DomainSong> {
 		dbRepository.syncLibrarySongs().getOrThrow()
 		return getLocalData(listType, reversed, filters)

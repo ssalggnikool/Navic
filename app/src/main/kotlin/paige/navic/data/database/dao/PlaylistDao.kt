@@ -10,6 +10,8 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.RawQuery
+import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 import paige.navic.data.database.entity.PlaylistEntity
@@ -19,6 +21,10 @@ import paige.navic.util.Logger
 
 @Dao
 interface PlaylistDao {
+	@Transaction
+	@RawQuery
+	suspend fun getPlaylistsByQuery(query: RoomRawQuery): List<PlaylistWithSongs>
+
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertPlaylist(playlist: PlaylistEntity)
 
