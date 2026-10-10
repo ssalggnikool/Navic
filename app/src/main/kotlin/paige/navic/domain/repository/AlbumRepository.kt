@@ -13,8 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.DownloadDao
-import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.data.database.entity.SyncActionType
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.data.database.mapper.toEntity
@@ -23,12 +21,11 @@ import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainFilter
 import paige.navic.ui.core.UiState
-import paige.navic.util.toSqlQuery
+import paige.navic.data.database.query.toSqlQuery
 import kotlin.time.Clock
 
 class AlbumRepository(
 	private val albumDao: AlbumDao,
-	private val downloadDao: DownloadDao,
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
@@ -39,25 +36,9 @@ class AlbumRepository(
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
 	): ImmutableList<DomainAlbum> {
-		val downloadedSongIds = if (filters.contains(DomainFilter.Downloaded)) {
-			downloadDao.getAllDownloadsList()
-				.filter { it.status == DownloadStatus.DOWNLOADED }
-				.map { it.songId }
-				.toSet()
-		} else null
-
 		return albumDao
-			.getAlbumsByQuery(listType.toSqlQuery())
+			.getAlbumsByQuery(listType.toSqlQuery(reversed, filters))
 			.map { it.toDomainModel() }
-			.filter { album ->
-				filters.all { filter ->
-					when (filter) {
-						DomainFilter.Starred -> album.starredAt != null
-						DomainFilter.Downloaded -> downloadedSongIds != null && downloadedSongIds.containsAll(album.songs.map { it.id })
-					}
-				}
-			}
-			.let { if (reversed) it.asReversed() else it }
 			.toImmutableList()
 	}
 

@@ -6,11 +6,9 @@
 
 package paige.navic.util
 
-import androidx.room3.RoomRawQuery
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import paige.navic.domain.model.DomainAlbum
-import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 
@@ -41,58 +39,4 @@ fun ImmutableList<DomainSong>.sortedByListType(
 				|| listType.genre in it.genres
 		}.sortedByDescending { it.playCount }
 	}.toImmutableList()
-}
-
-fun DomainAlbumListType.toSqlQuery(): RoomRawQuery {
-	var where: String? = null
-	var orderBy: String
-	val args = mutableListOf<Any>()
-
-	when (this) {
-		DomainAlbumListType.AlphabeticalByArtist -> orderBy = "LOWER(artistName) ASC"
-		DomainAlbumListType.AlphabeticalByName -> orderBy = "LOWER(name) ASC"
-		DomainAlbumListType.Frequent -> {
-			where = "playCount != 0"
-			orderBy = "playCount DESC"
-		}
-
-		DomainAlbumListType.Highest -> orderBy = "userRating DESC"
-		DomainAlbumListType.Newest -> orderBy = "createdAt DESC"
-		DomainAlbumListType.Random -> orderBy = "RANDOM()"
-		DomainAlbumListType.Recent -> orderBy = "lastPlayedAt DESC"
-
-		DomainAlbumListType.Year -> {
-			orderBy = "year DESC"
-		}
-
-		is DomainAlbumListType.ByGenre -> {
-			where = "genre = ?"
-			orderBy = "LOWER(name) ASC"
-			args.add(genre)
-		}
-
-		is DomainAlbumListType.ByYear -> {
-			where = "COALESCE(year, 0) BETWEEN ? AND ?"
-			orderBy = "LOWER(name) ASC"
-			args.add(fromYear)
-			args.add(toYear)
-		}
-	}
-
-	val whereClause = where?.let { " WHERE $it" } ?: ""
-	val sql = "SELECT * FROM AlbumEntity$whereClause ORDER BY $orderBy"
-
-	return RoomRawQuery(sql) { statement ->
-		args.forEachIndexed { index, arg ->
-			val bindIndex = index + 1
-			when (arg) {
-				is String -> statement.bindText(bindIndex, arg)
-				is Int -> statement.bindInt(bindIndex, arg)
-				is Long -> statement.bindLong(bindIndex, arg)
-				is Float -> statement.bindFloat(bindIndex, arg)
-				is Double -> statement.bindDouble(bindIndex, arg)
-				is Boolean -> statement.bindInt(bindIndex, if (arg) 1 else 0)
-			}
-		}
-	}
 }
