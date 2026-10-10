@@ -75,7 +75,7 @@ import paige.navic.domain.model.settings.NavbarConfig
 import paige.navic.ui.icons.filled.Note
 import paige.navic.ui.icons.filled.SkipNext
 import paige.navic.ui.icons.outlined.Radio
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
@@ -90,7 +90,7 @@ fun MiniPlayer(
 	windowInsets: WindowInsets,
 	enabled: Boolean = true
 ) {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val preferenceManager = koinInject<PreferenceManager>()
 	val navtabsViewModel = koinViewModel<NavtabsViewModel>()
 	val navtabsState by navtabsViewModel.state.collectAsState()

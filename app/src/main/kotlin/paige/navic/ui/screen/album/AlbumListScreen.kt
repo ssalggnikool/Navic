@@ -42,7 +42,7 @@ import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.AlphabeticalScroller
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
@@ -78,7 +78,7 @@ fun AlbumListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val selectedSorting by viewModel.listType.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()

@@ -32,7 +32,7 @@ import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.DeletionDialog
 import paige.navic.ui.component.dialog.DeletionEndpoint
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -93,7 +93,7 @@ fun LibraryScreen() {
 	var playlistDeletionId by rememberSaveable { mutableStateOf<String?>(null) }
 	var playlistCreateDialogShown by rememberSaveable { mutableStateOf(false) }
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 

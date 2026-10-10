@@ -43,7 +43,7 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.icons.Icons
@@ -80,7 +80,7 @@ fun SongRow(
 	onSetRating: (Int) -> Unit
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val backStack = LocalNavStack.current

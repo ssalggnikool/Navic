@@ -42,7 +42,7 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.layout.NestedTopBar
@@ -74,7 +74,7 @@ fun SongListScreen(
 		}
 	)
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val state by viewModel.uiState.collectAsStateWithLifecycle()
 	val downloadManager = koinInject<DownloadManager>()
 

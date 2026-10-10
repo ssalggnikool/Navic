@@ -51,7 +51,7 @@ import paige.navic.ui.icons.filled.Note
 import paige.navic.ui.icons.outlined.Menu
 import paige.navic.ui.icons.outlined.MenuOpen
 import paige.navic.ui.icons.outlined.Radio
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.WideNavigationRailItem
 import paige.navic.ui.navigation.NavigationTab
@@ -128,7 +128,7 @@ private fun SideBarMiniPlayer(
 ) {
 	val backStack = LocalNavStack.current
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val song = playerState.currentSong
 	val isRadio = song?.id?.startsWith("radio_") == true

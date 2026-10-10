@@ -59,7 +59,7 @@ import paige.navic.ui.icons.outlined.Lock
 import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.icons.outlined.Queue
 import paige.navic.ui.icons.outlined.QueuePlayNext
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SegmentedListItem
@@ -89,7 +89,7 @@ fun CollectionDetailScreenSongRow(
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val isDownloaded = download?.status == DownloadStatus.DOWNLOADED

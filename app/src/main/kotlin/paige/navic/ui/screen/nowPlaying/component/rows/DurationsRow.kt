@@ -19,13 +19,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.util.toHoursMinutesSeconds
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun NowPlayingDurationsRow() {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsState()
 	val duration = playerState.currentSong?.duration
 	val style = MaterialTheme.typography.bodyMedium

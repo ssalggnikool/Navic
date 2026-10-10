@@ -10,8 +10,6 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -25,12 +23,10 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -57,14 +53,12 @@ import paige.navic.playback.exoplayer.ExoStateHolder
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
 import java.io.File
-import kotlin.OptIn
-import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 @androidx.annotation.OptIn(UnstableApi::class)
-class MediaPlayerViewModel(
+class MediaPlayer(
 	private val stateRepository: PlayerStateRepository,
 	private val songRepository: SongRepository,
 	private val downloadManager: DownloadManager,
@@ -75,9 +69,10 @@ class MediaPlayerViewModel(
 	private val albumDao: AlbumDao,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
-) : ViewModel() {
+) {
 	private val _uiState = MutableStateFlow(PlayerUiState())
 	val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
+	private val scope = CoroutineScope(Dispatchers.Main)
 
 	private var controller: MediaController? = null
 	private var controllerFuture: ListenableFuture<MediaController>? = null
@@ -87,11 +82,11 @@ class MediaPlayerViewModel(
 	private var pendingSyncState: PlayerUiState? = null
 
 	init {
-		connectToService()
-		viewModelScope.launch {
+		connectService()
+		launch {
 			restoreState()
-			observeAndSaveState()
 		}
+		observeAndSaveState()
 	}
 
 	fun playNow(song: DomainSong) {
@@ -137,7 +132,7 @@ class MediaPlayerViewModel(
 		val remainingCount = state.queue.size - state.currentIndex
 
 		if (remainingCount <= 1) {
-			viewModelScope.launch {
+			scope.launch {
 				val randomSongs = songRepository.getRandomSongs(1)
 				addToQueue(randomSongs, notify = false)
 			}
@@ -151,46 +146,30 @@ class MediaPlayerViewModel(
 		checkAndAutoFillQueue()
 	}
 
-	@OptIn(FlowPreview::class)
-	private fun observeAndSaveState() {
-		viewModelScope.launch {
-			uiState
-				.distinctUntilChanged { old, new ->
-					old.currentIndex == new.currentIndex &&
-						old.queue == new.queue &&
-						old.isPaused == new.isPaused &&
-						old.repeatMode == new.repeatMode &&
-						old.isShuffleEnabled == new.isShuffleEnabled
-				}
-				.collect { state ->
-					stateRepository.setState(state)
-				}
-		}
+	private fun observeAndSaveState() = scope.launch {
+		uiState
+			.distinctUntilChanged { old, new ->
+				old.currentIndex == new.currentIndex &&
+					old.queue == new.queue &&
+					old.isPaused == new.isPaused &&
+					old.repeatMode == new.repeatMode &&
+					old.isShuffleEnabled == new.isShuffleEnabled
+			}
+			.collect { state ->
+				stateRepository.setState(state)
+			}
 
-		viewModelScope.launch {
-			uiState
-				.debounce(2.seconds)
-				.collect { state ->
-					stateRepository.setState(state)
-				}
-		}
 	}
 
 	// just because I hate writing boilerplate every single line
-	private fun launchInView(immediate: Boolean = false, block: suspend CoroutineScope.() -> Unit) {
-		val context = if (immediate) {
-			Dispatchers.Main.immediate
-		} else {
-            EmptyCoroutineContext
-		}
-
-		viewModelScope.launch(
+	private fun launch(context: CoroutineContext = Dispatchers.Main, block: suspend CoroutineScope.() -> Unit) {
+		scope.launch(
 			context = context,
 			block = block
 		)
 	}
 
-	private fun connectToService() = launchInView {
+	private fun connectService() = launch {
 		val sessionToken = ExoStateHolder.newSessionToken(application)
 		controllerFuture = MediaController.Builder(application, sessionToken).buildAsync()
 		controllerFuture?.addListener({
@@ -219,7 +198,7 @@ class MediaPlayerViewModel(
 			.build()
 	}
 
-	private fun setupController() = launchInView {
+	private fun setupController() = launch {
 		controller?.apply {
 			addListener(object : Player.Listener {
 				override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -343,7 +322,7 @@ class MediaPlayerViewModel(
 		if (loadingCollectionId == albumId) return
 		loadingCollectionId = albumId
 
-		viewModelScope.launch {
+		scope.launch {
 			runCatching {
 				val album = albumDao.getAlbumById(albumId)
 
@@ -415,22 +394,22 @@ class MediaPlayerViewModel(
 		resetGain()
 	}
 
-	fun syncPlayerWithState(state: PlayerUiState) = launchInView {
+	fun syncPlayerWithState(state: PlayerUiState) = launch {
 		val player = controller
 
 		if (player == null) {
 			pendingSyncState = state
-			return@launchInView
+			return@launch
 		}
 
 		if (state.queue.isEmpty() || player.mediaItemCount > 0) {
 			updatePlaybackState()
-			return@launchInView
+			return@launch
 		}
 
 		val mediaItems = withContext(Dispatchers.Default) {
-            state.queue.map { it.toMediaItem() }
-        }
+			state.queue.map { it.toMediaItem() }
+		}
 
 		player.apply {
 			setMediaItems(mediaItems)
@@ -457,7 +436,7 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	private fun startProgressLoop() = launchInView {
+	private fun startProgressLoop() = this@MediaPlayer.launch {
 		while (controller?.isPlaying == true) {
 			val player = controller ?: break
 			val duration = player.duration
@@ -466,7 +445,7 @@ class MediaPlayerViewModel(
 					(player.currentPosition.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
 				_uiState.update { it.copy(progress = progress) }
 			}
-            delay(200.milliseconds)
+			delay(200.milliseconds)
 		}
 	}
 
@@ -501,7 +480,7 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) = launchInView {
+	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) = this@MediaPlayer.launch {
 		controller?.addMediaItem(song.toMediaItem())
 		_uiState.update { state ->
 			val newQueue = state.queue + song
@@ -526,7 +505,7 @@ class MediaPlayerViewModel(
 		)
 	}
 
-	fun addToQueue(songs: List<DomainSong>, notify: Boolean = true) = launchInView {
+	fun addToQueue(songs: List<DomainSong>, notify: Boolean = true) = this@MediaPlayer.launch {
 		val items = songs.map { it.toMediaItem() }
 		controller?.addMediaItems(items)
 		_uiState.update { state ->
@@ -540,7 +519,7 @@ class MediaPlayerViewModel(
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
-	fun removeFromQueue(index: Int) = launchInView {
+	fun removeFromQueue(index: Int) = this@MediaPlayer.launch {
 		controller?.removeMediaItem(index)
 		_uiState.update { state ->
 			val newQueue = state.queue.toMutableList().apply { removeAt(index) }
@@ -560,7 +539,7 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun moveQueueItem(fromIndex: Int, toIndex: Int) = launchInView {
+	fun moveQueueItem(fromIndex: Int, toIndex: Int) = this@MediaPlayer.launch {
 		controller?.moveMediaItem(fromIndex, toIndex)
 		_uiState.update { state ->
 			val newQueue = state.queue.toMutableList().apply {
@@ -581,7 +560,7 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun clearQueue() = launchInView {
+	fun clearQueue() = this@MediaPlayer.launch {
 		_uiState.update {
 			it.copy(
 				queue = emptyList(),
@@ -593,7 +572,7 @@ class MediaPlayerViewModel(
 		controller?.clearMediaItems()
 	}
 
-	fun playAt(index: Int) = launchInView {
+	fun playAt(index: Int) = this@MediaPlayer.launch {
 		controller?.let { player ->
 			if (index in 0 until player.mediaItemCount) {
 				player.seekTo(index, 0L)
@@ -602,10 +581,10 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun playNextSingle(song: DomainSong) = launchInView {
+	fun playNextSingle(song: DomainSong) = this@MediaPlayer.launch {
 		controller?.addMediaItem(
 			_uiState.value.currentIndex + 1,
-            withContext(Dispatchers.Default) { song.toMediaItem() }
+			withContext(Dispatchers.Default) { song.toMediaItem() }
 		)
 		_uiState.update { state ->
 			val newQueue =
@@ -622,16 +601,16 @@ class MediaPlayerViewModel(
 		snackBarManager.notifyPlayNext()
 	}
 
-	fun playNext(collection: DomainSongCollection) = launchInView {
+	fun playNext(collection: DomainSongCollection) = this@MediaPlayer.launch {
 		val (items, newCollection) = withContext(Dispatchers.Default) {
-            val newCollection =
-                if (collection is DomainAlbum) collection.songs.sortedWith(
-                    compareBy(
-                        { it.discNumber },
-                        { it.trackNumber }
-                    )) else collection.songs
-            newCollection.map { it.toMediaItem() } to newCollection
-        }
+			val newCollection =
+				if (collection is DomainAlbum) collection.songs.sortedWith(
+					compareBy(
+						{ it.discNumber },
+						{ it.trackNumber }
+					)) else collection.songs
+			newCollection.map { it.toMediaItem() } to newCollection
+		}
 		controller?.addMediaItems(_uiState.value.currentIndex + 1, items)
 		_uiState.update { state ->
 			val newQueue =
@@ -650,48 +629,48 @@ class MediaPlayerViewModel(
 		snackBarManager.notifyPlayNext()
 	}
 
-	fun playRadio(radio: DomainRadio) = launchInView {
+	fun playRadio(radio: DomainRadio) = this@MediaPlayer.launch {
 		val radioId = "radio_${radio.name.hashCode()}"
 
 		val dummyRadioSong = DomainSong(
-            id = radioId,
-            title = radio.name,
-            artistName = "Live Radio",
-            albumId = "radio_album",
-            albumTitle = "Live Stream",
-            duration = Duration.ZERO,
-            trackNumber = 1,
-            coverArtId = null,
-            artistId = "",
-            parentId = "",
-            comment = null,
-            discNumber = null,
-            isrc = emptyList(),
-            year = null,
-            genre = null,
-            genres = emptyList(),
-            moods = emptyList(),
-            bpm = null,
-            contributors = emptyList(),
-            playCount = 0,
-            userRating = 0,
-            averageRating = null,
-            bitRate = null,
-            bitDepth = null,
-            sampleRate = null,
-            audioChannelCount = null,
-            replayGain = null,
-            fileSize = 0,
-            fileExtension = "",
-            mimeType = "",
-            filePath = radio.streamUrl,
-            starredAt = null,
-            musicBrainzId = null,
-            explicitStatus = DomainExplicitStatus.Unknown,
-            artists = emptyList(),
-            albumArtists = emptyList(),
-            isExternal = false
-        )
+			id = radioId,
+			title = radio.name,
+			artistName = "Live Radio",
+			albumId = "radio_album",
+			albumTitle = "Live Stream",
+			duration = Duration.ZERO,
+			trackNumber = 1,
+			coverArtId = null,
+			artistId = "",
+			parentId = "",
+			comment = null,
+			discNumber = null,
+			isrc = emptyList(),
+			year = null,
+			genre = null,
+			genres = emptyList(),
+			moods = emptyList(),
+			bpm = null,
+			contributors = emptyList(),
+			playCount = 0,
+			userRating = 0,
+			averageRating = null,
+			bitRate = null,
+			bitDepth = null,
+			sampleRate = null,
+			audioChannelCount = null,
+			replayGain = null,
+			fileSize = 0,
+			fileExtension = "",
+			mimeType = "",
+			filePath = radio.streamUrl,
+			starredAt = null,
+			musicBrainzId = null,
+			explicitStatus = DomainExplicitStatus.Unknown,
+			artists = emptyList(),
+			albumArtists = emptyList(),
+			isExternal = false
+		)
 
 		val metadata = MediaMetadata.Builder()
 			.setTitle(radio.name)
@@ -724,11 +703,11 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun shufflePlay(collection: DomainSongCollection) = launchInView {
+	fun shufflePlay(collection: DomainSongCollection) = this@MediaPlayer.launch {
 		val (shuffledSongs, mediaItems) = withContext(Dispatchers.Default) {
-            val songs = collection.songs.shuffled()
-            songs to songs.map { it.toMediaItem() }
-        }
+			val songs = collection.songs.shuffled()
+			songs to songs.map { it.toMediaItem() }
+		}
 
 		controller?.let { player ->
 			player.shuffleModeEnabled = false
@@ -746,11 +725,11 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun pause() = launchInView(true) {
+	fun pause() = launch(Dispatchers.Main.immediate) {
 		controller?.pause()
 	}
 
-	fun resume() = launchInView(true) {
+	fun resume() = launch(Dispatchers.Main.immediate) {
 		controller?.let { player ->
 			if (player.playbackState == Player.STATE_ENDED) {
 				player.seekTo(0, 0L)
@@ -759,12 +738,12 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun next() = launchInView(true) {
+	fun next() = launch(Dispatchers.Main.immediate) {
 		if (controller?.hasNextMediaItem() == true) controller?.seekToNextMediaItem()
 	}
 
-	fun previous() = launchInView(true) {
-		val controller = controller ?: return@launchInView
+	fun previous() = launch(Dispatchers.Main.immediate) {
+		val controller = controller ?: return@launch
 		if (controller.hasPreviousMediaItem() && controller.currentPosition <= 1000) {
 			controller.seekToPreviousMediaItem()
 		} else {
@@ -773,14 +752,14 @@ class MediaPlayerViewModel(
 	}
 
 	fun toggleShuffle() {
-		viewModelScope.launch {
+		scope.launch {
 			controller?.let { player ->
 				player.shuffleModeEnabled = !player.shuffleModeEnabled
 			}
 		}
 	}
 
-	fun toggleRepeat() = launchInView {
+	fun toggleRepeat() = launch {
 		controller?.let { player ->
 			player.repeatMode = when (player.repeatMode) {
 				Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
@@ -790,7 +769,7 @@ class MediaPlayerViewModel(
 		}
 	}
 
-	fun seek(normalized: Float) = launchInView(true) {
+	fun seek(normalized: Float) = launch(Dispatchers.Main.immediate) {
 		controller?.let {
 			val target = (it.duration * normalized).toLong()
 			it.seekTo(target)
@@ -798,14 +777,9 @@ class MediaPlayerViewModel(
 				state.copy(progress = normalized)
 			}
 		}
-
 	}
 
-	override fun onCleared() = launchInView {
-		controllerFuture?.let { MediaController.releaseFuture(it) }
-	}
-
-	fun setPlaybackSpeed(value: Float) = launchInView {
+	fun setPlaybackSpeed(value: Float) = this@MediaPlayer.launch {
 		controller?.setPlaybackSpeed(value)
 		_uiState.update { it.copy(playbackSpeed = value) }
 	}
