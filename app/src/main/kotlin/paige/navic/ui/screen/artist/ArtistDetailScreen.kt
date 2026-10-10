@@ -129,9 +129,14 @@ fun ArtistDetailScreen(
 	val artistState by viewModel.artistState.collectAsStateWithLifecycle()
 	val starred by viewModel.starred.collectAsState()
 	val isOnline by viewModel.isOnline.collectAsStateWithLifecycle()
-	val allDownloads by viewModel.allDownloads.collectAsStateWithLifecycle()
-	val downloadStatus by viewModel.collectionDownloadStatus()
-		.collectAsState(DownloadStatus.NOT_DOWNLOADED)
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
+	val downloadStatus by downloadManager.getCollectionDownloadStatus(
+		artistState.data?.albums.orEmpty().flatMap { album ->
+			album.songs.map { it.id }
+		}
+	).collectAsState(DownloadStatus.NOT_DOWNLOADED)
 
 	val snackBarManager = koinInject<SnackBarManager>()
 
@@ -338,16 +343,12 @@ fun ArtistDetailScreen(
 													onAddStar = { viewModel.starSelectedSong() },
 													onRemoveStar = { viewModel.unstarSelectedSong() },
 													download = download,
-													onDownload = { viewModel.downloadSong(song) },
+													onDownload = { downloadManager.downloadSong(song) },
 													onCancelDownload = {
-														viewModel.cancelDownload(
-															song.id
-														)
+														downloadManager.cancelDownload(song.id)
 													},
 													onDeleteDownload = {
-														viewModel.deleteDownload(
-															song.id
-														)
+														downloadManager.deleteDownload(song.id)
 													},
 													onPlayNext = { player.playNextSingle(song) },
 													onAddToQueue = { player.addToQueueSingle(song) },
