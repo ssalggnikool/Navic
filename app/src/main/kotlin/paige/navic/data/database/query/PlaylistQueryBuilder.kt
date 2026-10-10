@@ -17,14 +17,6 @@ fun DomainPlaylistListType.toSqlQuery(
 	val whereClauses = mutableListOf<String>()
 	val args = mutableListOf<Any>()
 
-	when (this) {
-		DomainPlaylistListType.Name,
-		DomainPlaylistListType.DateAdded,
-		DomainPlaylistListType.Duration,
-		DomainPlaylistListType.Random,
-		-> {}
-	}
-
 	if (filters.contains(DomainFilter.Downloaded)) {
 		whereClauses.add(
 			"EXISTS (SELECT 1 FROM PlaylistSongCrossRef ref WHERE ref.playlistId = PlaylistEntity.playlistId) " +

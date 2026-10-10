@@ -18,13 +18,6 @@ fun DomainSongListType.toSqlQuery(
 	val args = mutableListOf<Any>()
 
 	when (this) {
-		DomainSongListType.FrequentlyPlayed,
-		DomainSongListType.Newest,
-		DomainSongListType.Random,
-		DomainSongListType.Rating,
-		DomainSongListType.Year,
-		-> {}
-
 		is DomainSongListType.ByArtist -> {
 			whereClauses.add("artistId = ?")
 			args.add(artistId)
@@ -35,6 +28,8 @@ fun DomainSongListType.toSqlQuery(
 			args.add(genre)
 			args.add(genre)
 		}
+
+		else -> {}
 	}
 
 	if (filters.contains(DomainFilter.Starred)) {
