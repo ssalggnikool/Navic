@@ -94,7 +94,4 @@ class AlbumListViewModel(
 		refreshAlbums(false)
 	}
 
-	fun clearError() {
-		// ?
-	}
 }

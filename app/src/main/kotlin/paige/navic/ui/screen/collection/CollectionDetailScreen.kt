@@ -113,8 +113,7 @@ fun CollectionDetailScreen(
 	val allDownloads by viewModel.allDownloads.collectAsState()
 
 	val downloadManager = koinInject<DownloadManager>()
-	val downloadStatus by viewModel.collectionDownloadStatus()
-		.collectAsState(DownloadStatus.NOT_DOWNLOADED)
+	val downloadStatus by viewModel.collectionDownloadStatus.collectAsState()
 
 	val backStack = LocalNavStack.current
 	val scope = rememberCoroutineScope()
@@ -149,7 +148,7 @@ fun CollectionDetailScreen(
 		Scaffold(
 			topBar = {
 				CollectionDetailScreenTopBar(
-					albumInfo = state.data?.albumInfo!!,
+					albumInfo = state.data?.albumInfo,
 					collection = collection,
 					titleAlpha = titleAlpha,
 					onSetShareId = { shareId = it },

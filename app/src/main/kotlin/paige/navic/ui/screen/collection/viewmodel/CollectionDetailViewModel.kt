@@ -8,11 +8,14 @@ package paige.navic.ui.screen.collection.viewmodel
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import paige.navic.R
 import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.data.database.mapper.toDomainModel
@@ -28,11 +31,9 @@ import paige.navic.domain.repository.AlbumRepository
 import paige.navic.domain.repository.CollectionRepository
 import paige.navic.domain.repository.SongRepository
 import paige.navic.ui.viewmodel.AsyncViewModel
-import paige.navic.util.Logger
 
 data class CollectionViewState(
 	val collection: DomainSongCollection? = null,
-	val isAlbum: Boolean = false,
 	val starred: Boolean = false,
 	val rating: Int = 0,
 	val albumInfo: DomainAlbumInfo? = null,
@@ -40,6 +41,7 @@ data class CollectionViewState(
 	val selectedAlbum: DomainAlbum? = null
 )
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CollectionDetailViewModel(
 	private val collectionId: String,
 	private val repository: CollectionRepository,
@@ -49,7 +51,7 @@ class CollectionDetailViewModel(
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager,
 	connectivityManager: ConnectivityManager
-) : AsyncViewModel<CollectionViewState?>() {
+) : AsyncViewModel<CollectionViewState>() {
 
 	init {
 		execute {
@@ -70,13 +72,25 @@ class CollectionDetailViewModel(
 			initialValue = emptyList()
 		)
 
-	val otherAlbums = (uiState.value.data?.collection as? DomainAlbum)?.let { album ->
-		repository.getOtherAlbums(album.artistId, album.id)
-	}?.stateIn(
+	val otherAlbums = uiState
+		.map { state -> (state.data?.collection as? DomainAlbum) }
+		.flatMapLatest { album ->
+			album?.let { repository.getOtherAlbums(it.artistId, it.id) } ?: emptyFlow()
+		}
+		.stateIn(
 		scope = viewModelScope,
 		started = SharingStarted.Lazily,
 		initialValue = emptyList()
-	) ?: MutableStateFlow(emptyList())
+	)
+
+	val collectionDownloadStatus: StateFlow<DownloadStatus> =
+		uiState.mapNotNull { state -> state.data?.collection?.songs?.map { it.id } }
+			.flatMapLatest(downloadManager::getCollectionDownloadStatus)
+		.stateIn(
+			scope = viewModelScope,
+			started = SharingStarted.Lazily,
+			initialValue = DownloadStatus.NOT_DOWNLOADED
+		)
 
 	init {
 		launch {
@@ -85,61 +99,42 @@ class CollectionDetailViewModel(
 	}
 
 	fun refreshCollection(fullRefresh: Boolean) = launch {
-		repository.getCollectionFlow(fullRefresh, collectionId).collect { collection ->
-			if (collection is DomainAlbum) {
-				execute {
-					val starred = albumRepository.isAlbumStarred(collection)
-					val rating = albumRepository.getAlbumRating(collection)
-					val albumInfo = repository.getAlbumInfo(collectionId)
-
-					uiState.value.data?.copy(
-						starred = starred,
-						isAlbum = true,
-						albumInfo = albumInfo.toDomainModel(),
-						rating = rating
-					)
-				}
-			}
+		val collection = repository.getCollection(fullRefresh, collectionId)
+		val state = if (collection is DomainAlbum) {
+			CollectionViewState(
+				collection = collection,
+				starred = albumRepository.isAlbumStarred(collection),
+				rating = albumRepository.getAlbumRating(collection),
+				albumInfo = repository.getAlbumInfo(collectionId).toDomainModel()
+			)
+		} else {
+			CollectionViewState(collection = collection)
 		}
+		setSuccess(state)
 	}
 
-	fun selectSong(song: DomainSong) = execute {
-		uiState.value.data?.copy(
+	fun selectSong(song: DomainSong) = updateData {
+		it.copy(
 			selectedSong = song
 		)
 	}
 
-	fun selectAlbum(album: DomainAlbum) = execute {
-		uiState.value.data?.copy(
+	fun selectAlbum(album: DomainAlbum) = updateData {
+		it.copy(
 			selectedAlbum = album
 		)
 	}
 
-
-	fun clearSelection() = execute {
-		uiState.value.data?.copy(
-			selectedAlbum = null
-		)
-	}
-
-	fun clearError() {
-		// ?
+	fun clearSelection() = updateData {
+		it.copy(selectedSong = null, selectedAlbum = null)
 	}
 
 	fun removeFromPlaylist() {
 		val song = uiState.value.data?.selectedSong ?: return
-		val songs = uiState.value.data?.collection?.songs ?: return
 		launch {
-			try {
-				sessionManager.api.updatePlaylist(
-					id = collectionId,
-					songIndicesToRemove = listOf(songs.indexOf(song))
-				)
-				snackBarManager.notify(R.string.notice_removed_from_playlist)
-				refreshCollection(true)
-			} catch (e: Exception) {
-				Logger.e("CollectionDetailViewModel", "Failed to remove song from playlist", e)
-			}
+			repository.removeSongFromPlaylist(collectionId, song.id)
+			snackBarManager.notify(R.string.notice_removed_from_playlist)
+			refreshCollection(true)
 		}
 		clearSelection()
 	}
@@ -168,32 +163,27 @@ class CollectionDetailViewModel(
 	}
 
 	fun starAlbum(starred: Boolean) {
-		viewModelScope.launch {
-			runCatching {
-				val collection = uiState.value.data?.collection ?: return@launch
-				if (collection !is DomainAlbum) return@launch
-				if (starred) {
-					albumRepository.starAlbum(collection)
-				} else {
-					albumRepository.unstarAlbum(collection)
-				}
-				refreshCollection(false)
+		launch {
+			val collection = data?.collection
+			if (collection !is DomainAlbum) return@launch
+			if (starred) {
+				albumRepository.starAlbum(collection)
+			} else {
+				albumRepository.unstarAlbum(collection)
 			}
+			refreshCollection(false)
 		}
 	}
 
 	fun rateSelectedAlbum(rating: Int) {
 		launch {
-			uiState.value.data?.collection?.let { album ->
-				albumRepository.rateAlbum(album as DomainAlbum, rating)
-			}
+			data?.selectedAlbum?.let { albumRepository.rateAlbum(it, rating) }
 		}
 	}
 
 	fun starSelectedAlbum(starred: Boolean) {
 		launch {
-			val album = uiState.value.data?.collection as DomainAlbum
-
+			val album = data?.selectedAlbum ?: return@launch
 			if (starred) {
 				albumRepository.starAlbum(album)
 			} else {
@@ -218,7 +208,7 @@ class CollectionDetailViewModel(
 
 	fun downloadAll() {
 		val collection = uiState.value.data?.collection ?: return
-		viewModelScope.launch {
+		launch {
 			downloadManager.downloadCollection(collection)
 			snackBarManager.notify(R.string.notice_download_started)
 		}
@@ -230,8 +220,4 @@ class CollectionDetailViewModel(
 		}
 	}
 
-	fun collectionDownloadStatus(): Flow<DownloadStatus> {
-		val songs = uiState.value.data?.collection?.songs.orEmpty()
-		return downloadManager.getCollectionDownloadStatus(songs.map { it.id })
-	}
 }
