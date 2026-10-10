@@ -22,6 +22,8 @@ abstract class AsyncViewModel<T>(
 ) : ViewModel() {
 	private val _uiState = MutableStateFlow<UiState<T>>(initialState)
 	val uiState: StateFlow<UiState<T>> = _uiState.asStateFlow()
+	val data
+		get() = uiState.value.data
 
 	init {
 	    if (initialValue != null) {
