@@ -13,9 +13,6 @@ data class Selectable<T>(
 )
 
 abstract class SelectableViewModel<T> : AsyncViewModel<Selectable<T>>() {
-	val data
-		get() = uiState.value.data
-
 	var items
 		get() = data?.items
 		set(value) {
