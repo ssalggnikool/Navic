@@ -37,7 +37,7 @@ import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 @Composable
 fun CollectionDetailScreenTopBar(
 	collection: DomainSongCollection?,
-	albumInfo: DomainAlbumInfo,
+	albumInfo: DomainAlbumInfo?,
 	titleAlpha: Float,
 	onSetShareId: (shareId: String?) -> Unit,
 	onDownloadAll: () -> Unit,

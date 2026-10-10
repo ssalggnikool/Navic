@@ -39,7 +39,4 @@ class GenreListViewModel(
 		}
 	}
 
-	fun clearError() {
-		// ?
-	}
 }

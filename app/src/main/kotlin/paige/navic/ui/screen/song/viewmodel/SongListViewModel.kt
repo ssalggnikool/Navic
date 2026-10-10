@@ -109,10 +109,6 @@ class SongListViewModel(
 		refreshSongs(false)
 	}
 
-	fun clearError() {
-		// ?
-	}
-
 	fun downloadSong(song: DomainSong) {
 		downloadManager.downloadSong(song)
 	}

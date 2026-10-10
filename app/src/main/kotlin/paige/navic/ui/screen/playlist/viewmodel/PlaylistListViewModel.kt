@@ -78,7 +78,4 @@ class PlaylistListViewModel(
 		refreshPlaylists(false)
 	}
 
-	fun clearError() {
-		// ?
-	}
 }

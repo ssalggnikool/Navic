@@ -32,7 +32,4 @@ class RadioListViewModel(
 		}
 	}
 
-	fun clearError() {
-		// ?
-	}
 }
