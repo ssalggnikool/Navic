@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,11 +24,8 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
@@ -52,14 +48,9 @@ fun PlaylistListScreenListItem(
 ) {
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()
-	val snackBarManager = koinInject<SnackBarManager>()
 	val scope = rememberCoroutineScope()
 
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
-	val downloadManager = koinInject<DownloadManager>()
-	val downloadStatus by downloadManager
-		.getCollectionDownloadStatus(playlist.songs.map { it.id })
-		.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 
 	Box(modifier) {
 		ListItem(
@@ -103,25 +94,7 @@ fun PlaylistListScreenListItem(
 				onDelete = { onSetDeletionId(playlist.id) },
 				onPlayNext = onPlayNext,
 				onAddToQueue = onAddToQueue,
-				onAddAllToPlaylist = { playlistDialogShown = true },
-				downloadStatus = downloadStatus,
-				onDownloadAll = {
-					scope.launch {
-						downloadManager.downloadCollection(playlist)
-						snackBarManager.notify(R.string.notice_download_started)
-					}
-				},
-				onCancelDownloadAll = {
-					scope.launch {
-						playlist.songs.forEach { downloadManager.cancelDownload(it.id) }
-					}
-				},
-				onDeleteDownloadAll = {
-					scope.launch {
-						downloadManager.deleteDownloadedCollection(playlist)
-						snackBarManager.notify(R.string.notice_deleted_download)
-					}
-				}
+				onAddAllToPlaylist = { playlistDialogShown = true }
 			)
 		}
 

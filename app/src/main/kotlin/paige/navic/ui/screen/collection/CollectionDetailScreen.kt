@@ -112,10 +112,6 @@ fun CollectionDetailScreen(
 	val otherAlbums by viewModel.otherAlbums.collectAsState()
 	val downloadManager = koinInject<DownloadManager>()
 	val allDownloads by downloadManager.allDownloads.collectAsState(emptyList())
-	val downloadStatus by downloadManager
-		.getCollectionDownloadStatus(collection?.songs.orEmpty().map { it.id })
-		.collectAsState(DownloadStatus.NOT_DOWNLOADED)
-
 	val backStack = LocalNavStack.current
 	val scope = rememberCoroutineScope()
 
@@ -153,15 +149,8 @@ fun CollectionDetailScreen(
 					collection = collection,
 					titleAlpha = titleAlpha,
 					onSetShareId = { shareId = it },
-					onDownloadAll = {
-						collection?.let { scope.launch { downloadManager.downloadCollection(it) } }
-					},
-					onCancelDownloadAll = {
-						collection?.songs?.forEach { downloadManager.cancelDownload(it.id) }
-					},
 					onPlayNext = { if (collection != null) player.playNext(collection) },
 					onAddToQueue = { if (collection != null) player.addToQueue(collection) },
-					downloadStatus = downloadStatus,
 					rating = state.data?.rating,
 					onSetRating = if (collection !is DomainPlaylist) {
 						{ viewModel.rateAlbum(it) }
@@ -405,22 +394,6 @@ fun CollectionDetailScreen(
 									CollectionSheet(
 										onDismissRequest = { viewModel.clearSelection() },
 										collection = album,
-										onDownloadAll = {
-											scope.launch {
-												downloadManager.downloadCollection(album)
-											}
-										},
-										onCancelDownloadAll = {
-											scope.launch {
-												album.songs.forEach { downloadManager.cancelDownload(it.id) }
-											}
-										},
-										onDeleteDownloadAll = {
-											scope.launch {
-												downloadManager.deleteDownloadedCollection(album)
-											}
-										},
-										downloadStatus = downloadStatus,
 										onShare = {
 											shareId = album.id
 										},
