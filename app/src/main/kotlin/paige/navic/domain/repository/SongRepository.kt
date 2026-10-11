@@ -8,10 +8,6 @@ package paige.navic.domain.repository
 
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import paige.navic.data.database.dao.SongDao
 import paige.navic.data.database.entity.SyncActionType
 import paige.navic.data.database.mapper.toDomainModel
@@ -21,7 +17,6 @@ import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
-import paige.navic.ui.core.UiState
 import kotlin.time.Clock
 
 class SongRepository(
@@ -72,20 +67,6 @@ class SongRepository(
 			localData
 		}
 	}
-
-	fun getSongsFlow(
-		fullRefresh: Boolean,
-		listType: DomainSongListType,
-		reversed: Boolean,
-		filters: Set<DomainFilter>
-	): Flow<ImmutableList<DomainSong>> = flow {
-		val localData = getLocalData(listType, reversed, filters)
-		if (fullRefresh) {
-			emit(refreshLocalData(listType, reversed, filters))
-		} else {
-			emit(localData)
-		}
-	}.flowOn(Dispatchers.IO)
 
 	suspend fun isSongStarred(song: DomainSong) = songDao.isSongStarred(song.id)
 	suspend fun getSongRating(song: DomainSong) = songDao.getSongRating(song.id) ?: 0
