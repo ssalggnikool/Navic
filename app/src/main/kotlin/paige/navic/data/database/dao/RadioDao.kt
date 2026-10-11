@@ -13,7 +13,6 @@ import androidx.room3.Query
 import androidx.room3.RawQuery
 import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
-import kotlinx.coroutines.flow.Flow
 import paige.navic.data.database.entity.RadioEntity
 import paige.navic.util.Logger
 
@@ -30,9 +29,6 @@ interface RadioDao {
 
 	@Query("SELECT * FROM RadioEntity ORDER BY name ASC")
 	suspend fun getRadios(): List<RadioEntity>
-
-	@Query("SELECT * FROM RadioEntity ORDER BY name ASC")
-	fun getRadiosFlow(): Flow<List<RadioEntity>>
 
 	@Query("DELETE FROM RadioEntity WHERE radioId = :radioId")
 	suspend fun deleteRadio(radioId: String)
