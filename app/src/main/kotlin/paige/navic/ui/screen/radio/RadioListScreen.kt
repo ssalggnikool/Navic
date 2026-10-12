@@ -182,10 +182,7 @@ fun RadioListScreen(
 					else Arrangement.spacedBy(12.dp)
 				) {
 					if (lazyPagingItems.itemCount > 0) {
-						items(
-							lazyPagingItems.itemCount,
-							key = { index -> lazyPagingItems[index]?.id ?: 0 } // TODO: make this properly null
-						) { index ->
+						items(lazyPagingItems.itemCount) { index ->
 							val radio = lazyPagingItems[index]
 							if (radio != null) {
 								RadioListScreenCard(

@@ -285,9 +285,7 @@ fun AlbumListScreen(
 									}
 								}
 							} else {
-								items(
-									items.itemCount,
-									{ index -> items[index]?.id ?: 0 }) { index ->
+								items(items.itemCount) { index ->
 									val album = items[index] ?: return@items
 
 									if (selectedViewMode == ListViewMode.Grid) {
