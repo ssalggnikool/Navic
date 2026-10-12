@@ -231,6 +231,11 @@ dependencies {
 	implementation(libs.composePipette)
 	implementation(libs.multiplatformSettings)
 
+	// Paging
+	implementation(libs.androidx.paging.common)
+	implementation(libs.androidx.paging.compose)
+	implementation(libs.androidx.room3.paging)
+
 	// Misc
 	implementation(libs.koin.core)
 	implementation(libs.koin.android)
