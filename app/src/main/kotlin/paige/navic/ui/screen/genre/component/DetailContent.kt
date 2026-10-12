@@ -103,8 +103,8 @@ fun GenreDetailScreenContent(
 					.height(gridHeight)
 			) {
 				items(
-					songs.itemCount,
-					{ index -> songs[index]?.id ?: 0 }) { index ->
+					songs.itemCount
+				) { index ->
 					val song = songs[index] ?: return@items
 
 					val download = allDownloads.find { it.songId == song.id }

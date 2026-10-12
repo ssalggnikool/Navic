@@ -163,7 +163,7 @@ fun ArtistListScreenContent(
 					}
 				}
 			} else {
-				items(artists.itemCount, { index -> artists[index]?.id ?: 0 }) { index ->
+				items(artists.itemCount) { index ->
 					val artist = artists[index] ?: return@items
 
 					if (selectedViewMode == ListViewMode.Grid) {
