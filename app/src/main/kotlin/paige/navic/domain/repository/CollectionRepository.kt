@@ -6,21 +6,18 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import paige.navic.data.database.dao.AlbumDao
 import paige.navic.data.database.dao.PlaylistDao
 import paige.navic.data.database.dao.SongDao
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.data.database.mapper.toEntity
+import paige.navic.data.database.query.toAlbumByIdSqlQuery
+import paige.navic.data.database.query.toPlaylistByIdSqlQuery
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.ui.core.UiState
 import dev.zt64.subsonic.api.model.AlbumInfo as ApiAlbumInfo
 
 class CollectionRepository(
@@ -33,7 +30,7 @@ class CollectionRepository(
 	suspend fun getLocalData(collectionId: String): DomainSongCollection {
 		return albumDao.getAlbumById(collectionId)?.toDomainModel()
 			?: playlistDao.getPlaylistById(collectionId)?.toDomainModel()
-			?: throw Error("Collection ID $collectionId is neither a known album or playlist")
+			?: error("Collection ID $collectionId is neither a known album or playlist")
 	}
 
 	private suspend fun refreshLocalData(collectionId: String): DomainSongCollection {
@@ -42,35 +39,30 @@ class CollectionRepository(
 				val album = sessionManager.api.getAlbum(collection.id)
 				songDao.updateSongsByAlbumId(album.id, album.songs.map { it.toEntity() })
 				albumDao.insertAlbum(album.toEntity())
-				albumDao.getAlbumById(album.id)!!.toDomainModel()
+				albumDao.getAlbumsByQuery(toAlbumByIdSqlQuery(album.id)).first().toDomainModel()
 			}
 
 			is DomainPlaylist -> {
 				val playlist = sessionManager.api.getPlaylist(collection.id)
 				playlistDao.insertPlaylist(playlist.toEntity())
 				dbRepository.syncPlaylistSongs(collection.id)
-				playlistDao.getPlaylistById(playlist.id)!!.toDomainModel()
+				playlistDao.getPlaylistsByQuery(toPlaylistByIdSqlQuery(playlist.id)).first().toDomainModel()
 			}
 		}
 		return getLocalData(collectionId)
 	}
 
-	fun getCollectionFlow(
+	suspend fun getCollection(
 		fullRefresh: Boolean,
 		collectionId: String
-	): Flow<UiState<DomainSongCollection>> = flow {
+	): DomainSongCollection {
 		val localData = getLocalData(collectionId)
-		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData(collectionId)))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+		return if (fullRefresh) {
+			refreshLocalData(collectionId)
 		} else {
-			emit(UiState.Success(data = localData))
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 
 	fun getOtherAlbums(artistId: String, albumId: String) = albumDao
 		.getAlbumsByArtistExcluding(artistId, albumId)
@@ -82,5 +74,16 @@ class CollectionRepository(
 
 	suspend fun getAlbumInfo(albumId: String): ApiAlbumInfo {
 		return sessionManager.api.getAlbumInfo(albumId)
+	}
+
+	suspend fun removeSongFromPlaylist(playlistId: String, songId: String) {
+		val playlist = getLocalData(playlistId) as? DomainPlaylist
+			?: error("Collection ID $playlistId is not a playlist")
+		val songIndex = playlist.songs.indexOfFirst { it.id == songId }
+		require(songIndex >= 0) { "Song ID $songId is not in playlist $playlistId" }
+		sessionManager.api.updatePlaylist(
+			id = playlistId,
+			songIndicesToRemove = listOf(songIndex)
+		)
 	}
 }

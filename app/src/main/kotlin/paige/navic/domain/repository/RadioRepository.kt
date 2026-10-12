@@ -8,14 +8,9 @@ package paige.navic.domain.repository
 
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import paige.navic.data.database.dao.RadioDao
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.domain.model.DomainRadio
-import paige.navic.ui.core.UiState
 
 class RadioRepository(
 	private val radioDao: RadioDao,
@@ -33,19 +28,14 @@ class RadioRepository(
 		return getLocalData()
 	}
 
-	fun getRadiosFlow(
+	suspend fun getRadios(
 		fullRefresh: Boolean
-	): Flow<UiState<ImmutableList<DomainRadio>>> = flow {
+	): ImmutableList<DomainRadio> {
 		val localData = getLocalData()
-		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData()))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+		return if (fullRefresh) {
+			refreshLocalData()
 		} else {
-			emit(UiState.Success(data = localData))
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 }

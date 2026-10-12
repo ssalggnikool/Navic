@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
+import paige.navic.R.string.info_no_playlists_short
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.PreferenceManager
@@ -56,7 +59,8 @@ import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Add
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
+import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeletionDialog
 import paige.navic.ui.component.dialog.DeletionEndpoint
 import paige.navic.ui.component.layout.ArtGrid
@@ -64,11 +68,13 @@ import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
+import paige.navic.ui.component.layout.artGridPlaceholder
 import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
+import paige.navic.ui.screen.playlist.component.PlaylistListScreenGridItem
+import paige.navic.ui.screen.playlist.component.PlaylistListScreenListItem
 import paige.navic.ui.screen.playlist.component.PlaylistListScreenSortButton
-import paige.navic.ui.screen.playlist.component.playlistListScreenContent
 import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistListViewModel
 import paige.navic.ui.screen.share.dialog.ShareDialog
@@ -90,9 +96,8 @@ fun PlaylistListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val player = koinInject<MediaPlayerViewModel>()
-	val playlistsState by viewModel.playlistsState.collectAsState()
-	val selectedPlaylist by viewModel.selectedPlaylist.collectAsState()
+	val player = koinInject<MediaPlayer>()
+	val state by viewModel.uiState.collectAsState()
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
@@ -196,9 +201,9 @@ fun PlaylistListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = playlistsState !is UiState.Loading,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshPlaylists(true) },
-			key = playlistsState
+			key = state
 		) {
 			ArtGrid(
 				modifier = if (!nested)
@@ -206,7 +211,7 @@ fun PlaylistListScreen(
 				else Modifier,
 				state = gridState,
 				contentPadding = innerPadding.withoutTop(),
-				verticalArrangement = if (playlistsState.data?.isEmpty() == true) {
+				verticalArrangement = if (state.data?.items?.isEmpty() == true) {
 					Arrangement.Center
 				} else if (selectedViewMode == ListViewMode.List) {
 					Arrangement.spacedBy(0.dp)
@@ -215,31 +220,89 @@ fun PlaylistListScreen(
 				},
 				selectedViewMode = selectedViewMode
 			) {
-				playlistListScreenContent(
-					state = playlistsState,
-					selectedPlaylist = selectedPlaylist,
-					selectedViewMode = selectedViewMode,
-					onUpdateSelection = { viewModel.selectPlaylist(it) },
-					onClearSelection = { viewModel.clearSelection() },
-					onSetShareId = { newShareId ->
-						shareId = newShareId
-					},
-					onSetDeletionId = { newDeletionId ->
-						deletionId = newDeletionId
-					},
-					onPlayNext = { if (selectedPlaylist != null) player.playNext(selectedPlaylist as DomainSongCollection) },
-					onAddToQueue = {
-						if (selectedPlaylist != null) player.addToQueue(
-							selectedPlaylist as DomainSongCollection
-						)
+				val data = state.data?.items.orEmpty()
+				if (data.isNotEmpty()) {
+					items(data, { it.id }) { playlist ->
+						if (selectedViewMode == ListViewMode.Grid) {
+							PlaylistListScreenGridItem(
+								modifier = Modifier.animateItem(),
+								tab = "playlists",
+								playlist = playlist,
+								selected = playlist == state.data?.selected,
+								onSelect = {
+									viewModel.selected = playlist
+								},
+								onDeselect = {
+									viewModel.clear()
+								},
+								onSetShareId = {
+									shareId = it
+								},
+								onSetDeletionId = {
+									deletionId = it
+								},
+								onPlayNext = {
+									if (state.data?.selected != null) player.playNext(
+										state.data?.selected as DomainSongCollection
+									)
+								},
+								onAddToQueue = {
+									if (state.data?.selected != null) player.addToQueue(
+										state.data?.selected as DomainSongCollection
+									)
+								},
+							)
+						} else {
+							PlaylistListScreenListItem(
+								modifier = Modifier.animateItem(),
+								playlist = playlist,
+								selected = playlist == state.data?.selected,
+								onSelect = {
+									viewModel.selected = playlist
+								},
+								onDeselect = {
+									viewModel.clear()
+								},
+								onSetShareId = {
+									shareId = it
+								},
+								onSetDeletionId = {
+									deletionId = it
+								},
+								onPlayNext = {
+									if (state.data?.selected != null) player.playNext(
+										state.data?.selected as DomainSongCollection
+									)
+								},
+								onAddToQueue = {
+									if (state.data?.selected != null) player.addToQueue(
+										state.data?.selected as DomainSongCollection
+									)
+								},
+							)
+						}
 					}
-				)
+				} else {
+					when (state) {
+						is UiState.Loading -> {
+							artGridPlaceholder(viewMode = selectedViewMode)
+						}
+
+						else -> {
+							item(span = { GridItemSpan(maxLineSpan) }) {
+								ContentUnavailable(
+									label = stringResource(info_no_playlists_short)
+								)
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 
 	ErrorSnackBar(
-		error = (playlistsState as? UiState.Error)?.error,
+		error = (state as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 

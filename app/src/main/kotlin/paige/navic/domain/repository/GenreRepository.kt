@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import paige.navic.data.database.dao.GenreDao
 import paige.navic.data.database.mapper.toDomainModel
+import paige.navic.data.database.query.toGenreSqlQuery
 import paige.navic.domain.model.DomainGenre
-import paige.navic.ui.core.UiState
 
 class GenreRepository(
 	private val genreDao: GenreDao,
@@ -23,10 +23,8 @@ class GenreRepository(
 ) {
 	private suspend fun getLocalData(): ImmutableList<DomainGenre> {
 		return genreDao
-			.getGenresWithAlbums()
+			.getGenresByQuery(toGenreSqlQuery())
 			.map { it.toDomainModel() }
-			.sortedByDescending { it.albums.count() }
-			.filter { it.albums.isNotEmpty() }
 			.toImmutableList()
 	}
 
@@ -37,17 +35,12 @@ class GenreRepository(
 
 	fun getGenresFlow(
 		fullRefresh: Boolean
-	): Flow<UiState<ImmutableList<DomainGenre>>> = flow {
+	): Flow<ImmutableList<DomainGenre>> = flow {
 		val localData = getLocalData()
 		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData()))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+				emit(refreshLocalData())
 		} else {
-			emit(UiState.Success(data = localData))
+			emit(localData)
 		}
 	}.flowOn(Dispatchers.IO)
 }

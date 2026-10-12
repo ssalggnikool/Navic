@@ -25,13 +25,14 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
+import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -49,27 +50,24 @@ fun GenreDetailScreen(
 	genreName: String
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
+	val downloadManager = koinInject<DownloadManager>()
 
 	val songsViewModel = koinViewModel<SongListViewModel>(
 		key = "genre_detail_songs_$genreName",
 		parameters = { parametersOf(DomainSongListType.ByGenre(genreName)) }
 	)
-	val songsState by songsViewModel.songsState.collectAsStateWithLifecycle()
-	val selectedSong by songsViewModel.selectedSong.collectAsStateWithLifecycle()
-	val selectedSongIsStarred by songsViewModel.starred.collectAsStateWithLifecycle()
-	val selectedSongRating by songsViewModel.selectedSongRating.collectAsStateWithLifecycle()
+	val songsState by songsViewModel.uiState.collectAsStateWithLifecycle()
 
 	val albumsViewModel = koinViewModel<AlbumListViewModel>(
 		key = "genre_detail_albums_$genreName",
 		parameters = { parametersOf(DomainAlbumListType.ByGenre(genreName)) }
 	)
-	val albumsState by albumsViewModel.albumsState.collectAsStateWithLifecycle()
-	val selectedAlbum by albumsViewModel.selectedAlbum.collectAsStateWithLifecycle()
-	val selectedAlbumIsStarred by albumsViewModel.starred.collectAsStateWithLifecycle()
-	val selectedAlbumRating by albumsViewModel.rating.collectAsStateWithLifecycle()
+	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
 
-	val allDownloads by songsViewModel.allDownloads.collectAsStateWithLifecycle()
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
 	val isOnline by songsViewModel.isOnline.collectAsStateWithLifecycle()
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -106,13 +104,14 @@ fun GenreDetailScreen(
 				onSetShareId = { shareId = it },
 				isOnline = isOnline,
 
-				songsState = songsState,
-				selectedSong = selectedSong,
-				selectedSongIsStarred = selectedSongIsStarred,
-				selectedSongRating = selectedSongRating,
+				songs = songsState.data?.items.orEmpty(),
+				selectedSong = songsState.data?.selected,
+				selectedSongRating = songsState.data?.selected?.userRating ?: 0,
 				allDownloads = allDownloads,
-				onSelectSong = { songsViewModel.selectSong(it) },
-				onClearSongSelection = { songsViewModel.clearSelection() },
+				onSelectSong = {
+					songsViewModel.selected = it
+				},
+				onClearSongSelection = { songsViewModel.clear() },
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
 				onPlaySongNext = { song ->
@@ -130,26 +129,30 @@ fun GenreDetailScreen(
 					}
 				},
 				onPlaySong = { index ->
-					player.playNow(songsState.data.orEmpty(), index)
+					player.playNow(songsState.data?.items.orEmpty(), index)
 				},
 				onSetSongRating = { songsViewModel.rateSelectedSong(it) },
-				onDownloadSong = { songsViewModel.downloadSong(it) },
+				onDownloadSong = { downloadManager.downloadSong(it) },
 				onCancelDownloadSong = { song ->
-					songsViewModel.cancelDownload(song.id)
+					downloadManager.cancelDownload(song.id)
 				},
 				onDeleteDownloadSong = { song ->
-					songsViewModel.deleteDownload(song.id)
+					downloadManager.deleteDownload(song.id)
 				},
 
-				albumsState = albumsState,
-				selectedAlbum = selectedAlbum,
-				selectedAlbumIsStarred = selectedAlbumIsStarred,
-				selectedAlbumRating = selectedAlbumRating,
-				onSelectAlbum = { albumsViewModel.selectAlbum(it) },
-				onClearAlbumSelection = { albumsViewModel.clearSelection() },
+				albumsState = albumsState.data?.items.orEmpty(),
+				selectedAlbum = albumsState.data?.selected,
+				selectedAlbumIsStarred = albumsState.data?.selected?.starredAt != null,
+				selectedAlbumRating = albumsState.data?.selected?.userRating ?: 0,
+				onSelectAlbum = {
+					albumsViewModel.selected = it
+				},
+				onClearAlbumSelection = {
+					albumsViewModel.selected = null
+				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
-				onPlayAlbumNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
-				onAddAlbumToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
+				onPlayAlbumNext = { albumsState.data?.selected.let { player.playNext(it as DomainSongCollection) } },
+				onAddAlbumToQueue = { albumsState.data?.selected.let { player.addToQueue(it as DomainSongCollection) } },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 			)
 		}

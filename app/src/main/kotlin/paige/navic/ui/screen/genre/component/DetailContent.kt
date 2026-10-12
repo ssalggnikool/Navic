@@ -45,11 +45,10 @@ fun GenreDetailScreenContent(
 	onSetShareId: (String) -> Unit,
 	isOnline: Boolean,
 
-	songsState: UiState<ImmutableList<DomainSong>>,
+	songs: List<DomainSong>,
 	selectedSong: DomainSong?,
-	selectedSongIsStarred: Boolean,
 	selectedSongRating: Int,
-	allDownloads: ImmutableList<DownloadEntity>,
+	allDownloads: List<DownloadEntity>,
 	onSelectSong: (DomainSong) -> Unit,
 	onClearSongSelection: () -> Unit,
 	onAddSongStar: () -> Unit,
@@ -63,7 +62,7 @@ fun GenreDetailScreenContent(
 	onDeleteDownloadSong: (DomainSong) -> Unit,
 
 	// albums
-	albumsState: UiState<ImmutableList<DomainAlbum>>,
+	albumsState: List<DomainAlbum>,
 	selectedAlbum: DomainAlbum?,
 	selectedAlbumIsStarred: Boolean,
 	selectedAlbumRating: Int,
@@ -74,8 +73,6 @@ fun GenreDetailScreenContent(
 	onPlayAlbumNext: () -> Unit,
 	onAddAlbumToQueue: () -> Unit,
 ) {
-	val songs = songsState.data.orEmpty().take(12)
-
 	LazyVerticalGrid(
 		columns = GridCells.Fixed(2),
 		contentPadding = innerPadding.withoutTop() + PaddingValues(top = 8.dp),
@@ -113,7 +110,7 @@ fun GenreDetailScreenContent(
 						onClick = { onPlaySong(index) },
 						onLongClick = { onSelectSong(song) },
 						onDismissRequest = { onClearSongSelection() },
-						starredState = if (selectedSong == song) selectedSongIsStarred else song.starredAt != null,
+						starredState = song.starredAt != null,
 						onAddStar = onAddSongStar,
 						onRemoveStar = onRemoveSongStar,
 						download = download,

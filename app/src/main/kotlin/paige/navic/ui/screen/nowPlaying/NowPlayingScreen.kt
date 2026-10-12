@@ -44,7 +44,7 @@ import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.KeyboardArrowDown
 import paige.navic.ui.icons.outlined.List
 import paige.navic.ui.icons.outlined.Lyrics
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.BlendBackground
 import paige.navic.ui.component.layout.SheetScaffold
 import paige.navic.ui.component.layout.TopBarButton
@@ -59,7 +59,7 @@ import paige.navic.ui.screen.nowPlaying.viewmodel.NowPlayingViewModel
 @Composable
 fun NowPlayingScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val backStack = LocalNavStack.current
 
 	val currentScreen = backStack.lastOrNull()

@@ -10,6 +10,8 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.RawQuery
+import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 import paige.navic.data.database.entity.ArtistEntity
@@ -17,6 +19,9 @@ import paige.navic.util.Logger
 
 @Dao
 interface ArtistDao {
+	@RawQuery
+	suspend fun getArtistsByQuery(query: RoomRawQuery): List<ArtistEntity>
+
 	@Query("SELECT * FROM ArtistEntity ORDER BY name COLLATE NOCASE ASC")
 	suspend fun getArtistsAlphabeticalByName(): List<ArtistEntity>
 

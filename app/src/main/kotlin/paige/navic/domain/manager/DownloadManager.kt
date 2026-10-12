@@ -118,7 +118,7 @@ class DownloadManager(
 	private var totalSongsToDownload = 0
 	private var completedSongsDownloaded = 0
 
-	private suspend fun updateDownloadNotification() {
+	private fun updateDownloadNotification() {
 		if (totalSongsToDownload == 0) return
 
 		if (completedSongsDownloaded >= totalSongsToDownload) {
@@ -435,7 +435,7 @@ class DownloadManager(
 		Logger.i("DownloadManager", "caching lyrics for ${song.id}")
 		try {
 			val lyricsResult = lyricsRepository.fetchLyrics(song)
-			if (lyricsResult != null && lyricsResult.rawContent != null) {
+			if (lyricsResult?.rawContent != null) {
 				lyricDao.insertLyrics(
 					LyricEntity(
 						songId = song.id,

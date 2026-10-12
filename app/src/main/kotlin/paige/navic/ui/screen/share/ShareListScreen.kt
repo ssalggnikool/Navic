@@ -54,9 +54,7 @@ import paige.navic.ui.util.withoutTop
 fun ShareListScreen() {
 	val viewModel = koinViewModel<ShareListViewModel>()
 
-	val sharesState by viewModel.sharesState.collectAsStateWithLifecycle()
-	val selectedShare by viewModel.selectedShare.collectAsStateWithLifecycle()
-	val isRefreshingFlow by viewModel.isRefreshing.collectAsStateWithLifecycle()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
 
 	val shareManager = koinInject<ShareManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -79,17 +77,17 @@ fun ShareListScreen() {
 			modifier = Modifier
 				.padding(top = contentPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = sharesState !is UiState.Loading && !isRefreshingFlow,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshShares() },
-			key = listOf(sharesState, isRefreshingFlow)
+			key = state
 		) {
-			Crossfade(sharesState) { stateValue ->
+			Crossfade(state) { stateValue ->
 				LazyVerticalGrid(
 					modifier = Modifier.fillMaxSize(),
 					columns = GridCells.Fixed(1),
 					contentPadding = contentPadding.withoutTop(),
 					state = viewModel.gridState,
-					verticalArrangement = if ((stateValue as? UiState.Success)?.data?.isEmpty() == true)
+					verticalArrangement = if ((stateValue as? UiState.Success)?.data?.items?.isEmpty() == true)
 						Arrangement.Center
 					else Arrangement.Top
 				) {
@@ -100,15 +98,15 @@ fun ShareListScreen() {
 
 						is UiState.Error -> artGridError(stateValue)
 						is UiState.Success -> {
-							items(stateValue.data, { it.id }) { share ->
+							items(stateValue.data.items, { it.id }) { share ->
 								ShareListScreenItem(
 									modifier = Modifier.animateItem(fadeInSpec = null),
 									share = share,
-									onClick = { viewModel.updateSelection(share) },
+									onClick = { viewModel.selected = share },
 									onSwipeToDelete = { deletionId = share.id }
 								)
 							}
-							if (stateValue.data.isEmpty()) {
+							if (stateValue.data.items.isEmpty()) {
 								item(span = { GridItemSpan(maxLineSpan) }) {
 									ContentUnavailable(
 										label = stringResource(R.string.info_no_shares)
@@ -122,9 +120,9 @@ fun ShareListScreen() {
 		}
 	}
 
-	selectedShare?.let { selectedShare ->
+	viewModel.selected?.let { selectedShare ->
 		ShareSheet(
-			onDismissRequest = viewModel::clearSelection,
+			onDismissRequest = viewModel::clear,
 			onShare = {
 				scope.launch {
 					try {
