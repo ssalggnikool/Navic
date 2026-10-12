@@ -195,9 +195,7 @@ fun StarredScreenContent(
 						.fillMaxWidth()
 						.height(gridHeight)
 				) {
-					items(songs.itemCount, { index ->
-						artists[index]?.id ?: 0
-					}) { index ->
+					items(songs.itemCount) { index ->
 						val song = songs[index] ?: return@items
 
 						val download = allDownloads.find { it.songId == song.id }
