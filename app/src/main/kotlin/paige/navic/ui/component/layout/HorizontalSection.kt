@@ -57,9 +57,7 @@ fun <T : Any> LazyGridScope.horizontalSection(
 					ArtGridPlaceholder(Modifier.width(150.dp))
 				}
 			} else {
-				items(state.itemCount, {
-
-				}) { index ->
+				items(state.itemCount) { index ->
 					val item = state[index] ?: return@items
 
 					itemContent(item)
