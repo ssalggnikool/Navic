@@ -225,6 +225,7 @@
 	<string name="option_enable_ratings">Enable ratings</string>
 	<string name="option_enable_predictive_back_animations">Enable predictive back animations</string>
 	<string name="option_enable_discord_integration">Enable Discord integration</string>
+	<string name="option_disable_rpc_when_power_saving">Disable presence on power saving mode</string>
 
 	<string name="info_status_idle">Idle</string>
 	<string name="info_status_calculating">Calculating...</string>

@@ -1,16 +1,16 @@
 <div align="center">
 
-<img title="Navic" alt="Navic" height="140" src="https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/wordmark.png">
+<img title="Navic" alt="Navic" height="140" src="https://codeberg.org/Navic/Branding/raw/branch/main/assets/wordmark.png">
 
 A modern (Open)Subsonic music streaming app for Android.
 
-[![Add to Obtainium](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/obtainium.svg)][ADD_TO_OBTAINIUM]
-[![Link to the latest release where you can download the APK or IPA directly](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/direct_download.svg)][LATEST_RELEASE]
-[![Discord](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/discord.svg)](https://discord.gg/TBcnNX66PH)
-[![IzzyOnDroid](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/izzyondroid.svg)](https://apt.izzysoft.de/fdroid/index/apk/paige.navic)
-[![F-droid](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/fdroid.svg)](https://f-droid.org/packages/paige.navic/)
-[![Translate](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/translate.svg)](#translating)
-[![Codeberg](https://raw.githubusercontent.com/NavicApp/Branding/refs/heads/main/assets/codeberg.svg)](https://codeberg.org/paige/Navic)
+[![Add to Obtainium](https://codeberg.org/Navic/Branding/raw/branch/main/assets/obtainium.svg)][ADD_TO_OBTAINIUM]
+[![Link to the latest release where you can download the APK or IPA directly](https://codeberg.org/Navic/Branding/raw/branch/main/assets/direct_download.svg)][LATEST_RELEASE]
+[![Discord](https://codeberg.org/Navic/Branding/raw/branch/main/assets/discord.svg)](https://discord.gg/TBcnNX66PH)
+[![IzzyOnDroid](https://codeberg.org/Navic/Branding/raw/branch/main/assets/izzyondroid.svg)](https://apt.izzysoft.de/fdroid/index/apk/paige.navic)
+[![F-droid](https://codeberg.org/Navic/Branding/raw/branch/main/assets/fdroid.svg)](https://f-droid.org/packages/paige.navic/)
+[![Translate](https://codeberg.org/Navic/Branding/raw/branch/main/assets/translate.svg)](#translating)
+[![Codeberg](https://codeberg.org/Navic/Branding/raw/branch/main/assets/codeberg.svg)](https://codeberg.org/paige/Navic)
 
 </div>
 
@@ -38,9 +38,9 @@ A modern (Open)Subsonic music streaming app for Android.
 
 ## Screenshots
 
-|                                       Library                                        |                                       Player                                        |                                       Lyrics                                        |                                       Albums                                        |
-|:------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
-| ![](https://github.com/NavicApp/Branding/blob/main/screenshots/library.png?raw=true) | ![](https://github.com/NavicApp/Branding/blob/main/screenshots/player.png?raw=true) | ![](https://github.com/NavicApp/Branding/blob/main/screenshots/lyrics.png?raw=true) | ![](https://github.com/NavicApp/Branding/blob/main/screenshots/albums.png?raw=true) |
+|                                     Library                                      |                                     Player                                      |                                     Lyrics                                      |                                     Albums                                      |
+|:--------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|
+| ![](https://codeberg.org/Navic/Branding/raw/branch/main/screenshots/library.png) | ![](https://codeberg.org/Navic/Branding/raw/branch/main/screenshots/player.png) | ![](https://codeberg.org/Navic/Branding/raw/branch/main/screenshots/lyrics.png) | ![](https://codeberg.org/Navic/Branding/raw/branch/main/screenshots/albums.png) |
 
 ## Installation & usage
 

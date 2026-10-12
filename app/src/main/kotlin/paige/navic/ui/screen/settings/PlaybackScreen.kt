@@ -112,7 +112,7 @@ fun SettingsPlaybackScreen() {
 					val enableDiscordIntegration = preferenceManager.enableDiscordIntegration
 					val enableScrobbling = preferenceManager.enableScrobbling
 					var count = 2
-					if (enableDiscordIntegration) count += 1
+					if (enableDiscordIntegration) count += 2
 					if (enableScrobbling) count += 2
 
 					SettingsToggleItem(
@@ -137,13 +137,25 @@ fun SettingsPlaybackScreen() {
 						)
 					}
 
+					AnimatedVisibility(visible = enableDiscordIntegration) {
+						SettingsToggleItem(
+							checked = preferenceManager.disableRpcWhenPowerSaving,
+							onCheckedChange = { preferenceManager.disableRpcWhenPowerSaving = it },
+							content = { Text(stringResource(R.string.option_disable_rpc_when_power_saving)) },
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 2,
+								count = count
+							)
+						)
+					}
+
 					SettingsToggleItem(
 						checked = enableScrobbling,
 						onCheckedChange = { preferenceManager.enableScrobbling = it },
 						content = { Text(stringResource(R.string.option_enable_scrobbling)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_enable_scrobbling)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = if (enableDiscordIntegration) 2 else 1,
+							index = if (enableDiscordIntegration) 3 else 1,
 							count = count
 						)
 					)
@@ -156,7 +168,7 @@ fun SettingsPlaybackScreen() {
 							trailingContent = { Text("${(preferenceManager.scrobblePercentage * 100).roundToInt()}%") },
 							content = { Text(stringResource(R.string.option_scrobble_percentage)) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = if (enableDiscordIntegration) 3 else 2,
+								index = if (enableDiscordIntegration) 4 else 2,
 								count = count
 							)
 						)
@@ -171,7 +183,7 @@ fun SettingsPlaybackScreen() {
 							trailingContent = { Text("${preferenceManager.minDurationToScrobble.toInt()}s") },
 							content = { Text(stringResource(R.string.option_min_duration_to_scrobble)) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = if (enableDiscordIntegration) 4 else 3,
+								index = if (enableDiscordIntegration) 5 else 3,
 								count = count
 							)
 						)

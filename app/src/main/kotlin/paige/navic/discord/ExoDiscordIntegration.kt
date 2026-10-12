@@ -6,15 +6,20 @@
 
 package paige.navic.discord
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.PowerManager
 import android.util.Log
+import androidx.compose.runtime.snapshotFlow
+import androidx.core.content.getSystemService
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import night.milkyway.antisocialcord.DiscordRpcClient
 import night.milkyway.antisocialcord.model.Activity
 import night.milkyway.antisocialcord.model.ActivityAssets
@@ -34,9 +39,11 @@ class ExoDiscordIntegration(
 ) : Player.Listener, KoinComponent {
 	private val context: Context by inject()
 	private val preferenceManager: PreferenceManager by inject()
-
 	private val songRepository: SongRepository by inject()
 	private val albumRepository: AlbumRepository by inject()
+
+	private val powerManager =
+		context.getSystemService<PowerManager>()!! // idk why this would ever be null but yk
 
 	companion object {
 		const val DISCORD_APPLICATION_ID = "1554936646405984446"
@@ -46,15 +53,33 @@ class ExoDiscordIntegration(
 
 	private val client = DiscordRpcClient(context)
 	private val scope = CoroutineScope(Dispatchers.Main)
-	private val mutex = Mutex()
 
-	fun isIntegrationEnabled(): Boolean {
-		return preferenceManager.enableDiscordIntegration
+	init {
+		scope.launch {
+			combine(
+				snapshotFlow { preferenceManager.enableDiscordIntegration },
+				snapshotFlow { preferenceManager.disableRpcWhenPowerSaving }
+			) { it }.collect {
+				setCurrentActivity(player.currentMediaItem)
+			}
+		}
+		context.registerReceiver(
+			object : BroadcastReceiver() {
+				override fun onReceive(p0: Context?, p1: Intent?) {
+					scope.launch {
+						setCurrentActivity(player.currentMediaItem)
+					}
+				}
+			},
+			IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+		)
 	}
 
 	override fun onPlaybackStateChanged(playbackState: @Player.State Int) {
-		if (playbackState == Player.STATE_READY) {
-			setCurrentActivity(player.currentMediaItem)
+		scope.launch {
+			if (playbackState == Player.STATE_READY) {
+				setCurrentActivity(player.currentMediaItem)
+			}
 		}
 	}
 
@@ -63,55 +88,58 @@ class ExoDiscordIntegration(
 		newPosition: Player.PositionInfo,
 		reason: @Player.DiscontinuityReason Int
 	) {
-		val isSeekOrRepeat = reason == Player.DISCONTINUITY_REASON_SEEK ||
-			reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION
+		scope.launch {
+			val isSeekOrRepeat = reason == Player.DISCONTINUITY_REASON_SEEK ||
+				reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION
 
-		val jumpedToStart = newPosition.positionMs < 5000L
-		val wasFurtherAlong = oldPosition.positionMs > 10000L
+			val jumpedToStart = newPosition.positionMs < 5000L
+			val wasFurtherAlong = oldPosition.positionMs > 10000L
 
-		if (isSeekOrRepeat && jumpedToStart && wasFurtherAlong) {
-			if (player.currentMediaItem != null) {
-				setCurrentActivity(player.currentMediaItem)
+			if (isSeekOrRepeat && jumpedToStart && wasFurtherAlong) {
+				if (player.currentMediaItem != null) {
+					setCurrentActivity(player.currentMediaItem)
+				}
 			}
 		}
 	}
 
 	override fun onIsPlayingChanged(isPlaying: Boolean) {
-		if (!isPlaying) {
-			setCurrentActivity(null)
-		} else {
-			setCurrentActivity(player.currentMediaItem)
+		scope.launch {
+			if (!isPlaying) {
+				setCurrentActivity(null)
+			} else {
+				setCurrentActivity(player.currentMediaItem)
+			}
 		}
 	}
 
-	private fun setCurrentActivity(mediaItem: MediaItem?) {
-		scope.launch {
-			mutex.withLock {
-				try {
-					if (isIntegrationEnabled()) {
-						if (!client.isConnectionReady) {
-							client.connect(preferenceManager.discordAppId)
-						}
+	private suspend fun setCurrentActivity(mediaItem: MediaItem?) {
+		try {
+			val cock = preferenceManager.enableDiscordIntegration
+			val balls = !preferenceManager.disableRpcWhenPowerSaving
+				|| !powerManager.isPowerSaveMode
+			if (cock && balls) {
+				if (!client.isConnectionReady) {
+					client.connect(preferenceManager.discordAppId)
+				}
 
-						val song = mediaItem?.let { songRepository.getSongById(it.mediaId) }
-						val album = song?.albumId?.let { albumRepository.getAlbumById(it) }
+				val song = mediaItem?.let { songRepository.getSongById(it.mediaId) }
+				val album = song?.albumId?.let { albumRepository.getAlbumById(it) }
 
-						if (song != null) {
-							val activity = createDiscordActivity(song = song, album = album)
-							client.setActivity(activity)
-							return@withLock
-						}
-					} else {
-						if (client.isConnectionReady) {
-							client.disconnect()
-						}
-					}
-
-					client.clearActivity()
-				} catch (e: Exception) {
-					Log.d(TAG, "fuck this discord shit", e)
+				if (song != null) {
+					val activity = createDiscordActivity(song = song, album = album)
+					client.setActivity(activity)
+					return
+				}
+			} else {
+				if (client.isConnectionReady) {
+					client.disconnect()
 				}
 			}
+
+			client.clearActivity()
+		} catch (ex: Exception) {
+			Log.e(TAG, "could not set current activity", ex)
 		}
 	}
 

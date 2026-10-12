@@ -32,6 +32,7 @@ concurrency:
 jobs:
   build-android:
     name: Android
+    #runs-on: codeberg-medium
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -45,6 +46,9 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: gradle
+
+      #- name: Setup Android SDK
+      #  uses: https://github.com/android-actions/setup-android@035682743ab223ec9c6169af09811dff8247e520
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
