@@ -74,9 +74,10 @@ fun LyricsScreenContent(
 
 	if (lyrics.isNullOrEmpty()) return LyricsScreenPlaceholder(onRefresh = onRefresh)
 
+	val anticipationOffset = 250.milliseconds
 	val activeIndex = if (isSynced) {
 		lyrics.indexOfLast { line ->
-			line.time != null && currentDuration >= line.time
+			line.time != null && (currentDuration + anticipationOffset) >= line.time
 		}
 	} else -1
 
@@ -128,7 +129,7 @@ fun LyricsScreenContent(
 		contentPadding = contentPadding + PaddingValues(top = 16.dp)
 	) {
 		itemsIndexed(lyrics) { index, line ->
-			val isActive = if (isSynced) index == activeIndex else true
+			val isActive = !isSynced || index == activeIndex
 			val isSelected = selectedIndices.contains(index)
 			val isEmphasised = (isActive && !isSelecting) || isSelected
 			val distance = abs(index - activeIndex)
