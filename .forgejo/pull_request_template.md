@@ -29,5 +29,4 @@ should be this:
 
 <!-- Use [x] to tick the boxes. -->
 
-- [ ] This pull request adheres to the rules and conventions in [CONTRIBUTING.md](https://github.com/ssalggnikool/Navic/blob/master/.github/CONTRIBUTING.md)
 - [ ] This pull request was not assisted with an LLM
