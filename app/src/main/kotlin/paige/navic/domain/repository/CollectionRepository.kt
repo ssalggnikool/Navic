@@ -7,13 +7,11 @@
 package paige.navic.domain.repository
 
 import kotlinx.coroutines.flow.map
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.PlaylistDao
-import paige.navic.data.database.dao.SongDao
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.mapper.toEntity
-import paige.navic.data.database.query.toAlbumByIdSqlQuery
-import paige.navic.data.database.query.toPlaylistByIdSqlQuery
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.PlaylistDao
+import paige.navic.database.dao.SongDao
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.mapper.toEntity
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist

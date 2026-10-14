@@ -12,9 +12,9 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import paige.navic.data.database.dao.PlaylistDao
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.query.toSqlQuery
+import paige.navic.database.dao.PlaylistDao
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.query.toSqlQuery
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainPlaylistListType

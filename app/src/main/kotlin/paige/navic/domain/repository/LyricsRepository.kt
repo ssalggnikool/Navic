@@ -25,8 +25,8 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import paige.navic.data.database.dao.LyricDao
-import paige.navic.data.database.entity.LyricEntity
+import paige.navic.database.dao.LyricDao
+import paige.navic.database.entity.LyricEntity
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.lyrics.LyricsConfig

@@ -32,8 +32,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.mapper.toDomainModel
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.AudioGainManager
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.DownloadManager

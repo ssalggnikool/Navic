@@ -29,8 +29,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
-import paige.navic.data.database.dao.PlaylistDao
-import paige.navic.data.database.entity.SyncActionType
+import paige.navic.database.dao.PlaylistDao
+import paige.navic.database.entity.SyncActionType
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.manager.SyncManager

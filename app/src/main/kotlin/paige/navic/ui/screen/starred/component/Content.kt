@@ -44,7 +44,7 @@ import androidx.paging.compose.LazyPagingItems
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadEntity
+import paige.navic.database.entity.DownloadEntity
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType

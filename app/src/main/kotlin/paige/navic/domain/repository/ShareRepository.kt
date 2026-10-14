@@ -6,7 +6,7 @@
 
 package paige.navic.domain.repository
 
-import paige.navic.data.database.mapper.toDomainModel
+import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.SessionManager
 
 class ShareRepository(

@@ -12,9 +12,9 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import paige.navic.data.database.dao.GenreDao
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.query.toGenreSqlQuery
+import paige.navic.database.dao.GenreDao
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.query.toGenreSqlQuery
 import paige.navic.domain.model.DomainGenre
 
 class GenreRepository(
