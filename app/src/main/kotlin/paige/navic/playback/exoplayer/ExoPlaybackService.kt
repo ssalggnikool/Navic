@@ -68,7 +68,6 @@ class ExoPlaybackService : MediaSessionService(), KoinComponent {
 
 			scrobbleManager = ScrobbleManager(
                 player,
-                serviceScope,
                 connectivityManager,
                 syncManager,
                 sessionManager,
