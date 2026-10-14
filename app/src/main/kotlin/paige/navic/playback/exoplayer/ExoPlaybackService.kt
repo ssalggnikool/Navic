@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.R
-import paige.navic.domain.manager.AndroidScrobbleManager
+import paige.navic.domain.manager.ScrobbleManager
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.EqualizerManager
 import paige.navic.domain.manager.PreferenceManager
@@ -46,7 +46,7 @@ class ExoPlaybackService : MediaSessionService(), KoinComponent {
 
 	private lateinit var exoEqualizerManager: ExoEqualizerManager
 
-	private lateinit var scrobbleManager: AndroidScrobbleManager
+	private lateinit var scrobbleManager: ScrobbleManager
 
 	override fun onCreate() {
 		super.onCreate()
@@ -66,7 +66,7 @@ class ExoPlaybackService : MediaSessionService(), KoinComponent {
 		stateHolder.playerInstance.let { player ->
 			player as Player
 
-			scrobbleManager = AndroidScrobbleManager(
+			scrobbleManager = ScrobbleManager(
                 player,
                 serviceScope,
                 connectivityManager,
