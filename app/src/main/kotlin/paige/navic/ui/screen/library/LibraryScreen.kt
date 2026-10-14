@@ -35,7 +35,7 @@ import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.DeletionDialog
-import paige.navic.ui.component.dialog.DeletionEndpoint
+import paige.navic.ui.component.dialog.DeletionTarget
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
@@ -235,9 +235,8 @@ fun LibraryScreen() {
 	)
 
 	DeletionDialog(
-		endpoint = DeletionEndpoint.PLAYLIST,
-		id = playlistDeletionId,
-		onIdClear = { playlistDeletionId = null },
+		target = playlistDeletionId?.let { DeletionTarget.Playlist(it) },
+		onDismissRequest = { playlistDeletionId = null },
 		onRefresh = { playlistsViewModel.refreshPlaylists(false) }
 	)
 

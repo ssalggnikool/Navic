@@ -64,6 +64,7 @@ import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.BulkDownloadDialog
+import paige.navic.ui.component.dialog.BulkDownloadTarget
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
 import paige.navic.ui.navigation.Screen
@@ -159,16 +160,12 @@ fun SettingsDataStorageScreen() {
 		}
 	}
 
-	BulkDownloadDialog(
-		title = stringResource(R.string.title_library_download),
-		message = stringResource(R.string.info_library_download_warning),
-		showDialog = showLibraryDownloadDialog,
-		onDismissRequest = { showLibraryDownloadDialog = false },
-		onConfirm = {
-			showLibraryDownloadDialog = false
-			viewModel.downloadEntireLibrary()
-		}
-	)
+	if (showLibraryDownloadDialog) {
+		BulkDownloadDialog(
+			target = BulkDownloadTarget.Library,
+			onDismissRequest = { showLibraryDownloadDialog = false }
+		)
+	}
 
 	Scaffold(
 		topBar = {

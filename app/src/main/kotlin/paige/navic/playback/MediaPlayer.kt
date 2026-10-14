@@ -139,6 +139,13 @@ class MediaPlayer(
 		}
 	}
 
+	fun checkDuplicate(
+		songId: String,
+		preferenceManager: PreferenceManager
+	): Boolean {
+		return !preferenceManager.shushQueueDuplicateDialog && uiState.value.queue.any { it.id == songId }
+	}
+
 	private suspend fun restoreState() {
 		val savedState = stateRepository.state.first().copy(isPaused = true, isLoading = false)
 		_uiState.value = savedState

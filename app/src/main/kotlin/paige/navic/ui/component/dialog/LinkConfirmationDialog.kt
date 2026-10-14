@@ -28,55 +28,57 @@ import paige.navic.ui.component.common.SegmentedListButtonDefaults
 
 @Composable
 fun LinkConfirmationDialog(
-	linkToOpen: String,
+	linkToOpen: String? = null,
 	onDismissRequest: () -> Unit
 ) {
 	val linkManager = koinInject<LinkManager>()
 
-	FormDialog(
-		onDismissRequest = onDismissRequest,
-		title = { Text(stringResource(R.string.title_link_confirmation)) },
-		content = {
-			Text(stringResource(R.string.notice_link_confirmation))
-			Spacer(Modifier.height(8.dp))
-			Surface(
-				modifier = Modifier.fillMaxWidth(),
-				shape = MaterialTheme.shapes.large,
-				color = MaterialTheme.colorScheme.surfaceContainer,
-				contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-			) {
-				Row(
-					modifier = Modifier
-						.fillMaxWidth()
-						.padding(12.dp),
-					horizontalArrangement = Arrangement.Center
+	if (linkToOpen != null) {
+		FormDialog(
+			onDismissRequest = onDismissRequest,
+			title = { Text(stringResource(R.string.title_link_confirmation)) },
+			content = {
+				Text(stringResource(R.string.notice_link_confirmation))
+				Spacer(Modifier.height(8.dp))
+				Surface(
+					modifier = Modifier.fillMaxWidth(),
+					shape = MaterialTheme.shapes.large,
+					color = MaterialTheme.colorScheme.surfaceContainer,
+					contentColor = MaterialTheme.colorScheme.onSurfaceVariant
 				) {
-					Text(
-						text = linkToOpen,
-						maxLines = 1,
-						overflow = TextOverflow.Ellipsis
-					)
+					Row(
+						modifier = Modifier
+							.fillMaxWidth()
+							.padding(12.dp),
+						horizontalArrangement = Arrangement.Center
+					) {
+						Text(
+							text = linkToOpen,
+							maxLines = 1,
+							overflow = TextOverflow.Ellipsis
+						)
+					}
+				}
+			},
+			buttons = {
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = {
+						linkManager.openLink(linkToOpen)
+						onDismissRequest()
+					},
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2)
+				) {
+					Text(stringResource(R.string.action_visit_site))
+				}
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = onDismissRequest,
+					shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
+				) {
+					Text(stringResource(R.string.action_cancel))
 				}
 			}
-		},
-		buttons = {
-			SegmentedListButton(
-				modifier = Modifier.fillMaxWidth(),
-				onClick = {
-					linkManager.openLink(linkToOpen)
-					onDismissRequest()
-				},
-				shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2)
-			) {
-				Text(stringResource(R.string.action_visit_site))
-			}
-			SegmentedListButton(
-				modifier = Modifier.fillMaxWidth(),
-				onClick = onDismissRequest,
-				shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
-			) {
-				Text(stringResource(R.string.action_cancel))
-			}
-		}
-	)
+		)
+	}
 }

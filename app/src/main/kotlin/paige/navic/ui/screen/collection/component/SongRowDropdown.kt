@@ -65,14 +65,14 @@ fun CollectionDetailScreenSongRowDropdown(
 			},
 			onShare = onShare,
 			onPlayNext = {
-				if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (player.checkDuplicate(song.id, preferenceManager)) {
 					isPlayNextPending = true
 				} else {
 					onPlayNext()
 				}
 			},
 			onAddToQueue = {
-				if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (player.checkDuplicate(song.id, preferenceManager)) {
 					isPlayNextPending = false
 				} else {
 					onAddToQueue()
@@ -117,16 +117,15 @@ fun CollectionDetailScreenSongRowDropdown(
 		)
 	}
 
-	if (isPlayNextPending != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = {
-				isPlayNextPending = null
-				onDismissRequest()
-			},
-			onConfirm = {
-				if (isPlayNextPending == true) onPlayNext() else onAddToQueue()
-				isPlayNextPending = null
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		showDialog = isPlayNextPending != null,
+		onDismissRequest = {
+			isPlayNextPending = null
+			onDismissRequest()
+		},
+		onConfirm = {
+			if (isPlayNextPending == true) onPlayNext() else onAddToQueue()
+			isPlayNextPending = null
+		}
+	)
 }

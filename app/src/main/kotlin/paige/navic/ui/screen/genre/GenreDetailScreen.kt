@@ -118,14 +118,14 @@ fun GenreDetailScreen(
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
 				onPlaySongNext = { song ->
-					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+					if (player.checkDuplicate(song.id, preferenceManager)) {
 						songToQueue = song
 					} else {
 						player.playNextSingle(song)
 					}
 				},
 				onAddSongToQueue = { song ->
-					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+					if (player.checkDuplicate(song.id, preferenceManager)) {
 						songToQueue = song
 					} else {
 						player.addToQueueSingle(song)
@@ -181,12 +181,8 @@ fun GenreDetailScreen(
 		onExpiryChange = { shareExpiry = it }
 	)
 
-	if (songToQueue != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { songToQueue = null },
-			onConfirm = {
-				songToQueue?.let { player.addToQueueSingle(it) }
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		song = songToQueue,
+		onDismissRequest = { songToQueue = null }
+	)
 }
