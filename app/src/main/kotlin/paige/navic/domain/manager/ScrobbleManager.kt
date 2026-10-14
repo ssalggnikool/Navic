@@ -6,6 +6,8 @@
 
 package paige.navic.domain.manager
 
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -16,51 +18,70 @@ import paige.navic.data.database.entity.SyncActionType
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
-interface ScrobblePlayerSource {
-	val currentPosition: Long
-	val duration: Long
-	val isPlaying: Boolean
-}
-
 class ScrobbleManager(
-	private val playerSource: ScrobblePlayerSource,
-	private val connectivityManager: ConnectivityManager,
-	private val syncManager: SyncManager,
-	private val sessionManager: SessionManager,
-	private val scope: CoroutineScope,
-	private val preferenceManager: PreferenceManager
-) {
+	private val player: Player,
+	val connectivityManager: ConnectivityManager,
+	val syncManager: SyncManager,
+	val sessionManager: SessionManager,
+	val preferenceManager: PreferenceManager
+) : Player.Listener {
 	private var currentMediaId: String? = null
 	private var hasScrobbledCurrent = false
 	private var hasSentNowPlaying = false
 	private var progressJob: Job? = null
 	private var accumulatedPlayTime: Long = 0
+	private val scope = CoroutineScope(Dispatchers.IO)
 
-	fun onMediaChanged(mediaId: String?) {
-		currentMediaId = mediaId
+	init {
+		player.addListener(this)
+	}
+
+	private fun scrobbleNowPlaying(songId: String?) {
+		if (!preferenceManager.enableScrobbling || songId == null) return
+
+		if (!connectivityManager.isOnline.value) return
+
+		scope.launch(Dispatchers.IO) {
+			try {
+				sessionManager.api.scrobble(songId, submission = false)
+			} catch (_: Exception) {
+			}
+		}
+	}
+
+	private fun scrobbleSubmission(songId: String?) {
+		if (!preferenceManager.enableScrobbling || songId == null) return
+
+		scope.launch(Dispatchers.IO) {
+			val currentTime = Clock.System.now()
+
+			if (connectivityManager.isOnline.value) {
+				try {
+					sessionManager.api.scrobble(songId, submission = true, time = currentTime)
+				} catch (_: Exception) {
+					syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
+				}
+			} else {
+				syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
+			}
+		}
+	}
+
+	fun hasTransitioned(mediaItem: MediaItem?) {
+		currentMediaId = mediaItem?.mediaId
 		hasScrobbledCurrent = false
 		hasSentNowPlaying = false
 		accumulatedPlayTime = 0
-
 		progressJob?.cancel()
-		if (playerSource.isPlaying) {
+		if (player.isPlaying) {
 			startProgressTracker()
-			scrobbleNowPlaying(mediaId)
+			scrobbleNowPlaying(mediaItem?.mediaId)
 			hasSentNowPlaying = true
 		}
 	}
 
-	fun onPlayStateChanged(isPlaying: Boolean) {
-		if (isPlaying) {
-			startProgressTracker()
-			if (!hasSentNowPlaying) {
-				scrobbleNowPlaying(currentMediaId)
-				hasSentNowPlaying = true
-			}
-		} else {
-			progressJob?.cancel()
-		}
-	}
+	override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) =
+		hasTransitioned(mediaItem)
 
 	private fun startProgressTracker() {
 		progressJob?.cancel()
@@ -83,7 +104,7 @@ class ScrobbleManager(
 	private fun checkProgress() {
 		if (hasScrobbledCurrent) return
 
-		val duration = playerSource.duration
+		val duration = player.duration
 		if (duration <= 0) return
 
 		val percent = accumulatedPlayTime.toFloat() / duration.toFloat()
@@ -96,34 +117,35 @@ class ScrobbleManager(
 		}
 	}
 
-	private fun scrobbleSubmission(songId: String?) {
-		if (!preferenceManager.enableScrobbling || songId == null) return
+	override fun onPositionDiscontinuity(
+		oldPosition: Player.PositionInfo,
+		newPosition: Player.PositionInfo,
+		reason: Int
+	) {
+		val isSeekOrRepeat = reason == Player.DISCONTINUITY_REASON_SEEK ||
+			reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION
 
-		scope.launch(Dispatchers.IO) {
-			val currentTime = Clock.System.now()
+		val jumpedToStart = newPosition.positionMs < 5000L
+		val wasFurtherAlong = oldPosition.positionMs > 10000L
 
-			if (connectivityManager.isOnline.value) {
-				try {
-					sessionManager.api.scrobble(songId, submission = true, time = currentTime)
-				} catch (_: Exception) {
-					syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
-				}
-			} else {
-				syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
-			}
+		if (isSeekOrRepeat && jumpedToStart && wasFurtherAlong) {
+			hasTransitioned(player.currentMediaItem)
 		}
 	}
 
-	private fun scrobbleNowPlaying(songId: String?) {
-		if (!preferenceManager.enableScrobbling || songId == null) return
-
-		if (!connectivityManager.isOnline.value) return
-
-		scope.launch(Dispatchers.IO) {
-			try {
-				sessionManager.api.scrobble(songId, submission = false)
-			} catch (_: Exception) {
+	override fun onIsPlayingChanged(isPlaying: Boolean) {
+		if (isPlaying) {
+			startProgressTracker()
+			if (!hasSentNowPlaying) {
+				scrobbleNowPlaying(currentMediaId)
+				hasSentNowPlaying = true
 			}
+		} else {
+			progressJob?.cancel()
 		}
+	}
+
+	fun release() {
+		player.removeListener(this)
 	}
 }
