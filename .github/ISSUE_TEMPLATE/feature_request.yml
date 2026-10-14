@@ -1,0 +1,32 @@
+name: "💡 Feature Request"
+description: Suggest a new feature for Navic
+title: "[Feature Request]: "
+labels: [ "enhancement" ]
+body:
+  - type: textarea
+    id: feature-explanation
+    attributes:
+      label: Feature explanation
+      description: Brief explanation of what you want to be added
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Implementation guidance, screenshots/examples, etc
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Prerequisites
+      options:
+        - label: "I've searched existing issues and this hasn't been suggested before"
+          required: true
+        - label: "I did NOT write this issue with an LLM"
+          required: true
+        - label: "I've ensured I am on the LATEST app version in case this was already added recently"
+          required: true

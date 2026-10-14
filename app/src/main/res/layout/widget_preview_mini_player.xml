@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="80dp"
+	android:background="@drawable/preview_widget_background"
+	android:gravity="center_vertical"
+	android:orientation="horizontal"
+	android:padding="12dp">
+
+	<ImageView
+		android:layout_width="56dp"
+		android:layout_height="56dp"
+		android:background="@drawable/widget_preview_cover_art"
+		android:importantForAccessibility="no" />
+
+	<LinearLayout
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:orientation="vertical"
+		android:paddingHorizontal="12dp">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Hyaline Wormhole"
+			android:textColor="?android:textColorPrimary"
+			android:textSize="16sp"
+			tools:ignore="HardcodedText" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Vitrified Entity"
+			android:textColor="?android:textColorSecondary"
+			android:textSize="15sp"
+			tools:ignore="HardcodedText" />
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+
+		<ImageView
+			android:layout_width="32dp"
+			android:layout_height="32dp"
+			android:layout_margin="2dp"
+			android:background="@drawable/ic_previous"
+			android:importantForAccessibility="no" />
+
+		<ImageView
+			android:layout_width="32dp"
+			android:layout_height="32dp"
+			android:layout_margin="2dp"
+			android:background="@drawable/ic_pause"
+			android:importantForAccessibility="no" />
+
+		<ImageView
+			android:layout_width="32dp"
+			android:layout_height="32dp"
+			android:layout_margin="2dp"
+			android:background="@drawable/ic_next"
+			android:importantForAccessibility="no" />
+	</LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,149 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.screen.share
+
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+import paige.navic.R
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalSnackBarState
+import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.ShareManager
+import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.ui.component.common.ContentUnavailable
+import paige.navic.ui.component.dialog.DeletionDialog
+import paige.navic.ui.component.dialog.DeletionTarget
+import paige.navic.ui.component.layout.NestedTopBar
+import paige.navic.ui.component.layout.PullToRefreshBox
+import paige.navic.ui.component.layout.RootBottomBar
+import paige.navic.ui.component.layout.artGridError
+import paige.navic.ui.component.sheet.ShareSheet
+import paige.navic.ui.core.UiState
+import paige.navic.ui.screen.share.component.ShareListScreenItem
+import paige.navic.ui.screen.share.viewmodel.ShareListViewModel
+import paige.navic.ui.util.withoutTop
+
+@Composable
+fun ShareListScreen() {
+	val viewModel = koinViewModel<ShareListViewModel>()
+
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+	val shareManager = koinInject<ShareManager>()
+	val preferenceManager = koinInject<PreferenceManager>()
+	val resources = LocalResources.current
+	val snackBarState = LocalSnackBarState.current
+	val scope = rememberCoroutineScope()
+
+	var deletionId by remember { mutableStateOf<String?>(null) }
+
+	Scaffold(
+		topBar = { NestedTopBar({ Text(stringResource(R.string.title_shares)) }) },
+		bottomBar = {
+			val scrollManager = LocalBottomBarScrollManager.current
+			if (preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens) {
+				RootBottomBar(scrolled = scrollManager.isTriggered)
+			}
+		}
+	) { contentPadding ->
+		PullToRefreshBox(
+			modifier = Modifier
+				.padding(top = contentPadding.calculateTopPadding())
+				.background(MaterialTheme.colorScheme.surface),
+			finished = state !is UiState.Loading,
+			onRefresh = { viewModel.refreshShares() },
+			key = state
+		) {
+			Crossfade(state) { stateValue ->
+				LazyVerticalGrid(
+					modifier = Modifier.fillMaxSize(),
+					columns = GridCells.Fixed(1),
+					contentPadding = contentPadding.withoutTop(),
+					state = viewModel.gridState,
+					verticalArrangement = if ((stateValue as? UiState.Success)?.data?.items?.isEmpty() == true)
+						Arrangement.Center
+					else Arrangement.Top
+				) {
+					when (stateValue) {
+						is UiState.Loading -> {
+							return@LazyVerticalGrid
+						}
+
+						is UiState.Error -> artGridError(stateValue)
+						is UiState.Success -> {
+							val items = stateValue.data.items ?: return@LazyVerticalGrid
+
+							items(items) { share ->
+								ShareListScreenItem(
+									modifier = Modifier.animateItem(fadeInSpec = null),
+									share = share,
+									onClick = { viewModel.selected = share },
+									onSwipeToDelete = { deletionId = share.id }
+								)
+							}
+							if (stateValue.data.items.isEmpty()) {
+								item(span = { GridItemSpan(maxLineSpan) }) {
+									ContentUnavailable(
+										label = stringResource(R.string.info_no_shares)
+									)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	viewModel.selected?.let { selectedShare ->
+		ShareSheet(
+			onDismissRequest = {
+				// TODO: fuck
+			},
+			onShare = {
+				scope.launch {
+					try {
+						shareManager.shareString(selectedShare.url)
+					} catch (ex: Exception) {
+						val message = ex.message ?: resources.getString(R.string.info_error)
+						snackBarState.showSnackbar(message)
+					}
+				}
+			},
+			onDelete = { deletionId = selectedShare.id }
+		)
+	}
+
+	DeletionDialog(
+		target = deletionId?.let { DeletionTarget.Share(it) },
+		onDismissRequest = { deletionId = null },
+		onRefresh = viewModel::refreshShares
+	)
+}

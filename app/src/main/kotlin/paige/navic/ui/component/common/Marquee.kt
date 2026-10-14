@@ -1,0 +1,171 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.component.common
+
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.delay
+import org.koin.compose.koinInject
+import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.model.settings.MarqueeSpeed
+import kotlin.time.Duration.Companion.seconds
+
+@Composable
+fun MarqueeText(
+	text: String,
+	style: TextStyle = LocalTextStyle.current,
+	modifier: Modifier = Modifier
+) {
+	val preferenceManager = koinInject<PreferenceManager>()
+	if (preferenceManager.marqueeSpeed != MarqueeSpeed.Disabled) {
+		Marquee(modifier) {
+			Text(text, maxLines = 1, style = style)
+		}
+	} else {
+		Text(text, maxLines = 1, style = style, overflow = TextOverflow.Ellipsis)
+	}
+}
+
+@Composable
+fun MarqueeText(
+	text: AnnotatedString,
+	style: TextStyle = LocalTextStyle.current,
+	inlineContent: PersistentMap<String, InlineTextContent> = persistentMapOf(),
+	modifier: Modifier = Modifier
+) {
+	val preferenceManager = koinInject<PreferenceManager>()
+	if (preferenceManager.marqueeSpeed != MarqueeSpeed.Disabled) {
+		Marquee(modifier) {
+			Text(text, maxLines = 1, style = style, inlineContent = inlineContent)
+		}
+	} else {
+		Text(
+			text,
+			maxLines = 1,
+			style = style,
+			overflow = TextOverflow.Ellipsis,
+			inlineContent = inlineContent
+		)
+	}
+}
+
+@Composable
+private fun Marquee(
+	modifier: Modifier = Modifier,
+	edgeWidth: Dp = 16.dp,
+	content: @Composable () -> Unit
+) {
+	val preferenceManager = koinInject<PreferenceManager>()
+	val scrollState = rememberScrollState()
+	val edgeWidthPx = with(LocalDensity.current) { edgeWidth.toPx() }
+
+	LaunchedEffect(scrollState.maxValue) {
+		if (scrollState.maxValue == 0) return@LaunchedEffect
+
+		while (true) {
+			delay(1.seconds)
+
+			scrollState.animateScrollTo(
+				value = scrollState.maxValue,
+				animationSpec = tween(preferenceManager.marqueeSpeed.value)
+			)
+
+			delay(1.seconds)
+
+			scrollState.animateScrollTo(
+				value = 0,
+				animationSpec = tween(preferenceManager.marqueeSpeed.value)
+			)
+		}
+	}
+
+	Box(
+		modifier = modifier
+			.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+			.drawWithContent {
+				drawContent()
+
+				val startFadeAlpha = (scrollState.value / edgeWidthPx).coerceIn(0f, 1f)
+				val endFadeAlpha =
+					((scrollState.maxValue - scrollState.value) / edgeWidthPx).coerceIn(0f, 1f)
+
+				if (startFadeAlpha > 0f) {
+					drawFadingEdge(
+						isStart = true,
+						width = edgeWidthPx,
+						alpha = startFadeAlpha
+					)
+				}
+
+				if (endFadeAlpha > 0f) {
+					drawFadingEdge(
+						isStart = false,
+						width = edgeWidthPx,
+						alpha = endFadeAlpha
+					)
+				}
+			}
+	) {
+		Row(
+			modifier = Modifier.horizontalScroll(scrollState, false)
+		) {
+			content()
+		}
+	}
+}
+
+private fun ContentDrawScope.drawFadingEdge(
+	isStart: Boolean,
+	width: Float,
+	alpha: Float
+) {
+	val gradientColors = listOf(Color.Black, Color.Transparent)
+
+	val startX = if (isStart) 0f else size.width - width
+	val endX = if (isStart) width else size.width
+
+	val startPoint = if (isStart) Offset(startX, 0f) else Offset(endX, 0f)
+	val endPoint = if (isStart) Offset(endX, 0f) else Offset(startX, 0f)
+
+	drawRect(
+		brush = Brush.linearGradient(
+			colors = gradientColors,
+			start = startPoint,
+			end = endPoint
+		),
+		topLeft = Offset(startX, 0f),
+		size = Size(width, size.height),
+		blendMode = BlendMode.DstOut,
+		alpha = alpha
+	)
+}

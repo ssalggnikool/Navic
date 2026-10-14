@@ -1,0 +1,82 @@
+name: "🐞 Bug Report"
+description: Report an issue with Navic
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: bug-explanation
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-expected
+    attributes:
+      label: Expected behaviour
+      description: A clear and concise description of what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducing
+    attributes:
+      label: Reproducing
+      description: Steps to reproduce the behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Any screenshots of this issue, if applicable
+    validations:
+      required: false
+
+  - type: input
+    id: os
+    attributes:
+      label: OS Version
+      placeholder: Android 17
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      description: The device that you are using
+      placeholder: eg. Pixel 8a
+    validations:
+      required: true
+
+  - type: input
+    id: app-version
+    attributes:
+      label: App Version
+      description: The version of Navic. Find this in Settings > About
+      placeholder: eg. v1.0.0-alpha59
+    validations:
+      required: true
+
+  - type: input
+    id: server-version
+    attributes:
+      label: Server Version
+      description: The music server you use, and its version
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Prerequisites
+      options:
+        - label: "I've searched existing issues and this hasn't been reported before"
+          required: true
+        - label: "I did NOT write this issue with an LLM"
+          required: true
+        - label: "I've ensured I am on the LATEST app version in case this was already fixed recently"
+          required: true

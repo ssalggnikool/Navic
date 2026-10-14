@@ -1,0 +1,330 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.screen.playlist
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumFloatingActionButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.paging.compose.collectAsLazyPagingItems
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+import paige.navic.R
+import paige.navic.R.string.info_no_playlists_short
+import paige.navic.di.LocalBottomBarScrollManager
+import paige.navic.di.LocalSizeClass
+import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.model.DomainSongCollection
+import paige.navic.domain.model.settings.BottomBarCollapseMode
+import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.domain.model.settings.ListViewMode
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Add
+import paige.navic.playback.MediaPlayer
+import paige.navic.ui.component.common.ContentUnavailable
+import paige.navic.ui.component.dialog.DeletionDialog
+import paige.navic.ui.component.dialog.DeletionTarget
+import paige.navic.ui.component.layout.ArtGrid
+import paige.navic.ui.component.layout.NestedTopBar
+import paige.navic.ui.component.layout.PullToRefreshBox
+import paige.navic.ui.component.layout.RootBottomBar
+import paige.navic.ui.component.layout.RootTopBar
+import paige.navic.ui.component.layout.artGridPlaceholder
+import paige.navic.ui.component.snackbar.ErrorSnackBar
+import paige.navic.ui.core.UiState
+import paige.navic.ui.navigation.PersistentViewModelStoreOwner
+import paige.navic.ui.screen.playlist.component.PlaylistListScreenGridItem
+import paige.navic.ui.screen.playlist.component.PlaylistListScreenListItem
+import paige.navic.ui.screen.playlist.component.PlaylistListScreenSortButton
+import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
+import paige.navic.ui.screen.playlist.viewmodel.PlaylistListViewModel
+import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.util.withoutTop
+import paige.navic.ui.viewmodel.RootViewModel
+import kotlin.time.Duration
+
+@Composable
+fun PlaylistListScreen(
+	nested: Boolean = false
+) {
+	val preferenceManager = koinInject<PreferenceManager>()
+	val selectedViewMode = preferenceManager.playlistListViewMode
+
+	val viewModel = koinViewModel<PlaylistListViewModel>(
+		viewModelStoreOwner = if (nested) {
+			LocalViewModelStoreOwner.current!!
+		} else {
+			koinInject<PersistentViewModelStoreOwner>()
+		}
+	)
+	val player = koinInject<MediaPlayer>()
+	val state by viewModel.uiState.collectAsState()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems() ?: return
+	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
+	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
+	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
+
+	val scrollManager = LocalBottomBarScrollManager.current
+
+	var shareId by remember { mutableStateOf<String?>(null) }
+	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
+	var deletionId by remember { mutableStateOf<String?>(null) }
+	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+	val slideSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
+	val scaleInSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>()
+
+	var createDialogShown by rememberSaveable { mutableStateOf(false) }
+
+	val gridState = rememberLazyGridState()
+
+	val actions: @Composable RowScope.() -> Unit = {
+		PlaylistListScreenSortButton(
+			nested = nested,
+			selectedSorting = selectedSorting,
+			onSetSorting = { viewModel.setSorting(it) },
+			selectedReversed = selectedReversed,
+			onSetReversed = { viewModel.setReversed(it) },
+			selectedViewMode = selectedViewMode,
+			onSetViewMode = { preferenceManager.playlistListViewMode = it },
+			selectedFilters = selectedFilters,
+			onToggleFilter = { viewModel.toggleFilter(it) }
+		)
+	}
+
+	val rootViewModel = koinViewModel<RootViewModel>()
+	LaunchedEffect(Unit) {
+		rootViewModel.events.collect { event ->
+			if (event is RootViewModel.Event.ScrollToTop) {
+				viewModel.gridState.animateScrollToItem(0)
+			}
+		}
+	}
+
+	Scaffold(
+		topBar = {
+			if (!nested) {
+				RootTopBar(
+					title = { Text(stringResource(R.string.title_playlists)) },
+					scrollBehavior = scrollBehavior,
+					actions = actions
+				)
+			} else {
+				NestedTopBar(
+					title = { Text(stringResource(R.string.title_playlists)) },
+					actions = actions
+				)
+			}
+		},
+		floatingActionButton = {
+			AnimatedContent(
+				!scrollManager.isTriggered
+					|| preferenceManager.bottomBarCollapseMode == BottomBarCollapseMode.Never,
+				transitionSpec = {
+					val transformOrigin = TransformOrigin(0f, 1f)
+					(slideInHorizontally(slideSpec) { it / 2 }
+						+ scaleIn(scaleInSpec, transformOrigin = transformOrigin)
+						+ slideInVertically(slideSpec) { it / 2 })
+						.togetherWith(slideOutHorizontally(slideSpec) { it / 2 }
+							+ scaleOut(transformOrigin = transformOrigin)
+							+ slideOutVertically(slideSpec) { it / 2 })
+						.using(SizeTransform(clip = false))
+				}
+			) { notScrolled ->
+				if (notScrolled) {
+					MediumFloatingActionButton(
+						shape = MaterialTheme.shapes.large,
+						containerColor = MaterialTheme.colorScheme.primary,
+						onClick = {
+							createDialogShown = true
+						}
+					) {
+						Icon(
+							imageVector = Icons.Outlined.Add,
+							contentDescription = stringResource(R.string.title_create_playlist),
+							modifier = Modifier.size(26.dp)
+						)
+					}
+				}
+			}
+		},
+		bottomBar = {
+			val sizeClass = LocalSizeClass.current
+			val scrollManager = LocalBottomBarScrollManager.current
+			val preferVisible =
+				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
+			if (!nested
+				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+				RootBottomBar(scrolled = scrollManager.isTriggered)
+			}
+		}
+	) { innerPadding ->
+		PullToRefreshBox(
+			modifier = Modifier
+				.padding(top = innerPadding.calculateTopPadding())
+				.background(MaterialTheme.colorScheme.surface),
+			finished = state !is UiState.Loading,
+			onRefresh = { viewModel.refreshPlaylists(true) },
+			key = state
+		) {
+			ArtGrid(
+				modifier = if (!nested)
+					Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+				else Modifier,
+				state = gridState,
+				contentPadding = innerPadding.withoutTop(),
+				verticalArrangement = if (lazyPagingItems.itemCount == 0) {
+					Arrangement.Center
+				} else if (selectedViewMode == ListViewMode.List) {
+					Arrangement.spacedBy(0.dp)
+				} else {
+					Arrangement.spacedBy(12.dp)
+				},
+				selectedViewMode = selectedViewMode
+			) {
+				if (lazyPagingItems.itemCount > 0) {
+					items(lazyPagingItems.itemCount) { index ->
+						val playlist = lazyPagingItems[index] ?: return@items
+
+						if (selectedViewMode == ListViewMode.Grid) {
+							PlaylistListScreenGridItem(
+								modifier = Modifier.animateItem(),
+								tab = "playlists",
+								playlist = playlist,
+								selected = playlist == state.data?.selected,
+								onSelect = {
+									viewModel.selected = playlist
+								},
+								onDeselect = {
+									viewModel.clear()
+								},
+								onSetShareId = {
+									shareId = it
+								},
+								onSetDeletionId = {
+									deletionId = it
+								},
+								onPlayNext = {
+									if (state.data?.selected != null) player.playNext(
+										state.data?.selected as DomainSongCollection
+									)
+								},
+								onAddToQueue = {
+									if (state.data?.selected != null) player.addToQueue(
+										state.data?.selected as DomainSongCollection
+									)
+								},
+							)
+						} else {
+							PlaylistListScreenListItem(
+								modifier = Modifier.animateItem(),
+								playlist = playlist,
+								selected = playlist == state.data?.selected,
+								onSelect = {
+									viewModel.selected = playlist
+								},
+								onDeselect = {
+									viewModel.clear()
+								},
+								onSetShareId = {
+									shareId = it
+								},
+								onSetDeletionId = {
+									deletionId = it
+								},
+								onPlayNext = {
+									if (state.data?.selected != null) player.playNext(
+										state.data?.selected as DomainSongCollection
+									)
+								},
+								onAddToQueue = {
+									if (state.data?.selected != null) player.addToQueue(
+										state.data?.selected as DomainSongCollection
+									)
+								},
+							)
+						}
+					}
+				} else {
+					when (state) {
+						is UiState.Loading -> {
+							artGridPlaceholder(viewMode = selectedViewMode)
+						}
+
+						else -> {
+							item(span = { GridItemSpan(maxLineSpan) }) {
+								ContentUnavailable(
+									label = stringResource(info_no_playlists_short)
+								)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	ErrorSnackBar(
+		error = (state as? UiState.Error)?.error,
+		onClearError = { viewModel.clearError() }
+	)
+
+	ShareDialog(
+		id = shareId,
+		onIdClear = { shareId = null },
+		expiry = shareExpiry,
+		onExpiryChange = { shareExpiry = it }
+	)
+
+	DeletionDialog(
+		target = deletionId?.let { DeletionTarget.Playlist(it) },
+		onDismissRequest = { deletionId = null },
+		onRefresh = { viewModel.refreshPlaylists(true) }
+	)
+
+	if (createDialogShown) {
+		PlaylistCreateDialog(
+			onDismissRequest = { createDialogShown = false },
+			onRefresh = { viewModel.refreshPlaylists(true) }
+		)
+	}
+}

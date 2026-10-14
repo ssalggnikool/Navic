@@ -1,0 +1,48 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.di
+
+import androidx.room3.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import org.koin.android.ext.koin.androidApplication
+import org.koin.dsl.module
+import paige.navic.database.CacheDatabase
+import paige.navic.database.DownloadDatabase
+
+val databaseModule = module {
+	single<CacheDatabase> {
+		val dbPath = androidApplication()
+			.getDatabasePath("cache.db")
+			.absolutePath
+		Room
+			.databaseBuilder<CacheDatabase>(get(), dbPath)
+			.setDriver(BundledSQLiteDriver())
+			.fallbackToDestructiveMigration(true)
+			.build()
+	}
+
+	single<DownloadDatabase> {
+		val dbPath = androidApplication()
+			.getDatabasePath("downloads.db")
+			.absolutePath
+		Room
+			.databaseBuilder<DownloadDatabase>(get(), dbPath)
+			.setDriver(BundledSQLiteDriver())
+			.fallbackToDestructiveMigration(true)
+			.build()
+	}
+
+	single { get<CacheDatabase>().albumDao() }
+	single { get<CacheDatabase>().artistDao() }
+	single { get<CacheDatabase>().genreDao() }
+	single { get<CacheDatabase>().lyricDao() }
+	single { get<CacheDatabase>().playlistDao() }
+	single { get<CacheDatabase>().radioDao() }
+	single { get<CacheDatabase>().songDao() }
+	single { get<CacheDatabase>().syncActionDao() }
+	single { get<DownloadDatabase>().downloadDao() }
+}

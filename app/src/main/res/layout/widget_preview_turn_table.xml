@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="200dp"
+	android:layout_height="200dp"
+	android:padding="12dp">
+
+	<ImageView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@drawable/widget_preview_circle_cover_art"
+		android:importantForAccessibility="no" />
+
+	<ImageView
+		android:layout_width="45dp"
+		android:layout_height="45dp"
+		android:layout_gravity="top|end"
+		android:background="@drawable/widget_preview_circle_cover_art"
+		android:backgroundTint="#69557E"
+		android:importantForAccessibility="no" />
+
+	<ImageView
+		android:layout_width="26dp"
+		android:layout_height="26dp"
+		android:layout_gravity="top|end"
+		android:layout_margin="9dp"
+		android:background="@drawable/ic_star"
+		android:backgroundTint="#FFFFFFFF"
+		android:importantForAccessibility="no" />
+
+	<ImageView
+		android:layout_width="55dp"
+		android:layout_height="55dp"
+		android:layout_gravity="bottom|start"
+		android:background="@drawable/preview_widget_button"
+		android:importantForAccessibility="no" />
+
+	<ImageView
+		android:layout_width="26dp"
+		android:layout_height="26dp"
+		android:layout_gravity="bottom|start"
+		android:layout_margin="15dp"
+		android:background="@drawable/ic_pause"
+		android:backgroundTint="#FFFFFFFF"
+		android:importantForAccessibility="no" />
+
+</FrameLayout>

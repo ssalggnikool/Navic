@@ -1,0 +1,85 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.ui.navigation
+
+import androidx.compose.ui.graphics.vector.ImageVector
+import paige.navic.R
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Album
+import paige.navic.ui.icons.filled.Artist
+import paige.navic.ui.icons.filled.Genre
+import paige.navic.ui.icons.filled.LibraryMusic
+import paige.navic.ui.icons.filled.Radio
+import paige.navic.ui.icons.outlined.Album
+import paige.navic.ui.icons.outlined.Artist
+import paige.navic.ui.icons.outlined.Genre
+import paige.navic.ui.icons.outlined.LibraryMusic
+import paige.navic.ui.icons.outlined.Note
+import paige.navic.ui.icons.outlined.PlaylistPlay
+import paige.navic.ui.icons.outlined.Radio
+import paige.navic.ui.icons.outlined.Search
+import paige.navic.ui.icons.outlined.Statistics
+
+enum class NavigationTab(
+	val destination: Screen,
+	val iconFilled: ImageVector,
+	val iconOutlined: ImageVector = iconFilled,
+	val label: Int
+) {
+	LIBRARY(
+		destination = Screen.Library(),
+		iconFilled = Icons.Filled.LibraryMusic,
+		iconOutlined = Icons.Outlined.LibraryMusic,
+		label = R.string.title_library
+	),
+	ALBUMS(
+		destination = Screen.AlbumList(),
+		iconFilled = Icons.Filled.Album,
+		iconOutlined = Icons.Outlined.Album,
+		label = R.string.title_albums
+	),
+	PLAYLISTS(
+		destination = Screen.PlaylistList(),
+		iconFilled = Icons.Outlined.PlaylistPlay,
+		label = R.string.title_playlists
+	),
+	ARTISTS(
+		destination = Screen.ArtistList(),
+		iconFilled = Icons.Filled.Artist,
+		iconOutlined = Icons.Outlined.Artist,
+		label = R.string.title_artists
+	),
+	SEARCH(
+		destination = Screen.Search(),
+		iconFilled = Icons.Outlined.Search,
+		iconOutlined = Icons.Outlined.Search,
+		label = R.string.title_search
+	),
+	GENRES(
+		destination = Screen.GenreList(),
+		iconFilled = Icons.Filled.Genre,
+		iconOutlined = Icons.Outlined.Genre,
+		label = R.string.title_genres
+	),
+	SONGS(
+		destination = Screen.SongList(),
+		iconFilled = Icons.Outlined.Note,
+		iconOutlined = Icons.Outlined.Note,
+		label = R.string.title_songs
+	),
+	RADIOS(
+		destination = Screen.RadioList(),
+		iconFilled = Icons.Filled.Radio,
+		iconOutlined = Icons.Outlined.Radio,
+		label = R.string.title_radios
+	),
+	STATISTICS(
+		destination = Screen.Statistics(),
+		iconFilled = Icons.Outlined.Statistics,
+		label = R.string.title_statistics
+	)
+}

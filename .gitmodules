@@ -1,0 +1,3 @@
+[submodule "media3"]
+	path = androidx-media
+	url = https://github.com/Nightdavisao/android-media3
