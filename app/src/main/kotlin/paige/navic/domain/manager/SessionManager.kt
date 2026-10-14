@@ -12,22 +12,19 @@ import dev.zt64.subsonic.api.model.Role
 import dev.zt64.subsonic.api.model.User
 import dev.zt64.subsonic.client.SubsonicAuth
 import dev.zt64.subsonic.client.SubsonicClient
-import io.ktor.client.engine.ProxyBuilder
-import io.ktor.client.engine.http
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import paige.navic.util.getDefaultEngineForPlatform
 import paige.navic.util.Logger
 import paige.navic.util.extractProxyConfigFromUrl
+import paige.navic.util.getDefaultEngineForPlatform
 
 class SessionManager(
 	private val settings: Settings,

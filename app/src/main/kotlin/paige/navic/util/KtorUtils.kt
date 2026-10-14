@@ -57,11 +57,7 @@ fun createHttpClient(
 		}
 	}
 
-	return if (platformEngine != null) {
-		HttpClient(platformEngine, block)
-	} else {
-		HttpClient(block)
-	}
+	return HttpClient(platformEngine, block)
 }
 
 fun extractProxyConfigFromUrl(url: String): ProxyConfig? {
