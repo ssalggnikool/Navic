@@ -514,4 +514,10 @@
     <string name="option_equalizer_mode_external">Зовнішній</string>
     <string name="info_equalizer_unsupported">Ваш пристрій не підтримує цю функцію.</string>
     <string name="info_equalizer_mode_not_builtin">Будь ласка, налаштуйте зовнішній еквалайзер за допомогою відповідного застосунку.</string>
+    <string name="action_copy">Скопіювати</string>
+    <string name="subtitle_enable_discord_integration">Показувати у Discord, яку музику ви зараз слухаєте</string>
+    <string name="option_enable_discord_integration">Увімкнути інтеграцію з Discord</string>
+    <string name="option_disable_rpc_when_power_saving">Вимкнути статус активності в режимі енергозбереження</string>
+    <string name="action_reset_to_default">Скинути до значень за замовчуванням</string>
+    <string name="action_edit_discord_app_id">Змінити ID застосунку Discord</string>
 </resources>

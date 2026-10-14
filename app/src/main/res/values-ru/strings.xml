@@ -505,7 +505,7 @@
     <string name="info_proxy_url_placeholder">Например http://127.0.0.1:8080</string>
     <string name="info_incorrect_proxy_url_format">Неверный формат URL-адреса прокси. Поддерживаемые протоколы: HTTP и SOCKS.</string>
     <string name="info_content_unavailable">Здесь ничего нет</string>
-    <string name="action_edit">редактировать</string>
+    <string name="action_edit">Редактировать</string>
     <string name="info_equalizer_mode_not_builtin">Пожалуйста, настройте внешний эквалайзер с помощью отдельного приложения.</string>
     <string name="subtitle_equalizer">Настройка и улучшение звука</string>
     <string name="subtitle_equalizer_disabled">Недоступно при включенном выносе аудиообработки</string>
@@ -515,4 +515,13 @@
     <string name="option_equalizer_mode_builtin">Встроенный</string>
     <string name="option_equalizer_mode_external">Внешний</string>
     <string name="info_equalizer_unsupported">Ваше устройство не поддерживает эту функцию.</string>
+    <string name="action_copy">Скопировать</string>
+    <string name="option_enable_discord_integration">Включить интеграцию с Discord</string>
+    <string name="action_edit_discord_app_id">Изменить ID приложения Discord</string>
+    <string name="action_reset_to_default">Сбросить к по умолчанию</string>
+    <string name="option_disable_rpc_when_power_saving">Отключить статус в режиме энергосбережения</string>
+    <string name="subtitle_enable_discord_integration">Похвастайся в Discord, какую музыку ты сейчас слушаешь</string>
+    <string name="title_delete_radio">Удалить радио?</string>
+    <string name="title_update_radio">Обновить радио</string>
+    <string name="notice_deleted_radio">Радио удалено.</string>
 </resources>
