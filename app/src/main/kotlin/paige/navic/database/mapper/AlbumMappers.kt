@@ -17,25 +17,26 @@ fun ApiAlbum.toEntity(
 	artistIdOverride: String? = null,
 	artistNameOverride: String? = null
 ) = AlbumEntity(
-    albumId = this.id,
-    name = this.name,
-    // TODO: figure out why this can be null and how to handle it
-    artistId = artistIdOverride ?: this.artistId ?: "unknown artist",
-    artistName = artistNameOverride ?: this.artistName,
-    coverArtId = this.coverArtId,
-    songCount = this.songCount,
-    duration = this.duration,
-    year = this.year,
-    genre = this.genre,
-    starredAt = this.starredAt,
-    userRating = this.userRating,
-    musicBrainzId = this.musicBrainzId,
-    createdAt = this.createdAt,
-    lastPlayedAt = this.lastPlayedAt,
-    playCount = this.playCount,
-    genres = this.genres,
-    version = this.version,
-    isExternal = this.isExternal
+	albumId = this.id,
+	name = this.name,
+	// TODO: figure out why this can be null and how to handle it
+	artistId = artistIdOverride ?: this.artistId ?: "unknown artist",
+	artistName = artistNameOverride ?: this.artistName,
+	coverArtId = this.coverArtId,
+	songCount = this.songCount,
+	duration = this.duration,
+	year = this.year,
+	genre = this.genre,
+	starredAt = this.starredAt,
+	userRating = this.userRating,
+	musicBrainzId = this.musicBrainzId,
+	createdAt = this.createdAt,
+	lastPlayedAt = this.lastPlayedAt,
+	playCount = this.playCount,
+	genres = this.genres,
+	version = this.version,
+	isExternal = this.isExternal,
+	displayArtist = this.displayArtist
 )
 
 fun AlbumWithSongs.toDomainModel() = DomainAlbum(
@@ -64,12 +65,10 @@ fun AlbumWithSongs.toDomainModel() = DomainAlbum(
 )
 
 fun DomainAlbum.toEntity() = AlbumEntity(
-<<<<<<< HEAD:app/src/main/kotlin/paige/navic/data/database/mapper/AlbumMappers.kt
 	albumId = this.id,
 	name = this.name,
 	artistId = this.artistId,
 	artistName = this.artistName,
-	displayArtist = this.displayArtist,
 	coverArtId = this.coverArtId,
 	songCount = this.songCount,
 	duration = this.duration,
@@ -83,27 +82,8 @@ fun DomainAlbum.toEntity() = AlbumEntity(
 	playCount = this.playCount,
 	genres = this.genres,
 	version = this.version,
-	isExternal = this.isExternal
-=======
-    albumId = this.id,
-    name = this.name,
-    artistId = this.artistId,
-    artistName = this.artistName,
-    coverArtId = this.coverArtId,
-    songCount = this.songCount,
-    duration = this.duration,
-    year = this.year,
-    genre = this.genre,
-    starredAt = this.starredAt,
-    userRating = this.userRating,
-    musicBrainzId = this.musicBrainzId,
-    createdAt = this.createdAt,
-    lastPlayedAt = this.lastPlayedAt,
-    playCount = this.playCount,
-    genres = this.genres,
-    version = this.version,
-    isExternal = this.isExternal
->>>>>>> 56c580b2 (refactor(package): data.database -> database):app/src/main/kotlin/paige/navic/database/mapper/AlbumMappers.kt
+	isExternal = this.isExternal,
+	displayArtist = this.displayArtist
 )
 
 fun ApiAlbumInfo.toDomainModel() = DomainAlbumInfo(

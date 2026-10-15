@@ -6,7 +6,7 @@
     "entities": [
       {
         "tableName": "AlbumEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`albumId` TEXT NOT NULL, `name` TEXT, `artistName` TEXT, `artistId` TEXT NOT NULL, `year` INTEGER, `coverArtId` TEXT, `genre` TEXT, `genres` TEXT NOT NULL, `songCount` INTEGER NOT NULL, `duration` INTEGER, `createdAt` INTEGER NOT NULL, `starredAt` INTEGER, `lastPlayedAt` INTEGER, `playCount` INTEGER NOT NULL, `userRating` INTEGER, `version` TEXT, `musicBrainzId` TEXT, `isExternal` INTEGER NOT NULL, PRIMARY KEY(`albumId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`albumId` TEXT NOT NULL, `name` TEXT, `artistName` TEXT, `artistId` TEXT NOT NULL, `displayArtist` TEXT, `year` INTEGER, `coverArtId` TEXT, `genre` TEXT, `genres` TEXT NOT NULL, `songCount` INTEGER NOT NULL, `duration` INTEGER, `createdAt` INTEGER NOT NULL, `starredAt` INTEGER, `lastPlayedAt` INTEGER, `playCount` INTEGER NOT NULL, `userRating` INTEGER, `version` TEXT, `musicBrainzId` TEXT, `isExternal` INTEGER NOT NULL, PRIMARY KEY(`albumId`))",
         "fields": [
           {
             "fieldPath": "albumId",
@@ -29,6 +29,11 @@
             "columnName": "artistId",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "displayArtist",
+            "columnName": "displayArtist",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "year",
@@ -731,7 +736,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'da352c1c8389c7a130e365f53ec5237f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '08f9ccb6c5ed0c13a22af7354b95c5d3')"
     ]
   }
 }
