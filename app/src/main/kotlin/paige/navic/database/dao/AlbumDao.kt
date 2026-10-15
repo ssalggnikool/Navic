@@ -24,7 +24,7 @@ interface AlbumDao {
 	@RawQuery
 	fun getAlbumsByQuery(query: RoomRawQuery): PagingSource<Int, AlbumWithSongs>
 
-	@RawQuery
+	@RawQuery(observedEntities = [AlbumEntity::class])
 	fun getAlbumLetterCounts(query: RoomRawQuery): Flow<List<LetterCount>>
 
 	@Transaction

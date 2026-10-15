@@ -28,7 +28,7 @@ interface ArtistDao {
 	@RawQuery
 	fun getArtistsByQuery(query: RoomRawQuery): PagingSource<Int, ArtistEntity>
 
-	@RawQuery
+	@RawQuery(observedEntities = [ArtistEntity::class])
 	fun getArtistLetterCounts(query: RoomRawQuery): Flow<List<LetterCount>>
 
 	@Query("SELECT * FROM ArtistEntity ORDER BY name COLLATE NOCASE ASC")
