@@ -6,6 +6,7 @@
 
 package paige.navic.data.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
@@ -28,7 +29,7 @@ interface RadioDao {
 	suspend fun insertRadios(radios: List<RadioEntity>)
 
 	@Query("SELECT * FROM RadioEntity ORDER BY name ASC")
-	suspend fun getRadios(): List<RadioEntity>
+	fun getRadios(): PagingSource<Int, RadioEntity>
 
 	@Query("DELETE FROM RadioEntity WHERE radioId = :radioId")
 	suspend fun deleteRadio(radioId: String)

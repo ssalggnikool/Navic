@@ -19,6 +19,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
@@ -40,9 +41,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
+import paige.navic.R.string.info_no_radios
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.PreferenceManager
@@ -51,6 +54,7 @@ import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Add
 import paige.navic.playback.MediaPlayer
+import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -62,7 +66,8 @@ import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Add
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
-import paige.navic.ui.screen.radio.component.radioListScreenContent
+import paige.navic.ui.screen.radio.component.RadioListScreenCard
+import paige.navic.ui.screen.radio.component.RadioListScreenCardPlaceholder
 import paige.navic.ui.screen.radio.dialog.RadioCreateDialog
 import paige.navic.ui.screen.radio.dialog.RadioUpdateDialog
 import paige.navic.ui.screen.radio.viewmodel.RadioListViewModel
@@ -82,7 +87,9 @@ fun RadioListScreen(
 		}
 	)
 	val player = koinInject<MediaPlayer>()
-	val radiosState by viewModel.uiState.collectAsState()
+	val state by viewModel.uiState.collectAsState()
+	val lazyPagingItems = state.data?.collectAsLazyPagingItems()
+
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 	val slideSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 	val scaleInSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>()
@@ -149,7 +156,8 @@ fun RadioListScreen(
 			val preferVisible =
 				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 			if (!nested
-				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+			) {
 				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
@@ -158,31 +166,61 @@ fun RadioListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = radiosState !is UiState.Loading,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshRadios(true) },
-			key = radiosState
+			key = state
 		) {
-			ArtGrid(
-				modifier = if (!nested)
-					Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-				else Modifier,
-				contentPadding = innerPadding.withoutTop(),
-				state = viewModel.gridState,
-				verticalArrangement = if ((radiosState as? UiState.Success)?.data?.isEmpty() == true)
-					Arrangement.Center
-				else Arrangement.spacedBy(12.dp)
-			) {
-				radioListScreenContent(
-					state = radiosState,
-					onRadioClick = player::playRadio,
-					onRadioLongClick = viewModel::selectRadio
-				)
+			lazyPagingItems?.let {
+				ArtGrid(
+					modifier = if (!nested)
+						Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+					else Modifier,
+					contentPadding = innerPadding.withoutTop(),
+					state = viewModel.gridState,
+					verticalArrangement = if (it.itemCount < 0)
+						Arrangement.Center
+					else Arrangement.spacedBy(12.dp)
+				) {
+					if (lazyPagingItems.itemCount > 0) {
+						items(
+							lazyPagingItems.itemCount,
+							key = { index -> lazyPagingItems[index]?.id ?: 0 } // TODO: make this properly null
+						) { index ->
+							val radio = lazyPagingItems[index]
+							if (radio != null) {
+								RadioListScreenCard(
+									modifier = Modifier.animateItem(),
+									radio = radio,
+									onPlayClick = {
+										player.playRadio(radio)
+									}
+								)
+							}
+						}
+					} else {
+						when (state) {
+							is UiState.Loading -> {
+								items(10) {
+									RadioListScreenCardPlaceholder()
+								}
+							}
+
+							else -> {
+								item(span = { GridItemSpan(maxLineSpan) }) {
+									ContentUnavailable(
+										label = stringResource(info_no_radios)
+									)
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 
 	ErrorSnackBar(
-		error = (radiosState as? UiState.Error)?.error,
+		error = (state as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 
