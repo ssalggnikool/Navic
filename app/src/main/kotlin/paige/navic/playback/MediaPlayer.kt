@@ -21,6 +21,12 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import dev.zt64.subsonic.api.model.ClientInfo
+import dev.zt64.subsonic.api.model.MediaType
+import dev.zt64.subsonic.client.SubsonicClient
+import io.ktor.http.URLBuilder
+import io.ktor.http.parameters
+import io.ktor.http.path
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -31,6 +37,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.mapper.toDomainModel
@@ -56,6 +63,7 @@ import java.io.File
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+
 
 @androidx.annotation.OptIn(UnstableApi::class)
 class MediaPlayer(
@@ -169,7 +177,10 @@ class MediaPlayer(
 	}
 
 	// just because I hate writing boilerplate every single line
-	private fun launch(context: CoroutineContext = Dispatchers.Main, block: suspend CoroutineScope.() -> Unit) {
+	private fun launch(
+		context: CoroutineContext = Dispatchers.Main,
+		block: suspend CoroutineScope.() -> Unit
+	) {
 		scope.launch(
 			context = context,
 			block = block
@@ -186,23 +197,35 @@ class MediaPlayer(
 	}
 
 	// TODO: I THINK this could be somewhere else
-	private fun getStreamUrl(id: String): Uri {
-		val isCellular = connectivityManager.isCellular.value
-		val bitrate = if (preferenceManager.isAdvancedTranscodingActive) {
-			if (isCellular) preferenceManager.customMaxBitrateCellular else preferenceManager.customMaxBitrateWifi
-		} else {
-			if (isCellular) preferenceManager.streamingQualityCellular.bitrate else preferenceManager.streamingQualityWifi.bitrate
+	private fun getStreamUrl(id: String): Uri = runBlocking {
+		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0, estimateContentLength = true)
+		try {
+			val transcodeDecision = sessionManager.api.getTranscodeDecision(
+				id,
+				MediaType.SONG,
+				// TODO: remove hardcoded transcoding profile
+				PlaybackCapabilities.buildSubsonicClientInfo(
+					listOf(
+						ClientInfo.TranscodingProfile(
+							audioCodec = "opus",
+							container = "opus",
+							protocol = ClientInfo.Protocol.HTTP,
+						)
+					)
+				)
+			)
+			val streamUrl = transcodeDecision.transcodeParams.let { params ->
+				if (!transcodeDecision.canDirectPlay && transcodeDecision.canTranscode && params != null) {
+					return@let sessionManager.api.getTranscodeUrl(id, MediaType.SONG, 0, params)
+				} else {
+					return@let defaultStreamUrl
+				}
+			}.toUri()
+
+			return@runBlocking streamUrl
+		} catch (_: Exception) {
+			return@runBlocking defaultStreamUrl.toUri()
 		}
-		val container = if (preferenceManager.isAdvancedTranscodingActive) {
-			if (isCellular) preferenceManager.customFormatCellular else preferenceManager.customFormatWifi
-		} else {
-			if (isCellular) preferenceManager.streamingQualityCellular.container else preferenceManager.streamingQualityWifi.container
-		}
-		return sessionManager.api.getStreamUrl(id, bitrate, container?.takeIf { it.isNotBlank() })
-			.toUri()
-			.buildUpon()
-			.appendQueryParameter("estimateContentLength", "true")
-			.build()
 	}
 
 	private fun setupController() = launch {
@@ -845,5 +868,30 @@ class MediaPlayer(
 		}
 
 		return builder.build()
+	}
+
+	// TODO: pr to subsonic-kotlin
+	private fun SubsonicClient.getTranscodeUrl(
+		id: String,
+		mediaType: MediaType,
+		offset: Int,
+		params: String
+	): String {
+		val field = this.javaClass.getDeclaredField("baseUrl").apply {
+			isAccessible = true
+		}
+		val baseUrl = field.get(this) as String
+
+		val url = URLBuilder(baseUrl).apply {
+			path("getTranscodeStream")
+			parameters {
+				append("id", id)
+				append("mediaType", mediaType.name.lowercase())
+				append("offset", offset.toString())
+				append("params", params)
+			}
+		}
+
+		return url.toString()
 	}
 }
