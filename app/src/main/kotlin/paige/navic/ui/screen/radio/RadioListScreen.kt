@@ -54,7 +54,7 @@ import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeletionDialog
-import paige.navic.ui.component.dialog.DeletionEndpoint
+import paige.navic.ui.component.dialog.DeletionTarget
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -247,17 +247,13 @@ fun RadioListScreen(
 			)
 		}
 
-		if (deleteDialogShown) {
-			DeletionDialog(
-				endpoint = DeletionEndpoint.RADIO,
-				id = selectedRadio.id,
-				onIdClear = { deleteDialogShown = false },
-				onRefresh = {
-					deleteDialogShown = false
-					viewModel.selected = null
-					viewModel.refreshRadios(true)
-				}
-			)
-		}
+		DeletionDialog(
+			target = if (deleteDialogShown) DeletionTarget.Radio(selectedRadio.id) else null,
+			onDismissRequest = {
+				deleteDialogShown = false
+				viewModel.selected = null
+			},
+			onRefresh = { viewModel.refreshRadios(true) }
+		)
 	}
 }

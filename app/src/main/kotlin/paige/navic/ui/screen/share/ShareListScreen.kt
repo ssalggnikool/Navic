@@ -39,7 +39,7 @@ import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeletionDialog
-import paige.navic.ui.component.dialog.DeletionEndpoint
+import paige.navic.ui.component.dialog.DeletionTarget
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
@@ -142,9 +142,8 @@ fun ShareListScreen() {
 	}
 
 	DeletionDialog(
-		endpoint = DeletionEndpoint.SHARE,
-		id = deletionId,
-		onIdClear = { deletionId = null },
+		target = deletionId?.let { DeletionTarget.Share(it) },
+		onDismissRequest = { deletionId = null },
 		onRefresh = viewModel::refreshShares
 	)
 }
