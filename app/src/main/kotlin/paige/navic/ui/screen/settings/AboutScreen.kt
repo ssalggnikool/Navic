@@ -124,10 +124,8 @@ fun SettingsAboutScreen() {
 		}
 	}
 
-	if (linkToOpen != null) {
-		LinkConfirmationDialog(
-			linkToOpen = linkToOpen!!,
-			onDismissRequest = { linkToOpen = null }
-		)
-	}
+	LinkConfirmationDialog(
+		linkToOpen = linkToOpen,
+		onDismissRequest = { linkToOpen = null }
+	)
 }
