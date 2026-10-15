@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -63,7 +62,7 @@ import paige.navic.ui.icons.outlined.Add
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeletionDialog
-import paige.navic.ui.component.dialog.DeletionEndpoint
+import paige.navic.ui.component.dialog.DeletionTarget
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -317,9 +316,8 @@ fun PlaylistListScreen(
 	)
 
 	DeletionDialog(
-		endpoint = DeletionEndpoint.PLAYLIST,
-		id = deletionId,
-		onIdClear = { deletionId = null },
+		target = deletionId?.let { DeletionTarget.Playlist(it) },
+		onDismissRequest = { deletionId = null },
 		onRefresh = { viewModel.refreshPlaylists(true) }
 	)
 

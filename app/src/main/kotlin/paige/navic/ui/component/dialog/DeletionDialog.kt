@@ -6,7 +6,6 @@
 
 package paige.navic.ui.component.dialog
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -40,13 +39,10 @@ import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Delete
 
-enum class DeletionEndpoint(
-	@StringRes val questionText: Int,
-	@StringRes val deletedText: Int
-) {
-	PLAYLIST(R.string.title_delete_playlist, R.string.notice_deleted_playlist),
-	SHARE(R.string.title_delete_share, R.string.notice_deleted_share),
-	RADIO(R.string.title_delete_radio, R.string.notice_deleted_radio),
+sealed interface DeletionTarget {
+	data class Playlist(val id: String) : DeletionTarget
+	data class Share(val id: String) : DeletionTarget
+	data class Radio(val id: String) : DeletionTarget
 }
 
 class DeletionViewModel(
@@ -61,26 +57,32 @@ class DeletionViewModel(
 	private val _events = Channel<Event>()
 	val events = _events.receiveAsFlow()
 
-	fun delete(
-		endpoint: DeletionEndpoint,
-		id: String
-	) {
+	fun delete(target: DeletionTarget) {
 		viewModelScope.launch {
 			state.value = UiState.Loading()
 			try {
-				when (endpoint) {
-					DeletionEndpoint.PLAYLIST -> {
+				val noticeRes = when (target) {
+					is DeletionTarget.Playlist -> {
 						syncManager.enqueueAction(
 							actionType = SyncActionType.DELETE_PLAYLIST,
-							itemId = id
+							itemId = target.id
 						)
-						playlistDao.deletePlaylist(id)
+						playlistDao.deletePlaylist(target.id)
+						R.string.notice_deleted_playlist
 					}
-					DeletionEndpoint.SHARE -> sessionManager.api.deleteShare(id)
-					DeletionEndpoint.RADIO -> sessionManager.api.deleteInternetRadioStation(id)
+
+					is DeletionTarget.Share -> {
+						sessionManager.api.deleteShare(target.id)
+						R.string.notice_deleted_share
+					}
+
+					is DeletionTarget.Radio -> {
+						sessionManager.api.deleteInternetRadioStation(target.id)
+						R.string.notice_deleted_radio
+					}
 				}
 				state.value = UiState.Success(null)
-				snackBarManager.notify(endpoint.deletedText)
+				snackBarManager.notify(noticeRes)
 				_events.send(Event.Dismiss)
 			} catch (error: Exception) {
 				state.value = UiState.Error(error = error)
@@ -95,10 +97,9 @@ class DeletionViewModel(
 
 @Composable
 fun DeletionDialog(
-	endpoint: DeletionEndpoint,
-	id: String?,
-	onIdClear: () -> Unit,
-	onRefresh: () -> Unit
+	target: DeletionTarget?,
+	onDismissRequest: () -> Unit,
+	onRefresh: (() -> Unit)? = null
 ) {
 	val viewModel = koinViewModel<DeletionViewModel>()
 	val state by viewModel.state.collectAsStateWithLifecycle()
@@ -107,26 +108,32 @@ fun DeletionDialog(
 		viewModel.events.collect { event ->
 			when (event) {
 				is DeletionViewModel.Event.Dismiss -> {
-					onIdClear()
-					onRefresh()
+					onDismissRequest()
+					onRefresh?.invoke()
 				}
 			}
 		}
 	}
 
-	id?.let {
+	if (target != null) {
+		val titleRes = when (target) {
+			is DeletionTarget.Playlist -> R.string.title_delete_playlist
+			is DeletionTarget.Share -> R.string.title_delete_share
+			is DeletionTarget.Radio -> R.string.title_delete_radio
+		}
+
 		FormDialog(
 			onDismissRequest = {
 				if (state !is UiState.Loading) {
-					onIdClear()
+					onDismissRequest()
 				}
 			},
 			icon = { Icon(Icons.Outlined.Delete, null) },
-			title = { Text(stringResource(endpoint.questionText)) },
+			title = { Text(stringResource(titleRes)) },
 			buttons = {
 				SegmentedListButton(
 					modifier = Modifier.fillMaxWidth(),
-					onClick = { viewModel.delete(endpoint, id) },
+					onClick = { viewModel.delete(target) },
 					enabled = state !is UiState.Loading,
 					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2),
 					colors = SegmentedListButtonDefaults.errorColors()
@@ -138,7 +145,7 @@ fun DeletionDialog(
 				}
 				SegmentedListButton(
 					modifier = Modifier.fillMaxWidth(),
-					onClick = onIdClear,
+					onClick = onDismissRequest,
 					shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
 				) {
 					Text(stringResource(R.string.action_cancel))
