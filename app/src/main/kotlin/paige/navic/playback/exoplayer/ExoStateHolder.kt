@@ -57,7 +57,10 @@ import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.playback.exoplayer.impl.ExoArtworkLoader
 import paige.navic.playback.exoplayer.impl.ExoAudioGainProcessor
-import paige.navic.util.createHttpClientWithPreferences
+import paige.navic.util.NoopTrustManager
+import java.security.SecureRandom
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
 
 @OptIn(UnstableApi::class)
 class ExoStateHolder: KoinComponent {
