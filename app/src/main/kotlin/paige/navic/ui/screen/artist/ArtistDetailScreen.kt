@@ -48,7 +48,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -64,7 +63,6 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.materialkolor.dynamiccolor.ColorSpec
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -83,6 +81,7 @@ import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SongRow
 import paige.navic.ui.component.dialog.BulkDownloadDialog
+import paige.navic.ui.component.dialog.BulkDownloadTarget
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.RootBottomBar
@@ -139,8 +138,6 @@ fun ArtistDetailScreen(
 	).collectAsState(DownloadStatus.NOT_DOWNLOADED)
 
 	val snackBarManager = koinInject<SnackBarManager>()
-
-	val scope = rememberCoroutineScope()
 
 	val spatialSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
 	val effectSpec = MaterialTheme.motionScheme.slowEffectsSpec<Float>()
@@ -217,21 +214,12 @@ fun ArtistDetailScreen(
 					is UiState.Success -> {
 						val state = artistState.data
 						BulkDownloadDialog(
-							title = stringResource(R.string.title_bulk_download),
-							message = stringResource(
-								R.string.info_bulk_download_warning,
-								state.artist.name
+							target = BulkDownloadTarget.Artist(
+								name = state.artist.name,
+								albums = state.albums
 							),
 							showDialog = showDownloadDialog,
-							onDismissRequest = { showDownloadDialog = false },
-							onConfirm = {
-								scope.launch {
-									state.albums.forEach { album ->
-										downloadManager.downloadCollection(album)
-									}
-									snackBarManager.notify(R.string.notice_download_started)
-								}
-							}
+							onDismissRequest = { showDownloadDialog = false }
 						)
 						Column(
 							modifier = Modifier
