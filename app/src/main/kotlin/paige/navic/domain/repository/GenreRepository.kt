@@ -6,12 +6,12 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import paige.navic.data.database.dao.GenreDao
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.data.database.query.toGenreSqlQuery
@@ -21,26 +21,31 @@ class GenreRepository(
 	private val genreDao: GenreDao,
 	private val dbRepository: DbRepository
 ) {
-	private suspend fun getLocalData(): ImmutableList<DomainGenre> {
-		return genreDao
-			.getGenresByQuery(toGenreSqlQuery())
-			.map { it.toDomainModel() }
-			.toImmutableList()
+	private fun getLocalData(): Flow<PagingData<DomainGenre>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				genreDao.getGenresByQuery(toGenreSqlQuery())
+			}
+		).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
-	private suspend fun refreshLocalData(): ImmutableList<DomainGenre> {
+	private suspend fun refreshLocalData(): Flow<PagingData<DomainGenre>> {
 		dbRepository.syncGenres().getOrThrow()
 		return getLocalData()
 	}
 
-	fun getGenresFlow(
+	suspend fun getGenres(
 		fullRefresh: Boolean
-	): Flow<ImmutableList<DomainGenre>> = flow {
+	): Flow<PagingData<DomainGenre>> {
 		val localData = getLocalData()
-		if (fullRefresh) {
-				emit(refreshLocalData())
+		return if (fullRefresh) {
+			refreshLocalData()
 		} else {
-			emit(localData)
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 }

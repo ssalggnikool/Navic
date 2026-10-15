@@ -6,12 +6,12 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import paige.navic.data.database.dao.ArtistDao
 import paige.navic.data.database.entity.SyncActionType
 import paige.navic.data.database.mapper.toDomainModel
@@ -21,7 +21,6 @@ import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainFilter
-import paige.navic.ui.core.UiState
 import kotlin.time.Clock
 
 class ArtistRepository(
@@ -29,21 +28,27 @@ class ArtistRepository(
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
-	private suspend fun getLocalData(
+	private fun getLocalData(
 		listType: DomainArtistListType,
 		filters: Set<DomainFilter> = emptySet(),
 		reversed: Boolean = false,
-	): ImmutableList<DomainArtist> {
-		return artistDao
-			.getArtistsByQuery(listType.toSqlQuery(reversed, filters))
-			.map { it.toDomainModel() }
-			.toImmutableList()
+	): Flow<PagingData<DomainArtist>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				artistDao
+					.getArtistsByQuery(listType.toSqlQuery(reversed, filters))
+			}
+			).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
 	private suspend fun refreshLocalData(
 		listType: DomainArtistListType,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainArtist> {
+	): Flow<PagingData<DomainArtist>> {
 		dbRepository.syncArtists().getOrThrow()
 		return getLocalData(listType, filters)
 	}
@@ -52,7 +57,7 @@ class ArtistRepository(
 		fullRefresh: Boolean,
 		listType: DomainArtistListType,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainArtist> {
+	): Flow<PagingData<DomainArtist>> {
 		val localData = getLocalData(listType, filters)
 		return if (fullRefresh) {
 			refreshLocalData(listType, filters)
@@ -60,19 +65,6 @@ class ArtistRepository(
 			localData
 		}
 	}
-
-	fun getArtistsFlow(
-		fullRefresh: Boolean,
-		listType: DomainArtistListType,
-		filters: Set<DomainFilter> = emptySet()
-	): Flow<ImmutableList<DomainArtist>> = flow {
-		val localData = getLocalData(listType, filters)
-		if (fullRefresh) {
-			emit(refreshLocalData(listType, filters))
-		} else {
-			emit(localData)
-		}
-	}.flowOn(Dispatchers.IO)
 
 	suspend fun isArtistStarred(artist: DomainArtist) = artistDao.isArtistStarred(artist.id)
 

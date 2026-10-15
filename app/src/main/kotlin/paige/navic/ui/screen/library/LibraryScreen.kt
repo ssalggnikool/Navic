@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -63,11 +64,13 @@ fun LibraryScreen() {
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
+	val albumsLazyItems = albumsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val playlistsViewModel = koinViewModel<PlaylistListViewModel>(
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val playlistsState by playlistsViewModel.uiState.collectAsStateWithLifecycle()
+	val playlistsLazyItems = playlistsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val artistsViewModel = koinViewModel<ArtistListViewModel>(
 		key = "libraryArtists",
@@ -75,10 +78,13 @@ fun LibraryScreen() {
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val artistsState by artistsViewModel.uiState.collectAsStateWithLifecycle()
+	val artistsLazyItems = artistsState.data?.items?.collectAsLazyPagingItems() ?: return
+
 	val genresViewModel = koinViewModel<GenreListViewModel>(
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val genresState by genresViewModel.uiState.collectAsStateWithLifecycle()
+	val genresLazyItems = genresState.data?.collectAsLazyPagingItems() ?: return
 
 	val statsViewModel = koinViewModel<StatisticsViewModel>(
 		viewModelStoreOwner = persistentViewModelStoreOwner
@@ -147,7 +153,7 @@ fun LibraryScreen() {
 				innerPadding = innerPadding,
 				onSetShareId = { shareId = it },
 
-				albumsState = albumsState.data?.items.orEmpty(),
+				albumsState = albumsLazyItems,
 				selectedAlbum = albumsState.data?.selected,
 				selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
 				selectedAlbumRating = selectedAlbum?.userRating ?: 0,
@@ -162,7 +168,7 @@ fun LibraryScreen() {
 				onAddAlbumToQueue = { selectedAlbum?.let { player.addToQueue(selectedAlbum as DomainSongCollection) } },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 
-				artistsState = artistsState.data?.items ?: emptyList(),
+				artistsState = artistsLazyItems,
 				selectedArtist = selectedArtist,
 				selectedArtistAlbums = null,
 				selectedArtistIsStarred = artistsState.data?.selected?.starredAt != null,
@@ -180,7 +186,7 @@ fun LibraryScreen() {
 					)
 				},
 
-				playlistsState = playlistsState.data?.items ?: emptyList(),
+				playlistsState = playlistsLazyItems,
 				selectedPlaylist = selectedPlaylist,
 				onSelectPlaylist = {
 					playlistsViewModel.selected = it
@@ -198,7 +204,7 @@ fun LibraryScreen() {
 					)
 				},
 
-				genresState = genresState,
+				genresState = genresLazyItems,
 				statsState = statsState
 			)
 		}

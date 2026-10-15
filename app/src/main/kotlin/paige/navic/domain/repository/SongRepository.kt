@@ -6,8 +6,12 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import paige.navic.data.database.dao.SongDao
 import paige.navic.data.database.entity.SyncActionType
 import paige.navic.data.database.mapper.toDomainModel
@@ -26,30 +30,55 @@ class SongRepository(
 ) {
 	suspend fun getSongById(id: String) = songDao.getSongById(id)?.toDomainModel()
 
-	suspend fun getAllSongs(): List<DomainSong> {
-		return songDao.getAllSongs().map { it.toDomainModel() }
+	fun getAllSongs(): Flow<PagingData<DomainSong>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				songDao.getAllPagedSongs()
+			}
+		).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
-	suspend fun getRandomSongs(count: Int): List<DomainSong> {
-		return songDao.getRandomSongs(count).map { it.toDomainModel() }
+	fun getRandomSongs(count: Int): Flow<PagingData<DomainSong>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				songDao.getRandomSongs(count)
+			}
+		).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
-	private suspend fun getLocalData(
+	suspend fun getRandomSongsList(count: Int): List<DomainSong> {
+		return songDao.getRandomSongsList(count).map { it.toDomainModel() }
+	}
+
+	private fun getLocalData(
 		listType: DomainSongListType,
 		reversed: Boolean = false,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainSong> {
-		return songDao
-			.getSongsByQuery(listType.toSqlQuery(reversed, filters))
-			.map { it.toDomainModel() }
-			.toImmutableList()
+	): Flow<PagingData<DomainSong>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				songDao.getPagedSongsByQuery(listType.toSqlQuery(reversed, filters))
+			}
+		).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
 	private suspend fun refreshLocalData(
 		listType: DomainSongListType,
 		reversed: Boolean = false,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainSong> {
+	): Flow<PagingData<DomainSong>> {
 		dbRepository.syncLibrarySongs().getOrThrow()
 		return getLocalData(listType, reversed, filters)
 	}
@@ -59,7 +88,7 @@ class SongRepository(
 		listType: DomainSongListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter>
-	): ImmutableList<DomainSong> {
+	): Flow<PagingData<DomainSong>> {
 		val localData = getLocalData(listType, reversed, filters)
 		return if (fullRefresh) {
 			refreshLocalData(listType, reversed, filters)

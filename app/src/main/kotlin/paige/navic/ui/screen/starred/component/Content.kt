@@ -21,18 +21,15 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,15 +40,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.paging.compose.LazyPagingItems
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.data.database.entity.DownloadEntity
-import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
@@ -64,7 +58,6 @@ import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.sheet.ArtistSheet
 import paige.navic.ui.component.sheet.CollectionSheet
-import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 
@@ -74,7 +67,7 @@ fun StarredScreenContent(
 	onSetShareId: (String) -> Unit,
 	isOnline: Boolean = false,
 
-	songs: List<DomainSong>,
+	songs: LazyPagingItems<DomainSong>,
 	selectedSong: DomainSong?,
 	selectedSongIsStarred: Boolean,
 	selectedSongRating: Int,
@@ -92,7 +85,7 @@ fun StarredScreenContent(
 	onDeleteDownloadSong: (DomainSong) -> Unit,
 
 	// albums
-	albums: List<DomainAlbum>,
+	albums: LazyPagingItems<DomainAlbum>,
 	selectedAlbum: DomainAlbum?,
 	selectedAlbumIsStarred: Boolean,
 	selectedAlbumRating: Int,
@@ -104,7 +97,7 @@ fun StarredScreenContent(
 	onAddAlbumToQueue: () -> Unit,
 
 	// artists
-	artists: List<DomainArtist>,
+	artists: LazyPagingItems<DomainArtist>,
 	selectedArtist: DomainArtist?,
 	selectedArtistAlbums: List<DomainAlbum>?,
 	selectedArtistIsStarred: Boolean,
@@ -116,9 +109,6 @@ fun StarredScreenContent(
 ) {
 	val gridState = rememberLazyGridState()
 	val backStack = LocalNavStack.current
-	val downloadManager = koinInject<DownloadManager>()
-
-	val scope = rememberCoroutineScope()
 
 	val layoutDirection = LocalLayoutDirection.current
 
@@ -132,11 +122,11 @@ fun StarredScreenContent(
 			.verticalScroll(state = scrollState),
 		verticalArrangement = Arrangement.spacedBy(
 			space = 12.dp,
-			alignment = if (albums.isEmpty() && songs.isEmpty() && artists.isEmpty()) Alignment.CenterVertically else Alignment.Top
+			alignment = if (albums.itemCount == 0 && songs.itemCount == 0 && artists.itemCount == 0) Alignment.CenterVertically else Alignment.Top
 		),
 		horizontalAlignment = Alignment.CenterHorizontally,
 	) {
-		if (albums.isEmpty() && songs.isEmpty() && artists.isEmpty()) {
+		if (albums.itemCount == 0 && songs.itemCount == 0 && artists.itemCount == 0) {
 			ContentUnavailable(
 				label = stringResource(R.string.info_no_starred)
 			)
@@ -157,10 +147,9 @@ fun StarredScreenContent(
 				)
 				.padding(
 					bottom = innerPadding.calculateBottomPadding()
-				),
-			horizontalAlignment = Alignment.CenterHorizontally
+				), horizontalAlignment = Alignment.CenterHorizontally
 		) {
-			if (songs.isNotEmpty()) {
+			if (songs.itemCount > 0) {
 				Row(
 					modifier = Modifier
 						.heightIn(min = 32.dp)
@@ -182,15 +171,14 @@ fun StarredScreenContent(
 						modifier = Modifier.clickable(onClick = dropUnlessResumed {
 							backStack.add(
 								Screen.SongList(
-									nested = true,
-									listType = DomainSongListType.FrequentlyPlayed
+									nested = true, listType = DomainSongListType.FrequentlyPlayed
 								)
 							)
 						})
 					)
 				}
-				val rowCount = remember(songs.size) {
-					songs.size.coerceIn(1, 3)
+				val rowCount = remember(songs.itemCount) {
+					songs.itemCount.coerceIn(1, 3)
 				}
 				val gridHeight = remember(rowCount) {
 					when (rowCount) {
@@ -203,9 +191,15 @@ fun StarredScreenContent(
 					rows = GridCells.Fixed(rowCount),
 					state = gridState,
 					flingBehavior = rememberSnapFlingBehavior(lazyGridState = gridState),
-					modifier = Modifier.fillMaxWidth().height(gridHeight)
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(gridHeight)
 				) {
-					itemsIndexed(if (songs.size > 12) songs.slice(0..11) else songs) { index, song ->
+					items(songs.itemCount, { index ->
+						artists[index]?.id ?: 0
+					}) { index ->
+						val song = songs[index] ?: return@items
+
 						val download = allDownloads.find { it.songId == song.id }
 						SongRow(
 							modifier = Modifier.weight(1f),
@@ -226,14 +220,13 @@ fun StarredScreenContent(
 							onShare = { onSetShareId(song.id) },
 							isOnline = isOnline,
 							rating = selectedSongRating,
-							onSetRating = { onSetSongRating(it) }
-						)
+							onSetRating = { onSetSongRating(it) })
 					}
 				}
 			}
 			ArtCarousel(
 				stringResource(R.string.title_albums),
-				albums.toImmutableList(),
+				albums.itemSnapshotList.items.toImmutableList(),
 				Screen.AlbumList(true, DomainAlbumListType.AlphabeticalByArtist)
 			) { album ->
 				ArtCarouselItem(
@@ -244,8 +237,7 @@ fun StarredScreenContent(
 					onSelect = { onSelectAlbum(album) },
 					onClick = dropUnlessResumed {
 						backStack.add(Screen.CollectionDetail(album.id, "artist"))
-					}
-				)
+					})
 				if (selectedAlbum == album) {
 					CollectionSheet(
 						onDismissRequest = { onClearAlbumSelection() },
@@ -263,26 +255,23 @@ fun StarredScreenContent(
 					)
 				}
 			}
-			if (artists.isEmpty()) return@Column
+			if (artists.itemCount == 0) return@Column
 			ArtCarousel(
 				stringResource(R.string.title_artists),
-				artists.toImmutableList(),
+				artists.itemSnapshotList.items.toImmutableList(),
 				Screen.ArtistList(true, DomainArtistListType.AlphabeticalByName)
 			) { artist ->
 				ArtCarouselItem(
 					coverArtId = artist.coverArtId,
 					title = artist.name,
 					subtitle = pluralStringResource(
-						R.plurals.count_albums,
-						artist.albumCount,
-						artist.albumCount
+						R.plurals.count_albums, artist.albumCount, artist.albumCount
 					),
 					contentDescription = null,
 					onSelect = { onSelectArtist(artist) },
 					onClick = dropUnlessResumed {
 						backStack.add(Screen.ArtistDetail(artist.id))
-					}
-				)
+					})
 				if (selectedArtist == artist) {
 					ArtistSheet(
 						onDismissRequest = onClearArtistSelection,
@@ -295,8 +284,7 @@ fun StarredScreenContent(
 									.toImmutableList()
 						},
 						starred = selectedArtistIsStarred,
-						onSetStarred = { onStarSelectedArtist(!selectedArtistIsStarred) }
-					)
+						onSetStarred = { onStarSelectedArtist(!selectedArtistIsStarred) })
 				}
 			}
 		}
@@ -304,8 +292,6 @@ fun StarredScreenContent(
 
 	songsToAddToPlaylist?.let {
 		PlaylistUpdateDialog(
-			songs = it,
-			onDismissRequest = { songsToAddToPlaylist = null }
-		)
+			songs = it, onDismissRequest = { songsToAddToPlaylist = null })
 	}
 }

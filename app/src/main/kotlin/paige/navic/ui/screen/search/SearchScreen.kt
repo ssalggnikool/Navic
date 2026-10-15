@@ -394,7 +394,6 @@ fun SearchScreen(
 								title = R.string.title_albums,
 								destination = Screen.AlbumList(true),
 								state = albums,
-								key = { it.id },
 								seeAll = false
 							) { album ->
 								AlbumListScreenGridItem(
@@ -423,7 +422,6 @@ fun SearchScreen(
 								title = R.string.title_artists,
 								destination = Screen.ArtistList(true),
 								state = artists,
-								key = { it.id },
 								seeAll = false
 							) { artist ->
 								ArtistListScreenGridItem(

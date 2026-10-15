@@ -26,7 +26,6 @@ class AlbumListViewModel(
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager
 ) : SelectableViewModel<DomainAlbum>() {
-
 	val listType: StateFlow<DomainAlbumListType>
 		field = MutableStateFlow(initialListType ?: preferenceManager.albumSortType)
 
@@ -93,5 +92,4 @@ class AlbumListViewModel(
 		preferenceManager.albumFilters = newFilters.toBitmask()
 		refreshAlbums(false)
 	}
-
 }

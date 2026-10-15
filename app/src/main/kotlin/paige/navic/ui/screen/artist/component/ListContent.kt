@@ -27,6 +27,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import paige.navic.R
@@ -42,7 +43,7 @@ import paige.navic.ui.util.withoutTop
 
 @Composable
 fun ArtistListScreenContent(
-	artists: List<DomainArtist>,
+	artists: LazyPagingItems<DomainArtist>,
 	starred: Boolean,
 	selectedSorting: DomainArtistListType,
 	gridState: LazyGridState,
@@ -58,12 +59,10 @@ fun ArtistListScreenContent(
 	onPlayNext: () -> Unit,
 	onAddToQueue: () -> Unit,
 ) {
+	val snapshotList = artists.itemSnapshotList.items
+	val totalArtistCount = snapshotList.size // TODO: pull the actual size because this is retarded
 
-	val data = artists
-
-	val totalArtistCount = data.size
-
-	val grouped = data.groupBy { it.name.firstOrNull()?.uppercaseChar() ?: '#' }
+	val grouped = snapshotList.groupBy { it.name.firstOrNull()?.uppercaseChar() ?: '#' }
 		.toList()
 		.sortedBy { it.first }
 
@@ -164,7 +163,9 @@ fun ArtistListScreenContent(
 					}
 				}
 			} else {
-				items(data, { it.id }) { artist ->
+				items(artists.itemCount, { index -> artists[index]?.id ?: 0 }) { index ->
+					val artist = artists[index] ?: return@items
+
 					if (selectedViewMode == ListViewMode.Grid) {
 						ArtistListScreenGridItem(
 							modifier = Modifier.animateItem(),

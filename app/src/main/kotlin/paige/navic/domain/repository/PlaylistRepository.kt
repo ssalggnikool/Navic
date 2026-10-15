@@ -6,8 +6,12 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import paige.navic.data.database.dao.PlaylistDao
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.data.database.query.toSqlQuery
@@ -19,22 +23,28 @@ class PlaylistRepository(
 	private val playlistDao: PlaylistDao,
 	private val dbRepository: DbRepository,
 ) {
-	private suspend fun getLocalData(
+	private fun getLocalData(
 		listType: DomainPlaylistListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainPlaylist> {
-		return playlistDao
-			.getPlaylistsByQuery(listType.toSqlQuery(reversed, filters))
-			.map { it.toDomainModel() }
-			.toImmutableList()
+	): Flow<PagingData<DomainPlaylist>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				playlistDao
+					.getPlaylistsByQuery(listType.toSqlQuery(reversed, filters))
+			}
+		).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
 	private suspend fun refreshLocalData(
 		listType: DomainPlaylistListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainPlaylist> {
+	): Flow<PagingData<DomainPlaylist>> {
 		dbRepository.syncPlaylists().getOrThrow().forEach { playlist ->
 			dbRepository.syncPlaylistSongs(playlist.playlistId).getOrThrow()
 		}
@@ -46,7 +56,7 @@ class PlaylistRepository(
 		listType: DomainPlaylistListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainPlaylist> {
+	): Flow<PagingData<DomainPlaylist>> {
 		val localData = getLocalData(listType, reversed, filters)
 		return if (fullRefresh) {
 			refreshLocalData(listType, reversed, filters)
