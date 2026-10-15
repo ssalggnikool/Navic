@@ -182,14 +182,14 @@ fun SongListScreen(
 								shareId = it
 							},
 							onPlayNext = {
-								if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+								if (player.checkDuplicate(song.id, preferenceManager)) {
 									songToQueue = song
 								} else {
 									player.playNextSingle(song)
 								}
 							},
 							onAddToQueue = {
-								if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+								if (player.checkDuplicate(song.id, preferenceManager)) {
 									songToQueue = song
 								} else {
 									player.addToQueueSingle(song)
@@ -237,12 +237,8 @@ fun SongListScreen(
 		onExpiryChange = { shareExpiry = it }
 	)
 
-	if (songToQueue != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { songToQueue = null },
-			onConfirm = {
-				songToQueue?.let { player.addToQueueSingle(it) }
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		song = songToQueue,
+		onDismissRequest = { songToQueue = null }
+	)
 }
