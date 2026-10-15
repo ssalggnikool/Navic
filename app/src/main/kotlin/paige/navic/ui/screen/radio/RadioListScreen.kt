@@ -51,8 +51,6 @@ import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Add
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.layout.ArtGrid
@@ -87,8 +85,8 @@ fun RadioListScreen(
 		}
 	)
 	val player = koinInject<MediaPlayer>()
-	val state by viewModel.uiState.collectAsState()
-	val lazyPagingItems = state.data?.collectAsLazyPagingItems()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
 
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 	val slideSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
@@ -188,9 +186,8 @@ fun RadioListScreen(
 								RadioListScreenCard(
 									modifier = Modifier.animateItem(),
 									radio = radio,
-									onPlayClick = {
-										player.playRadio(radio)
-									}
+									onClick = { player.playRadio(radio) },
+									onLongClick = { viewModel.selected = radio }
 								)
 							}
 						}
@@ -228,9 +225,9 @@ fun RadioListScreen(
 		)
 	}
 
-	selectedRadio?.let { selectedRadio ->
+	viewModel.selected?.let { selectedRadio ->
 		RadioSheet(
-			onDismissRequest = { viewModel.selectRadio(null) },
+			onDismissRequest = { viewModel.selected = null },
 			radio = selectedRadio,
 			onUpdateRadioRequest = { updateDialogShown = true },
 			onDeleteRadioRequest = { deleteDialogShown = true }
@@ -242,7 +239,7 @@ fun RadioListScreen(
 				radio = selectedRadio,
 				onRefresh = {
 					updateDialogShown = false
-					viewModel.selectRadio(null)
+					viewModel.selected = null
 					viewModel.refreshRadios(true)
 				}
 			)
@@ -255,7 +252,7 @@ fun RadioListScreen(
 				onIdClear = { deleteDialogShown = false },
 				onRefresh = {
 					deleteDialogShown = false
-					viewModel.selectRadio(null)
+					viewModel.selected = null
 					viewModel.refreshRadios(true)
 				}
 			)

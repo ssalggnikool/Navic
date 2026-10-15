@@ -8,18 +8,16 @@ package paige.navic.ui.screen.radio.viewmodel
 
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainRadio
 import paige.navic.domain.repository.RadioRepository
-import paige.navic.ui.viewmodel.AsyncViewModel
+import paige.navic.ui.viewmodel.SelectableViewModel
 
 class RadioListViewModel(
 	private val repository: RadioRepository,
 	private val sessionManager: SessionManager
-) : AsyncViewModel<Flow<PagingData<DomainRadio>>>() {
+) : SelectableViewModel<DomainRadio>() {
 	val gridState = LazyGridState()
 
 	init {
@@ -28,15 +26,7 @@ class RadioListViewModel(
 		}
 	}
 
-	fun selectRadio(radio: DomainRadio?) {
-		viewModelScope.launch {
-			selectedRadio.value = radio
-		}
-	}
-
-	fun refreshRadios(fullRefresh: Boolean) {
-		execute {
-			repository.getRadios(fullRefresh)
-		}
+	fun refreshRadios(fullRefresh: Boolean) = launch {
+		items = repository.getRadios(fullRefresh)
 	}
 }
