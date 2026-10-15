@@ -111,14 +111,14 @@ fun CollectionDetailScreenSongRow(
 		gesturesEnabled = !isExplicit,
 		onDismiss = {
 			if (it == SwipeToDismissBoxValue.StartToEnd) {
-				if (playerState.queue.any { item -> item.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (!preferenceManager.shushQueueDuplicateDialog && playerState.queue.any { item -> item.id == song.id }) {
 					isPlayNextPending = false
 				} else {
 					onAddToQueue()
 				}
 			}
 			if (it == SwipeToDismissBoxValue.EndToStart) {
-				if (playerState.queue.any { item -> item.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (!preferenceManager.shushQueueDuplicateDialog && playerState.queue.any { item -> item.id == song.id }) {
 					isPlayNextPending = true
 				} else {
 					onPlayNext()
@@ -294,13 +294,12 @@ fun CollectionDetailScreenSongRow(
 		)
 	}
 
-	if (isPlayNextPending != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { isPlayNextPending = null },
-			onConfirm = {
-				if (isPlayNextPending == true) onPlayNext() else onAddToQueue()
-				isPlayNextPending = null
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		showDialog = isPlayNextPending != null,
+		onDismissRequest = { isPlayNextPending = null },
+		onConfirm = {
+			if (isPlayNextPending == true) onPlayNext() else onAddToQueue()
+			isPlayNextPending = null
+		}
+	)
 }
