@@ -10,12 +10,9 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import paige.navic.data.database.dao.AlbumDao
 import paige.navic.data.database.dao.ArtistDao
@@ -28,7 +25,7 @@ import paige.navic.domain.repository.AlbumRepository
 import paige.navic.domain.repository.ArtistRepository
 import paige.navic.domain.repository.DbRepository
 import paige.navic.domain.repository.SongRepository
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.core.UiState
 import paige.navic.util.Logger
 
@@ -241,7 +238,7 @@ class ArtistDetailViewModel(
 		}
 	}
 
-	fun playArtistAlbums(player: MediaPlayerViewModel) {
+	fun playArtistAlbums(player: MediaPlayer) {
 		val songs = (artistState.value as? UiState.Success)?.data
 			?.albums?.flatMap { it.songs }
 			?: return
@@ -250,7 +247,7 @@ class ArtistDetailViewModel(
 		player.playNow(songs)
 	}
 
-	fun playArtistAlbumsShuffled(player: MediaPlayerViewModel) {
+	fun playArtistAlbumsShuffled(player: MediaPlayer) {
 		val songs = (artistState.value as? UiState.Success)?.data
 			?.albums?.flatMap { it.songs }
 			?: return

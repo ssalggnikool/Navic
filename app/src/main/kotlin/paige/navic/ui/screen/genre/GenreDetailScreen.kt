@@ -32,7 +32,7 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -50,7 +50,7 @@ fun GenreDetailScreen(
 	genreName: String
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val downloadManager = koinInject<DownloadManager>()
 
 	val songsViewModel = koinViewModel<SongListViewModel>(

@@ -59,7 +59,7 @@ import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Add
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeletionDialog
 import paige.navic.ui.component.dialog.DeletionEndpoint
@@ -96,7 +96,7 @@ fun PlaylistListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val state by viewModel.uiState.collectAsState()
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()

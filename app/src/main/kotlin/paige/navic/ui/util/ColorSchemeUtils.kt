@@ -25,7 +25,7 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.settings.ThemeMode
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable
@@ -82,7 +82,7 @@ fun rememberColorSchemeFromCoverArt(
 
 @Composable
 fun rememberColorSchemeForCurrentSong(forceDark: Boolean = true): ColorScheme {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsState()
 	val coverArtId = playerState.currentSong?.coverArtId
 	return rememberColorSchemeFromCoverArt(
