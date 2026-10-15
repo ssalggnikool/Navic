@@ -261,80 +261,80 @@ fun CollectionSheet(
 			}
 
 			when (downloadStatus) {
-					DownloadStatus.DOWNLOADING -> {
-						ListItem(
-							content = { Text(stringResource(R.string.action_cancel_download)) },
-							leadingContent = { Icon(Icons.Outlined.Close, null) },
-							onClick = {
-								downloadManager.cancelCollectionDownload(collection)
-								onDismissRequest()
-							},
-							colors = colors,
-							contentPadding = contentPadding
-						)
-					}
-
-					DownloadStatus.DOWNLOADED -> {
-						ListItem(
-							content = { Text(stringResource(R.string.action_delete_download)) },
-							leadingContent = { Icon(Icons.Outlined.Delete, null) },
-							onClick = {
-								downloadManager.deleteDownloadedCollection(collection)
-								onDismissRequest()
-							},
-							colors = colors,
-							contentPadding = contentPadding
-						)
-					}
-
-					DownloadStatus.FAILED -> {
-						ListItem(
-							content = {
-								Text(
-									text = stringResource(R.string.info_download_failed),
-									color = MaterialTheme.colorScheme.error
-								)
-							},
-							supportingContent = {
-								Text(
-									text = stringResource(R.string.info_click_to_retry),
-									color = MaterialTheme.colorScheme.error,
-									style = MaterialTheme.typography.labelSmall
-								)
-							},
-							leadingContent = {
-								Icon(
-									Icons.Outlined.DownloadOff,
-									null,
-									tint = MaterialTheme.colorScheme.error
-								)
-							},
-							onClick = {
-								scope.launch {
-									downloadManager.downloadCollection(collection)
-								}
-								onDismissRequest()
-							},
-							colors = colors,
-							contentPadding = contentPadding
-						)
-					}
-
-					else -> {
-						ListItem(
-							content = { Text(stringResource(R.string.action_download)) },
-							leadingContent = { Icon(Icons.Outlined.Download, null) },
-							onClick = {
-								scope.launch {
-									downloadManager.downloadCollection(collection)
-								}
-								onDismissRequest()
-							},
-							colors = colors,
-							contentPadding = contentPadding
-						)
-					}
+				DownloadStatus.DOWNLOADING -> {
+					ListItem(
+						content = { Text(stringResource(R.string.action_cancel_download)) },
+						leadingContent = { Icon(Icons.Outlined.Close, null) },
+						onClick = {
+							downloadManager.cancelCollectionDownload(collection)
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding
+					)
 				}
+
+				DownloadStatus.DOWNLOADED -> {
+					ListItem(
+						content = { Text(stringResource(R.string.action_delete_download)) },
+						leadingContent = { Icon(Icons.Outlined.Delete, null) },
+						onClick = {
+							downloadManager.deleteDownloadedCollection(collection)
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding
+					)
+				}
+
+				DownloadStatus.FAILED -> {
+					ListItem(
+						content = {
+							Text(
+								text = stringResource(R.string.info_download_failed),
+								color = MaterialTheme.colorScheme.error
+							)
+						},
+						supportingContent = {
+							Text(
+								text = stringResource(R.string.info_click_to_retry),
+								color = MaterialTheme.colorScheme.error,
+								style = MaterialTheme.typography.labelSmall
+							)
+						},
+						leadingContent = {
+							Icon(
+								Icons.Outlined.DownloadOff,
+								null,
+								tint = MaterialTheme.colorScheme.error
+							)
+						},
+						onClick = {
+							scope.launch {
+								downloadManager.downloadCollection(collection)
+							}
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding
+					)
+				}
+
+				else -> {
+					ListItem(
+						content = { Text(stringResource(R.string.action_download)) },
+						leadingContent = { Icon(Icons.Outlined.Download, null) },
+						onClick = {
+							scope.launch {
+								downloadManager.downloadCollection(collection)
+							}
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding
+					)
+				}
+			}
 
 			if (onDelete != null) {
 				ListItem(
@@ -351,10 +351,8 @@ fun CollectionSheet(
 		}
 	}
 
-	if (linkToOpen != null) {
-		LinkConfirmationDialog(
-			linkToOpen = linkToOpen!!,
-			onDismissRequest = { linkToOpen = null }
-		)
-	}
+	LinkConfirmationDialog(
+		linkToOpen = linkToOpen,
+		onDismissRequest = { linkToOpen = null }
+	)
 }
