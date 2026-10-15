@@ -66,6 +66,19 @@ class ArtistRepository(
 		return getLocalData(listType, filters)
 	}
 
+	suspend fun getArtists(
+		fullRefresh: Boolean,
+		listType: DomainArtistListType,
+		filters: Set<DomainFilter> = emptySet()
+	): ImmutableList<DomainArtist> {
+		val localData = getLocalData(listType, filters)
+		return if (fullRefresh) {
+			refreshLocalData(listType, filters)
+		} else {
+			localData
+		}
+	}
+
 	fun getArtistsFlow(
 		fullRefresh: Boolean,
 		listType: DomainArtistListType,

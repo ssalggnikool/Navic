@@ -82,10 +82,8 @@ fun AlbumListScreen(
 	val selectedSorting by viewModel.listType.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
-	val albumsState by viewModel.albumsState.collectAsStateWithLifecycle()
-	val selectedAlbum by viewModel.selectedAlbum.collectAsStateWithLifecycle()
-	val starred by viewModel.starred.collectAsStateWithLifecycle()
-	val rating by viewModel.rating.collectAsStateWithLifecycle()
+	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+	val selectedAlbum = uiState.data?.selected
 	var shareId by remember { mutableStateOf<String?>(null) }
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -140,12 +138,12 @@ fun AlbumListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = albumsState !is UiState.Loading,
+			finished = uiState !is UiState.Loading,
 			onRefresh = { viewModel.refreshAlbums(true) },
-			key = albumsState
+			key = uiState
 		) {
-			val grouped = remember(albumsState.data) {
-				albumsState.data.orEmpty().groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
+			val grouped = remember(uiState.data?.items) {
+				uiState.data?.items.orEmpty().groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
 					.toList()
 					.sortedBy { it.first }
 			}
@@ -166,7 +164,7 @@ fun AlbumListScreen(
 					else Modifier,
 					state = viewModel.gridState,
 					contentPadding = innerPadding.withoutTop(),
-					verticalArrangement = if (albumsState.data?.isEmpty() == true) {
+					verticalArrangement = if (uiState.data?.items?.isEmpty() == true) {
 						Arrangement.Center
 					} else if (selectedViewMode == ListViewMode.List) {
 						Arrangement.spacedBy(0.dp)
@@ -176,11 +174,11 @@ fun AlbumListScreen(
 					selectedViewMode = selectedViewMode
 				) {
 					albumListScreenContent(
-						state = albumsState,
-						starred = starred,
+						albums = uiState.data?.items.orEmpty(),
+						starred = selectedAlbum?.starredAt != null,
 						selectedSorting = selectedSorting,
 						selectedAlbum = selectedAlbum,
-						selectedAlbumRating = rating,
+						selectedAlbumRating = selectedAlbum?.userRating ?: 0,
 						selectedViewMode = selectedViewMode,
 						onPlayNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
 						onAddToQueue = {
@@ -211,7 +209,7 @@ fun AlbumListScreen(
 	}
 
 	ErrorSnackBar(
-		error = (albumsState as? UiState.Error)?.error,
+		error = (uiState as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 

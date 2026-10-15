@@ -7,10 +7,7 @@
 package paige.navic.ui.screen.playlist.viewmodel
 
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -22,18 +19,14 @@ import paige.navic.domain.model.DomainPlaylistListType
 import paige.navic.domain.model.toBitmask
 import paige.navic.domain.model.toDomainFilters
 import paige.navic.domain.repository.PlaylistRepository
-import paige.navic.ui.core.UiState
+import paige.navic.ui.viewmodel.SelectableViewModel
+
 
 class PlaylistListViewModel(
 	private val repository: PlaylistRepository,
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager
-) : ViewModel() {
-	val playlistsState: StateFlow<UiState<List<DomainPlaylist>>>
-		field = MutableStateFlow<UiState<List<DomainPlaylist>>>(UiState.Loading())
-
-	val selectedPlaylist: StateFlow<DomainPlaylist?>
-		field = MutableStateFlow(null)
+) : SelectableViewModel<DomainPlaylist>() {
 
 	val selectedSorting: StateFlow<DomainPlaylistListType>
 		field = MutableStateFlow(preferenceManager.playlistSortType)
@@ -52,24 +45,20 @@ class PlaylistListViewModel(
 		}
 	}
 
-	fun selectPlaylist(playlist: DomainPlaylist) {
-		selectedPlaylist.value = playlist
-	}
+	fun selectPlaylist(playlist: DomainPlaylist?) = select(playlist)
 
-	fun clearSelection() {
-		selectedPlaylist.value = null
-	}
+	fun clearSelection() = select(null)
 
 	fun refreshPlaylists(fullRefresh: Boolean) {
-		viewModelScope.launch {
-			repository.getPlaylistsFlow(
-				fullRefresh,
-				selectedSorting.value,
-				selectedReversed.value,
-				selectedFilters.value
-			).collect {
-				playlistsState.value = UiState.Success(it)
-			}
+		execute {
+			it.copy(
+				items = repository.getPlaylists(
+					fullRefresh,
+					selectedSorting.value,
+					selectedReversed.value,
+					selectedFilters.value
+				)
+			)
 		}
 	}
 
@@ -98,6 +87,6 @@ class PlaylistListViewModel(
 	}
 
 	fun clearError() {
-		playlistsState.value = UiState.Success(playlistsState.value.data ?: persistentListOf())
+		// ?
 	}
 }

@@ -37,13 +37,12 @@ import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.ui.component.common.AlphabeticalScroller
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.layout.ArtGrid
-import paige.navic.ui.core.UiState
 import paige.navic.ui.screen.artist.ArtistListScreenGridItem
 import paige.navic.ui.util.withoutTop
 
 @Composable
 fun ArtistListScreenContent(
-	state: UiState<List<DomainArtist>>,
+	artists: List<DomainArtist>,
 	starred: Boolean,
 	selectedSorting: DomainArtistListType,
 	gridState: LazyGridState,
@@ -60,7 +59,7 @@ fun ArtistListScreenContent(
 	onAddToQueue: () -> Unit,
 ) {
 
-	val data = state.data.orEmpty()
+	val data = artists
 
 	val totalArtistCount = data.size
 

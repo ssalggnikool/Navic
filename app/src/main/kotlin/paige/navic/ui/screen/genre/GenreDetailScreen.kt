@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,10 +62,7 @@ fun GenreDetailScreen(
 		key = "genre_detail_albums_$genreName",
 		parameters = { parametersOf(DomainAlbumListType.ByGenre(genreName)) }
 	)
-	val albumsState by albumsViewModel.albumsState.collectAsStateWithLifecycle()
-	val selectedAlbum by albumsViewModel.selectedAlbum.collectAsStateWithLifecycle()
-	val selectedAlbumIsStarred by albumsViewModel.starred.collectAsStateWithLifecycle()
-	val selectedAlbumRating by albumsViewModel.rating.collectAsStateWithLifecycle()
+	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
 
 	val allDownloads by songsViewModel.allDownloads.collectAsStateWithLifecycle()
 	val isOnline by songsViewModel.isOnline.collectAsStateWithLifecycle()
@@ -104,8 +102,8 @@ fun GenreDetailScreen(
 				isOnline = isOnline,
 
 				songs = songsState.data?.items.orEmpty(),
-				selectedSong = songsState.data?.selectedItem,
-				selectedSongRating = songsState.data?.selectedItem?.userRating ?: 0,
+				selectedSong = songsState.data?.selected,
+				selectedSongRating = songsState.data?.selected?.userRating ?: 0,
 				allDownloads = allDownloads,
 				onSelectSong = { songsViewModel.selectSong(it) },
 				onClearSongSelection = { songsViewModel.clearSelection() },
@@ -137,15 +135,15 @@ fun GenreDetailScreen(
 					songsViewModel.deleteDownload(song.id)
 				},
 
-				albumsState = albumsState.data.orEmpty(),
-				selectedAlbum = selectedAlbum,
-				selectedAlbumIsStarred = selectedAlbumIsStarred,
-				selectedAlbumRating = selectedAlbumRating,
+				albumsState = albumsState.data?.items.orEmpty(),
+				selectedAlbum = albumsState.data?.selected,
+				selectedAlbumIsStarred = albumsState.data?.selected?.starredAt != null,
+				selectedAlbumRating = albumsState.data?.selected?.userRating ?: 0,
 				onSelectAlbum = { albumsViewModel.selectAlbum(it) },
 				onClearAlbumSelection = { albumsViewModel.clearSelection() },
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
-				onPlayAlbumNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
-				onAddAlbumToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
+				onPlayAlbumNext = { albumsState.data?.selected.let { player.playNext(it as DomainSongCollection) } },
+				onAddAlbumToQueue = { albumsState.data?.selected.let { player.addToQueue(it as DomainSongCollection) } },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 			)
 		}

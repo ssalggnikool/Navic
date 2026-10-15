@@ -75,12 +75,11 @@ fun ArtistListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val artistsState by viewModel.artistsState.collectAsState()
-	val selectedArtist by viewModel.selectedArtist.collectAsState()
-	val selectedArtistAlbums by viewModel.selectedArtistAlbums.collectAsState()
+	val uiState by viewModel.uiState.collectAsState()
+	val selectedArtist = uiState.data?.selected
+	val selectedArtistAlbums = null
 	val selectedSorting by viewModel.listType.collectAsState()
 	val selectedFilters by viewModel.selectedFilters.collectAsState()
-	val starred by viewModel.starred.collectAsState()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
 	val player = koinInject<MediaPlayerViewModel>()
@@ -133,13 +132,13 @@ fun ArtistListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = artistsState !is UiState.Loading,
+			finished = uiState !is UiState.Loading,
 			onRefresh = { viewModel.refreshArtists(true) },
-			key = artistsState
+			key = uiState
 		) {
 			ArtistListScreenContent(
-				state = artistsState,
-				starred = starred,
+				artists = uiState.data?.items.orEmpty(),
+				starred = selectedArtist?.starredAt != null,
 				selectedSorting = selectedSorting,
 				selectedArtist = selectedArtist,
 				selectedArtistAlbums = selectedArtistAlbums,
@@ -158,7 +157,7 @@ fun ArtistListScreen(
 	}
 
 	ErrorSnackBar(
-		error = (artistsState as? UiState.Error)?.error,
+		error = (uiState as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 }
