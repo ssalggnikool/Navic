@@ -18,10 +18,18 @@ import kotlinx.coroutines.flow.Flow
 import paige.navic.database.entity.ArtistEntity
 import paige.navic.util.Logger
 
+data class LetterCount(
+	val letter: String,
+	val count: Int
+)
+
 @Dao
 interface ArtistDao {
 	@RawQuery
 	fun getArtistsByQuery(query: RoomRawQuery): PagingSource<Int, ArtistEntity>
+
+	@RawQuery
+	fun getArtistLetterCounts(query: RoomRawQuery): Flow<List<LetterCount>>
 
 	@Query("SELECT * FROM ArtistEntity ORDER BY name COLLATE NOCASE ASC")
 	suspend fun getArtistsAlphabeticalByName(): List<ArtistEntity>

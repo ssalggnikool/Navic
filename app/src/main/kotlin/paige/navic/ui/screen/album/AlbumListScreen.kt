@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,7 +43,6 @@ import paige.navic.R.string.info_no_albums
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
@@ -91,6 +89,7 @@ fun AlbumListScreen(
 	val selectedSorting by viewModel.listType.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
+	val letterCounts by viewModel.letterCounts.collectAsStateWithLifecycle()
 	val state by viewModel.uiState.collectAsStateWithLifecycle()
 	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
 
@@ -154,20 +153,14 @@ fun AlbumListScreen(
 			onRefresh = { viewModel.refreshAlbums(true) },
 			key = state
 		) {
-			val snapshotList = lazyPagingItems?.itemSnapshotList?.items.orEmpty()
-			val grouped = remember(state.data?.items) {
-				snapshotList.groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
-					.toList()
-					.sortedBy { it.first }
-			}
-
-			val headerIndices = remember(grouped) {
-				var currentIndex = 0
-				grouped.map { (letter, albums) ->
-					val pos = currentIndex
-					currentIndex += albums.size + 1
-					letter.toString() to pos
+			val headerIndices = remember(letterCounts) {
+				var gridPosition = 0
+				val list = mutableListOf<Pair<String, Int>>()
+				letterCounts.forEach { lc ->
+					list.add(lc.letter to gridPosition)
+					gridPosition += 1 + lc.count
 				}
+				list.toImmutableList()
 			}
 			Box {
 				ArtGrid(
@@ -188,18 +181,13 @@ fun AlbumListScreen(
 					lazyPagingItems?.let { items ->
 						if (items.itemCount > 0) {
 							if (selectedSorting == DomainAlbumListType.AlphabeticalByName) {
-								val grouped = snapshotList.groupBy {
-									it.name?.firstOrNull()?.uppercaseChar() ?: '#'
-								}
-									.toList()
-									.sortedBy { it.first }
-
 								val textPadding = PaddingValues(
 									horizontal = if (selectedViewMode == ListViewMode.List) 16.dp else 0.dp,
 									vertical = 8.dp
 								)
 
-								grouped.forEach { (letter, albums) ->
+								var albumOffset = 0
+								letterCounts.forEach { lc ->
 									stickyHeader {
 										Row(
 											modifier = Modifier
@@ -208,12 +196,16 @@ fun AlbumListScreen(
 											verticalAlignment = Alignment.CenterVertically
 										) {
 											Text(
-												text = letter.toString(),
+												text = lc.letter,
 												color = MaterialTheme.colorScheme.onSurfaceVariant
 											)
 										}
 									}
-									items(albums, { it.id }) { album ->
+									val startAlbumIndex = albumOffset
+									items(lc.count) { i ->
+										val albumIndex = startAlbumIndex + i
+										val album = items[albumIndex] ?: return@items
+
 										if (selectedViewMode == ListViewMode.Grid) {
 											AlbumListScreenGridItem(
 												modifier = Modifier.animateItem(),
@@ -283,9 +275,10 @@ fun AlbumListScreen(
 											)
 										}
 									}
+									albumOffset += lc.count
 								}
 							} else {
-								items(items.itemCount) { index ->
+								items(items.itemCount, key = { index -> items.peek(index)?.id ?: index }) { index ->
 									val album = items[index] ?: return@items
 
 									if (selectedViewMode == ListViewMode.Grid) {
@@ -369,7 +362,7 @@ fun AlbumListScreen(
 				if (selectedSorting == DomainAlbumListType.AlphabeticalByName) {
 					AlphabeticalScroller(
 						state = viewModel.gridState,
-						headers = headerIndices.toImmutableList(),
+						headers = headerIndices,
 						modifier = Modifier.align(Alignment.TopEnd)
 					)
 				}
