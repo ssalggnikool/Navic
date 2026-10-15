@@ -51,7 +51,7 @@ import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSheetState
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.QueueInfoType
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.queue.component.QueueScreenItem

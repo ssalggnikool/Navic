@@ -28,7 +28,7 @@ import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.CoverArtTapAction
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.nowPlaying.component.NowPlayingArtwork
 

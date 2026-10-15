@@ -55,7 +55,7 @@ import paige.navic.ui.icons.filled.SkipNext
 import paige.navic.ui.icons.filled.SkipPrevious
 import paige.navic.ui.icons.outlined.Repeat
 import paige.navic.ui.icons.outlined.Shuffle
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.util.playPauseIconPainter
 
 @Composable

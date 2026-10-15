@@ -26,7 +26,7 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainExplicitStatus
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SmallRatingRow
 import paige.navic.ui.navigation.Screen
