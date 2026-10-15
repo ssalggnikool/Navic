@@ -11,7 +11,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -19,7 +18,6 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer
 import androidx.media3.exoplayer.BaseRenderer
@@ -52,18 +50,13 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import okhttp3.OkHttpClient
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.playback.exoplayer.impl.ExoArtworkLoader
 import paige.navic.playback.exoplayer.impl.ExoAudioGainProcessor
-import paige.navic.util.NoopTrustManager
 import paige.navic.util.createOkHttpClient
-import java.security.SecureRandom
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLContext
 
 @OptIn(UnstableApi::class)
 class ExoStateHolder : KoinComponent {
