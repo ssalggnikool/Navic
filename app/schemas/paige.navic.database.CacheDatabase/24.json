@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 8,
-    "identityHash": "a5633d3b6a05443bd78e74863bdf920e",
+    "version": 24,
+    "identityHash": "08f9ccb6c5ed0c13a22af7354b95c5d3",
     "entities": [
       {
         "tableName": "AlbumEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`albumId` TEXT NOT NULL, `name` TEXT NOT NULL, `artistName` TEXT NOT NULL, `artistId` TEXT NOT NULL, `year` INTEGER, `coverArtId` TEXT NOT NULL, `genre` TEXT, `genres` TEXT NOT NULL, `songCount` INTEGER NOT NULL, `duration` INTEGER, `createdAt` INTEGER NOT NULL, `starredAt` INTEGER, `lastPlayedAt` INTEGER, `playCount` INTEGER NOT NULL, `userRating` INTEGER, `version` TEXT, `musicBrainzId` TEXT, PRIMARY KEY(`albumId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`albumId` TEXT NOT NULL, `name` TEXT, `artistName` TEXT, `artistId` TEXT NOT NULL, `year` INTEGER, `coverArtId` TEXT, `genre` TEXT, `genres` TEXT NOT NULL, `songCount` INTEGER NOT NULL, `duration` INTEGER, `createdAt` INTEGER NOT NULL, `starredAt` INTEGER, `lastPlayedAt` INTEGER, `playCount` INTEGER NOT NULL, `userRating` INTEGER, `version` TEXT, `musicBrainzId` TEXT, `isExternal` INTEGER NOT NULL, PRIMARY KEY(`albumId`))",
         "fields": [
           {
             "fieldPath": "albumId",
@@ -17,14 +17,12 @@
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "artistName",
             "columnName": "artistName",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "artistId",
@@ -40,8 +38,7 @@
           {
             "fieldPath": "coverArtId",
             "columnName": "coverArtId",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "genre",
@@ -101,12 +98,135 @@
             "fieldPath": "musicBrainzId",
             "columnName": "musicBrainzId",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isExternal",
+            "columnName": "isExternal",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
             "albumId"
+          ]
+        }
+      },
+      {
+        "tableName": "ArtistEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`artistId` TEXT NOT NULL, `name` TEXT NOT NULL, `albumCount` INTEGER NOT NULL, `coverArtId` TEXT, `artistImageUrl` TEXT, `starredAt` INTEGER, `userRating` INTEGER, `sortName` TEXT, `musicBrainzId` TEXT, `lastFmUrl` TEXT, `roles` TEXT NOT NULL, `biography` TEXT, `similarArtistIds` TEXT NOT NULL, PRIMARY KEY(`artistId`))",
+        "fields": [
+          {
+            "fieldPath": "artistId",
+            "columnName": "artistId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "albumCount",
+            "columnName": "albumCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "coverArtId",
+            "columnName": "coverArtId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "artistImageUrl",
+            "columnName": "artistImageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "starredAt",
+            "columnName": "starredAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "userRating",
+            "columnName": "userRating",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sortName",
+            "columnName": "sortName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "musicBrainzId",
+            "columnName": "musicBrainzId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastFmUrl",
+            "columnName": "lastFmUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "roles",
+            "columnName": "roles",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "biography",
+            "columnName": "biography",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "similarArtistIds",
+            "columnName": "similarArtistIds",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "artistId"
+          ]
+        }
+      },
+      {
+        "tableName": "DownloadEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `status` TEXT NOT NULL, `progress` REAL NOT NULL, `filePath` TEXT, PRIMARY KEY(`songId`))",
+        "fields": [
+          {
+            "fieldPath": "songId",
+            "columnName": "songId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "progress",
+            "columnName": "progress",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filePath",
+            "columnName": "filePath",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "songId"
           ]
         }
       },
@@ -141,8 +261,38 @@
         }
       },
       {
+        "tableName": "LyricEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `rawContent` TEXT NOT NULL, `providerName` TEXT NOT NULL, PRIMARY KEY(`songId`))",
+        "fields": [
+          {
+            "fieldPath": "songId",
+            "columnName": "songId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rawContent",
+            "columnName": "rawContent",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "providerName",
+            "columnName": "providerName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "songId"
+          ]
+        }
+      },
+      {
         "tableName": "PlaylistEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlistId` TEXT NOT NULL, `name` TEXT NOT NULL, `comment` TEXT, `owner` TEXT NOT NULL, `coverArtId` TEXT, `songCount` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `public` INTEGER, `readOnly` INTEGER, `createdAt` INTEGER NOT NULL, `modifiedAt` INTEGER NOT NULL, `validUntil` INTEGER, `allowedUsers` TEXT NOT NULL, PRIMARY KEY(`playlistId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlistId` TEXT NOT NULL, `name` TEXT, `comment` TEXT, `owner` TEXT, `coverArtId` TEXT, `songCount` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `public` INTEGER, `readOnly` INTEGER, `createdAt` INTEGER NOT NULL, `modifiedAt` INTEGER NOT NULL, `validUntil` INTEGER, `allowedUsers` TEXT NOT NULL, PRIMARY KEY(`playlistId`))",
         "fields": [
           {
             "fieldPath": "playlistId",
@@ -153,8 +303,7 @@
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "comment",
@@ -164,8 +313,7 @@
           {
             "fieldPath": "owner",
             "columnName": "owner",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "coverArtId",
@@ -293,8 +441,48 @@
         ]
       },
       {
+        "tableName": "RadioEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`radioId` TEXT NOT NULL, `coverArtId` TEXT, `name` TEXT NOT NULL, `streamUrl` TEXT NOT NULL, `homepageUrl` TEXT, PRIMARY KEY(`radioId`))",
+        "fields": [
+          {
+            "fieldPath": "radioId",
+            "columnName": "radioId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "coverArtId",
+            "columnName": "coverArtId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "streamUrl",
+            "columnName": "streamUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "homepageUrl",
+            "columnName": "homepageUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "radioId"
+          ]
+        }
+      },
+      {
         "tableName": "SongEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `title` TEXT NOT NULL, `artistName` TEXT NOT NULL, `artistId` TEXT NOT NULL, `albumTitle` TEXT, `belongsToAlbumId` TEXT, `parentId` TEXT, `comment` TEXT, `trackNumber` INTEGER, `discNumber` INTEGER, `isrc` TEXT NOT NULL, `year` INTEGER, `genre` TEXT, `genres` TEXT NOT NULL, `moods` TEXT NOT NULL, `duration` INTEGER NOT NULL, `bpm` INTEGER, `contributors` TEXT NOT NULL, `playCount` INTEGER NOT NULL, `userRating` INTEGER, `averageRating` REAL, `bitRate` INTEGER, `bitDepth` INTEGER, `sampleRate` INTEGER, `audioChannelCount` INTEGER, `replayGain` TEXT, `fileSize` INTEGER NOT NULL, `fileExtension` TEXT NOT NULL, `mimeType` TEXT NOT NULL, `filePath` TEXT, `starredAt` INTEGER, `coverArtId` TEXT, `musicBrainzId` TEXT, `explicitStatus` INTEGER NOT NULL, PRIMARY KEY(`songId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `title` TEXT NOT NULL, `artistName` TEXT, `artistId` TEXT NOT NULL, `albumTitle` TEXT, `belongsToAlbumId` TEXT, `parentId` TEXT, `comment` TEXT, `trackNumber` INTEGER, `discNumber` INTEGER, `isrc` TEXT NOT NULL, `year` INTEGER, `genre` TEXT, `genres` TEXT NOT NULL, `moods` TEXT NOT NULL, `duration` INTEGER NOT NULL, `bpm` INTEGER, `contributors` TEXT NOT NULL, `playCount` INTEGER NOT NULL, `userRating` INTEGER, `averageRating` REAL, `bitRate` INTEGER, `bitDepth` INTEGER, `sampleRate` INTEGER, `audioChannelCount` INTEGER, `replayGain` TEXT, `fileSize` INTEGER NOT NULL, `fileExtension` TEXT, `mimeType` TEXT, `filePath` TEXT, `starredAt` INTEGER, `coverArtId` TEXT, `musicBrainzId` TEXT, `explicitStatus` INTEGER NOT NULL, `artists` TEXT NOT NULL, `albumArtists` TEXT NOT NULL, `isExternal` INTEGER NOT NULL, PRIMARY KEY(`songId`))",
         "fields": [
           {
             "fieldPath": "songId",
@@ -311,8 +499,7 @@
           {
             "fieldPath": "artistName",
             "columnName": "artistName",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "artistId",
@@ -445,14 +632,12 @@
           {
             "fieldPath": "fileExtension",
             "columnName": "fileExtension",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "mimeType",
             "columnName": "mimeType",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "filePath",
@@ -479,152 +664,23 @@
             "columnName": "explicitStatus",
             "affinity": "INTEGER",
             "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "songId"
-          ]
-        }
-      },
-      {
-        "tableName": "ArtistEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`artistId` TEXT NOT NULL, `name` TEXT NOT NULL, `albumCount` INTEGER NOT NULL, `coverArtId` TEXT, `artistImageUrl` TEXT, `starredAt` INTEGER, `userRating` INTEGER, `sortName` TEXT, `musicBrainzId` TEXT, `lastFmUrl` TEXT, `roles` TEXT NOT NULL, `biography` TEXT, `similarArtistIds` TEXT NOT NULL, PRIMARY KEY(`artistId`))",
-        "fields": [
+          },
           {
-            "fieldPath": "artistId",
-            "columnName": "artistId",
+            "fieldPath": "artists",
+            "columnName": "artists",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "name",
-            "columnName": "name",
+            "fieldPath": "albumArtists",
+            "columnName": "albumArtists",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "albumCount",
-            "columnName": "albumCount",
+            "fieldPath": "isExternal",
+            "columnName": "isExternal",
             "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "coverArtId",
-            "columnName": "coverArtId",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "artistImageUrl",
-            "columnName": "artistImageUrl",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "starredAt",
-            "columnName": "starredAt",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "userRating",
-            "columnName": "userRating",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "sortName",
-            "columnName": "sortName",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "musicBrainzId",
-            "columnName": "musicBrainzId",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "lastFmUrl",
-            "columnName": "lastFmUrl",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "roles",
-            "columnName": "roles",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "biography",
-            "columnName": "biography",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "similarArtistIds",
-            "columnName": "similarArtistIds",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "artistId"
-          ]
-        }
-      },
-      {
-        "tableName": "RadioEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`radioId` TEXT NOT NULL, `name` TEXT NOT NULL, `streamUrl` TEXT NOT NULL, `homepageUrl` TEXT, PRIMARY KEY(`radioId`))",
-        "fields": [
-          {
-            "fieldPath": "radioId",
-            "columnName": "radioId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "streamUrl",
-            "columnName": "streamUrl",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "homepageUrl",
-            "columnName": "homepageUrl",
-            "affinity": "TEXT"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "radioId"
-          ]
-        }
-      },
-      {
-        "tableName": "LyricEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `rawContent` TEXT NOT NULL, `provider` TEXT NOT NULL, PRIMARY KEY(`songId`))",
-        "fields": [
-          {
-            "fieldPath": "songId",
-            "columnName": "songId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "rawContent",
-            "columnName": "rawContent",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "provider",
-            "columnName": "provider",
-            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -637,7 +693,7 @@
       },
       {
         "tableName": "SyncActionEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `actionType` TEXT NOT NULL, `itemId` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `actionType` TEXT NOT NULL, `itemId` TEXT NOT NULL, `time` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP)",
         "fields": [
           {
             "fieldPath": "id",
@@ -656,6 +712,13 @@
             "columnName": "itemId",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "CURRENT_TIMESTAMP"
           }
         ],
         "primaryKey": {
@@ -664,46 +727,11 @@
             "id"
           ]
         }
-      },
-      {
-        "tableName": "DownloadEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `status` TEXT NOT NULL, `progress` REAL NOT NULL, `filePath` TEXT, PRIMARY KEY(`songId`))",
-        "fields": [
-          {
-            "fieldPath": "songId",
-            "columnName": "songId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "status",
-            "columnName": "status",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "progress",
-            "columnName": "progress",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
-            "fieldPath": "filePath",
-            "columnName": "filePath",
-            "affinity": "TEXT"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "songId"
-          ]
-        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a5633d3b6a05443bd78e74863bdf920e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'da352c1c8389c7a130e365f53ec5237f')"
     ]
   }
 }

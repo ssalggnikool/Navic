@@ -33,7 +33,7 @@ import paige.navic.database.entity.SongEntity
 import paige.navic.database.entity.SyncActionEntity
 
 @Database(
-	version = 23,
+	version = 24,
 	entities = [
 		AlbumEntity::class,
 		ArtistEntity::class,
