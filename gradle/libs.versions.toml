@@ -55,7 +55,7 @@ androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.re
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "androidx-navigation3" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "androidx-media3" }
 androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "androidx-media3" }
-#androidx-media3-ktor = { module = "androidx.media3:media3-datasource-ktor", version.ref = "androidx-media3" }
+androidx-media3-datasource-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "androidx-media3" }
 androidx-media3-decoder-ffmpeg = { module = "androidx.media3:media3-decoder-ffmpeg", version.ref = "androidx-media3" }
 androidx-annotation = { module = "androidx.annotation:annotation", version = "1.11.0" }
 androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "androidx-glance" }
