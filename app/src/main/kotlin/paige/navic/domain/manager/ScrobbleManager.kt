@@ -14,7 +14,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import paige.navic.data.database.entity.SyncActionType
+import paige.navic.database.entity.SyncActionType
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 

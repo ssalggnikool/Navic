@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.ArtistDao
-import paige.navic.data.database.mapper.toDomainModel
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.ArtistDao
+import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
