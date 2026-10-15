@@ -21,7 +21,7 @@ import javax.net.ssl.SSLContext
 
 val PROXY_URL_REGEX = Regex("(socks[4-5]?|https?)?://(.+):?(\\d+)")
 
-fun getDefaultEngineForPlatform(trustAllCerts: Boolean): HttpClientEngine {
+fun buildKtorEngine(proxyUrl: String? = null, trustAllCerts: Boolean = false): HttpClientEngine {
 	return OkHttp.create {
 		if (trustAllCerts) {
 			config {
@@ -31,6 +31,10 @@ fun getDefaultEngineForPlatform(trustAllCerts: Boolean): HttpClientEngine {
 					it.init(null, arrayOf(noopTrustManager), SecureRandom())
 				}.socketFactory.let {
 					sslSocketFactory(it, noopTrustManager)
+				}
+
+				proxyUrl?.let {
+					proxy(extractProxyConfigFromUrl(it))
 				}
 			}
 		}
@@ -42,22 +46,19 @@ fun createHttpClient(
 	customHeaders: Map<String, String>? = null,
 	proxyUrl: String? = null
 ): HttpClient {
-	val platformEngine = getDefaultEngineForPlatform(trustAllCerts)
+	val engine = buildKtorEngine(
+		proxyUrl,
+		trustAllCerts
+	)
 	val block: HttpClientConfig<*>.() -> Unit = {
 		if (customHeaders?.isNotEmpty() == true) {
 			defaultRequest {
 				customHeaders.forEach { (key, value) -> header(key, value) }
 			}
 		}
-
-		if (!proxyUrl.isNullOrBlank()) {
-			engine {
-				proxy = extractProxyConfigFromUrl(proxyUrl)
-			}
-		}
 	}
 
-	return HttpClient(platformEngine, block)
+	return HttpClient(engine, block)
 }
 
 fun extractProxyConfigFromUrl(url: String): ProxyConfig? {

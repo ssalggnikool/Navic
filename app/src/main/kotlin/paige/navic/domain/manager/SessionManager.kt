@@ -23,8 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import paige.navic.util.Logger
-import paige.navic.util.extractProxyConfigFromUrl
-import paige.navic.util.getDefaultEngineForPlatform
+import paige.navic.util.buildKtorEngine
 
 class SessionManager(
 	private val settings: Settings,
@@ -65,9 +64,6 @@ class SessionManager(
 			install(UserAgent) {
 				agent = "Navic"
 			}
-			engine {
-				proxy = extractProxyConfigFromUrl(preferenceManager.proxyUrl)
-			}
 
 			val customHeaders = preferenceManager.customHeadersMap()
 			if (customHeaders.isNotEmpty()) {
@@ -76,7 +72,10 @@ class SessionManager(
 				}
 			}
 		},
-		engine = getDefaultEngineForPlatform(preferenceManager.dangerousSslNoopEnabled)
+		engine = buildKtorEngine(
+			preferenceManager.proxyUrl,
+			preferenceManager.dangerousSslNoopEnabled
+		)
 	)
 
 	suspend fun login(
