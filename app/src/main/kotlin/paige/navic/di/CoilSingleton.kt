@@ -16,7 +16,7 @@ import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import coil3.serviceLoaderEnabled
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.util.createHttpClientWithPreferences
+import paige.navic.util.network.createHttpClientWithPreferences
 
 class CoilSingleton(
 	private val context: Context,

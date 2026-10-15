@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.util
+package paige.navic.util.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -15,9 +15,9 @@ import io.ktor.client.engine.http
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import paige.navic.domain.manager.PreferenceManager
-import java.net.Proxy
 import java.security.SecureRandom
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
@@ -31,7 +31,7 @@ fun createSSLSocketFactory(trustManagers: Array<TrustManager>): SSLSocketFactory
 	}.socketFactory
 }
 
-fun buildKtorEngine(proxyUrl: String? = null, trustAllCerts: Boolean = false): HttpClientEngine {
+fun buildKtorEngine(proxyUrl: String? = null, trustAllCerts: Boolean = false, dnsResolver: Dns? = null): HttpClientEngine {
 	return OkHttp.create {
 		config {
 			if (trustAllCerts) {
@@ -41,6 +41,10 @@ fun buildKtorEngine(proxyUrl: String? = null, trustAllCerts: Boolean = false): H
 				)?.let {
 					sslSocketFactory(it, noopTrustManager)
 				}
+			}
+
+			dnsResolver?.let {
+				dns(it)
 			}
 
 			proxyUrl?.let {
@@ -54,7 +58,8 @@ fun buildKtorEngine(proxyUrl: String? = null, trustAllCerts: Boolean = false): H
 fun createOkHttpClient(
 	trustAllCerts: Boolean,
 	customHeaders: Map<String, String>?,
-	proxyUrl: String?
+	proxyUrl: String?,
+	dnsResolver: Dns? = null
 ): OkHttpClient {
 	return OkHttpClient.Builder().apply {
 		proxyUrl?.let {
@@ -68,6 +73,10 @@ fun createOkHttpClient(
 			)?.let {
 				sslSocketFactory(it, noopTrustManager)
 			}
+		}
+
+		dnsResolver?.let {
+			dns(it)
 		}
 
 		if (!customHeaders.isNullOrEmpty()) {

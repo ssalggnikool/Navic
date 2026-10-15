@@ -54,7 +54,7 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.repository.LyricsRepository
 import paige.navic.util.Logger
-import paige.navic.util.createHttpClientWithPreferences
+import paige.navic.util.network.createHttpClientWithPreferences
 import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
