@@ -202,6 +202,7 @@ fun AlbumListScreen(
 									val startAlbumIndex = albumOffset
 									items(lc.count) { i ->
 										val albumIndex = startAlbumIndex + i
+										if (albumIndex >= items.itemCount) return@items
 										val album = items[albumIndex] ?: return@items
 
 										if (selectedViewMode == ListViewMode.Grid) {

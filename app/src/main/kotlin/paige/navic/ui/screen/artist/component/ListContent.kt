@@ -131,6 +131,7 @@ fun ArtistListScreenContent(
 					val startArtistIndex = artistOffset
 					items(lc.count) { i ->
 						val artistIndex = startArtistIndex + i
+						if (artistIndex >= artists.itemCount) return@items
 						val artist = artists[artistIndex] ?: return@items
 
 						if (selectedViewMode == ListViewMode.Grid) {
