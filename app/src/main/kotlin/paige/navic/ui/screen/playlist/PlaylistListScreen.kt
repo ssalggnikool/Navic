@@ -91,8 +91,8 @@ fun PlaylistListScreen(
 		}
 	)
 	val player = koinInject<MediaPlayerViewModel>()
-	val playlistsState by viewModel.playlistsState.collectAsState()
-	val selectedPlaylist by viewModel.selectedPlaylist.collectAsState()
+	val uiState by viewModel.uiState.collectAsState()
+	val selectedPlaylist = uiState.data?.selected
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
@@ -196,9 +196,9 @@ fun PlaylistListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = playlistsState !is UiState.Loading,
+			finished = uiState !is UiState.Loading,
 			onRefresh = { viewModel.refreshPlaylists(true) },
-			key = playlistsState
+			key = uiState
 		) {
 			ArtGrid(
 				modifier = if (!nested)
@@ -206,7 +206,7 @@ fun PlaylistListScreen(
 				else Modifier,
 				state = gridState,
 				contentPadding = innerPadding.withoutTop(),
-				verticalArrangement = if (playlistsState.data?.isEmpty() == true) {
+				verticalArrangement = if (uiState.data?.items?.isEmpty() == true) {
 					Arrangement.Center
 				} else if (selectedViewMode == ListViewMode.List) {
 					Arrangement.spacedBy(0.dp)
@@ -216,7 +216,7 @@ fun PlaylistListScreen(
 				selectedViewMode = selectedViewMode
 			) {
 				playlistListScreenContent(
-					state = playlistsState,
+					state = UiState.Success(uiState.data?.items.orEmpty()),
 					selectedPlaylist = selectedPlaylist,
 					selectedViewMode = selectedViewMode,
 					onUpdateSelection = { viewModel.selectPlaylist(it) },
@@ -239,7 +239,7 @@ fun PlaylistListScreen(
 	}
 
 	ErrorSnackBar(
-		error = (playlistsState as? UiState.Error)?.error,
+		error = (uiState as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 

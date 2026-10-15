@@ -82,8 +82,7 @@ fun RadioListScreen(
 		}
 	)
 	val player = koinInject<MediaPlayerViewModel>()
-	val radiosState by viewModel.radiosState.collectAsStateWithLifecycle()
-	val selectedRadio by viewModel.selectedRadio.collectAsStateWithLifecycle()
+	val radiosState by viewModel.uiState.collectAsState()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 	val slideSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 	val scaleInSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>()

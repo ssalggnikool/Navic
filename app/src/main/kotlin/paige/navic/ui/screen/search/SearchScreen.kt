@@ -128,16 +128,12 @@ fun SearchScreen(
 	val artistListViewModel = koinViewModel<ArtistListViewModel> {
 		parametersOf(DomainArtistListType.AlphabeticalByName)
 	}
-	val artistListSelection by artistListViewModel.selectedArtist.collectAsState()
-	val artistListSelectionAlbums by artistListViewModel.selectedArtistAlbums.collectAsState()
-	val artistListStarred by artistListViewModel.starred.collectAsState()
+	val artistListSelection by artistListViewModel.uiState.collectAsState()
 
 	val albumListViewModel = koinViewModel<AlbumListViewModel> {
 		parametersOf(DomainAlbumListType.AlphabeticalByName)
 	}
-	val albumListSelection by albumListViewModel.selectedAlbum.collectAsState()
-	val albumListStarred by albumListViewModel.starred.collectAsState()
-	val selectedAlbumRating by albumListViewModel.rating.collectAsStateWithLifecycle()
+	val albumListSelection by albumListViewModel.uiState.collectAsState()
 
 	val query = viewModel.searchQuery
 	val state by viewModel.searchState.collectAsState()
@@ -406,15 +402,15 @@ fun SearchScreen(
 										.width(150.dp),
 									tab = "search",
 									album = album,
-									selected = album == albumListSelection,
-									starred = albumListStarred,
+									selected = album == albumListSelection.data?.selected,
+									starred = albumListSelection.data?.selected?.starredAt != null,
 									onSelect = { albumListViewModel.selectAlbum(album) },
 									onDeselect = { albumListViewModel.clearSelection() },
 									onSetStarred = { albumListViewModel.starAlbum(it) },
 									onSetShareId = { },
 									onPlayNext = { player.playNext(album as DomainSongCollection) },
 									onAddToQueue = { player.addToQueue(album as DomainSongCollection) },
-									rating = selectedAlbumRating,
+									rating = albumListSelection.data?.selected?.userRating ?: 0,
 									onSetRating = { albumListViewModel.setRating(it) }
 								)
 							}
@@ -431,9 +427,9 @@ fun SearchScreen(
 										.width(150.dp),
 									tab = "search",
 									artist = artist,
-									selected = artist == artistListSelection,
-									selectedArtistAlbums = artistListSelectionAlbums,
-									starred = artistListStarred,
+									selected = artist == artistListSelection.data?.selected,
+									selectedArtistAlbums = emptyList(),
+									starred = artistListSelection.data?.selected?.starredAt != null,
 									onSelect = { artistListViewModel.selectArtist(artist) },
 									onDeselect = { artistListViewModel.clearSelection() },
 									onSetStarred = { artistListViewModel.starArtist(it) },
