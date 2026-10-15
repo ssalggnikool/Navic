@@ -30,7 +30,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +46,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.R.string.title_more_by_artist
-import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
@@ -78,11 +76,10 @@ import paige.navic.ui.screen.collection.component.CollectionDetailScreenSongRowD
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenTopBar
 import paige.navic.ui.screen.collection.viewmodel.CollectionDetailViewModel
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import paige.navic.ui.util.withoutTop
-import kotlin.time.Duration
 
 @Composable
 fun CollectionDetailScreen(
@@ -106,13 +103,11 @@ fun CollectionDetailScreen(
 	val isOnline by viewModel.isOnline.collectAsState()
 
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 
 	val otherAlbums by viewModel.otherAlbums.collectAsState()
 	val downloadManager = koinInject<DownloadManager>()
 	val allDownloads by downloadManager.allDownloads.collectAsState(emptyList())
 	val backStack = LocalNavStack.current
-	val scope = rememberCoroutineScope()
 
 	val titleAlpha by remember {
 		derivedStateOf {
@@ -373,9 +368,6 @@ fun CollectionDetailScreen(
 								),
 								items = otherAlbums.sortedByDescending { it.playCount }.toImmutableList()
 							) { album ->
-								val downloadStatus by downloadManager
-									.getCollectionDownloadStatus(album.songs.map { it.id })
-									.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 								ArtCarouselItem(
 									coverArtId = album.coverArtId,
 									title = album.name ?: "[unknown album]",
@@ -432,9 +424,10 @@ fun CollectionDetailScreen(
 
 		ShareDialog(
 			id = shareId,
-			onIdClear = { shareId = null; viewModel.clearSelection() },
-			expiry = shareExpiry,
-			onExpiryChange = { shareExpiry = it }
+			onDismissRequest = {
+				shareId = null
+				viewModel.clearSelection()
+			}
 		)
 	}
 }

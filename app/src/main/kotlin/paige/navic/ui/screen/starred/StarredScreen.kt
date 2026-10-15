@@ -46,10 +46,9 @@ import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
 import paige.navic.ui.screen.artist.viewmodel.ArtistListViewModel
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.screen.song.viewmodel.SongListViewModel
 import paige.navic.ui.screen.starred.component.StarredScreenContent
-import kotlin.time.Duration
 
 @Composable
 fun StarredScreen() {
@@ -100,7 +99,6 @@ fun StarredScreen() {
 	val artistsLazyItems = artistsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 
 	val player = koinInject<MediaPlayer>()
 
@@ -220,9 +218,7 @@ fun StarredScreen() {
 
 	ShareDialog(
 		id = shareId,
-		onIdClear = { shareId = null },
-		expiry = shareExpiry,
-		onExpiryChange = { shareExpiry = it }
+		onDismissRequest = { shareId = null }
 	)
 
 	QueueDuplicateDialog(

@@ -62,10 +62,9 @@ import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
 import paige.navic.ui.screen.album.component.AlbumListScreenListItem
 import paige.navic.ui.screen.album.component.AlbumListScreenSortButton
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.util.withoutTop
 import paige.navic.ui.viewmodel.RootViewModel
-import kotlin.time.Duration
 
 @UnstableApi
 @Composable
@@ -95,7 +94,6 @@ fun AlbumListScreen(
 
 	val selectedAlbum = state.data?.selected
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
 	val actions: @Composable RowScope.() -> Unit = {
@@ -377,8 +375,6 @@ fun AlbumListScreen(
 
 	ShareDialog(
 		id = shareId,
-		onIdClear = { shareId = null },
-		expiry = shareExpiry,
-		onExpiryChange = { shareExpiry = it }
+		onDismissRequest = { shareId = null }
 	)
 }

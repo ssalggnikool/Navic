@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.ui.screen.share.dialog
+package paige.navic.ui.component.dialog
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalResources
@@ -36,15 +38,14 @@ import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalSnackBarState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.component.common.DurationPicker
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
-import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.screen.share.viewmodel.ShareDialogViewModel
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -52,11 +53,9 @@ import kotlin.time.Duration.Companion.hours
 @Composable
 fun ShareDialog(
 	id: String?,
-	onIdClear: () -> Unit,
-	expiry: Duration?,
-	onExpiryChange: (expiry: Duration?) -> Unit
+	showDialog: Boolean = id != null,
+	onDismissRequest: () -> Unit
 ) {
-
 	val viewModel = koinViewModel<ShareDialogViewModel>()
 
 	// There is not an elegant cross-platform way of making a ClipEntry yet this is deprecated lmao
@@ -67,12 +66,14 @@ fun ShareDialog(
 	val snackBarState = LocalSnackBarState.current
 	val state by viewModel.state.collectAsStateWithLifecycle()
 
+	var expiry by remember(id) { mutableStateOf<Duration?>(null) }
+
 	LaunchedEffect(state) {
 		if (state is UiState.Success && id != null) {
 			viewModel.viewModelScope.launch {
 				val link = (state as? UiState.Success<String?>)?.data
 					?: return@launch
-				onIdClear()
+				onDismissRequest()
 				clipboard.setText(AnnotatedString(link))
 				snackBarState.showSnackbar(
 					message = buildString {
@@ -90,7 +91,7 @@ fun ShareDialog(
 		}
 	}
 
-	id?.let {
+	if (showDialog && id != null) {
 		FormDialog(
 			icon = { Icon(Icons.Outlined.Share, null) },
 			title = { Text(stringResource(R.string.title_create_share)) },
@@ -109,7 +110,7 @@ fun ShareDialog(
 				}
 				SegmentedListButton(
 					modifier = Modifier.fillMaxWidth(),
-					onClick = onIdClear,
+					onClick = onDismissRequest,
 					shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
 				) {
 					Text(stringResource(R.string.action_cancel))
@@ -117,7 +118,7 @@ fun ShareDialog(
 			},
 			onDismissRequest = {
 				if (state !is UiState.Loading) {
-					onIdClear()
+					onDismissRequest()
 				}
 			}
 		) {
@@ -140,7 +141,7 @@ fun ShareDialog(
 						index = 0,
 						count = if (checked) 2 else 1
 					),
-					onClick = { onExpiryChange(if (!checked) 1.hours else null) },
+					onClick = { expiry = if (!checked) 1.hours else null },
 					enabled = state !is UiState.Loading,
 					interactionSource = interactionSource,
 					content = { Text(stringResource(R.string.option_share_expires)) },
@@ -167,8 +168,8 @@ fun ShareDialog(
 						)
 					) {
 						DurationPicker(
-							duration = expiry,
-							onDurationChange = onExpiryChange,
+							duration = expiry ?: 1.hours,
+							onDurationChange = { expiry = it },
 							enabled = state !is UiState.Loading,
 						)
 					}
