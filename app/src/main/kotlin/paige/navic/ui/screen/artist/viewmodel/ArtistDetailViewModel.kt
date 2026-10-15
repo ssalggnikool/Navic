@@ -35,7 +35,7 @@ import paige.navic.domain.repository.AlbumRepository
 import paige.navic.domain.repository.ArtistRepository
 import paige.navic.domain.repository.DbRepository
 import paige.navic.domain.repository.SongRepository
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.core.UiState
 import paige.navic.util.Logger
 

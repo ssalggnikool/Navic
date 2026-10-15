@@ -25,7 +25,7 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.settings.ThemeMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable

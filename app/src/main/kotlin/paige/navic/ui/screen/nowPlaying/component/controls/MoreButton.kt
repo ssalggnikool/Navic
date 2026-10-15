@@ -27,7 +27,7 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.MoreHoriz
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.sheet.SleepTimerSheet
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.navigation.Screen

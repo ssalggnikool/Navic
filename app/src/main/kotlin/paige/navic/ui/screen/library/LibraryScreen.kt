@@ -32,7 +32,7 @@ import paige.navic.domain.manager.LoginManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayerViewModel
 import paige.navic.ui.component.dialog.DeletionDialog
 import paige.navic.ui.component.dialog.DeletionEndpoint
 import paige.navic.ui.component.layout.PullToRefreshBox
