@@ -13,9 +13,11 @@ import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import paige.navic.database.dao.ArtistDao
+import paige.navic.database.dao.LetterCount
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
+import paige.navic.database.query.getArtistLetterCountsQuery
 import paige.navic.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainArtist
@@ -82,5 +84,11 @@ class ArtistRepository(
 		)
 		artistDao.insertArtist(unstarredEntity)
 		syncManager.enqueueAction(SyncActionType.UNSTAR, artist.id)
+	}
+
+	fun getArtistLetterCounts(
+		filters: Set<DomainFilter> = emptySet()
+	): Flow<List<LetterCount>> {
+		return artistDao.getArtistLetterCounts(getArtistLetterCountsQuery(filters))
 	}
 }

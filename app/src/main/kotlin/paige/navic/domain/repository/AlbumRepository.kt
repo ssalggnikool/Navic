@@ -13,9 +13,11 @@ import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.LetterCount
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
+import paige.navic.database.query.getAlbumLetterCountsQuery
 import paige.navic.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainAlbum
@@ -102,5 +104,12 @@ class AlbumRepository(
 			4 -> syncManager.enqueueAction(SyncActionType.STAR_4, album.id)
 			5 -> syncManager.enqueueAction(SyncActionType.STAR_5, album.id)
 		}
+	}
+
+	fun getAlbumLetterCounts(
+		reversed: Boolean = false,
+		filters: Set<DomainFilter> = emptySet()
+	): Flow<List<LetterCount>> {
+		return albumDao.getAlbumLetterCounts(getAlbumLetterCountsQuery(reversed, filters))
 	}
 }

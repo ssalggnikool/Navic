@@ -82,6 +82,7 @@ fun ArtistListScreen(
 	val selectedArtistAlbums = null
 	val selectedSorting by viewModel.listType.collectAsState()
 	val selectedFilters by viewModel.selectedFilters.collectAsState()
+	val letterCounts by viewModel.letterCounts.collectAsState()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
 	val player = koinInject<MediaPlayer>()
@@ -142,6 +143,7 @@ fun ArtistListScreen(
 
 			ArtistListScreenContent(
 				artists = lazyPagingItems,
+				letterCounts = letterCounts,
 				starred = selectedArtist?.starredAt != null,
 				selectedSorting = selectedSorting,
 				selectedArtist = selectedArtist,

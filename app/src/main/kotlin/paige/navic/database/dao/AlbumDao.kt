@@ -24,6 +24,9 @@ interface AlbumDao {
 	@RawQuery
 	fun getAlbumsByQuery(query: RoomRawQuery): PagingSource<Int, AlbumWithSongs>
 
+	@RawQuery
+	fun getAlbumLetterCounts(query: RoomRawQuery): Flow<List<LetterCount>>
+
 	@Transaction
 	@Query("SELECT COUNT(albumId) FROM AlbumEntity")
 	suspend fun getAlbumCount(): Int
