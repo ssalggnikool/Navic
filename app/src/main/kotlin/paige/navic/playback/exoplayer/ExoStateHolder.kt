@@ -20,6 +20,7 @@ import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer
 import androidx.media3.exoplayer.BaseRenderer
 import androidx.media3.exoplayer.DefaultLoadControl
@@ -51,6 +52,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import okhttp3.OkHttpClient
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.discord.ExoDiscordIntegration
@@ -58,12 +60,13 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.playback.exoplayer.impl.ExoArtworkLoader
 import paige.navic.playback.exoplayer.impl.ExoAudioGainProcessor
 import paige.navic.util.NoopTrustManager
+import paige.navic.util.createOkHttpClient
 import java.security.SecureRandom
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
 
 @OptIn(UnstableApi::class)
-class ExoStateHolder: KoinComponent {
+class ExoStateHolder : KoinComponent {
 	private val context: Context by inject()
 	private val preferenceManager: PreferenceManager by inject()
 	private val imageLoader: ImageLoader by inject()
@@ -80,8 +83,8 @@ class ExoStateHolder: KoinComponent {
 
 	private class MediaSessionCallback(private val player: ExoPlayer) : MediaSession.Callback {
 		override fun onConnect(
-            session: MediaSession,
-            controller: MediaSession.ControllerInfo
+			session: MediaSession,
+			controller: MediaSession.ControllerInfo
 		): MediaSession.ConnectionResult {
 			val sessionCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
 				.buildUpon()
@@ -96,10 +99,10 @@ class ExoStateHolder: KoinComponent {
 		}
 
 		override fun onCustomCommand(
-            session: MediaSession,
-            controller: MediaSession.ControllerInfo,
-            customCommand: SessionCommand,
-            args: Bundle
+			session: MediaSession,
+			controller: MediaSession.ControllerInfo,
+			customCommand: SessionCommand,
+			args: Bundle
 		): ListenableFuture<SessionResult> {
 			when (customCommand.customAction) {
 				COMMAND_SHUFFLE -> {
@@ -120,55 +123,47 @@ class ExoStateHolder: KoinComponent {
 	}
 
 	private val extractorsFactory = ExtractorsFactory {
-        arrayOf(
-            FlacExtractor(),
-            WavExtractor(),
-            FragmentedMp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
-            Mp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
-            OggExtractor(),
-            MatroskaExtractor(DefaultSubtitleParserFactory.UNSUPPORTED),
-            AdtsExtractor(AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
-            Mp3Extractor(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING)
-        )
-    }
+		arrayOf(
+			FlacExtractor(),
+			WavExtractor(),
+			FragmentedMp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+			Mp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+			OggExtractor(),
+			MatroskaExtractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+			AdtsExtractor(AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
+			Mp3Extractor(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING)
+		)
+	}
 
 	// TODO: figure out why KtorDataSource causes #650
-	// afaik cant set a proxy url without Ktor
-	private val httpDataSourceFactory = DefaultHttpDataSource.Factory()
-		.setDefaultRequestProperties(preferenceManager.customHeadersMap())
-		.also {
-			if (preferenceManager.dangerousSslNoopEnabled) {
-				try {
-					val noopTrustManager = NoopTrustManager()
-					val sslContext = SSLContext.getInstance("SSL")
-					sslContext.init(null, arrayOf(noopTrustManager), SecureRandom())
-					HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.socketFactory)
-				} catch (ex: Exception) {
-					Log.e("ExoStateHolder", "Ouuu shii", ex)
-				}
-			}
-		}
+	private val httpDataSourceFactory = OkHttpDataSource.Factory(
+		createOkHttpClient(
+			preferenceManager.dangerousSslNoopEnabled,
+			preferenceManager.customHeadersMap(),
+			preferenceManager.proxyUrl.takeIf { it.isNotEmpty() }
+		)
+	)
 
 	private fun createRenderers(context: Context): RenderersFactory {
 		return RenderersFactory { handler, _, audioListener, _, _ ->
-            arrayOf<BaseRenderer>(
-                FfmpegAudioRenderer(
-                    context,
-                    handler,
-                    audioListener,
-                    gainProcessor
-                ),
-                MediaCodecAudioRenderer(
-                    context,
-                    MediaCodecSelector.DEFAULT,
-                    handler,
-                    audioListener,
-                    DefaultAudioSink.Builder(context)
-                        .setAudioProcessors(arrayOf(gainProcessor))
-                        .build()
-                )
-            )
-        }
+			arrayOf<BaseRenderer>(
+				FfmpegAudioRenderer(
+					context,
+					handler,
+					audioListener,
+					gainProcessor
+				),
+				MediaCodecAudioRenderer(
+					context,
+					MediaCodecSelector.DEFAULT,
+					handler,
+					audioListener,
+					DefaultAudioSink.Builder(context)
+						.setAudioProcessors(arrayOf(gainProcessor))
+						.build()
+				)
+			)
+		}
 	}
 
 	private fun makeButtons(player: Player) = buildList {
@@ -265,10 +260,10 @@ class ExoStateHolder: KoinComponent {
 
 	private suspend fun createMediaSession(): MediaSession = mutex.withLock {
 		val bitmapLoader = ExoArtworkLoader(
-            context,
-            dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory),
-            imageLoader
-        )
+			context,
+			dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory),
+			imageLoader
+		)
 		val sessionIntent = context.packageManager
 			.getLaunchIntentForPackage(context.packageName)
 			?.apply {
@@ -299,12 +294,12 @@ class ExoStateHolder: KoinComponent {
 	 * initializes instances for the player and the media session, should be called ASAP on PlaybackService (onCreate)
 	 */
 	fun initState() = runBlocking {
-        if (isInitialized) return@runBlocking
+		if (isInitialized) return@runBlocking
 
-        createPlayerInstance()
-        createMediaSession()
-        isInitialized = !isInitialized
-    }
+		createPlayerInstance()
+		createMediaSession()
+		isInitialized = !isInitialized
+	}
 
 	fun destroySession() {
 		if (!isInitialized) return
