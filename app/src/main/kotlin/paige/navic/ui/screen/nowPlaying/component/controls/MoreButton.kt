@@ -32,10 +32,9 @@ import paige.navic.ui.component.sheet.SleepTimerSheet
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
-import kotlin.time.Duration
 
 @Composable
 fun NowPlayingMoreButton(
@@ -50,7 +49,6 @@ fun NowPlayingMoreButton(
 	var sleepTimerSheetShown by rememberSaveable { mutableStateOf(false) }
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	val colorScheme = rememberColorSchemeFromCoverArt(song?.coverArtId)
 
 	IconButton(
@@ -129,9 +127,7 @@ fun NowPlayingMoreButton(
 	NavicTheme(colorScheme) {
 		ShareDialog(
 			id = shareId,
-			onIdClear = { shareId = null },
-			expiry = shareExpiry,
-			onExpiryChange = { shareExpiry = it }
+			onDismissRequest = { shareId = null }
 		)
 	}
 }

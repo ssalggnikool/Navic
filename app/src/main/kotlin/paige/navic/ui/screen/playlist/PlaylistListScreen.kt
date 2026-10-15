@@ -77,10 +77,9 @@ import paige.navic.ui.screen.playlist.component.PlaylistListScreenListItem
 import paige.navic.ui.screen.playlist.component.PlaylistListScreenSortButton
 import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistListViewModel
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.util.withoutTop
 import paige.navic.ui.viewmodel.RootViewModel
-import kotlin.time.Duration
 
 @Composable
 fun PlaylistListScreen(
@@ -106,7 +105,6 @@ fun PlaylistListScreen(
 	val scrollManager = LocalBottomBarScrollManager.current
 
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	var deletionId by remember { mutableStateOf<String?>(null) }
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -310,9 +308,7 @@ fun PlaylistListScreen(
 
 	ShareDialog(
 		id = shareId,
-		onIdClear = { shareId = null },
-		expiry = shareExpiry,
-		onExpiryChange = { shareExpiry = it }
+		onDismissRequest = { shareId = null }
 	)
 
 	DeletionDialog(

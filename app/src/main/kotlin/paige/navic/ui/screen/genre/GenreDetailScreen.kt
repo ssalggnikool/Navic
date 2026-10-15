@@ -42,9 +42,8 @@ import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
 import paige.navic.ui.screen.genre.component.GenreDetailScreenContent
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.screen.song.viewmodel.SongListViewModel
-import kotlin.time.Duration
 
 @Composable
 fun GenreDetailScreen(
@@ -74,7 +73,6 @@ fun GenreDetailScreen(
 	val isOnline by songsViewModel.isOnline.collectAsStateWithLifecycle()
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
 
 	Scaffold(
@@ -176,9 +174,7 @@ fun GenreDetailScreen(
 
 	ShareDialog(
 		id = shareId,
-		onIdClear = { shareId = null },
-		expiry = shareExpiry,
-		onExpiryChange = { shareExpiry = it }
+		onDismissRequest = { shareId = null }
 	)
 
 	QueueDuplicateDialog(
