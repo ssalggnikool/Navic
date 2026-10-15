@@ -6,6 +6,7 @@
 
 package paige.navic.data.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
@@ -22,7 +23,7 @@ import paige.navic.util.Logger
 interface GenreDao {
 	@Transaction
 	@RawQuery
-	suspend fun getGenresByQuery(query: RoomRawQuery): List<GenreWithAlbums>
+	fun getGenresByQuery(query: RoomRawQuery): PagingSource<Int, GenreWithAlbums>
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertGenre(song: GenreEntity)

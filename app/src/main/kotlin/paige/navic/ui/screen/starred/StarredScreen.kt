@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -67,6 +68,7 @@ fun StarredScreen() {
 	)
 	val downloadManager = koinInject<DownloadManager>()
 	val songsState by songsViewModel.uiState.collectAsStateWithLifecycle()
+	val songsLazyItems = songsState.data?.items?.collectAsLazyPagingItems() ?: return
 	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
 		initialValue = emptyList()
 	)
@@ -82,6 +84,7 @@ fun StarredScreen() {
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
+	val albumsLazyItems = albumsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val artistsViewModel = koinViewModel<ArtistListViewModel>(
 		key = "starredArtists",
@@ -94,6 +97,7 @@ fun StarredScreen() {
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
 	val artistsState by artistsViewModel.uiState.collectAsStateWithLifecycle()
+	val artistsLazyItems = artistsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
@@ -138,12 +142,12 @@ fun StarredScreen() {
 				onSetShareId = { shareId = it },
 				isOnline = isOnline,
 
-				songs = songsState.data?.items.orEmpty(),
+				songs = songsLazyItems,
 				selectedSong = songsState.data?.selected,
 				allDownloads = allDownloads,
 				onPlaySong = { index ->
-					songsState.data?.items.let {
-						player.playNow(it.orEmpty(), index)
+					songsLazyItems.itemSnapshotList.items.let {
+						player.playNow(it, index)
 					}
 				},
 				onSelectSong = {
@@ -177,7 +181,7 @@ fun StarredScreen() {
 				selectedSongRating = songsState.data?.selected?.userRating ?: 0,
 				onSetSongRating = { songsViewModel.rateSelectedSong(it) },
 
-				albums = albumsState.data?.items ?: emptyList(),
+				albums = albumsLazyItems,
 				selectedAlbum = selectedAlbum,
 				selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
 				selectedAlbumRating = albumsState.data?.selected?.userRating ?: 0,
@@ -192,7 +196,7 @@ fun StarredScreen() {
 				onAddAlbumToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 
-				artists = artistsState.data?.items ?: emptyList(),
+				artists = artistsLazyItems,
 				selectedArtist = artistsState.data?.selected,
 				// TODO: artist albums
 				selectedArtistAlbums = emptyList(),

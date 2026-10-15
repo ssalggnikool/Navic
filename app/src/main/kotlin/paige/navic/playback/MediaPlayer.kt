@@ -133,7 +133,7 @@ class MediaPlayer(
 
 		if (remainingCount <= 1) {
 			scope.launch {
-				val randomSongs = songRepository.getRandomSongs(1)
+				val randomSongs = songRepository.getRandomSongsList(1)
 				addToQueue(randomSongs, notify = false)
 			}
 		}

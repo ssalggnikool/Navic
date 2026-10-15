@@ -95,5 +95,4 @@ class SongListViewModel(
 		preferenceManager.songFilters = newFilters.toBitmask()
 		refreshSongs(false)
 	}
-
 }

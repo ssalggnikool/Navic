@@ -9,6 +9,7 @@ package paige.navic.data.database
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
+import androidx.room3.RewriteQueriesToDropUnusedColumns
 import androidx.room3.RoomDatabase
 import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import paige.navic.data.database.dao.AlbumDao
@@ -48,6 +49,7 @@ import paige.navic.data.database.entity.SyncActionEntity
 )
 @ColumnTypeConverters(Converters::class)
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
+@RewriteQueriesToDropUnusedColumns
 abstract class CacheDatabase : RoomDatabase() {
 	abstract fun albumDao(): AlbumDao
 	abstract fun artistDao(): ArtistDao

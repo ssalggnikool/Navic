@@ -26,7 +26,6 @@ class SettingsDataStorageViewModel(
 	private val dbRepository: DbRepository,
 	private val syncDao: SyncActionDao,
 	private val downloadManager: DownloadManager,
-	private val songRepository: SongRepository,
 	connectivityManager: ConnectivityManager
 ) : ViewModel() {
 
@@ -87,8 +86,7 @@ class SettingsDataStorageViewModel(
 
 	fun downloadEntireLibrary() {
 		viewModelScope.launch(Dispatchers.IO) {
-			val allSongs = songRepository.getAllSongs()
-			downloadManager.downloadEntireLibrary(allSongs)
+			downloadManager.downloadEntireLibrary()
 		}
 	}
 

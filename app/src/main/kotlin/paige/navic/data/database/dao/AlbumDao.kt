@@ -6,6 +6,7 @@
 
 package paige.navic.data.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
@@ -20,20 +21,8 @@ import paige.navic.util.Logger
 
 @Dao
 interface AlbumDao {
-	@Transaction
-	@Query(" SELECT * FROM AlbumEntity WHERE genre = :genreName OR genres LIKE '%' || :genreName || '%' ORDER BY year DESC, name COLLATE NOCASE ASC")
-	fun getAlbumsByGenre(genreName: String): Flow<List<AlbumWithSongs>>
-
-	@Transaction
-	@Query("SELECT * FROM AlbumEntity ORDER BY name ASC")
-	fun getAllAlbums(): Flow<List<AlbumWithSongs>>
-
-	@Transaction
-	@Query("SELECT * FROM AlbumEntity ORDER BY name ASC")
-	suspend fun getAllAlbumsList(): List<AlbumWithSongs>
-
 	@RawQuery
-	suspend fun getAlbumsByQuery(query: RoomRawQuery): List<AlbumWithSongs>
+	fun getAlbumsByQuery(query: RoomRawQuery): PagingSource<Int, AlbumWithSongs>
 
 	@Transaction
 	@Query("SELECT COUNT(albumId) FROM AlbumEntity")

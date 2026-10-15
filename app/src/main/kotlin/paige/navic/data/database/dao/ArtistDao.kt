@@ -6,6 +6,7 @@
 
 package paige.navic.data.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
@@ -20,7 +21,7 @@ import paige.navic.util.Logger
 @Dao
 interface ArtistDao {
 	@RawQuery
-	suspend fun getArtistsByQuery(query: RoomRawQuery): List<ArtistEntity>
+	fun getArtistsByQuery(query: RoomRawQuery): PagingSource<Int, ArtistEntity>
 
 	@Query("SELECT * FROM ArtistEntity ORDER BY name COLLATE NOCASE ASC")
 	suspend fun getArtistsAlphabeticalByName(): List<ArtistEntity>

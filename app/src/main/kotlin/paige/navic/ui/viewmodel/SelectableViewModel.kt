@@ -6,19 +6,27 @@
 
 package paige.navic.ui.viewmodel
 
+import androidx.paging.PagingData
+import kotlinx.coroutines.flow.Flow
 
-data class Selectable<T>(
-	val items: List<T>,
+
+data class Selectable<T : Any>(
+	val items: Flow<PagingData<T>>?,
 	val selected: T?
 )
 
-abstract class SelectableViewModel<T> : AsyncViewModel<Selectable<T>>() {
+data class SelectableList<T>(
+	val items: List<T>?,
+	val selected: T?
+)
+
+abstract class SelectableViewModel<T : Any> : AsyncViewModel<Selectable<T>>() {
 	var items
 		get() = data?.items
 		set(value) {
 			execute {
 				Selectable(
-					items = value ?: emptyList(),
+					items = value,
 					selected = selected
 				)
 			}
@@ -29,7 +37,7 @@ abstract class SelectableViewModel<T> : AsyncViewModel<Selectable<T>>() {
 		set(value) {
 			execute {
 				Selectable(
-					items = items ?: emptyList(),
+					items = items,
 					selected = value
 				)
 			}

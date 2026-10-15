@@ -27,6 +27,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.collections.immutable.toPersistentList
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -74,8 +75,10 @@ fun ArtistListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val uiState by viewModel.uiState.collectAsState()
-	val selectedArtist = uiState.data?.selected
+	val state by viewModel.uiState.collectAsState()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
+
+	val selectedArtist = state.data?.selected
 	val selectedArtistAlbums = null
 	val selectedSorting by viewModel.listType.collectAsState()
 	val selectedFilters by viewModel.selectedFilters.collectAsState()
@@ -131,12 +134,14 @@ fun ArtistListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = uiState !is UiState.Loading,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshArtists(true) },
-			key = uiState
+			key = state
 		) {
+			if (lazyPagingItems == null) return@PullToRefreshBox
+
 			ArtistListScreenContent(
-				artists = uiState.data?.items.orEmpty(),
+				artists = lazyPagingItems,
 				starred = selectedArtist?.starredAt != null,
 				selectedSorting = selectedSorting,
 				selectedArtist = selectedArtist,
@@ -156,7 +161,7 @@ fun ArtistListScreen(
 	}
 
 	ErrorSnackBar(
-		error = (uiState as? UiState.Error)?.error,
+		error = (state as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 }

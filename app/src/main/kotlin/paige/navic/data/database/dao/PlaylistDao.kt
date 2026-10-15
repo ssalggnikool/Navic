@@ -6,6 +6,7 @@
 
 package paige.navic.data.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
@@ -23,7 +24,7 @@ import paige.navic.util.Logger
 interface PlaylistDao {
 	@Transaction
 	@RawQuery
-	suspend fun getPlaylistsByQuery(query: RoomRawQuery): List<PlaylistWithSongs>
+	fun getPlaylistsByQuery(query: RoomRawQuery): PagingSource<Int, PlaylistWithSongs>
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertPlaylist(playlist: PlaylistEntity)

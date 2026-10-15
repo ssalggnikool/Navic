@@ -98,7 +98,9 @@ fun ShareListScreen() {
 
 						is UiState.Error -> artGridError(stateValue)
 						is UiState.Success -> {
-							items(stateValue.data.items, { it.id }) { share ->
+							val items = stateValue.data.items ?: return@LazyVerticalGrid
+
+							items(items) { share ->
 								ShareListScreenItem(
 									modifier = Modifier.animateItem(fadeInSpec = null),
 									share = share,
@@ -122,7 +124,9 @@ fun ShareListScreen() {
 
 	viewModel.selected?.let { selectedShare ->
 		ShareSheet(
-			onDismissRequest = viewModel::clear,
+			onDismissRequest = {
+				// TODO: fuck
+			},
 			onShare = {
 				scope.launch {
 					try {

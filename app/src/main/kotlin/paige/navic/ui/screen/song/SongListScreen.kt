@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -76,6 +77,7 @@ fun SongListScreen(
 	val preferenceManager = koinInject<PreferenceManager>()
 	val player = koinInject<MediaPlayer>()
 	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
 	val downloadManager = koinInject<DownloadManager>()
 
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
@@ -151,15 +153,14 @@ fun SongListScreen(
 					Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection)
 				else Modifier.fillMaxSize(),
 				contentPadding = innerPadding.withoutTop(),
-				verticalArrangement = if ((state as? UiState.Success)?.data?.items?.isEmpty() == true)
+				verticalArrangement = if (lazyPagingItems == null || lazyPagingItems.itemCount == 0)
 					Arrangement.Center
 				else Arrangement.spacedBy(12.dp),
 				state = listState
 			) {
-				val songs = state.data?.items.orEmpty()
-				if (songs.isNotEmpty()) {
-					items(songs.size) { index ->
-						val song = songs[index]
+				if (lazyPagingItems != null && lazyPagingItems.itemCount > 0) {
+					items(lazyPagingItems.itemCount) { index ->
+						val song = lazyPagingItems[index] ?: return@items
 
 						val download = allDownloads.find { it.songId == song.id }
 						SongListScreenItem(
@@ -177,8 +178,8 @@ fun SongListScreen(
 							onSetStarred = {
 								viewModel.starSong(it)
 							},
-							onSetShareId = { newShareId: String ->
-								shareId = newShareId
+							onSetShareId = {
+								shareId = it
 							},
 							onPlayNext = {
 								if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {

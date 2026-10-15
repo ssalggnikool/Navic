@@ -6,6 +6,7 @@
 
 package paige.navic.data.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
@@ -21,7 +22,7 @@ import paige.navic.util.Logger
 @Dao
 interface SongDao {
 	@RawQuery
-	suspend fun getSongsByQuery(query: RoomRawQuery): List<SongEntity>
+	fun getPagedSongsByQuery(query: RoomRawQuery): PagingSource<Int, SongEntity>
 
 	@Query("SELECT * FROM SongEntity WHERE songId = :songId LIMIT 1")
 	suspend fun getSongById(songId: String): SongEntity?
@@ -36,7 +37,10 @@ interface SongDao {
 	suspend fun insertSongsIgnoringConflicts(songs: List<SongEntity>)
 
 	@Query("SELECT * FROM SongEntity")
-	suspend fun getAllSongs(): List<SongEntity>
+	fun getAllPagedSongs(): PagingSource<Int, SongEntity>
+
+	@Query("SELECT (songId) FROM SongEntity")
+	fun getAllSongsIds(): List<String>
 
 	@Query("SELECT SUM(playCount) FROM SongEntity")
 	fun getTotalPlayCount(): Flow<Int?>
@@ -88,7 +92,10 @@ interface SongDao {
 	suspend fun getSongsByIds(ids: List<String>): List<SongEntity>
 
 	@Query("SELECT * FROM SongEntity ORDER BY RANDOM() LIMIT :count")
-	suspend fun getRandomSongs(count: Int): List<SongEntity>
+	fun getRandomSongs(count: Int): PagingSource<Int, SongEntity>
+
+	@Query("SELECT * FROM SongEntity ORDER BY RANDOM() LIMIT :count")
+	suspend fun getRandomSongsList(count: Int): List<SongEntity>
 
 	@Query("SELECT * FROM SongEntity WHERE title LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchSongsList(query: String): List<SongEntity>

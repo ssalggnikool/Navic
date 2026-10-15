@@ -39,14 +39,14 @@ class CollectionRepository(
 				val album = sessionManager.api.getAlbum(collection.id)
 				songDao.updateSongsByAlbumId(album.id, album.songs.map { it.toEntity() })
 				albumDao.insertAlbum(album.toEntity())
-				albumDao.getAlbumsByQuery(toAlbumByIdSqlQuery(album.id)).first().toDomainModel()
+				albumDao.getAlbumById(collectionId)
 			}
 
 			is DomainPlaylist -> {
 				val playlist = sessionManager.api.getPlaylist(collection.id)
 				playlistDao.insertPlaylist(playlist.toEntity())
 				dbRepository.syncPlaylistSongs(collection.id)
-				playlistDao.getPlaylistsByQuery(toPlaylistByIdSqlQuery(playlist.id)).first().toDomainModel()
+				playlistDao.getPlaylistById(collectionId)
 			}
 		}
 		return getLocalData(collectionId)

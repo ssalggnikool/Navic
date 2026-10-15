@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
@@ -98,6 +99,7 @@ fun PlaylistListScreen(
 	)
 	val player = koinInject<MediaPlayer>()
 	val state by viewModel.uiState.collectAsState()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems() ?: return
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
@@ -211,7 +213,7 @@ fun PlaylistListScreen(
 				else Modifier,
 				state = gridState,
 				contentPadding = innerPadding.withoutTop(),
-				verticalArrangement = if (state.data?.items?.isEmpty() == true) {
+				verticalArrangement = if (lazyPagingItems.itemCount == 0) {
 					Arrangement.Center
 				} else if (selectedViewMode == ListViewMode.List) {
 					Arrangement.spacedBy(0.dp)
@@ -220,9 +222,10 @@ fun PlaylistListScreen(
 				},
 				selectedViewMode = selectedViewMode
 			) {
-				val data = state.data?.items.orEmpty()
-				if (data.isNotEmpty()) {
-					items(data, { it.id }) { playlist ->
+				if (lazyPagingItems.itemCount > 0) {
+					items(lazyPagingItems.itemCount) { index ->
+						val playlist = lazyPagingItems[index] ?: return@items
+
 						if (selectedViewMode == ListViewMode.Grid) {
 							PlaylistListScreenGridItem(
 								modifier = Modifier.animateItem(),

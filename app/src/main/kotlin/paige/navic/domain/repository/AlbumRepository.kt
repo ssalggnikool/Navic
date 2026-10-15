@@ -6,17 +6,21 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import paige.navic.data.database.dao.AlbumDao
 import paige.navic.data.database.entity.SyncActionType
 import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.data.database.mapper.toEntity
+import paige.navic.data.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainFilter
-import paige.navic.data.database.query.toSqlQuery
 import kotlin.time.Clock
 
 class AlbumRepository(
@@ -26,22 +30,28 @@ class AlbumRepository(
 ) {
 	suspend fun getAlbumById(id: String) = albumDao.getAlbumById(id)?.toDomainModel()
 
-	private suspend fun getLocalData(
+	private fun getLocalData(
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainAlbum> {
-		return albumDao
-			.getAlbumsByQuery(listType.toSqlQuery(reversed, filters))
-			.map { it.toDomainModel() }
-			.toImmutableList()
+	): Flow<PagingData<DomainAlbum>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				albumDao
+					.getAlbumsByQuery(listType.toSqlQuery(reversed, filters))
+			}
+		).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
 	private suspend fun refreshLocalData(
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainAlbum> {
+	): Flow<PagingData<DomainAlbum>> {
 		dbRepository.syncLibrarySongs().getOrThrow()
 		return getLocalData(listType, reversed, filters)
 	}
@@ -51,7 +61,7 @@ class AlbumRepository(
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainAlbum> {
+	): Flow<PagingData<DomainAlbum>> {
 		val localData = getLocalData(listType, reversed, filters)
 		return if (fullRefresh) {
 			refreshLocalData(listType, reversed, filters)

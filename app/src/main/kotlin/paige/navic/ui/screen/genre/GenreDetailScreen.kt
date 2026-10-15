@@ -20,6 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -58,12 +59,14 @@ fun GenreDetailScreen(
 		parameters = { parametersOf(DomainSongListType.ByGenre(genreName)) }
 	)
 	val songsState by songsViewModel.uiState.collectAsStateWithLifecycle()
+	val songsLazyItems = songsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val albumsViewModel = koinViewModel<AlbumListViewModel>(
 		key = "genre_detail_albums_$genreName",
 		parameters = { parametersOf(DomainAlbumListType.ByGenre(genreName)) }
 	)
 	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
+	val albumsLazyItems = albumsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
 		initialValue = emptyList()
@@ -104,7 +107,7 @@ fun GenreDetailScreen(
 				onSetShareId = { shareId = it },
 				isOnline = isOnline,
 
-				songs = songsState.data?.items.orEmpty(),
+				songs = songsLazyItems,
 				selectedSong = songsState.data?.selected,
 				selectedSongRating = songsState.data?.selected?.userRating ?: 0,
 				allDownloads = allDownloads,
@@ -129,7 +132,7 @@ fun GenreDetailScreen(
 					}
 				},
 				onPlaySong = { index ->
-					player.playNow(songsState.data?.items.orEmpty(), index)
+					player.playNow(songsLazyItems.itemSnapshotList.items, index)
 				},
 				onSetSongRating = { songsViewModel.rateSelectedSong(it) },
 				onDownloadSong = { downloadManager.downloadSong(it) },
@@ -140,7 +143,7 @@ fun GenreDetailScreen(
 					downloadManager.deleteDownload(song.id)
 				},
 
-				albumsState = albumsState.data?.items.orEmpty(),
+				albumsState = albumsLazyItems,
 				selectedAlbum = albumsState.data?.selected,
 				selectedAlbumIsStarred = albumsState.data?.selected?.starredAt != null,
 				selectedAlbumRating = albumsState.data?.selected?.userRating ?: 0,

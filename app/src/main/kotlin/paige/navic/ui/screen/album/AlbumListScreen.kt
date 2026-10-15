@@ -9,8 +9,12 @@ package paige.navic.ui.screen.album
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,20 +34,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.media3.common.util.UnstableApi
+import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
+import paige.navic.R.string.info_no_albums
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.AlphabeticalScroller
+import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -52,8 +60,9 @@ import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
+import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
+import paige.navic.ui.screen.album.component.AlbumListScreenListItem
 import paige.navic.ui.screen.album.component.AlbumListScreenSortButton
-import paige.navic.ui.screen.album.component.albumListScreenContent
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
 import paige.navic.ui.screen.share.dialog.ShareDialog
 import paige.navic.ui.util.withoutTop
@@ -82,8 +91,10 @@ fun AlbumListScreen(
 	val selectedSorting by viewModel.listType.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
-	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-	val selectedAlbum = uiState.data?.selected
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
+
+	val selectedAlbum = state.data?.selected
 	var shareId by remember { mutableStateOf<String?>(null) }
 	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -129,7 +140,8 @@ fun AlbumListScreen(
 			val preferVisible =
 				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 			if (!nested
-				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+			) {
 				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
@@ -138,12 +150,13 @@ fun AlbumListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = uiState !is UiState.Loading,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshAlbums(true) },
-			key = uiState
+			key = state
 		) {
-			val grouped = remember(uiState.data?.items) {
-				uiState.data?.items.orEmpty().groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
+			val snapshotList = lazyPagingItems?.itemSnapshotList?.items.orEmpty()
+			val grouped = remember(state.data?.items) {
+				snapshotList.groupBy { it.name?.firstOrNull()?.uppercaseChar() ?: '#' }
 					.toList()
 					.sortedBy { it.first }
 			}
@@ -154,9 +167,8 @@ fun AlbumListScreen(
 					val pos = currentIndex
 					currentIndex += albums.size + 1
 					letter.toString() to pos
-				}.toImmutableList()
+				}
 			}
-
 			Box {
 				ArtGrid(
 					modifier = if (!nested)
@@ -164,7 +176,7 @@ fun AlbumListScreen(
 					else Modifier,
 					state = viewModel.gridState,
 					contentPadding = innerPadding.withoutTop(),
-					verticalArrangement = if (uiState.data?.items?.isEmpty() == true) {
+					verticalArrangement = if (lazyPagingItems == null || lazyPagingItems.itemCount == 0) {
 						Arrangement.Center
 					} else if (selectedViewMode == ListViewMode.List) {
 						Arrangement.spacedBy(0.dp)
@@ -173,38 +185,193 @@ fun AlbumListScreen(
 					},
 					selectedViewMode = selectedViewMode
 				) {
-					albumListScreenContent(
-						albums = uiState.data?.items.orEmpty(),
-						starred = selectedAlbum?.starredAt != null,
-						selectedSorting = selectedSorting,
-						selectedAlbum = selectedAlbum,
-						selectedAlbumRating = selectedAlbum?.userRating ?: 0,
-						selectedViewMode = selectedViewMode,
-						onPlayNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
-						onAddToQueue = {
-							if (selectedAlbum != null) {
-								player.addToQueue(
-									selectedAlbum as DomainSongCollection
+					lazyPagingItems?.let { items ->
+						if (items.itemCount > 0) {
+							if (selectedSorting == DomainAlbumListType.AlphabeticalByName) {
+								val grouped = snapshotList.groupBy {
+									it.name?.firstOrNull()?.uppercaseChar() ?: '#'
+								}
+									.toList()
+									.sortedBy { it.first }
+
+								val textPadding = PaddingValues(
+									horizontal = if (selectedViewMode == ListViewMode.List) 16.dp else 0.dp,
+									vertical = 8.dp
 								)
+
+								grouped.forEach { (letter, albums) ->
+									stickyHeader {
+										Row(
+											modifier = Modifier
+												.background(MaterialTheme.colorScheme.surface)
+												.padding(textPadding),
+											verticalAlignment = Alignment.CenterVertically
+										) {
+											Text(
+												text = letter.toString(),
+												color = MaterialTheme.colorScheme.onSurfaceVariant
+											)
+										}
+									}
+									items(albums, { it.id }) { album ->
+										if (selectedViewMode == ListViewMode.Grid) {
+											AlbumListScreenGridItem(
+												modifier = Modifier.animateItem(),
+												tab = "albums",
+												album = album,
+												selected = album == selectedAlbum,
+												starred = selectedAlbum?.starredAt != null,
+												onSelect = {
+													viewModel.selected = album
+												},
+												onDeselect = {
+													viewModel.selected = null
+												},
+												onSetStarred = {
+													viewModel.starAlbum(it)
+												},
+												onSetShareId = {
+													shareId = it
+												},
+												onPlayNext = {
+													if (selectedAlbum != null) player.playNext(
+														selectedAlbum as DomainSongCollection
+													)
+												},
+												onAddToQueue = {
+													if (selectedAlbum != null) {
+														player.addToQueue(
+															selectedAlbum as DomainSongCollection
+														)
+													}
+												},
+												rating = selectedAlbum?.userRating ?: 0,
+												onSetRating = { it: Int -> viewModel.setRating(it) }
+											)
+										} else {
+											AlbumListScreenListItem(
+												modifier = Modifier.animateItem(),
+												album = album,
+												selected = album == selectedAlbum,
+												starred = selectedAlbum?.starredAt != null,
+												onSelect = {
+													viewModel.selected = album
+												},
+												onDeselect = {
+													viewModel.selected = null
+												},
+												onSetStarred = {
+													viewModel.starAlbum(it)
+												},
+												onSetShareId = { newShareId: String ->
+													shareId = newShareId
+												},
+												onPlayNext = {
+													if (selectedAlbum != null) player.playNext(
+														selectedAlbum as DomainSongCollection
+													)
+												},
+												onAddToQueue = {
+													if (selectedAlbum != null) {
+														player.addToQueue(
+															selectedAlbum as DomainSongCollection
+														)
+													}
+												},
+												rating = selectedAlbum?.userRating ?: 0,
+												onSetRating = { it: Int -> viewModel.setRating(it) }
+											)
+										}
+									}
+								}
+							} else {
+								items(
+									items.itemCount,
+									{ index -> items[index]?.id ?: 0 }) { index ->
+									val album = items[index] ?: return@items
+
+									if (selectedViewMode == ListViewMode.Grid) {
+										AlbumListScreenGridItem(
+											modifier = Modifier.animateItem(),
+											tab = "albums",
+											album = album,
+											selected = album == selectedAlbum,
+											starred = selectedAlbum?.starredAt != null,
+											onSelect = {
+												viewModel.selected = album
+											},
+											onDeselect = {
+												viewModel.selected = null
+											},
+											onSetStarred = {
+												viewModel.starAlbum(it)
+											},
+											onSetShareId = {
+												shareId = it
+											},
+											onPlayNext = {
+												if (selectedAlbum != null) player.playNext(
+													selectedAlbum as DomainSongCollection
+												)
+											},
+											onAddToQueue = {
+												if (selectedAlbum != null) {
+													player.addToQueue(
+														selectedAlbum as DomainSongCollection
+													)
+												}
+											},
+											rating = selectedAlbum?.userRating ?: 0,
+											onSetRating = { it: Int -> viewModel.setRating(it) }
+										)
+									} else {
+										AlbumListScreenListItem(
+											modifier = Modifier.animateItem(),
+											album = album,
+											selected = album == selectedAlbum,
+											starred = selectedAlbum?.starredAt != null,
+											onSelect = {
+												viewModel.selected = album
+											},
+											onDeselect = {
+												viewModel.selected = null
+											},
+											onSetStarred = {
+												viewModel.starAlbum(it)
+											},
+											onSetShareId = { newShareId: String ->
+												shareId = newShareId
+											},
+											onPlayNext = {
+												if (selectedAlbum != null) player.playNext(
+													selectedAlbum as DomainSongCollection
+												)
+											},
+											onAddToQueue = {
+												if (selectedAlbum != null) {
+													player.addToQueue(
+														selectedAlbum as DomainSongCollection
+													)
+												}
+											},
+											rating = selectedAlbum?.userRating ?: 0,
+											onSetRating = { it: Int -> viewModel.setRating(it) }
+										)
+									}
+								}
 							}
-						},
-						onUpdateSelection = {
-							viewModel.selected = it
-						},
-						onClearSelection = {
-							viewModel.selected = null
-						},
-						onSetShareId = { newShareId ->
-							shareId = newShareId
-						},
-						onSetStarred = { viewModel.starAlbum(it) },
-						onRateSelectedAlbum = { viewModel.setRating(it) }
-					)
+
+						} else {
+							item(span = { GridItemSpan(maxLineSpan) }) {
+								ContentUnavailable(label = stringResource(info_no_albums))
+							}
+						}
+					}
 				}
 				if (selectedSorting == DomainAlbumListType.AlphabeticalByName) {
 					AlphabeticalScroller(
 						state = viewModel.gridState,
-						headers = headerIndices,
+						headers = headerIndices.toImmutableList(),
 						modifier = Modifier.align(Alignment.TopEnd)
 					)
 				}
@@ -213,7 +380,7 @@ fun AlbumListScreen(
 	}
 
 	ErrorSnackBar(
-		error = (uiState as? UiState.Error)?.error,
+		error = (state as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 

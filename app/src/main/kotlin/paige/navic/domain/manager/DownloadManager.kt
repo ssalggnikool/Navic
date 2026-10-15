@@ -45,9 +45,11 @@ import paige.navic.R
 import paige.navic.data.database.dao.AlbumDao
 import paige.navic.data.database.dao.DownloadDao
 import paige.navic.data.database.dao.LyricDao
+import paige.navic.data.database.dao.SongDao
 import paige.navic.data.database.entity.DownloadEntity
 import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.data.database.entity.LyricEntity
+import paige.navic.data.database.mapper.toDomainModel
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.repository.LyricsRepository
@@ -60,6 +62,7 @@ class DownloadManager(
 	private val imageLoader: ImageLoader,
 	private val downloadDao: DownloadDao,
 	private val albumDao: AlbumDao,
+	private val songDao: SongDao,
 	private val storageManager: StorageManager,
 	private val lyricsRepository: LyricsRepository,
 	private val lyricDao: LyricDao,
@@ -223,13 +226,18 @@ class DownloadManager(
 			.forEach { downloadSong(it) }
 	}
 
-	fun downloadEntireLibrary(songs: List<DomainSong>) {
+	// TODO: rewrite this turd, preferably using flows. what the fuck is this
+	fun downloadEntireLibrary() {
 		if (isDownloadingLibrary.value) return
 
 		libraryDownloadJob = scope.launch(Dispatchers.IO) {
 			try {
 				isDownloadingLibrary.value = true
 				libraryDownloadProgress.value = 0f
+
+				val songs = songDao.getAllSongIds()
+					.mapNotNull { id -> songDao.getSongById(id) }
+					.map { it.toDomainModel() }
 
 				val songsToDownload = songs.filter { !isDownloaded(it.id) }
 				val totalToDownload = songsToDownload.size

@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,16 +30,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.NavKey
+import androidx.paging.compose.LazyPagingItems
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.ui.core.UiState
 
-fun <T> LazyGridScope.horizontalSection(
+fun <T : Any> LazyGridScope.horizontalSection(
+	seeAll: Boolean,
+	title: Int,
+	destination: NavKey,
+	state: LazyPagingItems<T>,
+	itemContent: @Composable LazyItemScope.(T) -> Unit,
+) {
+	if (state.itemCount == 0) return
+
+	header(title, destination = destination, active = seeAll)
+
+	item(span = { GridItemSpan(maxLineSpan) }) {
+		LazyRow(
+			modifier = Modifier
+				.animateContentSize(animationSpec = MaterialTheme.motionScheme.fastSpatialSpec()),
+			horizontalArrangement = Arrangement.spacedBy(12.dp),
+			contentPadding = PaddingValues(horizontal = 16.dp)
+		) {
+			if (state.itemCount == 0) {
+				items(8) {
+					ArtGridPlaceholder(Modifier.width(150.dp))
+				}
+			} else {
+				items(state.itemCount, {
+
+				}) { index ->
+					val item = state[index] ?: return@items
+
+					itemContent(item)
+				}
+			}
+		}
+	}
+}
+
+fun <T : Any> LazyGridScope.horizontalSection(
 	seeAll: Boolean,
 	title: Int,
 	destination: NavKey,
 	state: List<T>,
-	key: (T) -> Any,
 	itemContent: @Composable LazyItemScope.(T) -> Unit,
 ) {
 	if (state.isEmpty()) return
@@ -54,14 +87,8 @@ fun <T> LazyGridScope.horizontalSection(
 			horizontalArrangement = Arrangement.spacedBy(12.dp),
 			contentPadding = PaddingValues(horizontal = 16.dp)
 		) {
-			if (state.isEmpty()) {
-				items(8) {
-					ArtGridPlaceholder(Modifier.width(150.dp))
-				}
-			} else {
-				items(state, key = key) { item ->
-					itemContent(item)
-				}
+			items(state.size) { index ->
+				itemContent(state[index])
 			}
 		}
 	}
