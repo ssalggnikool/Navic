@@ -25,7 +25,13 @@ class NavicularDnsResolver(
 		val serverDomain = settings.getStringOrNull("instanceUrl")?.toUri()?.host
 		val systemAddresses = Dns.SYSTEM.lookup(hostname)
 		if (hostname == serverDomain) {
-			val alternativeAddresses = hosts.map { InetAddress.getByName(it) }
+			val alternativeAddresses = hosts.mapNotNull {
+				try {
+					InetAddress.getByName(it)
+				} catch (e: Exception) {
+					null
+				}
+			}
 
 			return (systemAddresses + alternativeAddresses).sortedByDescending { it.isLocalOrPrivate() }
 		}
