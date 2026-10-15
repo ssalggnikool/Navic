@@ -6,8 +6,13 @@
 
 package paige.navic.util.network
 
+import androidx.core.net.toUri
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import okhttp3.Dns
+import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import paige.navic.domain.manager.PreferenceManager
 import java.net.InetAddress
@@ -17,55 +22,80 @@ class NavicularDnsResolver(
 	val settings: Settings
 ) : Dns {
 	override fun lookup(hostname: String): List<InetAddress> {
-		val serverDomain = settings.getStringOrNull("instanceUrl") ?: error("instanceUrl is null")
+		val serverDomain = settings.getStringOrNull("instanceUrl")?.toUri()?.host
 		val systemAddresses = Dns.SYSTEM.lookup(hostname)
 		if (hostname == serverDomain) {
-			val alternativeAddresses = preferenceManager.alternateServerAddresses
-				.map { InetAddress.getByName(it) }
+			val alternativeAddresses = hosts.map { InetAddress.getByName(it) }
 
 			return (systemAddresses + alternativeAddresses).sortedByDescending { it.isLocalOrPrivate() }
 		}
 		return systemAddresses
 	}
 
-	fun rewriteRequestInterceptor() = Interceptor { chain ->
-		var request = chain.request()
-		val host = request.url.host
+	private val addresses: List<String>
+		get() = preferenceManager.alternateServerAddresses
 
-		val isLocal = try {
-			val addresses = this.lookup(host)
-			addresses.any { it.isLocalOrPrivate() }
-		} catch (_: Exception) {
-			false
-		}
+	private val hosts: List<String>
+		get() = addresses.map { it.extractHost() }
 
-		if (isLocal && request.isHttps) {
+	private val hostMap: Map<String, String>
+		get() = hosts.zip(addresses).toMap()
+
+	val requestInterceptor: Interceptor
+		get() = Interceptor { chain ->
+			var request = chain.request()
+			val host = request.url.host
+
+			val lookupResult = runBlocking {
+				withContext(Dispatchers.IO) {
+					try {
+						this@NavicularDnsResolver.lookup(host)
+					} catch (_: Exception) {
+						emptyList()
+					}
+				}
+			}
+
+			val localResolution = lookupResult.firstOrNull { it.isLocalOrPrivate() }
+			val port = hostMap[localResolution?.hostAddress]?.extractPort()
+
 			val newUrl = request.url.newBuilder()
-				.scheme("http")
-				.build()
+				.build("http", port)
 
-			request = request.newBuilder()
-				.url(newUrl)
-				.build()
-		}
-
-		try {
-			chain.proceed(request)
-		} catch (e: Exception) {
-			if (!isLocal && request.isHttps) {
-				val fallbackUrl = request.url.newBuilder()
-					.scheme("http")
+			if (localResolution != null && request.isHttps) {
+				request = request.newBuilder()
+					.url(newUrl)
 					.build()
-				val fallbackRequest = request.newBuilder()
-					.url(fallbackUrl)
-					.build()
+			}
 
-				chain.proceed(fallbackRequest)
-			} else {
-				throw e
+			try {
+				chain.proceed(request)
+			} catch (e: Exception) {
+				if (localResolution == null && request.isHttps) {
+					val fallbackRequest = request.newBuilder()
+						.url(newUrl)
+						.build()
+
+					chain.proceed(fallbackRequest)
+				} else {
+					throw e
+				}
 			}
 		}
+
+	private fun HttpUrl.Builder.build(scheme: String, port: Int? = null): HttpUrl {
+		this.scheme(scheme)
+		if (port != null) {
+			this.port(port)
+		}
+
+		return this.build()
 	}
+
+	private fun String.extractHost(): String = this.substringAfter("://")
+		.substringBefore(":")
+
+	private fun String.extractPort(): Int? = this.substringAfterLast(":").toIntOrNull()
 }
 
 fun InetAddress.isLocalOrPrivate(): Boolean {

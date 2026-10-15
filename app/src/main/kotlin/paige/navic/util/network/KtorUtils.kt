@@ -46,7 +46,7 @@ fun buildKtorEngine(proxyUrl: String? = null, trustAllCerts: Boolean = false, dn
 			dnsResolver?.let {
 				dns(it)
 				if (it is NavicularDnsResolver) {
-					this@create.addInterceptor(it.rewriteRequestInterceptor())
+					this@create.addInterceptor(it.requestInterceptor)
 				}
 			}
 
@@ -81,7 +81,7 @@ fun createOkHttpClient(
 		dnsResolver?.let {
 			dns(it)
 			if (it is NavicularDnsResolver) {
-				this.addInterceptor(it.rewriteRequestInterceptor())
+				this.addInterceptor(it.requestInterceptor)
 			}
 		}
 
