@@ -26,7 +26,7 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Note
 import paige.navic.ui.icons.outlined.Radio
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Note
@@ -38,7 +38,7 @@ fun NowPlayingArtwork(
 	isLandscape: Boolean,
 	song: DomainSong
 ) {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsState()
 
 	val padding by animateDpAsState(

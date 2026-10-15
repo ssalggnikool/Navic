@@ -55,12 +55,12 @@ import paige.navic.ui.icons.filled.SkipNext
 import paige.navic.ui.icons.filled.SkipPrevious
 import paige.navic.ui.icons.outlined.Repeat
 import paige.navic.ui.icons.outlined.Shuffle
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.util.playPauseIconPainter
 
 @Composable
 fun NowPlayingButtonsRow() {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsState()
 	val interactionSource = remember { MutableInteractionSource() }
 	val isPressed by interactionSource.collectIsPressedAsState()

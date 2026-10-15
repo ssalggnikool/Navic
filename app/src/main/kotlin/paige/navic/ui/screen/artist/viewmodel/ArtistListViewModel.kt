@@ -22,7 +22,7 @@ import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.toBitmask
 import paige.navic.domain.model.toDomainFilters
 import paige.navic.domain.repository.ArtistRepository
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.viewmodel.SelectableViewModel
 
 
@@ -73,7 +73,7 @@ class ArtistListViewModel(
 		}
 	}
 
-	fun addArtistAlbumsToQueue(player: MediaPlayerViewModel) {
+	fun addArtistAlbumsToQueue(player: MediaPlayer) {
 		val artist = selected ?: return
 		viewModelScope.launch {
 			val artistAlbums =
@@ -84,7 +84,7 @@ class ArtistListViewModel(
 		}
 	}
 
-	fun playArtistAlbumsNext(player: MediaPlayerViewModel) {
+	fun playArtistAlbumsNext(player: MediaPlayer) {
 		val artist = selected ?: return
 		launch {
 			val artistAlbums =

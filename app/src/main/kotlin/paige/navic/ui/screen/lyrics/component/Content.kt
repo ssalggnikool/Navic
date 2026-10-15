@@ -40,7 +40,7 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.lyrics.LyricsResult
-import paige.navic.playback.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.util.calculateWordProgress
 import kotlin.math.abs
 import kotlin.time.Duration
@@ -60,7 +60,7 @@ fun LyricsScreenContent(
 	contentPadding: PaddingValues
 ) {
 	val density = LocalDensity.current
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	val listState = rememberLazyListState()
