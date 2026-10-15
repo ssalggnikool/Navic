@@ -94,10 +94,9 @@ import paige.navic.ui.screen.artist.component.ArtistDetailScreenHeading
 import paige.navic.ui.screen.artist.component.ArtistDetailScreenTopBar
 import paige.navic.ui.screen.artist.viewmodel.ArtistDetailViewModel
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
-import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -153,7 +152,6 @@ fun ArtistDetailScreen(
 	var showDownloadDialog by remember { mutableStateOf(false) }
 
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 
@@ -485,9 +483,10 @@ fun ArtistDetailScreen(
 
 		ShareDialog(
 			id = shareId,
-			onIdClear = { shareId = null; viewModel.clearSelection() },
-			expiry = shareExpiry,
-			onExpiryChange = { shareExpiry = it }
+			onDismissRequest = {
+				shareId = null
+				viewModel.clearSelection()
+			}
 		)
 
 		if (playlistDialogShown) {

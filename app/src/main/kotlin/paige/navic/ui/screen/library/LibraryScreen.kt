@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -49,10 +48,9 @@ import paige.navic.ui.screen.genre.viewmodel.GenreListViewModel
 import paige.navic.ui.screen.library.component.LibraryScreenContent
 import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistListViewModel
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.screen.stats.viewmodel.StatisticsViewModel
 import paige.navic.ui.viewmodel.RootViewModel
-import kotlin.time.Duration
 
 @Composable
 fun LibraryScreen() {
@@ -95,7 +93,6 @@ fun LibraryScreen() {
 	val loginState by loginManager.loginState.collectAsStateWithLifecycle()
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	var playlistDeletionId by rememberSaveable { mutableStateOf<String?>(null) }
 	var playlistCreateDialogShown by rememberSaveable { mutableStateOf(false) }
 
@@ -229,9 +226,7 @@ fun LibraryScreen() {
 
 	ShareDialog(
 		id = shareId,
-		onIdClear = { shareId = null },
-		expiry = shareExpiry,
-		onExpiryChange = { shareExpiry = it }
+		onDismissRequest = { shareId = null }
 	)
 
 	DeletionDialog(
