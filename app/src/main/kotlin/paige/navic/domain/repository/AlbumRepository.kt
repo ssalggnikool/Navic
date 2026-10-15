@@ -12,11 +12,11 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.entity.SyncActionType
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.mapper.toEntity
-import paige.navic.data.database.query.toSqlQuery
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.entity.SyncActionType
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.mapper.toEntity
+import paige.navic.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType

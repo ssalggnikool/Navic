@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import paige.navic.R
-import paige.navic.data.database.mapper.toDomainModel
+import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
