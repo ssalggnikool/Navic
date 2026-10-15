@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.LetterCount
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
@@ -43,7 +45,12 @@ class ArtistListViewModel(
 			initialFilters ?: preferenceManager.artistFilters.toDomainFilters()
 		)
 
+	val letterCounts: StateFlow<List<LetterCount>>
+		field = MutableStateFlow(emptyList())
+
 	val gridState = LazyGridState()
+
+	private var letterCountsJob: Job? = null
 
 	init {
 		launch {
@@ -57,6 +64,12 @@ class ArtistListViewModel(
 			listType.value,
 			selectedFilters.value
 		)
+		letterCountsJob?.cancel()
+		letterCountsJob = viewModelScope.launch {
+			repository.getArtistLetterCounts(selectedFilters.value).collect {
+				letterCounts.value = it
+			}
+		}
 	}
 
 	fun selectArtist(artist: DomainArtist?) {

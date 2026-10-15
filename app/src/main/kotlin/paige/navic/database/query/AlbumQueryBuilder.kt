@@ -84,3 +84,37 @@ fun DomainAlbumListType.toSqlQuery(
 
 	return createRoomRawQuery(sql, args)
 }
+
+fun getAlbumLetterCountsQuery(
+	reversed: Boolean = false,
+	filters: Set<DomainFilter> = emptySet()
+): RoomRawQuery {
+	val whereClauses = mutableListOf<String>()
+	val args = mutableListOf<Any>()
+
+	if (filters.contains(DomainFilter.Starred)) {
+		whereClauses.add("starredAt IS NOT NULL")
+	}
+
+	if (filters.contains(DomainFilter.Downloaded)) {
+		whereClauses.add(
+			"NOT EXISTS (" +
+				"SELECT 1 FROM SongEntity s " +
+				"WHERE s.belongsToAlbumId = AlbumEntity.albumId " +
+				"AND s.songId NOT IN (SELECT songId FROM DownloadEntity WHERE status = 'DOWNLOADED')" +
+				")",
+		)
+	}
+
+	val whereSql = if (whereClauses.isNotEmpty()) {
+		" WHERE " + whereClauses.joinToString(" AND ")
+	} else {
+		""
+	}
+
+	val order = if (reversed) "DESC" else "ASC"
+
+	val sql = "SELECT CASE WHEN UPPER(SUBSTR(name, 1, 1)) BETWEEN 'A' AND 'Z' THEN UPPER(SUBSTR(name, 1, 1)) ELSE '#' END AS letter, COUNT(*) AS count FROM AlbumEntity$whereSql GROUP BY letter ORDER BY letter COLLATE NOCASE $order"
+
+	return createRoomRawQuery(sql, args)
+}

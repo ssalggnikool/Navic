@@ -15,26 +15,73 @@ import io.ktor.client.engine.http
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
+import okhttp3.OkHttpClient
 import paige.navic.domain.manager.PreferenceManager
+import java.net.Proxy
 import java.security.SecureRandom
 import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.TrustManager
 
 val PROXY_URL_REGEX = Regex("(socks[4-5]?|https?)?://(.+):?(\\d+)")
 
-fun getDefaultEngineForPlatform(trustAllCerts: Boolean): HttpClientEngine {
-	return OkHttp.create {
-		if (trustAllCerts) {
-			config {
-				val noopTrustManager = NoopTrustManager()
+fun createSSLSocketFactory(trustManagers: Array<TrustManager>): SSLSocketFactory? {
+	return SSLContext.getInstance("SSL").also {
+		it.init(null, trustManagers, SecureRandom())
+	}.socketFactory
+}
 
-				SSLContext.getInstance("SSL").also {
-					it.init(null, arrayOf(noopTrustManager), SecureRandom())
-				}.socketFactory.let {
+fun buildKtorEngine(proxyUrl: String? = null, trustAllCerts: Boolean = false): HttpClientEngine {
+	return OkHttp.create {
+		config {
+			if (trustAllCerts) {
+				val noopTrustManager = NoopTrustManager()
+				createSSLSocketFactory(
+					arrayOf(noopTrustManager)
+				)?.let {
 					sslSocketFactory(it, noopTrustManager)
 				}
 			}
+
+			proxyUrl?.let {
+				proxy(extractProxyConfigFromUrl(it))
+			}
 		}
 	}
+}
+
+// media3's ktor data source is bugged
+fun createOkHttpClient(
+	trustAllCerts: Boolean,
+	customHeaders: Map<String, String>?,
+	proxyUrl: String?
+): OkHttpClient {
+	return OkHttpClient.Builder().apply {
+		proxyUrl?.let {
+			proxy(extractProxyConfigFromUrl(it))
+		}
+
+		if (trustAllCerts) {
+			val noopTrustManager = NoopTrustManager()
+			createSSLSocketFactory(
+				arrayOf(noopTrustManager)
+			)?.let {
+				sslSocketFactory(it, noopTrustManager)
+			}
+		}
+
+		if (!customHeaders.isNullOrEmpty()) {
+			addInterceptor {
+				val request = it.request()
+					.newBuilder()
+					.apply {
+						customHeaders.forEach(::header)
+					}.build()
+
+				it.proceed(request)
+			}
+		}
+	}.build()
 }
 
 fun createHttpClient(
@@ -42,22 +89,19 @@ fun createHttpClient(
 	customHeaders: Map<String, String>? = null,
 	proxyUrl: String? = null
 ): HttpClient {
-	val platformEngine = getDefaultEngineForPlatform(trustAllCerts)
+	val engine = buildKtorEngine(
+		proxyUrl,
+		trustAllCerts
+	)
 	val block: HttpClientConfig<*>.() -> Unit = {
 		if (customHeaders?.isNotEmpty() == true) {
 			defaultRequest {
 				customHeaders.forEach { (key, value) -> header(key, value) }
 			}
 		}
-
-		if (!proxyUrl.isNullOrBlank()) {
-			engine {
-				proxy = extractProxyConfigFromUrl(proxyUrl)
-			}
-		}
 	}
 
-	return HttpClient(platformEngine, block)
+	return HttpClient(engine, block)
 }
 
 fun extractProxyConfigFromUrl(url: String): ProxyConfig? {

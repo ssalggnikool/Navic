@@ -7,8 +7,12 @@
 package paige.navic.ui.screen.album.viewmodel
 
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import paige.navic.database.dao.LetterCount
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainAlbum
@@ -37,7 +41,12 @@ class AlbumListViewModel(
 			initialFilters ?: preferenceManager.albumFilters.toDomainFilters()
 		)
 
+	val letterCounts: StateFlow<List<LetterCount>>
+		field = MutableStateFlow(emptyList())
+
 	val gridState = LazyGridState()
+
+	private var letterCountsJob: Job? = null
 
 	init {
 		launch {
@@ -51,6 +60,12 @@ class AlbumListViewModel(
 			selectedReversed.value,
 			selectedFilters.value
 		)
+		letterCountsJob?.cancel()
+		letterCountsJob = viewModelScope.launch {
+			repository.getAlbumLetterCounts(selectedReversed.value, selectedFilters.value).collect {
+				letterCounts.value = it
+			}
+		}
 	}
 
 	fun starAlbum(isStarred: Boolean) {
