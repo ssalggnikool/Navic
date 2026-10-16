@@ -132,5 +132,5 @@ class NavicularDnsResolver(
 }
 
 fun InetAddress.isLocalOrPrivate(): Boolean {
-	return this.isLoopbackAddress || this.isSiteLocalAddress || this.isLinkLocalAddress || this.isAnyLocalAddress
+	return this.isLoopbackAddress || this.isSiteLocalAddress || this.isLinkLocalAddress
 }
