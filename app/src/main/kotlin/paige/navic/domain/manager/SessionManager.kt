@@ -23,11 +23,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import paige.navic.util.Logger
-import paige.navic.util.buildKtorEngine
+import paige.navic.util.network.NavicularDnsResolver
+import paige.navic.util.network.buildKtorEngine
 
 class SessionManager(
 	private val settings: Settings,
-	private val preferenceManager: PreferenceManager
+	private val preferenceManager: PreferenceManager,
+	private val dnsResolver: NavicularDnsResolver
 ) {
 
 	val isLoggedIn: StateFlow<Boolean>
@@ -74,7 +76,8 @@ class SessionManager(
 		},
 		engine = buildKtorEngine(
 			preferenceManager.proxyUrl,
-			preferenceManager.dangerousSslNoopEnabled
+			preferenceManager.dangerousSslNoopEnabled,
+			dnsResolver
 		)
 	)
 

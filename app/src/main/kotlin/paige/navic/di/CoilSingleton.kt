@@ -16,11 +16,13 @@ import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import coil3.serviceLoaderEnabled
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.util.createHttpClientWithPreferences
+import paige.navic.util.network.NavicularDnsResolver
+import paige.navic.util.network.createHttpClientWithPreferences
 
 class CoilSingleton(
 	private val context: Context,
-	private val preferenceManager: PreferenceManager
+	private val preferenceManager: PreferenceManager,
+	private val dnsResolver: NavicularDnsResolver
 ) {
 	private var sharedDiskCache: DiskCache? = null
 	private var sharedMemoryCache: MemoryCache? = null
@@ -47,7 +49,7 @@ class CoilSingleton(
 			.components {
 				add(
 					KtorNetworkFetcherFactory(
-						createHttpClientWithPreferences(preferenceManager)
+						createHttpClientWithPreferences(preferenceManager, dnsResolver)
 					)
 				)
 			}
@@ -69,7 +71,7 @@ class CoilSingleton(
 			.components {
 				add(
 					KtorNetworkFetcherFactory(
-						createHttpClientWithPreferences(preferenceManager)
+						createHttpClientWithPreferences(preferenceManager, dnsResolver)
 					)
 				)
 			}

@@ -6,7 +6,6 @@
 
 package paige.navic.di
 
-import androidx.media3.common.util.UnstableApi
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -44,8 +43,8 @@ import paige.navic.ui.screen.song.viewmodel.SongDetailViewModel
 import paige.navic.ui.screen.song.viewmodel.SongListViewModel
 import paige.navic.ui.screen.stats.viewmodel.StatisticsViewModel
 import paige.navic.ui.viewmodel.RootViewModel
+import paige.navic.util.network.NavicularDnsResolver
 
-@UnstableApi
 val viewModelModule = module {
 	single<MediaPlayer> {
 		MediaPlayer(
@@ -59,6 +58,13 @@ val viewModelModule = module {
 			preferenceManager = get(),
 			snackBarManager = get(),
 			audioGainManager = get(),
+		)
+	}
+	single<NavicularDnsResolver> {
+		NavicularDnsResolver(
+			preferenceManager = get(),
+			settings = get(),
+			connectivityManager = get()
 		)
 	}
 
