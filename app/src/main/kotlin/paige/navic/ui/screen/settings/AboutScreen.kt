@@ -41,6 +41,8 @@ import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
 
+const val GITHUB_BASE_URL = "https://github.com/ssalggnikool/Navic/"
+
 @Composable
 fun SettingsAboutScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -92,9 +94,43 @@ fun SettingsAboutScreen() {
 				)
 			}
 
+			// TODO: make this less ass
+			if (BuildInfo.GIT_COMMIT_HASH != null) {
+				val commitLink = "${GITHUB_BASE_URL}commit/${BuildInfo.GIT_COMMIT_HASH}"
+				val branchName = BuildInfo.GIT_BRANCH_NAME ?: "master"
+				val commitAuthor = BuildInfo.GIT_COMMIT_AUTHOR ?: "unknown"
+
+				SettingsGroup {
+					SettingsNavItem(
+						onClick = { linkToOpen = commitLink },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4),
+						content = { Text(stringResource(R.string.title_commit_hash)) },
+						supportingContent = { Text(BuildInfo.GIT_COMMIT_HASH.slice(0..6)) }
+					)
+					SettingsNavItem(
+						onClick = { linkToOpen = commitLink },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4),
+						content = { Text(stringResource(R.string.title_commit_message)) },
+						supportingContent = { Text(BuildInfo.GIT_COMMIT_MESSAGE ?: "unknown") }
+					)
+					SettingsNavItem(
+						onClick = { linkToOpen = "${GITHUB_BASE_URL}tree/${branchName}" },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4),
+						content = { Text(stringResource(R.string.title_branch_name)) },
+						supportingContent = { Text(BuildInfo.GIT_BRANCH_NAME ?: "unknown") }
+					)
+					SettingsNavItem(
+						onClick = { linkToOpen = "${GITHUB_BASE_URL}commits/${branchName}/?author=${commitAuthor}" },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4),
+						content = { Text(stringResource(R.string.title_commit_author)) },
+						supportingContent = { Text(commitAuthor) }
+					)
+				}
+			}
+
 			SettingsGroup {
 				SettingsNavItem(
-					onClick = { linkToOpen = "https://github.com/ssalggnikool/Navic" },
+					onClick = { linkToOpen = GITHUB_BASE_URL },
 					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4),
 					content = { Text(stringResource(R.string.title_github)) }
 				)

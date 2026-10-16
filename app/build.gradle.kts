@@ -31,6 +31,31 @@ val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
 		.map { it.toBoolean() }
 		.getOrElse(false)
 
+	fun String?.wrapString(): String {
+		return if (this == null) {
+			"null"
+		} else {
+			"\"${this.replace("\n", "").replace("\"", "\\")}\""
+		}
+	}
+
+	fun executeCommand(vararg args: String): String? {
+		val command = Runtime.getRuntime().exec(args)
+		val result = command.waitFor()
+		return if (result == 0) {
+			command.inputStream.readBytes()
+				.toString(Charsets.UTF_8)
+				.takeIf { it.isNotBlank() }
+		} else {
+			null
+		}
+	}
+
+	val commitHash = executeCommand("git", "rev-parse", "HEAD")
+	val commitMessage = executeCommand("git", "log", "-1", "--pretty=%B")
+	val commitAuthor = executeCommand("git", "log", "-1", "--pretty=%an")
+	val commitBranchName = executeCommand("git", "branch", "--show-current")
+
 	from(
 		resources.text.fromString(
 			"""
@@ -38,6 +63,10 @@ val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
 			|
 			|object BuildInfo {
 			|	const val FDROID = $fdroid
+			|	val GIT_COMMIT_HASH: String? = ${commitHash?.wrapString()}
+			|	val GIT_COMMIT_MESSAGE: String? = ${commitMessage?.wrapString()}
+			|	val GIT_COMMIT_AUTHOR: String? = ${commitAuthor?.wrapString()}
+			|	val GIT_BRANCH_NAME: String? = ${commitBranchName?.wrapString()}
 			|}
 			|
 			""".trimMargin()
