@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.util
+package paige.navic.util.network
 
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager

@@ -532,4 +532,9 @@
 	<string name="info_chat_unsupported">Your server does not support this feature, or you are offline</string>
 	<string name="info_content_unavailable">Nothing here</string>
 	<string name="action_allow">Allow</string>
+    <string name="option_alternate_addresses">Alternate addresses</string>
+	<string name="subtitle_alternative_addresses">Fallback addresses to reach the music server</string>
+	<string name="alt_addresses_edit_address">Edit address</string>
+	<string name="alt_addresses_dialog_hint">Insert a bare IP or hostname (specifying the port is allowed):</string>
+	<string name="alt_addresses_text_field_placeholder">Eg. 192.168.1.6</string>
 </resources>

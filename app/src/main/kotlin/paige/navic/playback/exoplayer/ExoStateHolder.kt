@@ -47,6 +47,7 @@ import androidx.media3.session.SessionToken
 import coil3.ImageLoader
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -56,12 +57,14 @@ import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.playback.exoplayer.impl.ExoArtworkLoader
 import paige.navic.playback.exoplayer.impl.ExoAudioGainProcessor
-import paige.navic.util.createOkHttpClient
+import paige.navic.util.network.NavicularDnsResolver
+import paige.navic.util.network.createOkHttpClient
 
 @OptIn(UnstableApi::class)
 class ExoStateHolder : KoinComponent {
 	private val context: Context by inject()
 	private val preferenceManager: PreferenceManager by inject()
+	private val dnsResolver: NavicularDnsResolver by inject()
 	private val imageLoader: ImageLoader by inject()
 	private val mutex = Mutex()
 
@@ -133,7 +136,8 @@ class ExoStateHolder : KoinComponent {
 		createOkHttpClient(
 			preferenceManager.dangerousSslNoopEnabled,
 			preferenceManager.customHeadersMap(),
-			preferenceManager.proxyUrl.takeIf { it.isNotEmpty() }
+			preferenceManager.proxyUrl.takeIf { it.isNotEmpty() },
+			dnsResolver
 		)
 	)
 

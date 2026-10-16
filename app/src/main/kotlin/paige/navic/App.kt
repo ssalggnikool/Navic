@@ -108,6 +108,7 @@ import paige.navic.ui.screen.settings.AudioEffectsScreen
 import paige.navic.ui.screen.settings.BottomBarScreen
 import paige.navic.ui.screen.settings.FontsScreen
 import paige.navic.ui.screen.settings.SettingsAboutScreen
+import paige.navic.ui.screen.settings.SettingsAlternativeAddressesScreen
 import paige.navic.ui.screen.settings.SettingsAppIconScreen
 import paige.navic.ui.screen.settings.SettingsAppearanceScreen
 import paige.navic.ui.screen.settings.SettingsConnectionOptionsScreen
@@ -423,6 +424,9 @@ private fun entryProvider(
 		}
 		entry<Screen.Settings.ConnectionOptions> {
 			SettingsConnectionOptionsScreen()
+		}
+		entry<Screen.Settings.AlternativeAddresses> {
+			SettingsAlternativeAddressesScreen()
 		}
 		entry<Screen.Settings.CustomHeaders> {
 			SettingsCustomHeadersScreen()

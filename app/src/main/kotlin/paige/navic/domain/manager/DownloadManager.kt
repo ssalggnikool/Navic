@@ -54,7 +54,8 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.repository.LyricsRepository
 import paige.navic.util.Logger
-import paige.navic.util.createHttpClientWithPreferences
+import paige.navic.util.network.NavicularDnsResolver
+import paige.navic.util.network.createHttpClientWithPreferences
 import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
@@ -70,10 +71,11 @@ class DownloadManager(
 	private val preferenceManager: PreferenceManager,
 	private val connectivityManager: ConnectivityManager,
 	private val notificationManager: NotificationManager,
+	private val dnsResolver: NavicularDnsResolver,
 	private val context: Context
 ) {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-	private val client = createHttpClientWithPreferences(preferenceManager).apply {
+	private val client = createHttpClientWithPreferences(preferenceManager, dnsResolver).apply {
 		config {
 			HttpResponseValidator {
 				validateResponse { response ->
