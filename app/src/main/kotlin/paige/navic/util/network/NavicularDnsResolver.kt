@@ -109,11 +109,14 @@ class NavicularDnsResolver(
 			}
 
 			val localResolution = lookupResult.firstOrNull { it.isLocalOrPrivate() }
-			val port = hostMap[localResolution?.hostAddress]?.extractPort()
+			val localHost = hostMap[localResolution?.hostAddress]
 
-			val newUrl = request.url.newBuilder().build("http", port)
+			val scheme = localHost?.extractScheme() ?: "http"
+			val port = localHost?.extractPort()
 
-			if (localResolution != null && request.isHttps) {
+			val newUrl = request.url.newBuilder().build(scheme, port)
+
+			if (localResolution != null) {
 				request = request.newBuilder().url(newUrl).build()
 			}
 
@@ -128,6 +131,8 @@ class NavicularDnsResolver(
 
 		return this.build()
 	}
+
+	private fun String.extractScheme(): String? = this.substringBefore("://").lowercase().takeIf { it.isNotBlank() }
 
 	private fun String.extractHost(): String = this.substringAfter("://").substringBefore(":")
 
