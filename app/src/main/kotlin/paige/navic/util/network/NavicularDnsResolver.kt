@@ -132,7 +132,9 @@ class NavicularDnsResolver(
 		return this.build()
 	}
 
-	private fun String.extractScheme(): String? = this.substringBefore("://").lowercase().takeIf { it.isNotBlank() }
+	private fun String.extractScheme(): String? = this.substringBefore("://")
+		.lowercase()
+		.takeIf { it.isNotBlank() && this != it }
 
 	private fun String.extractHost(): String = this.substringAfter("://").substringBefore(":")
 
