@@ -64,7 +64,7 @@ import paige.navic.util.network.createOkHttpClient
 class ExoStateHolder : KoinComponent {
 	private val context: Context by inject()
 	private val preferenceManager: PreferenceManager by inject()
-	private val settings: Settings by inject()
+	private val dnsResolver: NavicularDnsResolver by inject()
 	private val imageLoader: ImageLoader by inject()
 	private val mutex = Mutex()
 
@@ -137,10 +137,7 @@ class ExoStateHolder : KoinComponent {
 			preferenceManager.dangerousSslNoopEnabled,
 			preferenceManager.customHeadersMap(),
 			preferenceManager.proxyUrl.takeIf { it.isNotEmpty() },
-			NavicularDnsResolver(
-				preferenceManager,
-				settings
-			)
+			dnsResolver
 		)
 	)
 

@@ -28,7 +28,8 @@ import paige.navic.util.network.buildKtorEngine
 
 class SessionManager(
 	private val settings: Settings,
-	private val preferenceManager: PreferenceManager
+	private val preferenceManager: PreferenceManager,
+	private val dnsResolver: NavicularDnsResolver
 ) {
 
 	val isLoggedIn: StateFlow<Boolean>
@@ -76,10 +77,7 @@ class SessionManager(
 		engine = buildKtorEngine(
 			preferenceManager.proxyUrl,
 			preferenceManager.dangerousSslNoopEnabled,
-			NavicularDnsResolver(
-				preferenceManager,
-				settings
-			)
+			dnsResolver
 		)
 	)
 

@@ -102,11 +102,13 @@ fun createOkHttpClient(
 fun createHttpClient(
 	trustAllCerts: Boolean = false,
 	customHeaders: Map<String, String>? = null,
-	proxyUrl: String? = null
+	proxyUrl: String? = null,
+	dnsResolver: Dns? = null
 ): HttpClient {
 	val engine = buildKtorEngine(
 		proxyUrl,
-		trustAllCerts
+		trustAllCerts,
+		dnsResolver
 	)
 	val block: HttpClientConfig<*>.() -> Unit = {
 		if (customHeaders?.isNotEmpty() == true) {
@@ -137,10 +139,11 @@ fun extractProxyConfigFromUrl(url: String): ProxyConfig? {
 	return null
 }
 
-fun createHttpClientWithPreferences(preferenceManager: PreferenceManager): HttpClient {
+fun createHttpClientWithPreferences(preferenceManager: PreferenceManager, dnsResolver: NavicularDnsResolver): HttpClient {
 	return createHttpClient(
 		preferenceManager.dangerousSslNoopEnabled,
 		preferenceManager.customHeadersMap(),
-		preferenceManager.proxyUrl
+		preferenceManager.proxyUrl,
+		dnsResolver
 	)
 }

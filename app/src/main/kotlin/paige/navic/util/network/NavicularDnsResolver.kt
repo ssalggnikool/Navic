@@ -28,7 +28,7 @@ class NavicularDnsResolver(
 			val alternativeAddresses = hosts.mapNotNull {
 				try {
 					InetAddress.getByName(it)
-				} catch (e: Exception) {
+				} catch (_: Exception) {
 					null
 				}
 			}
