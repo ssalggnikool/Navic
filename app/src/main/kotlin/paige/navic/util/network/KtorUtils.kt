@@ -19,6 +19,7 @@ import okhttp3.Dns
 import okhttp3.OkHttpClient
 import paige.navic.domain.manager.PreferenceManager
 import java.security.SecureRandom
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
@@ -68,6 +69,8 @@ fun createOkHttpClient(
 		proxyUrl?.let {
 			proxy(extractProxyConfigFromUrl(it))
 		}
+
+		connectTimeout(3, TimeUnit.SECONDS)
 
 		if (trustAllCerts) {
 			val noopTrustManager = NoopTrustManager()
