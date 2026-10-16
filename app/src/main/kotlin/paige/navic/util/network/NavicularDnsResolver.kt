@@ -10,7 +10,13 @@ import androidx.core.net.toUri
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -54,21 +60,28 @@ class NavicularDnsResolver(
 		return fromCache
 	}
 
-	fun resolve(hostname: String): List<InetAddress> {
+	@OptIn(ExperimentalCoroutinesApi::class)
+	fun resolve(hostname: String): List<InetAddress> = runBlocking {
 		val serverDomain = settings.getStringOrNull("instanceUrl")?.toUri()?.host
 		val systemAddresses = Dns.SYSTEM.lookup(hostname)
 		if (hostname == serverDomain) {
-			val alternativeAddresses = hosts.mapNotNull {
-				try {
-					InetAddress.getByName(it)
-				} catch (_: Exception) {
-					null
+			val alternativeAddresses = hosts.asFlow()
+				.flatMapMerge { host ->
+					flow {
+						try {
+							val address = InetAddress.getByName(host)
+							if (address.isReachable(500)) {
+								emit(address)
+							}
+						} catch (_: Exception) { }
+					}
 				}
-			}
+				.flowOn(Dispatchers.IO)
+				.toList()
 
-			return (systemAddresses + alternativeAddresses).sortedByDescending { it.isLocalOrPrivate() }
+			return@runBlocking (systemAddresses + alternativeAddresses).sortedByDescending { it.isLocalOrPrivate() }
 		}
-		return systemAddresses
+		return@runBlocking systemAddresses
 	}
 
 	private val addresses: List<String>
