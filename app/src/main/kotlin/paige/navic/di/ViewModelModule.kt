@@ -63,7 +63,8 @@ val viewModelModule = module {
 	single<NavicularDnsResolver> {
 		NavicularDnsResolver(
 			preferenceManager = get(),
-			settings = get()
+			settings = get(),
+			connectivityManager = get()
 		)
 	}
 

@@ -8,20 +8,53 @@ package paige.navic.util.network
 
 import androidx.core.net.toUri
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.Dns
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
+import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.util.TTLLruCache
 import java.net.InetAddress
+import java.util.concurrent.TimeUnit
 
 class NavicularDnsResolver(
 	val preferenceManager: PreferenceManager,
-	val settings: Settings
+	val settings: Settings,
+	val connectivityManager: ConnectivityManager
 ) : Dns {
+	private companion object {
+		val lookupCache = TTLLruCache<String, List<InetAddress>>(
+			maxSize = 50,
+			defaultTtlMillis = TimeUnit.MINUTES.toMinutes(5)
+		)
+		val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+	}
+
+	init {
+		scope.launch {
+			connectivityManager.isOnline.collect {
+				lookupCache.clear()
+			}
+		}
+	}
+
 	override fun lookup(hostname: String): List<InetAddress> {
+		val fromCache = lookupCache.get(hostname)
+		if (fromCache == null) {
+			val toCache = resolve(hostname)
+			lookupCache.put(hostname, toCache)
+			return toCache
+		}
+		return fromCache
+	}
+
+	fun resolve(hostname: String): List<InetAddress> {
 		val serverDomain = settings.getStringOrNull("instanceUrl")?.toUri()?.host
 		val systemAddresses = Dns.SYSTEM.lookup(hostname)
 		if (hostname == serverDomain) {
@@ -65,22 +98,17 @@ class NavicularDnsResolver(
 			val localResolution = lookupResult.firstOrNull { it.isLocalOrPrivate() }
 			val port = hostMap[localResolution?.hostAddress]?.extractPort()
 
-			val newUrl = request.url.newBuilder()
-				.build("http", port)
+			val newUrl = request.url.newBuilder().build("http", port)
 
 			if (localResolution != null && request.isHttps) {
-				request = request.newBuilder()
-					.url(newUrl)
-					.build()
+				request = request.newBuilder().url(newUrl).build()
 			}
 
 			try {
 				chain.proceed(request)
 			} catch (e: Exception) {
 				if (localResolution == null && request.isHttps) {
-					val fallbackRequest = request.newBuilder()
-						.url(newUrl)
-						.build()
+					val fallbackRequest = request.newBuilder().url(newUrl).build()
 
 					chain.proceed(fallbackRequest)
 				} else {
@@ -98,15 +126,11 @@ class NavicularDnsResolver(
 		return this.build()
 	}
 
-	private fun String.extractHost(): String = this.substringAfter("://")
-		.substringBefore(":")
+	private fun String.extractHost(): String = this.substringAfter("://").substringBefore(":")
 
 	private fun String.extractPort(): Int? = this.substringAfterLast(":").toIntOrNull()
 }
 
 fun InetAddress.isLocalOrPrivate(): Boolean {
-	return this.isLoopbackAddress ||
-		this.isSiteLocalAddress ||
-		this.isLinkLocalAddress ||
-		this.isAnyLocalAddress
+	return this.isLoopbackAddress || this.isSiteLocalAddress || this.isLinkLocalAddress || this.isAnyLocalAddress
 }
