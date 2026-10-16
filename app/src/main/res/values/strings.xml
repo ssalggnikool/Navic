@@ -537,4 +537,8 @@
 	<string name="alt_addresses_edit_address">Edit address</string>
 	<string name="alt_addresses_dialog_hint">Insert a bare IP or hostname (specifying the port is allowed):</string>
 	<string name="alt_addresses_text_field_placeholder">Eg. 192.168.1.6</string>
+    <string name="title_commit_hash">Commit hash</string>
+	<string name="title_commit_message">Commit message</string>
+	<string name="title_branch_name">Branch name</string>
+	<string name="title_commit_author">Commit author</string>
 </resources>
