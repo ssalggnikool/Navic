@@ -68,7 +68,7 @@ fun SettingsAlternativeAddressesScreen() {
 	}
 
 	Scaffold(
-		topBar = { NestedTopBar({ Text("Alternative addresses") }) },
+		topBar = { NestedTopBar({ Text(stringResource(R.string.option_alternate_addresses)) }) },
 		floatingActionButton = {
 			FloatingActionButton(
 				onClick = {
@@ -172,15 +172,15 @@ private fun AddressRow(
 	if (isEditing) {
 		AlertDialog(
 			onDismissRequest = { isEditing = false },
-			title = { Text("Edit address") },
+			title = { Text(stringResource(R.string.alt_addresses_edit_address)) },
 			text = {
 				Column {
-					Text("Insert a bare IP or hostname (specifying the port is allowed):")
+					Text(stringResource(R.string.alt_addresses_dialog_hint))
 					Spacer(modifier = Modifier.height(8.dp))
 					OutlinedTextField(
 						value = value,
 						onValueChange = onValueChanged,
-						placeholder = { Text("Eg. 192.168.1.6") },
+						placeholder = { Text(stringResource(R.string.alt_addresses_text_field_placeholder)) },
 						singleLine = true,
 						modifier = Modifier.fillMaxWidth()
 					)

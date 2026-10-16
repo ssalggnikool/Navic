@@ -104,8 +104,8 @@ fun SettingsConnectionOptionsScreen() {
 				}
 				SettingsGroup {
 					SettingsNavItem(
-						content = { Text("Alternate addresses") },
-						supportingContent = { Text("Fallback addresses to reach the music server") },
+						content = { Text(stringResource(R.string.option_alternate_addresses)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_alternative_addresses)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(
 							index = 0,
 							count = 3
