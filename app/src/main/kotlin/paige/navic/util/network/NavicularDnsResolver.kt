@@ -31,7 +31,7 @@ class NavicularDnsResolver(
 	private companion object {
 		val lookupCache = TTLLruCache<String, List<InetAddress>>(
 			maxSize = 50,
-			defaultTtlMillis = TimeUnit.MINUTES.toMinutes(5)
+			defaultTtlMillis = TimeUnit.MINUTES.toMillis(5)
 		)
 		val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 	}
@@ -39,7 +39,7 @@ class NavicularDnsResolver(
 	init {
 		scope.launch {
 			connectivityManager.isOnline.collect {
-				lookupCache.clear()
+				if (it) lookupCache.clear()
 			}
 		}
 	}
