@@ -117,17 +117,7 @@ class NavicularDnsResolver(
 				request = request.newBuilder().url(newUrl).build()
 			}
 
-			try {
-				chain.proceed(request)
-			} catch (e: Exception) {
-				if (localResolution == null && request.isHttps) {
-					val fallbackRequest = request.newBuilder().url(newUrl).build()
-
-					chain.proceed(fallbackRequest)
-				} else {
-					throw e
-				}
-			}
+			chain.proceed(request)
 		}
 
 	private fun HttpUrl.Builder.build(scheme: String, port: Int? = null): HttpUrl {
