@@ -28,12 +28,14 @@ object PlaybackCapabilities {
 		"raw" to "wav"
 	)
 	private val CONTAINER_MAPPING = mapOf(
-		"mp4a-latm" to "mp4"
+		"mp4a-latm" to "mp4",
+		"alac" to "mp4",
+		"opus" to "ogg"
 	)
 	private val SANE_CODECS = listOf("mp3", "flac", "vorbis", "opus")
 	private val SUPPORTED_PROTOCOLS = listOf(ClientInfo.Protocol.HTTP)
 
-	fun getTranscodingProfiles(): List<ClientInfo.TranscodingProfile> {
+	private fun getTranscodingProfiles(): List<ClientInfo.TranscodingProfile> {
 		return buildList {
 			for (codec in SANE_CODECS) {
 				ClientInfo.TranscodingProfile(
@@ -58,21 +60,25 @@ object PlaybackCapabilities {
 		val nativeProfiles = nativeProfilesPair.map { it.first }
 		val ffmpegProfiles = getFfmpegDirectPlayProfiles()
 
+		val allProfiles = nativeProfiles + ffmpegProfiles
+
+		val mergedProfiles = allProfiles
+			.flatMap { profile -> profile.containers.map { container -> profile.copy(containers = listOf(container)) } }
+			.groupBy { it.containers.first() }
+			.values
+			.map { group ->
+				group.reduce { acc, profile -> acc.merge(profile) }
+			}
+
 		return baseClientInfo.copy(
-			directPlayProfiles = (nativeProfiles + ffmpegProfiles).groupBy { it.containers }.values.map {
-				it.reduce { acc, profile ->
-					acc.merge(
-						profile
-					)
-				}
-			}.distinctBy { it.audioCodecs },
+			directPlayProfiles = mergedProfiles,
 			codecProfiles = audioLimitations.distinctBy { it.name },
 			transcodingProfiles = transcodingProfiles
 		)
 	}
 
 
-	fun getFfmpegDirectPlayProfiles(): List<ClientInfo.DirectPlayProfile> {
+	private fun getFfmpegDirectPlayProfiles(): List<ClientInfo.DirectPlayProfile> {
 		if (!FfmpegLibrary.isAvailable()) {
 			Logger.w(TAG, "ffmpeg is currently unavaliable")
 			return emptyList()
@@ -103,7 +109,7 @@ object PlaybackCapabilities {
 	}
 
 	// what Android supports for audio codecs
-	fun getNativeProfilesWithLimitations(): List<Pair<ClientInfo.DirectPlayProfile, ClientInfo.CodecProfile?>> {
+	private fun getNativeProfilesWithLimitations(): List<Pair<ClientInfo.DirectPlayProfile, ClientInfo.CodecProfile?>> {
 		val codecList = MediaCodecList(MediaCodecList.ALL_CODECS)
 		val codecInfos = try {
 			codecList.codecInfos
@@ -179,7 +185,7 @@ object PlaybackCapabilities {
 }
 
 
-fun ClientInfo.DirectPlayProfile.merge(other: ClientInfo.DirectPlayProfile): ClientInfo.DirectPlayProfile {
+private fun ClientInfo.DirectPlayProfile.merge(other: ClientInfo.DirectPlayProfile): ClientInfo.DirectPlayProfile {
 	return this.copy(
 		audioCodecs = ((this.audioCodecs) + (other.audioCodecs)).distinct(),
 		containers = ((this.containers) + (other.containers)).distinct()
