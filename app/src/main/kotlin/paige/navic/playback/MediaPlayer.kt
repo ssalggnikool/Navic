@@ -74,6 +74,7 @@ class MediaPlayer(
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
 ) {
+	private val clientInfo = PlaybackCapabilities.buildClientInfo()
 	private val _uiState = MutableStateFlow(PlayerUiState())
 	val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 	private val scope = CoroutineScope(Dispatchers.Main)
@@ -196,8 +197,6 @@ class MediaPlayer(
 	private fun getStreamUrl(id: String): Uri = runBlocking {
 		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0, estimateContentLength = true)
 		try {
-			val clientInfo = PlaybackCapabilities.buildClientInfo()
-
 			val transcodeDecision = sessionManager.api.getTranscodeDecision(
 				id,
 				MediaType.SONG,
