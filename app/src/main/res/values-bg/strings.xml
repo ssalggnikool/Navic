@@ -66,7 +66,7 @@
     <string name="title_network">Мрежа</string>
     <string name="title_lyric_providers">Снабдител на текст</string>
     <string name="subtitle_bottom_app_bar">Променете долния бар и мини възпроизводителия</string>
-    <string name="subtitle_now_playing">Променете "Сега възпроизвежда" и текст на песента екрани</string>
+    <string name="subtitle_now_playing">Променете Сега възпроизвежда и текст на песента екрани</string>
     <string name="subtitle_about">Информация за приложението, версия, актуализации и лицензи</string>
     <string name="subtitle_playlist">Плейлист</string>
     <string name="subtitle_gapless_playback">Експериментално. Нужно е рестартиране на приложението. Може да има конфликт с разтоварване на звука за някои устройства</string>

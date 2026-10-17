@@ -501,7 +501,7 @@
     <string name="option_proxy_settings">Налаштування проксі-сервера</string>
     <string name="option_proxy_url">URL-адреса проксі-сервера</string>
     <string name="option_ignore_ssl_certificates">Ігнорувати SSL-сертифікати</string>
-    <string name="action_edit">редагувати</string>
+    <string name="action_edit">Редагувати</string>
     <string name="info_proxy_url_placeholder">Наприклад, http://127.0.0.1:8080</string>
     <string name="info_incorrect_proxy_url_format">Неправильний формат URL-адреси проксі-сервера. Підтримуються лише протоколи HTTP та SOCKS.</string>
     <string name="info_content_unavailable">Тут нічого немає</string>
@@ -520,4 +520,7 @@
     <string name="option_disable_rpc_when_power_saving">Вимкнути статус активності в режимі енергозбереження</string>
     <string name="action_reset_to_default">Скинути до значень за замовчуванням</string>
     <string name="action_edit_discord_app_id">Змінити ID застосунку Discord</string>
+    <string name="title_delete_radio">Видалити радіостанцію?</string>
+    <string name="title_update_radio">Оновити радіостанцію</string>
+    <string name="notice_deleted_radio">Радіостанцію видалено.</string>
 </resources>
