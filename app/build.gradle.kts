@@ -31,13 +31,14 @@ val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
 		.map { it.toBoolean() }
 		.getOrElse(false)
 
-	fun String?.wrapString(): String {
-		return if (this == null) {
-			"null"
-		} else {
-			"\"${this.replace("\n", "").replace("\"", "\\")}\""
-		}
-	}
+	fun String?.wrapString(): String = this?.let {
+		val escaped = it
+			.removeSuffix("\n")
+			.replace("\\", "\\\\")
+			.replace("\n", "\\n")
+			.replace("\"", "\\\"")
+		"\"$escaped\""
+	} ?: "null"
 
 	fun executeCommand(vararg args: String): String? {
 		val command = Runtime.getRuntime().exec(args)
@@ -96,7 +97,8 @@ kotlin {
 	jvmToolchain(21)
 }
 
-val isTaskRelease = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
+val isTaskRelease =
+	gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
 
 val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdroid")
 	.map { it.toBoolean() }
