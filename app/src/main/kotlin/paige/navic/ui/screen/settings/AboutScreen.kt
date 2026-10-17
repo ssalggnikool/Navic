@@ -111,7 +111,12 @@ fun SettingsAboutScreen() {
 						onClick = { linkToOpen = commitLink },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4),
 						content = { Text(stringResource(R.string.title_commit_message)) },
-						supportingContent = { Text(BuildInfo.GIT_COMMIT_MESSAGE ?: "unknown") }
+						supportingContent = {
+							Text(
+								BuildInfo.GIT_COMMIT_MESSAGE?.split("\n")?.firstOrNull()
+									?: "unknown"
+							)
+						}
 					)
 					SettingsNavItem(
 						onClick = { linkToOpen = "${GITHUB_BASE_URL}tree/${branchName}" },
@@ -120,7 +125,10 @@ fun SettingsAboutScreen() {
 						supportingContent = { Text(BuildInfo.GIT_BRANCH_NAME ?: "unknown") }
 					)
 					SettingsNavItem(
-						onClick = { linkToOpen = "${GITHUB_BASE_URL}commits/${branchName}/?author=${commitAuthor}" },
+						onClick = {
+							linkToOpen =
+								"${GITHUB_BASE_URL}commits/${branchName}/?author=${commitAuthor}"
+						},
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4),
 						content = { Text(stringResource(R.string.title_commit_author)) },
 						supportingContent = { Text(commitAuthor) }
