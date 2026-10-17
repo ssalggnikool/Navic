@@ -437,7 +437,7 @@
     </plurals>
     <string name="title_chat">Nettprat</string>
     <string name="info_content_unavailable">Ingenting her</string>
-    <string name="action_edit">rediger</string>
+    <string name="action_edit">Rediger</string>
     <string name="option_ignore_ssl_certificates">Ignorer SSL sertifikater</string>
     <string name="option_proxy_url">Nettadresse for mellomtjener</string>
     <string name="option_proxy_settings">Instillinger for mellomtjener</string>
@@ -445,7 +445,7 @@
     <string name="action_send_message">Send melling</string>
     <string name="action_copy">Kopier</string>
     <string name="info_equalizer_unsupported">Din enhet støtter ikke denne funksjonen.</string>
-    <string name="info_listening_stats_ratio">%1$s av total lyttetid</string>
+    <string name="info_listening_stats_ratio">%1$s%% av total lyttetid</string>
     <string name="option_queue_info_type">Køinformasjon</string>
     <string name="option_enable_ratings">Slå på vurderinger</string>
     <string name="option_equalizer_mode_external">Ekstern</string>

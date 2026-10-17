@@ -447,7 +447,7 @@
     <string name="title_statistics">Statistiche</string>
     <string name="title_top_songs">Top canzoni</string>
     <string name="title_top_artists">Top artisti</string>
-    <string name="title_top_albums">Tom album</string>
+    <string name="title_top_albums">Top album</string>
     <string name="subtitle_notifications_denied">Devi concedere a Navic l\'autorizzazione alle notifiche per ricevere le notifiche di download e sincronizzazione.</string>
     <string name="subtitle_enable_ratings">Abilita valutazioni 5-dtelle per la musica</string>
     <string name="option_account_instance">Url istanza</string>
@@ -508,4 +508,7 @@
     <string name="option_disable_rpc_when_power_saving">Disattiva se il risparmio energetico è attivo</string>
     <string name="action_reset_to_default">Reset al default</string>
     <string name="action_edit_discord_app_id">Modifica l\'ID dell\' app Discord</string>
+    <string name="title_delete_radio">Cancellare la radio?</string>
+    <string name="title_update_radio">Aggiorna radio</string>
+    <string name="notice_deleted_radio">Radio cancellata.</string>
 </resources>
