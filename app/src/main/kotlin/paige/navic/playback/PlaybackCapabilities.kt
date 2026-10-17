@@ -6,14 +6,11 @@
 
 package paige.navic.playback
 
-import android.content.res.Resources
 import android.media.MediaCodecList
-import android.os.Build
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.decoder.ffmpeg.FfmpegLibrary
 import dev.zt64.subsonic.api.model.ClientInfo
-import paige.navic.R
 import paige.navic.util.Logger
 
 @OptIn(UnstableApi::class)
@@ -21,12 +18,18 @@ object PlaybackCapabilities {
 	val KNOWN_SUPPORTED_FFMPEG_DECODERS = listOf(
 		"flac", "alac"
 	)
+	val CORRECTED_CODEC_NAME = mapOf(
+		"mp4a-latm" to "aac"
+	)
+	val CONTAINER_MAPPING = mapOf(
+		"mp4a-latm" to "mp4"
+	)
 	val SUPPORTED_PROTOCOLS = listOf(ClientInfo.Protocol.HTTP)
 
 	fun buildSubsonicClientInfo(transcodingProfiles: List<ClientInfo.TranscodingProfile> = emptyList()): ClientInfo {
 		val baseClientInfo = ClientInfo(
-			name = Resources.getSystem().getString(R.string.app_name), // lol
-			platform = "Android/${Build.VERSION.CODENAME}"
+			name = "Navic",
+			platform = "Android"
 		)
 
 		val nativeProfilesPair = getNativeDirectPlayProfiles()
@@ -41,8 +44,8 @@ object PlaybackCapabilities {
 						profile
 					)
 				}
-			},
-			codecProfiles = audioLimitations,
+			}.distinctBy { it.audioCodecs },
+			codecProfiles = audioLimitations.distinctBy { it.name },
 			transcodingProfiles = transcodingProfiles
 		)
 	}
@@ -77,7 +80,7 @@ object PlaybackCapabilities {
 						"flac" -> 8
 						else -> null
 					}
-				)
+				).let(::add)
 			}
 		}
 	}
@@ -90,12 +93,16 @@ object PlaybackCapabilities {
 			for (codecInfo in codecInfos) {
 				if (codecInfo.isEncoder) continue
 
-				val name = codecInfo.name
 				val supportedTypes = codecInfo.supportedTypes
 
 				for (mimetype in supportedTypes) {
-					// if ffmpeg supports it, then it's just irrelevant what MediaCodec returns, so skip it
-					if (!mimetype.startsWith("audio/") || FfmpegLibrary.supportsFormat(mimetype)) continue
+					if (!mimetype.startsWith("audio/")) {
+						continue
+					}
+					val strippedMimetype = mimetype.removePrefix("audio/")
+					val codec = CORRECTED_CODEC_NAME.getOrDefault(strippedMimetype, strippedMimetype)
+					val container = CONTAINER_MAPPING.getOrDefault(strippedMimetype, strippedMimetype)
+
 					try {
 						val capabilities = codecInfo.getCapabilitiesForType(mimetype)
 						val audioCaps = capabilities.audioCapabilities
@@ -105,12 +112,12 @@ object PlaybackCapabilities {
 
 							Pair(
 								ClientInfo.DirectPlayProfile(
-									audioCodecs = listOf(name),
+									audioCodecs = listOf(codec),
 									protocols = SUPPORTED_PROTOCOLS,
-									containers = listOf(name),
+									containers = listOf(container),
 									maxAudioChannels = maxChannels
 								), ClientInfo.CodecProfile(
-									name = name,
+									name = codec,
 									type = ClientInfo.CodecType.AudioCodec,
 									limitations = listOf(
 										ClientInfo.CodecProfile.Limitation(
@@ -128,7 +135,7 @@ object PlaybackCapabilities {
 							).let(::add)
 						}
 					} catch (e: Exception) {
-						Logger.e("PlaybackCapabilities", "unable to query codec info for $name", e)
+						Logger.e("PlaybackCapabilities", "unable to query codec info for ${codecInfo.name}", e)
 					}
 				}
 			}
@@ -139,7 +146,7 @@ object PlaybackCapabilities {
 
 fun ClientInfo.DirectPlayProfile.merge(other: ClientInfo.DirectPlayProfile): ClientInfo.DirectPlayProfile {
 	return this.copy(
-		audioCodecs = (this.audioCodecs) + (other.audioCodecs),
-		containers = (this.containers) + (other.containers)
+		audioCodecs = ((this.audioCodecs) + (other.audioCodecs)).distinct(),
+		containers = ((this.containers) + (other.containers)).distinct()
 	)
 }

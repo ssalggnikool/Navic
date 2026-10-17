@@ -79,7 +79,7 @@ fun SettingsConnectionOptionsScreen() {
 	}
 	val updateProxyUrl: (String) -> Unit = { url ->
 		proxyUrlField = url
-		if (PROXY_URL_REGEX.matches(proxyUrlField)) {
+		if (PROXY_URL_REGEX.matches(proxyUrlField) || proxyUrlField.isBlank()) {
 			preferenceManager.proxyUrl = url
 			sessionManager.refreshClient()
 		}
