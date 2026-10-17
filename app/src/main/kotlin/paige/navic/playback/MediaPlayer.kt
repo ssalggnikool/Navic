@@ -196,16 +196,7 @@ class MediaPlayer(
 	private fun getStreamUrl(id: String): Uri = runBlocking {
 		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0, estimateContentLength = true)
 		try {
-			// TODO: remove hardcoded transcoding profile
-			val clientInfo = PlaybackCapabilities.buildSubsonicClientInfo(
-				listOf(
-					ClientInfo.TranscodingProfile(
-						audioCodec = "opus",
-						container = "opus",
-						protocol = ClientInfo.Protocol.HTTP,
-					)
-				)
-			)
+			val clientInfo = PlaybackCapabilities.buildClientInfo()
 
 			val transcodeDecision = sessionManager.api.getTranscodeDecision(
 				id,
