@@ -31,6 +31,7 @@ object PlaybackCapabilities {
 		"mp4a-latm" to "mp4",
 		"alac" to "mp4",
 		"opus" to "ogg",
+		"mpeg" to "mp3",
 		"vorbis" to "ogg",
 		"raw" to "wav"
 	)
@@ -138,11 +139,11 @@ object PlaybackCapabilities {
 					if (!mimetype.startsWith(MIMETYPE_PREFIX)) {
 						continue
 					}
+					
 					val strippedMimetype = mimetype.removePrefix(MIMETYPE_PREFIX)
+						.lowercase()
 					val codec =
 						CORRECTED_CODEC_NAME.getOrDefault(strippedMimetype, strippedMimetype)
-							.lowercase()
-							.substringBefore("-") // there are some codecs with weird variations, like g711 and eac3, I believe servers don't care about those
 
 					if (WEIRD_CODECS.contains(codec)) {
 						continue
@@ -150,6 +151,7 @@ object PlaybackCapabilities {
 
 					val container =
 						CONTAINER_MAPPING.getOrDefault(strippedMimetype, strippedMimetype)
+							.lowercase()
 
 					try {
 						val capabilities = codecInfo.getCapabilitiesForType(mimetype)
