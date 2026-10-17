@@ -23,10 +23,6 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import dev.zt64.subsonic.api.model.ClientInfo
 import dev.zt64.subsonic.api.model.MediaType
-import dev.zt64.subsonic.client.SubsonicClient
-import io.ktor.http.URLBuilder
-import io.ktor.http.parameters
-import io.ktor.http.path
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -200,23 +196,25 @@ class MediaPlayer(
 	private fun getStreamUrl(id: String): Uri = runBlocking {
 		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0, estimateContentLength = true)
 		try {
-			val transcodeDecision = sessionManager.api.getTranscodeDecision(
-				id,
-				MediaType.SONG,
-				// TODO: remove hardcoded transcoding profile
-				PlaybackCapabilities.buildSubsonicClientInfo(
-					listOf(
-						ClientInfo.TranscodingProfile(
-							audioCodec = "opus",
-							container = "opus",
-							protocol = ClientInfo.Protocol.HTTP,
-						)
+			// TODO: remove hardcoded transcoding profile
+			val clientInfo = PlaybackCapabilities.buildSubsonicClientInfo(
+				listOf(
+					ClientInfo.TranscodingProfile(
+						audioCodec = "opus",
+						container = "opus",
+						protocol = ClientInfo.Protocol.HTTP,
 					)
 				)
 			)
+
+			val transcodeDecision = sessionManager.api.getTranscodeDecision(
+				id,
+				MediaType.SONG,
+				clientInfo
+			)
 			val streamUrl = transcodeDecision.transcodeParams.let { params ->
 				if (!transcodeDecision.canDirectPlay && transcodeDecision.canTranscode && params != null) {
-					return@let sessionManager.api.getTranscodeUrl(id, MediaType.SONG, 0, params)
+					return@let sessionManager.api.getTranscodeStreamUrl(id, MediaType.SONG, 0, params)
 				} else {
 					return@let defaultStreamUrl
 				}
@@ -868,30 +866,5 @@ class MediaPlayer(
 		}
 
 		return builder.build()
-	}
-
-	// TODO: pr to subsonic-kotlin
-	private fun SubsonicClient.getTranscodeUrl(
-		id: String,
-		mediaType: MediaType,
-		offset: Int,
-		params: String
-	): String {
-		val field = this.javaClass.getDeclaredField("baseUrl").apply {
-			isAccessible = true
-		}
-		val baseUrl = field.get(this) as String
-
-		val url = URLBuilder(baseUrl).apply {
-			path("getTranscodeStream")
-			parameters {
-				append("id", id)
-				append("mediaType", mediaType.name.lowercase())
-				append("offset", offset.toString())
-				append("params", params)
-			}
-		}
-
-		return url.toString()
 	}
 }
