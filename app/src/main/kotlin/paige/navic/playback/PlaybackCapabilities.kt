@@ -30,8 +30,11 @@ object PlaybackCapabilities {
 	private val CONTAINER_MAPPING = mapOf(
 		"mp4a-latm" to "mp4",
 		"alac" to "mp4",
-		"opus" to "ogg"
+		"opus" to "ogg",
+		"vorbis" to "ogg",
+		"raw" to "wav"
 	)
+	private val WEIRD_CODECS = listOf("g711", "gsm")
 	private val SANE_CODECS = listOf("mp3", "flac", "vorbis", "opus")
 	private val SUPPORTED_PROTOCOLS = listOf(ClientInfo.Protocol.HTTP)
 
@@ -40,7 +43,7 @@ object PlaybackCapabilities {
 			for (codec in SANE_CODECS) {
 				ClientInfo.TranscodingProfile(
 					audioCodec = codec,
-					container = codec,
+					container = CONTAINER_MAPPING.getOrDefault(codec, codec),
 					protocol = SUPPORTED_PROTOCOLS.first()
 				).let(::add)
 			}
@@ -63,7 +66,15 @@ object PlaybackCapabilities {
 		val allProfiles = nativeProfiles + ffmpegProfiles
 
 		val mergedProfiles = allProfiles
-			.flatMap { profile -> profile.containers.map { container -> profile.copy(containers = listOf(container)) } }
+			.flatMap { profile ->
+				profile.containers.map { container ->
+					profile.copy(
+						containers = listOf(
+							container
+						)
+					)
+				}
+			}
 			.groupBy { it.containers.first() }
 			.values
 			.map { group ->
@@ -130,6 +141,13 @@ object PlaybackCapabilities {
 					val strippedMimetype = mimetype.removePrefix(MIMETYPE_PREFIX)
 					val codec =
 						CORRECTED_CODEC_NAME.getOrDefault(strippedMimetype, strippedMimetype)
+							.lowercase()
+							.substringBefore("-") // there are some codecs with weird variations, like g711 and eac3, I believe servers don't care about those
+
+					if (WEIRD_CODECS.contains(codec)) {
+						continue
+					}
+
 					val container =
 						CONTAINER_MAPPING.getOrDefault(strippedMimetype, strippedMimetype)
 
