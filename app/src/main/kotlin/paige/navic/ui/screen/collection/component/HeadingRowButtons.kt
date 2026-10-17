@@ -34,7 +34,7 @@ import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.database.entity.DownloadStatus
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainSongCollection
@@ -45,14 +45,14 @@ import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.DownloadOff
 import paige.navic.ui.icons.outlined.Shuffle
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.theme.defaultFont
 
 @Composable
 fun CollectionDetailScreenHeadingRowButtons(
 	collection: DomainSongCollection
 ) {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val snackBarManager = koinInject<SnackBarManager>()
 	val downloadManager = koinInject<DownloadManager>()
 	val scope = rememberCoroutineScope()

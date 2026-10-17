@@ -27,7 +27,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import kotlinx.collections.immutable.ImmutableList
+import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.collections.immutable.toPersistentList
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -41,7 +41,7 @@ import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.layout.ArtGridItem
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -75,15 +75,17 @@ fun ArtistListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val artistsState by viewModel.artistsState.collectAsState()
-	val selectedArtist by viewModel.selectedArtist.collectAsState()
-	val selectedArtistAlbums by viewModel.selectedArtistAlbums.collectAsState()
+	val state by viewModel.uiState.collectAsState()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
+
+	val selectedArtist = state.data?.selected
+	val selectedArtistAlbums = null
 	val selectedSorting by viewModel.listType.collectAsState()
 	val selectedFilters by viewModel.selectedFilters.collectAsState()
-	val starred by viewModel.starred.collectAsState()
+	val letterCounts by viewModel.letterCounts.collectAsState()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 
 	val actions: @Composable RowScope.() -> Unit = {
 		ArtistListScreenSortButton(
@@ -133,13 +135,16 @@ fun ArtistListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = artistsState !is UiState.Loading,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshArtists(true) },
-			key = artistsState
+			key = state
 		) {
+			if (lazyPagingItems == null) return@PullToRefreshBox
+
 			ArtistListScreenContent(
-				state = artistsState,
-				starred = starred,
+				artists = lazyPagingItems,
+				letterCounts = letterCounts,
+				starred = selectedArtist?.starredAt != null,
 				selectedSorting = selectedSorting,
 				selectedArtist = selectedArtist,
 				selectedArtistAlbums = selectedArtistAlbums,
@@ -158,7 +163,7 @@ fun ArtistListScreen(
 	}
 
 	ErrorSnackBar(
-		error = (artistsState as? UiState.Error)?.error,
+		error = (state as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 }
@@ -169,7 +174,7 @@ fun ArtistListScreenGridItem(
 	tab: String,
 	artist: DomainArtist,
 	selected: Boolean,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	starred: Boolean,
 	onSelect: () -> Unit,
 	onDeselect: () -> Unit,

@@ -20,10 +20,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import paige.navic.R
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.SyncActionDao
-import paige.navic.data.database.entity.SyncActionEntity
-import paige.navic.data.database.entity.SyncActionType
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.SyncActionDao
+import paige.navic.database.entity.SyncActionEntity
+import paige.navic.database.entity.SyncActionType
 import paige.navic.domain.repository.DbRepository
 import paige.navic.util.Logger
 import kotlin.time.Clock

@@ -42,17 +42,20 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.json.Json
 import paige.navic.R
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.DownloadDao
-import paige.navic.data.database.dao.LyricDao
-import paige.navic.data.database.entity.DownloadEntity
-import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.data.database.entity.LyricEntity
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.DownloadDao
+import paige.navic.database.dao.LyricDao
+import paige.navic.database.dao.SongDao
+import paige.navic.database.entity.DownloadEntity
+import paige.navic.database.entity.DownloadStatus
+import paige.navic.database.entity.LyricEntity
+import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.repository.LyricsRepository
 import paige.navic.util.Logger
-import paige.navic.util.createHttpClientWithPreferences
+import paige.navic.util.network.NavicularDnsResolver
+import paige.navic.util.network.createHttpClientWithPreferences
 import coil3.PlatformContext as CoilPlatformContext
 
 class DownloadManager(
@@ -60,6 +63,7 @@ class DownloadManager(
 	private val imageLoader: ImageLoader,
 	private val downloadDao: DownloadDao,
 	private val albumDao: AlbumDao,
+	private val songDao: SongDao,
 	private val storageManager: StorageManager,
 	private val lyricsRepository: LyricsRepository,
 	private val lyricDao: LyricDao,
@@ -67,10 +71,11 @@ class DownloadManager(
 	private val preferenceManager: PreferenceManager,
 	private val connectivityManager: ConnectivityManager,
 	private val notificationManager: NotificationManager,
+	private val dnsResolver: NavicularDnsResolver,
 	private val context: Context
 ) {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-	private val client = createHttpClientWithPreferences(preferenceManager).apply {
+	private val client = createHttpClientWithPreferences(preferenceManager, dnsResolver).apply {
 		config {
 			HttpResponseValidator {
 				validateResponse { response ->
@@ -118,7 +123,7 @@ class DownloadManager(
 	private var totalSongsToDownload = 0
 	private var completedSongsDownloaded = 0
 
-	private suspend fun updateDownloadNotification() {
+	private fun updateDownloadNotification() {
 		if (totalSongsToDownload == 0) return
 
 		if (completedSongsDownloaded >= totalSongsToDownload) {
@@ -223,13 +228,18 @@ class DownloadManager(
 			.forEach { downloadSong(it) }
 	}
 
-	fun downloadEntireLibrary(songs: List<DomainSong>) {
+	// TODO: rewrite this turd, preferably using flows. what the fuck is this
+	fun downloadEntireLibrary() {
 		if (isDownloadingLibrary.value) return
 
 		libraryDownloadJob = scope.launch(Dispatchers.IO) {
 			try {
 				isDownloadingLibrary.value = true
 				libraryDownloadProgress.value = 0f
+
+				val songs = songDao.getAllSongIds()
+					.mapNotNull { id -> songDao.getSongById(id) }
+					.map { it.toDomainModel() }
 
 				val songsToDownload = songs.filter { !isDownloaded(it.id) }
 				val totalToDownload = songsToDownload.size
@@ -435,7 +445,7 @@ class DownloadManager(
 		Logger.i("DownloadManager", "caching lyrics for ${song.id}")
 		try {
 			val lyricsResult = lyricsRepository.fetchLyrics(song)
-			if (lyricsResult != null && lyricsResult.rawContent != null) {
+			if (lyricsResult?.rawContent != null) {
 				lyricDao.insertLyrics(
 					LyricEntity(
 						songId = song.id,

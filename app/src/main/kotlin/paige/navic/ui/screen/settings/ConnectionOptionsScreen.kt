@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,7 +39,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
-import paige.navic.util.PROXY_URL_REGEX
+import paige.navic.util.network.PROXY_URL_REGEX
 
 @Composable
 fun SettingsConnectionOptionsScreen() {
@@ -47,12 +48,12 @@ fun SettingsConnectionOptionsScreen() {
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	var proxyUrlField by mutableStateOf(preferenceManager.proxyUrl)
-	val proxyUrlHasErrors by derivedStateOf {
-		if (proxyUrlField.isNotBlank()) {
-			!PROXY_URL_REGEX.matches(proxyUrlField)
-		} else {
-			false
+	var proxyUrlField by remember {
+		mutableStateOf(preferenceManager.proxyUrl)
+	}
+	val proxyUrlHasErrors by remember {
+		derivedStateOf {
+			proxyUrlField.isNotBlank() && !PROXY_URL_REGEX.matches(proxyUrlField)
 		}
 	}
 	val updateProxyUrl: (String) -> Unit = { url ->
@@ -63,7 +64,9 @@ fun SettingsConnectionOptionsScreen() {
 		}
 	}
 
-	var sslNoopChecked by mutableStateOf(preferenceManager.dangerousSslNoopEnabled)
+	var sslNoopChecked by remember {
+		mutableStateOf(preferenceManager.dangerousSslNoopEnabled)
+	}
 	val updateSslNoop: (Boolean) -> Unit = { bool ->
 		sslNoopChecked = bool
 		preferenceManager.dangerousSslNoopEnabled = bool
@@ -100,22 +103,35 @@ fun SettingsConnectionOptionsScreen() {
 					)
 				}
 				SettingsGroup {
+					SettingsNavItem(
+						content = { Text(stringResource(R.string.option_alternate_addresses)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_alternative_addresses)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 0,
+							count = 3
+						),
+						onClick = dropUnlessResumed {
+							if (Screen.Settings.AlternativeAddresses !in backStack) {
+								backStack.add(Screen.Settings.AlternativeAddresses)
+							}
+						}
+					)
 					SettingsToggleItem(
 						checked = sslNoopChecked,
 						onCheckedChange = updateSslNoop,
 						content = { Text(stringResource(R.string.option_ignore_ssl_certificates)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_ignore_ssl_certificates)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = 0,
-							count = 2
+							index = 1,
+							count = 3
 						)
 					)
 					SettingsNavItem(
 						content = { Text(stringResource(R.string.option_custom_headers)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_custom_headers)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = 1,
-							count = 2
+							index = 2,
+							count = 3
 						),
 						onClick = dropUnlessResumed {
 							if (Screen.Settings.CustomHeaders !in backStack) {

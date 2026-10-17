@@ -53,7 +53,7 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
@@ -74,7 +74,7 @@ import paige.navic.ui.icons.outlined.History
 import paige.navic.ui.icons.outlined.Lock
 import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.icons.outlined.Queue
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.ErrorBox
@@ -128,16 +128,12 @@ fun SearchScreen(
 	val artistListViewModel = koinViewModel<ArtistListViewModel> {
 		parametersOf(DomainArtistListType.AlphabeticalByName)
 	}
-	val artistListSelection by artistListViewModel.selectedArtist.collectAsState()
-	val artistListSelectionAlbums by artistListViewModel.selectedArtistAlbums.collectAsState()
-	val artistListStarred by artistListViewModel.starred.collectAsState()
+	val artistListSelection by artistListViewModel.uiState.collectAsState()
 
 	val albumListViewModel = koinViewModel<AlbumListViewModel> {
 		parametersOf(DomainAlbumListType.AlphabeticalByName)
 	}
-	val albumListSelection by albumListViewModel.selectedAlbum.collectAsState()
-	val albumListStarred by albumListViewModel.starred.collectAsState()
-	val selectedAlbumRating by albumListViewModel.rating.collectAsStateWithLifecycle()
+	val albumListSelection by albumListViewModel.uiState.collectAsState()
 
 	val query = viewModel.searchQuery
 	val state by viewModel.searchState.collectAsState()
@@ -145,7 +141,7 @@ fun SearchScreen(
 	val isOnline by viewModel.isOnline.collectAsState()
 	val downloadedSongs by viewModel.downloadedSongs.collectAsState()
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val backStack = LocalNavStack.current
 
 	var selectedCategory by remember { mutableStateOf(SearchCategory.ALL) }
@@ -255,7 +251,7 @@ fun SearchScreen(
 
 									LaunchedEffect(dismissState.currentValue) {
 										if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-											if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+											if (player.checkDuplicate(song.id, preferenceManager)) {
 												songToQueue = song
 											} else {
 												player.addToQueueSingle(song)
@@ -354,14 +350,14 @@ fun SearchScreen(
 												onDismissRequest = { viewModel.clearSelectedSong() },
 												song = song,
 												onPlayNext = {
-													if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+													if (player.checkDuplicate(song.id, preferenceManager)) {
 														songToQueue = song
 													} else {
 														player.playNextSingle(song)
 													}
 												},
 												onAddToQueue = {
-													if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+													if (player.checkDuplicate(song.id, preferenceManager)) {
 														songToQueue = song
 													} else {
 														player.addToQueueSingle(song)
@@ -397,8 +393,7 @@ fun SearchScreen(
 							horizontalSection(
 								title = R.string.title_albums,
 								destination = Screen.AlbumList(true),
-								state = UiState.Success(albums),
-								key = { it.id },
+								state = albums,
 								seeAll = false
 							) { album ->
 								AlbumListScreenGridItem(
@@ -406,15 +401,19 @@ fun SearchScreen(
 										.width(150.dp),
 									tab = "search",
 									album = album,
-									selected = album == albumListSelection,
-									starred = albumListStarred,
-									onSelect = { albumListViewModel.selectAlbum(album) },
-									onDeselect = { albumListViewModel.clearSelection() },
+									selected = album == albumListSelection.data?.selected,
+									starred = albumListSelection.data?.selected?.starredAt != null,
+									onSelect = {
+										albumListViewModel.selected = album
+									},
+									onDeselect = {
+										albumListViewModel.selected = null
+									},
 									onSetStarred = { albumListViewModel.starAlbum(it) },
 									onSetShareId = { },
 									onPlayNext = { player.playNext(album as DomainSongCollection) },
 									onAddToQueue = { player.addToQueue(album as DomainSongCollection) },
-									rating = selectedAlbumRating,
+									rating = albumListSelection.data?.selected?.userRating ?: 0,
 									onSetRating = { albumListViewModel.setRating(it) }
 								)
 							}
@@ -422,8 +421,7 @@ fun SearchScreen(
 							horizontalSection(
 								title = R.string.title_artists,
 								destination = Screen.ArtistList(true),
-								state = UiState.Success(artists),
-								key = { it.id },
+								state = artists,
 								seeAll = false
 							) { artist ->
 								ArtistListScreenGridItem(
@@ -431,9 +429,9 @@ fun SearchScreen(
 										.width(150.dp),
 									tab = "search",
 									artist = artist,
-									selected = artist == artistListSelection,
-									selectedArtistAlbums = artistListSelectionAlbums,
-									starred = artistListStarred,
+									selected = artist == artistListSelection.data?.selected,
+									selectedArtistAlbums = emptyList(),
+									starred = artistListSelection.data?.selected?.starredAt != null,
 									onSelect = { artistListViewModel.selectArtist(artist) },
 									onDeselect = { artistListViewModel.clearSelection() },
 									onSetStarred = { artistListViewModel.starArtist(it) },
@@ -496,12 +494,8 @@ fun SearchScreen(
 		}
 	}
 
-	if (songToQueue != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { songToQueue = null },
-			onConfirm = {
-				songToQueue?.let { player.addToQueueSingle(it) }
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		song = songToQueue,
+		onDismissRequest = { songToQueue = null }
+	)
 }

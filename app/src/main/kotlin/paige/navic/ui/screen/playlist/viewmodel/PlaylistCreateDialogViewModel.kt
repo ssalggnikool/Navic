@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import paige.navic.R
-import paige.navic.data.database.dao.PlaylistDao
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.mapper.toEntity
+import paige.navic.database.dao.PlaylistDao
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.mapper.toEntity
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainPlaylist

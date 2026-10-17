@@ -6,88 +6,71 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.DownloadDao
-import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.data.database.entity.SyncActionType
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.mapper.toEntity
+import kotlinx.coroutines.flow.map
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.LetterCount
+import paige.navic.database.entity.SyncActionType
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.mapper.toEntity
+import paige.navic.database.query.getAlbumLetterCountsQuery
+import paige.navic.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainFilter
-import paige.navic.ui.core.UiState
-import paige.navic.util.toSqlQuery
 import kotlin.time.Clock
 
 class AlbumRepository(
 	private val albumDao: AlbumDao,
-	private val downloadDao: DownloadDao,
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
 	suspend fun getAlbumById(id: String) = albumDao.getAlbumById(id)?.toDomainModel()
 
-	private suspend fun getLocalData(
+	private fun getLocalData(
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainAlbum> {
-		val downloadedSongIds = if (filters.contains(DomainFilter.Downloaded)) {
-			downloadDao.getAllDownloadsList()
-				.filter { it.status == DownloadStatus.DOWNLOADED }
-				.map { it.songId }
-				.toSet()
-		} else null
-
-		return albumDao
-			.getAlbumsByQuery(listType.toSqlQuery())
-			.map { it.toDomainModel() }
-			.filter { album ->
-				filters.all { filter ->
-					when (filter) {
-						DomainFilter.Starred -> album.starredAt != null
-						DomainFilter.Downloaded -> downloadedSongIds != null && downloadedSongIds.containsAll(album.songs.map { it.id })
-					}
-				}
+	): Flow<PagingData<DomainAlbum>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				albumDao
+					.getAlbumsByQuery(listType.toSqlQuery(reversed, filters))
 			}
-			.let { if (reversed) it.asReversed() else it }
-			.toImmutableList()
+		).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
 	private suspend fun refreshLocalData(
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainAlbum> {
+	): Flow<PagingData<DomainAlbum>> {
 		dbRepository.syncLibrarySongs().getOrThrow()
 		return getLocalData(listType, reversed, filters)
 	}
 
-	fun getAlbumsFlow(
+	suspend fun getAlbums(
 		fullRefresh: Boolean,
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
-	): Flow<UiState<ImmutableList<DomainAlbum>>> = flow {
+	): Flow<PagingData<DomainAlbum>> {
 		val localData = getLocalData(listType, reversed, filters)
-		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData(listType, reversed, filters)))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+		return if (fullRefresh) {
+			refreshLocalData(listType, reversed, filters)
 		} else {
-			emit(UiState.Success(data = localData))
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 
 	suspend fun isAlbumStarred(album: DomainAlbum) = albumDao.isAlbumStarred(album.id)
 	suspend fun getAlbumRating(album: DomainAlbum) = albumDao.getAlbumRating(album.id) ?: 0
@@ -121,5 +104,12 @@ class AlbumRepository(
 			4 -> syncManager.enqueueAction(SyncActionType.STAR_4, album.id)
 			5 -> syncManager.enqueueAction(SyncActionType.STAR_5, album.id)
 		}
+	}
+
+	fun getAlbumLetterCounts(
+		reversed: Boolean = false,
+		filters: Set<DomainFilter> = emptySet()
+	): Flow<List<LetterCount>> {
+		return albumDao.getAlbumLetterCounts(getAlbumLetterCountsQuery(reversed, filters))
 	}
 }

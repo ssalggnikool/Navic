@@ -8,6 +8,7 @@ package paige.navic.domain.manager
 
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
+import kotlinx.serialization.Serializable
 import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.base.BasePreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
@@ -164,6 +165,8 @@ class PreferenceManager(
 	var enableDiscordIntegration by preference(false)
 	var disableRpcWhenPowerSaving by preference(true)
 	var discordAppId by preference(ExoDiscordIntegration.DISCORD_APPLICATION_ID)
+
 	var proxyUrl by preference("")
 	var dangerousSslNoopEnabled by preference(false)
+	var alternateServerAddresses by jsonPreference<List<String>>(emptyList())
 }

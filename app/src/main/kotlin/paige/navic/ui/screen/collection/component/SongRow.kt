@@ -44,8 +44,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadEntity
-import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.database.entity.DownloadEntity
+import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
@@ -59,7 +59,7 @@ import paige.navic.ui.icons.outlined.Lock
 import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.icons.outlined.Queue
 import paige.navic.ui.icons.outlined.QueuePlayNext
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SegmentedListItem
@@ -89,7 +89,7 @@ fun CollectionDetailScreenSongRow(
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val isDownloaded = download?.status == DownloadStatus.DOWNLOADED
@@ -111,14 +111,14 @@ fun CollectionDetailScreenSongRow(
 		gesturesEnabled = !isExplicit,
 		onDismiss = {
 			if (it == SwipeToDismissBoxValue.StartToEnd) {
-				if (playerState.queue.any { item -> item.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (!preferenceManager.shushQueueDuplicateDialog && playerState.queue.any { item -> item.id == song.id }) {
 					isPlayNextPending = false
 				} else {
 					onAddToQueue()
 				}
 			}
 			if (it == SwipeToDismissBoxValue.EndToStart) {
-				if (playerState.queue.any { item -> item.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (!preferenceManager.shushQueueDuplicateDialog && playerState.queue.any { item -> item.id == song.id }) {
 					isPlayNextPending = true
 				} else {
 					onPlayNext()
@@ -294,13 +294,12 @@ fun CollectionDetailScreenSongRow(
 		)
 	}
 
-	if (isPlayNextPending != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { isPlayNextPending = null },
-			onConfirm = {
-				if (isPlayNextPending == true) onPlayNext() else onAddToQueue()
-				isPlayNextPending = null
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		showDialog = isPlayNextPending != null,
+		onDismissRequest = { isPlayNextPending = null },
+		onConfirm = {
+			if (isPlayNextPending == true) onPlayNext() else onAddToQueue()
+			isPlayNextPending = null
+		}
+	)
 }

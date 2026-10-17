@@ -8,7 +8,6 @@ package paige.navic.domain.manager
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
@@ -18,7 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -31,7 +30,7 @@ sealed interface SleepTimerMode {
 }
 
 class SleepTimerManager(
-	private val player: MediaPlayerViewModel
+	private val player: MediaPlayer
 ) {
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 	private var job: Job? = null

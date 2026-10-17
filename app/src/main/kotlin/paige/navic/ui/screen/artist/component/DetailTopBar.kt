@@ -29,7 +29,7 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.MoreVert
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.ArtistSheet
@@ -49,7 +49,7 @@ fun ArtistDetailScreenTopBar(
 		if (scrolled) 1f else 0f
 	)
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 

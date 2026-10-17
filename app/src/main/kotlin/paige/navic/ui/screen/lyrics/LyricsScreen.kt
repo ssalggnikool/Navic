@@ -35,7 +35,7 @@ import paige.navic.di.LocalSheetState
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ToolbarPosition
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.layout.SheetScaffold
 import paige.navic.ui.core.UiState
@@ -56,7 +56,7 @@ fun LyricsScreen(
 ) {
 	val backStack = LocalNavStack.current
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val viewModel = koinViewModel<LyricsScreenViewModel>(

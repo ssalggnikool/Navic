@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -27,9 +26,10 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import kotlinx.collections.immutable.ImmutableList
+import androidx.paging.compose.LazyPagingItems
 import kotlinx.collections.immutable.toImmutableList
 import paige.navic.R
+import paige.navic.database.dao.LetterCount
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType
@@ -37,13 +37,13 @@ import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.ui.component.common.AlphabeticalScroller
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.layout.ArtGrid
-import paige.navic.ui.core.UiState
 import paige.navic.ui.screen.artist.ArtistListScreenGridItem
 import paige.navic.ui.util.withoutTop
 
 @Composable
 fun ArtistListScreenContent(
-	state: UiState<ImmutableList<DomainArtist>>,
+	artists: LazyPagingItems<DomainArtist>,
+	letterCounts: List<LetterCount>,
 	starred: Boolean,
 	selectedSorting: DomainArtistListType,
 	gridState: LazyGridState,
@@ -51,7 +51,7 @@ fun ArtistListScreenContent(
 	innerPadding: PaddingValues,
 	nested: Boolean,
 	selectedArtist: DomainArtist?,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	selectedViewMode: ListViewMode,
 	onUpdateSelection: (DomainArtist) -> Unit,
 	onClearSelection: () -> Unit,
@@ -59,22 +59,16 @@ fun ArtistListScreenContent(
 	onPlayNext: () -> Unit,
 	onAddToQueue: () -> Unit,
 ) {
+	val totalArtistCount = artists.itemCount
 
-	val data = state.data.orEmpty()
-
-	val totalArtistCount = data.size
-
-	val grouped = data.groupBy { it.name.firstOrNull()?.uppercaseChar() ?: '#' }
-		.toList()
-		.sortedBy { it.first }
-
-	val headerIndices = remember(grouped) {
-		var currentIndex = 1
-		grouped.map { (letter, artists) ->
-			val pos = currentIndex
-			currentIndex += artists.size + 1
-			letter.toString() to pos
-		}.toImmutableList()
+	val headerIndices = remember(letterCounts) {
+		var gridPosition = 1
+		val list = mutableListOf<Pair<String, Int>>()
+		letterCounts.forEach { lc ->
+			list.add(lc.letter to gridPosition)
+			gridPosition += 1 + lc.count
+		}
+		list.toImmutableList()
 	}
 
 	val textPadding = PaddingValues(
@@ -90,7 +84,7 @@ fun ArtistListScreenContent(
 			else Modifier.fillMaxSize(),
 			state = gridState,
 			contentPadding = innerPadding.withoutTop(),
-			verticalArrangement = if (grouped.isEmpty()) {
+			verticalArrangement = if (totalArtistCount == 0) {
 				Arrangement.Center
 			} else if (selectedViewMode == ListViewMode.List) {
 				Arrangement.spacedBy(0.dp)
@@ -119,7 +113,8 @@ fun ArtistListScreenContent(
 				}
 			}
 			if (selectedSorting == DomainArtistListType.AlphabeticalByName) {
-				grouped.forEach { (letter, artists) ->
+				var artistOffset = 0
+				letterCounts.forEach { lc ->
 					stickyHeader {
 						Row(
 							modifier = Modifier
@@ -128,12 +123,17 @@ fun ArtistListScreenContent(
 							verticalAlignment = Alignment.CenterVertically
 						) {
 							Text(
-								text = letter.toString(),
+								text = lc.letter,
 								color = MaterialTheme.colorScheme.onSurfaceVariant
 							)
 						}
 					}
-					items(artists, { it.id }) { artist ->
+					val startArtistIndex = artistOffset
+					items(lc.count) { i ->
+						val artistIndex = startArtistIndex + i
+						if (artistIndex >= artists.itemCount) return@items
+						val artist = artists[artistIndex] ?: return@items
+
 						if (selectedViewMode == ListViewMode.Grid) {
 							ArtistListScreenGridItem(
 								modifier = Modifier.animateItem(),
@@ -163,9 +163,12 @@ fun ArtistListScreenContent(
 							)
 						}
 					}
+					artistOffset += lc.count
 				}
 			} else {
-				items(data, { it.id }) { artist ->
+				items(artists.itemCount, key = { index -> artists.peek(index)?.id ?: index }) { index ->
+					val artist = artists[index] ?: return@items
+
 					if (selectedViewMode == ListViewMode.Grid) {
 						ArtistListScreenGridItem(
 							modifier = Modifier.animateItem(),
@@ -197,7 +200,7 @@ fun ArtistListScreenContent(
 				}
 			}
 
-			if (grouped.isEmpty()) {
+			if (totalArtistCount == 0) {
 				item(span = { GridItemSpan(maxLineSpan) }) {
 					ContentUnavailable(
 						label = stringResource(R.string.info_no_artists)

@@ -6,7 +6,6 @@
 
 package paige.navic.di
 
-import androidx.media3.common.util.UnstableApi
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -16,8 +15,7 @@ import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
-import paige.navic.shared.AndroidMediaPlayerViewModel
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.DeletionViewModel
 import paige.navic.ui.component.sheet.ChangelogViewModel
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
@@ -45,11 +43,11 @@ import paige.navic.ui.screen.song.viewmodel.SongDetailViewModel
 import paige.navic.ui.screen.song.viewmodel.SongListViewModel
 import paige.navic.ui.screen.stats.viewmodel.StatisticsViewModel
 import paige.navic.ui.viewmodel.RootViewModel
+import paige.navic.util.network.NavicularDnsResolver
 
-@UnstableApi
 val viewModelModule = module {
-	single<MediaPlayerViewModel> {
-		AndroidMediaPlayerViewModel(
+	single<MediaPlayer> {
+		MediaPlayer(
 			application = androidApplication(),
 			stateRepository = get(),
 			songRepository = get(),
@@ -62,6 +60,13 @@ val viewModelModule = module {
 			audioGainManager = get(),
 		)
 	}
+	single<NavicularDnsResolver> {
+		NavicularDnsResolver(
+			preferenceManager = get(),
+			settings = get(),
+			connectivityManager = get()
+		)
+	}
 
 	viewModel { (artistId: String) ->
 		ArtistDetailViewModel(
@@ -72,8 +77,6 @@ val viewModelModule = module {
 			albumRepository = get(),
 			artistDao = get(),
 			albumDao = get(),
-			downloadManager = get(),
-			snackBarManager = get(),
 			connectivityManager = get()
 		)
 	}
@@ -108,7 +111,6 @@ val viewModelModule = module {
 			initialListType = params.getOrNull<DomainSongListType>(),
 			initialFilters = params.getOrNull<Set<DomainFilter>>(),
 			repository = get(),
-			downloadManager = get(),
 			sessionManager = get(),
 			preferenceManager = get(),
 			connectivityManager = get()
@@ -153,7 +155,6 @@ val viewModelModule = module {
 			repository = get(),
 			songRepository = get(),
 			albumRepository = get(),
-			downloadManager = get(),
 			sessionManager = get(),
 			snackBarManager = get(),
 			connectivityManager = get()

@@ -14,19 +14,17 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import paige.navic.data.database.dao.SyncActionDao
+import paige.navic.database.dao.SyncActionDao
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.repository.DbRepository
-import paige.navic.domain.repository.SongRepository
 
 class SettingsDataStorageViewModel(
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository,
 	private val syncDao: SyncActionDao,
 	private val downloadManager: DownloadManager,
-	private val songRepository: SongRepository,
 	connectivityManager: ConnectivityManager
 ) : ViewModel() {
 
@@ -87,8 +85,7 @@ class SettingsDataStorageViewModel(
 
 	fun downloadEntireLibrary() {
 		viewModelScope.launch(Dispatchers.IO) {
-			val allSongs = songRepository.getAllSongs()
-			downloadManager.downloadEntireLibrary(allSongs)
+			downloadManager.downloadEntireLibrary()
 		}
 	}
 

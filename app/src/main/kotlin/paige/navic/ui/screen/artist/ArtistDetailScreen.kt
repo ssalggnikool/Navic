@@ -48,7 +48,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -64,12 +63,11 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.materialkolor.dynamiccolor.ColorSpec
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
@@ -79,10 +77,11 @@ import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.ArtistAlbumViewMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SongRow
 import paige.navic.ui.component.dialog.BulkDownloadDialog
+import paige.navic.ui.component.dialog.BulkDownloadTarget
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.RootBottomBar
@@ -95,10 +94,9 @@ import paige.navic.ui.screen.artist.component.ArtistDetailScreenHeading
 import paige.navic.ui.screen.artist.component.ArtistDetailScreenTopBar
 import paige.navic.ui.screen.artist.viewmodel.ArtistDetailViewModel
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
-import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -111,7 +109,7 @@ fun ArtistDetailScreen(
 		key = artistId,
 		parameters = { parametersOf(artistId) }
 	)
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val selection by viewModel.selectedSong.collectAsStateWithLifecycle()
@@ -129,13 +127,16 @@ fun ArtistDetailScreen(
 	val artistState by viewModel.artistState.collectAsStateWithLifecycle()
 	val starred by viewModel.starred.collectAsState()
 	val isOnline by viewModel.isOnline.collectAsStateWithLifecycle()
-	val allDownloads by viewModel.allDownloads.collectAsStateWithLifecycle()
-	val downloadStatus by viewModel.collectionDownloadStatus()
-		.collectAsState(DownloadStatus.NOT_DOWNLOADED)
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
+	val downloadStatus by downloadManager.getCollectionDownloadStatus(
+		artistState.data?.albums.orEmpty().flatMap { album ->
+			album.songs.map { it.id }
+		}
+	).collectAsState(DownloadStatus.NOT_DOWNLOADED)
 
 	val snackBarManager = koinInject<SnackBarManager>()
-
-	val scope = rememberCoroutineScope()
 
 	val spatialSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
 	val effectSpec = MaterialTheme.motionScheme.slowEffectsSpec<Float>()
@@ -151,7 +152,6 @@ fun ArtistDetailScreen(
 	var showDownloadDialog by remember { mutableStateOf(false) }
 
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 
@@ -212,21 +212,12 @@ fun ArtistDetailScreen(
 					is UiState.Success -> {
 						val state = artistState.data
 						BulkDownloadDialog(
-							title = stringResource(R.string.title_bulk_download),
-							message = stringResource(
-								R.string.info_bulk_download_warning,
-								state.artist.name
+							target = BulkDownloadTarget.Artist(
+								name = state.artist.name,
+								albums = state.albums
 							),
 							showDialog = showDownloadDialog,
-							onDismissRequest = { showDownloadDialog = false },
-							onConfirm = {
-								scope.launch {
-									state.albums.forEach { album ->
-										downloadManager.downloadCollection(album)
-									}
-									snackBarManager.notify(R.string.notice_download_started)
-								}
-							}
+							onDismissRequest = { showDownloadDialog = false }
 						)
 						Column(
 							modifier = Modifier
@@ -338,16 +329,12 @@ fun ArtistDetailScreen(
 													onAddStar = { viewModel.starSelectedSong() },
 													onRemoveStar = { viewModel.unstarSelectedSong() },
 													download = download,
-													onDownload = { viewModel.downloadSong(song) },
+													onDownload = { downloadManager.downloadSong(song) },
 													onCancelDownload = {
-														viewModel.cancelDownload(
-															song.id
-														)
+														downloadManager.cancelDownload(song.id)
 													},
 													onDeleteDownload = {
-														viewModel.deleteDownload(
-															song.id
-														)
+														downloadManager.deleteDownload(song.id)
 													},
 													onPlayNext = { player.playNextSingle(song) },
 													onAddToQueue = { player.addToQueueSingle(song) },
@@ -496,9 +483,10 @@ fun ArtistDetailScreen(
 
 		ShareDialog(
 			id = shareId,
-			onIdClear = { shareId = null; viewModel.clearSelection() },
-			expiry = shareExpiry,
-			onExpiryChange = { shareExpiry = it }
+			onDismissRequest = {
+				shareId = null
+				viewModel.clearSelection()
+			}
 		)
 
 		if (playlistDialogShown) {

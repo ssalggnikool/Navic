@@ -199,6 +199,9 @@ sealed interface Screen : NavKey {
 		@Immutable
 		@Serializable
 		data object CustomHeaders : Settings
+		@Immutable
+		@Serializable
+		data object AlternativeAddresses: Settings
 
 		@Immutable
 		@Serializable

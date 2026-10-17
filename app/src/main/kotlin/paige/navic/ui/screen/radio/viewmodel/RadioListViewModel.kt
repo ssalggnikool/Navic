@@ -7,28 +7,17 @@
 package paige.navic.ui.screen.radio.viewmodel
 
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainRadio
 import paige.navic.domain.repository.RadioRepository
-import paige.navic.ui.core.UiState
+import paige.navic.ui.viewmodel.SelectableViewModel
 
 class RadioListViewModel(
 	private val repository: RadioRepository,
 	private val sessionManager: SessionManager
-) : ViewModel() {
-	val radiosState: StateFlow<UiState<ImmutableList<DomainRadio>>>
-		field = MutableStateFlow<UiState<ImmutableList<DomainRadio>>>(UiState.Loading())
-
-	val selectedRadio: StateFlow<DomainRadio?>
-		field = MutableStateFlow<DomainRadio?>(null)
-
+) : SelectableViewModel<DomainRadio>() {
 	val gridState = LazyGridState()
 
 	init {
@@ -37,21 +26,7 @@ class RadioListViewModel(
 		}
 	}
 
-	fun selectRadio(radio: DomainRadio?) {
-		viewModelScope.launch {
-			selectedRadio.value = radio
-		}
-	}
-
-	fun refreshRadios(fullRefresh: Boolean) {
-		viewModelScope.launch {
-			repository.getRadiosFlow(fullRefresh).collect {
-				radiosState.value = it
-			}
-		}
-	}
-
-	fun clearError() {
-		radiosState.value = UiState.Success(radiosState.value.data ?: persistentListOf())
+	fun refreshRadios(fullRefresh: Boolean) = launch {
+		items = repository.getRadios(fullRefresh)
 	}
 }
