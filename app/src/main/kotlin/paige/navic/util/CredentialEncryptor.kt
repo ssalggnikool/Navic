@@ -8,53 +8,49 @@
 
 	import android.security.keystore.KeyGenParameterSpec
 	import android.security.keystore.KeyProperties
+	import android.util.Base64
 	import com.russhwolf.settings.Settings
-	import java.security.KeyPair
-	import java.security.KeyPairGenerator
 	import java.security.KeyStore
-	import java.security.spec.MGF1ParameterSpec
 	import javax.crypto.Cipher
-	import javax.crypto.spec.OAEPParameterSpec
-	import javax.crypto.spec.PSource
+	import javax.crypto.KeyGenerator
+	import javax.crypto.SecretKey
+	import javax.crypto.spec.GCMParameterSpec
 
 	object CredentialEncryptor {
 		private const val ANDROID_KEY_STORE = "AndroidKeyStore"
-		private const val RSA_ALIAS = "navic_credentials_rsa_v1"
-		private const val RSA_TRANSFORMATION = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
+		private const val KEY_ALIAS = "navic_credentials_key_v1"
+		private const val TRANSFORMATION = "AES/GCM/NoPadding"
 		private const val PREFIX = "enc:v1:"
-		private val OAEP_SPEC = OAEPParameterSpec(
-			"SHA-256", "MGF1", MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT
-		)
 
-		private fun getOrCreateKeyPair(): KeyPair {
+		@Synchronized
+		private fun getOrCreateSecretKey(): SecretKey {
 			val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
+			(keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
 
-			(keyStore.getEntry(RSA_ALIAS, null) as? KeyStore.PrivateKeyEntry)?.let {
-				return KeyPair(it.certificate.publicKey, it.privateKey)
-			}
-
-			val kpg = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE)
-			val parameterSpec: KeyGenParameterSpec = KeyGenParameterSpec.Builder(
-				RSA_ALIAS,
-				KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-			).run {
-				setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
-				setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
-				build()
-			}
-
-			kpg.initialize(parameterSpec)
-			return kpg.generateKeyPair()
+			val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE)
+			keyGenerator.init(
+				KeyGenParameterSpec.Builder(
+					KEY_ALIAS,
+					KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+				)
+					.setKeySize(256)
+					.setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+					.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+					.build()
+			)
+			return keyGenerator.generateKey()
 		}
 
 		fun encrypt(plainText: String): String {
 			if (plainText.isEmpty()) return ""
 			return try {
-				val cipher = Cipher.getInstance(RSA_TRANSFORMATION)
-				cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKeyPair().public, OAEP_SPEC)
+				val cipher = Cipher.getInstance(TRANSFORMATION)
+				cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecretKey())
 
-				val bytes = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
-				PREFIX + bytes.toHexString()
+				val encrypted = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
+				val combined = cipher.iv + encrypted
+
+				PREFIX + Base64.encodeToString(combined, Base64.NO_WRAP)
 			} catch (e: Exception) {
 				Logger.e("CredentialEncryptor", "Failed to encrypt credential", e)
 				throw IllegalStateException("Credential encryption failed", e)
@@ -66,11 +62,13 @@
 			if (!cipherText.startsWith(PREFIX)) return cipherText
 
 			return try {
-				val bytes = cipherText.removePrefix(PREFIX).hexToByteArray()
-				val cipher = Cipher.getInstance(RSA_TRANSFORMATION)
+				val combined = Base64.decode(cipherText.removePrefix(PREFIX), Base64.NO_WRAP)
+				val iv = combined.copyOfRange(0, 12)
+				val encrypted = combined.copyOfRange(12, combined.size)
+				val cipher = Cipher.getInstance(TRANSFORMATION)
 
-				cipher.init(Cipher.DECRYPT_MODE, getOrCreateKeyPair().private, OAEP_SPEC)
-				String(cipher.doFinal(bytes), Charsets.UTF_8)
+				cipher.init(Cipher.DECRYPT_MODE, getOrCreateSecretKey(), GCMParameterSpec(128, iv))
+				String(cipher.doFinal(encrypted), Charsets.UTF_8)
 			} catch (e: Exception) {
 				Logger.e("CredentialEncryptor", "Failed to decrypt credential", e)
 				""
