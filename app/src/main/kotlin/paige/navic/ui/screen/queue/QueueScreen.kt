@@ -49,11 +49,13 @@ import androidx.recyclerview.widget.RecyclerView
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
+import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.QueueInfoType
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
+import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.queue.component.QueueScreenItem
 import paige.navic.ui.screen.queue.viewmodel.QueueViewModel
 import paige.navic.ui.theme.defaultFont
@@ -69,6 +71,7 @@ fun QueueScreen() {
 	val queue = playerState.queue
 	val haptic = LocalHapticFeedback.current
 	val preferenceManager = koinInject<PreferenceManager>()
+	val backStack = LocalNavStack.current
 
 	val songCountText = when (preferenceManager.queueInfoType) {
 		QueueInfoType.Full -> pluralStringResource(R.plurals.count_songs, queue.size, queue.size)
@@ -146,6 +149,8 @@ fun QueueScreen() {
 					onClick = {
 						haptic.performHapticFeedback(HapticFeedbackType.LongPress)
 						player.clearQueue()
+						backStack.remove(Screen.Queue)
+						backStack.remove(Screen.NowPlaying)
 					},
 					colors = ButtonDefaults.filledTonalButtonColors(),
 					contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
