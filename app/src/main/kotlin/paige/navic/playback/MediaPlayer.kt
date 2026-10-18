@@ -215,7 +215,10 @@ class MediaPlayer(
 				}
 
 				override fun onIsPlayingChanged(isPlaying: Boolean) {
-					if (isPlaying) startProgressLoop()
+					if (isPlaying) {
+						startProgressLoop()
+						applyAudioGain()
+					}
 
 					val currentSong = _uiState.value.currentSong
 					val displayArtist = currentSong?.artists?.joinToString { it.name }
@@ -368,7 +371,6 @@ class MediaPlayer(
 				repeatMode = controller.repeatMode
 			)
 		}
-		applyAudioGain()
 		updateProgress()
 	}
 
