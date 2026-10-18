@@ -62,7 +62,7 @@ class SessionManager(
 	var api: SubsonicClient = createClient(
 		instanceUrl = instanceUrl,
 		username = username,
-		password = password,
+		password = password
 	)
 		private set
 
@@ -74,7 +74,7 @@ class SessionManager(
 	private fun createClient(
 		instanceUrl: String,
 		username: String,
-		password: String,
+		password: String
 	) = SubsonicClient.Companion(
 		baseUrl = instanceUrl,
 		auth = SubsonicAuth.Token(
