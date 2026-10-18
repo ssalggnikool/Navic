@@ -7,6 +7,7 @@
 package paige.navic.domain.manager
 
 import com.russhwolf.settings.Settings
+import com.russhwolf.settings.set
 import dev.zt64.subsonic.api.model.Role
 import dev.zt64.subsonic.api.model.User
 import dev.zt64.subsonic.client.SubsonicAuth
@@ -41,16 +42,22 @@ class SessionManager(
 	private val scope = CoroutineScope(Dispatchers.IO)
 
 	var username: String
-		get() = settings.getEncryptedString("username", "")
-		private set(value) = settings.insertEncryptedString("username", value)
+		get() = settings.getString("username", "")
+		private set(value) {
+			settings["username"] = value
+		}
 
 	var password: String
 		get() = settings.getEncryptedString("password", "")
-		private set(value) = settings.insertEncryptedString("password", value)
+		private set(value) {
+			settings.insertEncryptedString("password", value)
+		}
 
 	var instanceUrl: String
-		get() = settings.getEncryptedString("instanceUrl", "")
-		private set(value) = settings.insertEncryptedString("instanceUrl", value)
+		get() = settings.getString("instanceUrl", "")
+		private set(value) {
+			settings["instanceUrl"] = value
+		}
 
 	var api: SubsonicClient = createClient(
 		instanceUrl = instanceUrl,
@@ -60,7 +67,7 @@ class SessionManager(
 		private set
 
 	init {
-		isLoggedIn.value = settings.getEncryptedString("username") != null
+		isLoggedIn.value = settings.getStringOrNull("username") != null
 		if (isLoggedIn.value) getCachedUser()
 	}
 
@@ -121,7 +128,7 @@ class SessionManager(
 	}
 
 	fun logout() {
-		settings.remove("username")
+		settings["username"] = null
 		settings.remove("password")
 		isLoggedIn.value = false
 		currentUser = null
