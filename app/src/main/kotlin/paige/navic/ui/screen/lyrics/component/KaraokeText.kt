@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -82,7 +83,13 @@ fun LyricsScreenKaraokeText(
 			fontSize = 32.sp,
 			fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
 			textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
-			style = MaterialTheme.typography.headlineLargeEmphasized,
+			style = MaterialTheme.typography.headlineLargeEmphasized.copy(
+				lineBreak = LineBreak(
+					strategy = LineBreak.Strategy.HighQuality,
+					strictness = LineBreak.Strictness.Strict,
+					wordBreak = LineBreak.WordBreak.Phrase
+				)
+			),
 			color = if (lyricsBrightInactive) Color.White.copy(alpha = alphaTransition * 0.4f)
 			else MaterialTheme.colorScheme.onSurface.copy(alpha = alphaTransition * 0.4f),
 			onTextLayout = { textLayoutResult = it },
