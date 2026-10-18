@@ -156,7 +156,6 @@ fun QueueScreen() {
 		AndroidView(
 			modifier = Modifier
 				.padding(horizontal = 12.dp)
-				.weight(1f)
 				.fillMaxSize(),
 			factory = { context ->
 				QueueRecyclerView(context).apply {
@@ -253,11 +252,15 @@ private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.V
 		): Boolean {
 			val from = viewHolder.bindingAdapterPosition
 			val to = target.bindingAdapterPosition
-			if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
+			if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) {
+				return false
+			}
+
 			val mutableQueue = queue.toMutableList()
 			mutableQueue.add(to, mutableQueue.removeAt(from))
 			queue = mutableQueue
 			requestedQueue = mutableQueue
+
 			notifyItemMoved(from, to)
 			onMove(from, to)
 			return true
