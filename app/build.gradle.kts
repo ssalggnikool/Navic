@@ -236,6 +236,7 @@ dependencies {
 	implementation(libs.androidx.media3.datasource.okhttp)
 	implementation(libs.androidx.media3.decoder.ffmpeg)
 	implementation(libs.androidx.annotation)
+	implementation(libs.androidx.recyclerview)
 	implementation(libs.androidx.glance.appwidget)
 	implementation(libs.androidx.glance.material3)
 	implementation(libs.androidx.browser)

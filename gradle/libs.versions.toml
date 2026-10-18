@@ -31,10 +31,12 @@ coil = "3.6.3"
 # Misc
 koin = "4.2.2"
 pagingCommon = "3.5.2"
+recyclerview = "1.4.0"
 
 [libraries]
 # Compose
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCommon" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }

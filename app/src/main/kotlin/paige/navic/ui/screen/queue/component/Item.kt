@@ -50,9 +50,7 @@ import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.SwipeToDismissBox
 import paige.navic.ui.component.common.Waveform
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.util.DraggableListState
 import paige.navic.ui.util.buildSongInfoString
-import paige.navic.ui.util.dragHandle
 
 @Composable
 fun QueueScreenItem(
@@ -62,7 +60,7 @@ fun QueueScreenItem(
 	isPlaying: Boolean,
 	isSelected: Boolean,
 	isDragging: Boolean,
-	draggableState: DraggableListState,
+	onDrag: () -> Unit,
 	onClick: () -> Unit,
 	onRemove: () -> Unit,
 	isOffline: Boolean = false,
@@ -178,11 +176,7 @@ fun QueueScreenItem(
 								Waveform(isPlaying = isPlaying)
 							}
 							IconButton(
-								modifier = Modifier.dragHandle(
-									state = draggableState,
-									index = index
-								),
-								onClick = {}
+								onClick = onDrag
 							) {
 								Icon(
 									Icons.Outlined.DragHandle,
