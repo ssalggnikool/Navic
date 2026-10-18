@@ -40,7 +40,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kyant.capsule.ContinuousCapsule
-import com.russhwolf.settings.Settings
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
@@ -70,8 +69,6 @@ fun AccountSheet(
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
 	val sessionManager = koinInject<SessionManager>()
-
-	val settings = koinInject<Settings>()
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
 	val sleepTimerManager = koinInject<SleepTimerManager>()
@@ -127,18 +124,17 @@ fun AccountSheet(
 					verticalAlignment = Alignment.CenterVertically,
 					horizontalArrangement = Arrangement.spacedBy(12.dp)
 				) {
-					Monogram(text = settings.getString("username", ""))
-
+					Monogram(text = sessionManager.username)
 					Column(
 						modifier = Modifier.weight(1f)
 					) {
 						Text(
-							text = settings.getString("username", ""),
+							text = sessionManager.username,
 							style = MaterialTheme.typography.headlineSmall
 						)
 
 						Text(
-							text = settings.getString("instanceUrl", ""),
+							text = sessionManager.instanceUrl,
 							style = MaterialTheme.typography.labelSmall,
 							color = MaterialTheme.colorScheme.onSurfaceVariant
 						)

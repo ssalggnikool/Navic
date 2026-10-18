@@ -7,7 +7,6 @@
 package paige.navic.domain.manager
 
 import com.russhwolf.settings.Settings
-import com.russhwolf.settings.set
 import dev.zt64.subsonic.api.model.Role
 import dev.zt64.subsonic.api.model.User
 import dev.zt64.subsonic.client.SubsonicAuth
@@ -23,6 +22,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import paige.navic.util.Logger
+import paige.navic.util.getEncryptedString
+import paige.navic.util.insertEncryptedString
 import paige.navic.util.network.NavicularDnsResolver
 import paige.navic.util.network.buildKtorEngine
 
@@ -39,15 +40,27 @@ class SessionManager(
 	private val mutex = Mutex()
 	private val scope = CoroutineScope(Dispatchers.IO)
 
+	var username: String
+		get() = settings.getEncryptedString("username", "")
+		private set(value) = settings.insertEncryptedString("username", value)
+
+	var password: String
+		get() = settings.getEncryptedString("password", "")
+		private set(value) = settings.insertEncryptedString("password", value)
+
+	var instanceUrl: String
+		get() = settings.getEncryptedString("instanceUrl", "")
+		private set(value) = settings.insertEncryptedString("instanceUrl", value)
+
 	var api: SubsonicClient = createClient(
-		instanceUrl = settings.getString("instanceUrl", ""),
-		username = settings.getString("username", ""),
-		password = settings.getString("password", ""),
+		instanceUrl = instanceUrl,
+		username = username,
+		password = password,
 	)
 		private set
 
 	init {
-		isLoggedIn.value = settings.getStringOrNull("username") != null
+		isLoggedIn.value = settings.getEncryptedString("username") != null
 		if (isLoggedIn.value) getCachedUser()
 	}
 
@@ -99,26 +112,26 @@ class SessionManager(
 			)
 		}
 
-		settings["instanceUrl"] = instanceUrl
-		settings["username"] = username
-		settings["password"] = password
+		this.instanceUrl = instanceUrl
+		this.username = username
+		this.password = password
 
 		api = client
 		isLoggedIn.value = true
 	}
 
 	fun logout() {
-		settings["username"] = null
-		settings["password"] = null
+		settings.remove("username")
+		settings.remove("password")
 		isLoggedIn.value = false
 		currentUser = null
 	}
 
 	fun refreshClient() {
 		api = createClient(
-			instanceUrl = settings.getString("instanceUrl", ""),
-			username = settings.getString("username", ""),
-			password = settings.getString("password", ""),
+			instanceUrl = instanceUrl,
+			username = username,
+			password = password,
 		)
 	}
 
@@ -130,7 +143,7 @@ class SessionManager(
 
 
 	private suspend fun fetchCurrentUser(
-		username: String = settings.getString("username", ""),
+		username: String = this.username,
 		client: SubsonicClient = api
 	): User? {
 		mutex.withLock {

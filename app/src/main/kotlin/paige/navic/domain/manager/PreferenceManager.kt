@@ -8,7 +8,6 @@ package paige.navic.domain.manager
 
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
-import kotlinx.serialization.Serializable
 import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.base.BasePreferenceManager
 import paige.navic.domain.model.DomainAlbumListType

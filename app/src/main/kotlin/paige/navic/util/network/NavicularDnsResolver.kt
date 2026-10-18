@@ -26,6 +26,7 @@ import okhttp3.Interceptor
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.util.TTLLruCache
+import paige.navic.util.getEncryptedString
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
@@ -62,7 +63,7 @@ class NavicularDnsResolver(
 
 	@OptIn(ExperimentalCoroutinesApi::class)
 	fun resolve(hostname: String): List<InetAddress> = runBlocking {
-		val serverDomain = settings.getStringOrNull("instanceUrl")?.toUri()?.host
+		val serverDomain = settings.getEncryptedString("instanceUrl")?.toUri()?.host
 		val systemAddresses = Dns.SYSTEM.lookup(hostname)
 		if (hostname == serverDomain) {
 			val alternativeAddresses = hosts.asFlow()
