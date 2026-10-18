@@ -196,11 +196,13 @@ class MediaPlayer(
 	private fun getStreamUrl(id: String): Uri = runBlocking {
 		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0, estimateContentLength = true)
 		try {
-			val transcodeDecision = sessionManager.api.getTranscodeDecision(
-				id,
-				MediaType.SONG,
-				clientInfo
-			)
+			val transcodeDecision = withContext(Dispatchers.IO) {
+				sessionManager.api.getTranscodeDecision(
+					id,
+					MediaType.SONG,
+					clientInfo
+				)
+			}
 			val streamUrl = transcodeDecision.transcodeParams.let { params ->
 				if (!transcodeDecision.canDirectPlay && transcodeDecision.canTranscode && params != null) {
 					return@let sessionManager.api.getTranscodeStreamUrl(id, MediaType.SONG, 0, params)

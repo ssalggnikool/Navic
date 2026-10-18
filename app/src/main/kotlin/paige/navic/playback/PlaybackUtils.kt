@@ -40,7 +40,7 @@ object PlaybackUtils {
 	private val SUPPORTED_PROTOCOLS = listOf(ClientInfo.Protocol.HTTP)
 
 	fun getPrettyFormatName(mimeType: String) = mimeType.removePrefix(MIMETYPE_PREFIX).lowercase()
-		.let { CONTAINER_MAPPING.getOrDefault(it, it) }
+		.let { CORRECTED_CODEC_NAME.getOrDefault(it, it) }
 
 	private fun getTranscodingProfiles(): List<ClientInfo.TranscodingProfile> {
 		return buildList {
