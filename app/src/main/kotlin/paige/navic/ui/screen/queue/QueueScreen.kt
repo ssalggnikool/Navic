@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -157,8 +158,17 @@ fun QueueScreen() {
 
 		AndroidView(
 			modifier = Modifier.padding(horizontal = 12.dp)
+				.fillMaxSize()
 				.navigationBarsPadding()
-				.clipToBounds(),
+				.clipToBounds()
+				.systemGestureExclusion {
+					androidx.compose.ui.geometry.Rect(
+						left = 5f,
+						top = 0f,
+						right = 5f,
+						bottom = 0f
+					)
+				},
 			factory = { context ->
 				QueueRecyclerView(context).apply {
 					layoutManager = LinearLayoutManager(context)
