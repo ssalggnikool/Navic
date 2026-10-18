@@ -27,6 +27,7 @@ import org.koin.compose.koinInject
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlaybackUtils
 
 @Composable
 fun NowPlayingTechnicalInfoRow() {
@@ -83,7 +84,8 @@ fun NowPlayingTechnicalInfoRow() {
 					} ?: "-- kbps"
 
 				val format =
-					playerState.playbackMimeType?.split("/")?.lastOrNull()?.replace("mpeg", "mp3")
+					playerState.playbackMimeType
+						?.let { PlaybackUtils.getPrettyFormatName(it) }
 						?.uppercase()
 						?: song?.fileExtension?.uppercase()
 						?: "--"
