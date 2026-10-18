@@ -8,9 +8,9 @@ package paige.navic.ui.screen.queue
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.ViewGroup
 import android.graphics.Rect
 import android.view.MotionEvent
+import android.view.ViewGroup
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -154,13 +156,13 @@ fun QueueScreen() {
 		}
 
 		AndroidView(
-			modifier = Modifier
-				.padding(horizontal = 12.dp)
-				.fillMaxSize(),
+			modifier = Modifier.padding(horizontal = 12.dp)
+				.navigationBarsPadding()
+				.clipToBounds(),
 			factory = { context ->
 				QueueRecyclerView(context).apply {
 					layoutManager = LinearLayoutManager(context)
-					isNestedScrollingEnabled = true
+					isNestedScrollingEnabled = false
 					addItemDecoration(object : RecyclerView.ItemDecoration() {
 						override fun getItemOffsets(
 							outRect: Rect,
