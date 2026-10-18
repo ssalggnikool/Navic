@@ -73,7 +73,7 @@ class MediaPlayer(
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
 ) {
-	private val clientInfo = PlaybackCapabilities.buildClientInfo()
+	private val clientInfo = PlaybackUtils.buildClientInfo()
 	private val _uiState = MutableStateFlow(PlayerUiState())
 	val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 	private val scope = CoroutineScope(Dispatchers.Main)

@@ -15,7 +15,7 @@ import dev.zt64.subsonic.api.model.ClientInfo
 import paige.navic.util.Logger
 
 @OptIn(UnstableApi::class)
-object PlaybackCapabilities {
+object PlaybackUtils {
 	private const val TAG = "PlaybackCapabilities"
 	private const val MIMETYPE_PREFIX = "audio/"
 
@@ -38,6 +38,9 @@ object PlaybackCapabilities {
 	private val WEIRD_CODECS = listOf("g711", "gsm")
 	private val SANE_CODECS = listOf("mp3", "flac", "vorbis", "opus")
 	private val SUPPORTED_PROTOCOLS = listOf(ClientInfo.Protocol.HTTP)
+
+	fun getPrettyFormatName(mimeType: String) = mimeType.removePrefix(MIMETYPE_PREFIX).lowercase()
+		.let { CONTAINER_MAPPING.getOrDefault(it, it) }
 
 	private fun getTranscodingProfiles(): List<ClientInfo.TranscodingProfile> {
 		return buildList {
@@ -62,7 +65,7 @@ object PlaybackCapabilities {
 		val nativeProfilesPair = getNativeProfilesWithLimitations()
 		val audioLimitations = nativeProfilesPair.mapNotNull { it.second }
 		val nativeProfiles = nativeProfilesPair.map { it.first }
-		val ffmpegProfiles = getFfmpegDirectPlayProfiles()
+		val ffmpegProfiles = getFfmpegProfiles()
 
 		val allProfiles = nativeProfiles + ffmpegProfiles
 
@@ -90,7 +93,7 @@ object PlaybackCapabilities {
 	}
 
 
-	private fun getFfmpegDirectPlayProfiles(): List<ClientInfo.DirectPlayProfile> {
+	private fun getFfmpegProfiles(): List<ClientInfo.DirectPlayProfile> {
 		if (!FfmpegLibrary.isAvailable()) {
 			Logger.w(TAG, "ffmpeg is currently unavaliable")
 			return emptyList()
@@ -139,7 +142,7 @@ object PlaybackCapabilities {
 					if (!mimetype.startsWith(MIMETYPE_PREFIX)) {
 						continue
 					}
-					
+
 					val strippedMimetype = mimetype.removePrefix(MIMETYPE_PREFIX)
 						.lowercase()
 					val codec =
@@ -186,7 +189,7 @@ object PlaybackCapabilities {
 						}
 					} catch (e: Exception) {
 						Logger.e(
-							"PlaybackCapabilities",
+							TAG,
 							"unable to query codec info for ${codecInfo.name}, appending bare information to the profile",
 							e
 						)
