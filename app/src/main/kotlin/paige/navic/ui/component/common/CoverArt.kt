@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
+import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import coil3.network.NetworkHeaders
 import coil3.network.httpHeaders
@@ -113,38 +114,11 @@ fun CoverArt(
 		)
 
 	if (coverArtId == null) return Box(commonModifier)
-	SubcomposeAsyncImage(
+	AsyncImage(
 		model = model,
 		imageLoader = imageLoader,
 		contentDescription = contentDescription,
 		modifier = commonModifier,
-		contentScale = contentScale,
-		error = {
-			LaunchedEffect(it.result.throwable) {
-				Logger.w(
-					"CoverArt",
-					"Failed to load cover art, falling back to placeholder",
-					it.result.throwable
-				)
-			}
-			LazyColumn(
-				horizontalAlignment = Alignment.CenterHorizontally,
-				verticalArrangement = Arrangement.Center
-			) {
-				item { Icon(Icons.Outlined.Error, null) }
-				item {
-					Text(
-						stringResource(R.string.info_image_failed_to_load),
-						maxLines = 1,
-						autoSize = TextAutoSize.StepBased(
-							minFontSize = 1.sp,
-							maxFontSize = 14.sp
-						),
-						fontFamily = defaultFont(grade = 10, round = 100f),
-						modifier = Modifier.semantics { hideFromAccessibility() }
-					)
-				}
-			}
-		}
+		contentScale = contentScale
 	)
 }
