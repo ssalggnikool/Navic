@@ -23,6 +23,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import paige.navic.util.Logger
+import paige.navic.util.getEncryptedString
+import paige.navic.util.insertEncryptedString
 import paige.navic.util.network.NavicularDnsResolver
 import paige.navic.util.network.buildKtorEngine
 
@@ -39,10 +41,28 @@ class SessionManager(
 	private val mutex = Mutex()
 	private val scope = CoroutineScope(Dispatchers.IO)
 
+	var username: String
+		get() = settings.getString("username", "")
+		private set(value) {
+			settings["username"] = value
+		}
+
+	var password: String
+		get() = settings.getEncryptedString("password", "")
+		private set(value) {
+			settings.insertEncryptedString("password", value)
+		}
+
+	var instanceUrl: String
+		get() = settings.getString("instanceUrl", "")
+		private set(value) {
+			settings["instanceUrl"] = value
+		}
+
 	var api: SubsonicClient = createClient(
-		instanceUrl = settings.getString("instanceUrl", ""),
-		username = settings.getString("username", ""),
-		password = settings.getString("password", ""),
+		instanceUrl = instanceUrl,
+		username = username,
+		password = password
 	)
 		private set
 
@@ -54,7 +74,7 @@ class SessionManager(
 	private fun createClient(
 		instanceUrl: String,
 		username: String,
-		password: String,
+		password: String
 	) = SubsonicClient.Companion(
 		baseUrl = instanceUrl,
 		auth = SubsonicAuth.Token(
@@ -99,9 +119,9 @@ class SessionManager(
 			)
 		}
 
-		settings["instanceUrl"] = instanceUrl
-		settings["username"] = username
-		settings["password"] = password
+		this.instanceUrl = instanceUrl
+		this.username = username
+		this.password = password
 
 		api = client
 		isLoggedIn.value = true
@@ -109,16 +129,16 @@ class SessionManager(
 
 	fun logout() {
 		settings["username"] = null
-		settings["password"] = null
+		settings.remove("password")
 		isLoggedIn.value = false
 		currentUser = null
 	}
 
 	fun refreshClient() {
 		api = createClient(
-			instanceUrl = settings.getString("instanceUrl", ""),
-			username = settings.getString("username", ""),
-			password = settings.getString("password", ""),
+			instanceUrl = instanceUrl,
+			username = username,
+			password = password,
 		)
 	}
 
@@ -130,7 +150,7 @@ class SessionManager(
 
 
 	private suspend fun fetchCurrentUser(
-		username: String = settings.getString("username", ""),
+		username: String = this.username,
 		client: SubsonicClient = api
 	): User? {
 		mutex.withLock {
