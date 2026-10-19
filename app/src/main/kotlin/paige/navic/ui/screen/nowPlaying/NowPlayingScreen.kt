@@ -129,7 +129,7 @@ fun NowPlayingScreen() {
 			) {
 				BlendBackground(
 					coverArtId = song?.coverArtId,
-					isPaused = playerState.isPaused || sheetState.isVisible
+					isPaused = playerState.isPaused || currentScreen is Screen.Queue
 				)
 			}
 			if (!isPlayerCurrent) return@Box
