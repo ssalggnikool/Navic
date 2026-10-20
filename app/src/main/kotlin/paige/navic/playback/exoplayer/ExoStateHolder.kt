@@ -146,10 +146,17 @@ class ExoStateHolder : KoinComponent {
 
 	private fun createRenderers(context: Context): RenderersFactory {
 		val audioProcessors = arrayOf<AudioProcessor>(gainProcessor)
+		val audioSinkBuilder = DefaultAudioSink.Builder(context)
 
-		val audioSink = DefaultAudioSink.Builder(context)
-			.setEnableFloatOutput(true)
-			.setAudioProcessorChain(object : AudioProcessorChain {
+		if (preferenceManager.floatOutputEnabled) {
+			// using setAudioProcessors will indirectly use the default audio processor chain
+			// which by default uses the silence skipper and playback speed audio processors,
+			// they both don't work with anything that isn't 16 bit pcm,
+			// so exoplayer (our fork) will just happily ignore the replaygain processor
+			// that's why this below is being done
+			audioSinkBuilder
+				.setEnableFloatOutput(true)
+				.setAudioProcessorChain(object : AudioProcessorChain {
 				override fun getAudioProcessors(inputFormat: Format): Array<out AudioProcessor> {
 					return audioProcessors
 				}
@@ -170,7 +177,11 @@ class ExoStateHolder : KoinComponent {
 					return 0
 				}
 			})
-			.build()
+		} else {
+			audioSinkBuilder.setAudioProcessors(audioProcessors)
+		}
+
+		val audioSink = audioSinkBuilder.build()
 
 		return RenderersFactory { eventHandler, _, eventListener, _, _ ->
 			arrayOf<BaseRenderer>(
