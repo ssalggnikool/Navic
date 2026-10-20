@@ -22,6 +22,7 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.util.network.NavicularDnsResolver
 import paige.navic.util.network.createHttpClientWithPreferences
 import androidx.core.net.toUri
+import kotlin.math.abs
 
 class CoilSingleton(
 	private val context: Context,
@@ -36,6 +37,8 @@ class CoilSingleton(
 	)
 	// https://slack-chats.kotlinlang.org/t/8294624/hi-i-m-using-coil-to-load-images-in-compose-and-i-need-to-se
 	private class SizeInterceptor : Interceptor {
+		private val sizes = listOf(200, 512, 1024, 4096)
+
 		override suspend fun intercept(chain: Interceptor.Chain): ImageResult {
 			val request = chain.request
 			val width = chain.size.width
@@ -44,7 +47,7 @@ class CoilSingleton(
 					Regex("[?&]size=[0-9]+"), ""
 				)
 
-				val targetSize = width.px.toString()
+				val targetSize = sizes.minBy { abs(it - width.px) }.toString()
 
 				val newUri = url.toUri()
 					.buildUpon()
