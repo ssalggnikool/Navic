@@ -34,6 +34,7 @@ data class CollectionViewState(
 	val rating: Int = 0,
 	val albumInfo: DomainAlbumInfo? = null,
 	val selectedSong: DomainSong? = null,
+	val selectedIndex: Int? = null,
 	val selectedAlbum: DomainAlbum? = null
 )
 
@@ -92,9 +93,10 @@ class CollectionDetailViewModel(
 		setSuccess(state)
 	}
 
-	fun selectSong(song: DomainSong) = updateData {
+	fun selectSong(song: DomainSong, index: Int) = updateData {
 		it.copy(
-			selectedSong = song
+			selectedSong = song,
+			selectedIndex = index
 		)
 	}
 
@@ -109,9 +111,9 @@ class CollectionDetailViewModel(
 	}
 
 	fun removeFromPlaylist() {
-		val song = uiState.value.data?.selectedSong ?: return
+		val index = uiState.value.data?.selectedIndex ?: return
 		launch {
-			repository.removeSongFromPlaylist(collectionId, song.id)
+			repository.removeSongFromPlaylist(collectionId, index)
 			snackBarManager.notify(R.string.notice_removed_from_playlist)
 			refreshCollection(true)
 		}

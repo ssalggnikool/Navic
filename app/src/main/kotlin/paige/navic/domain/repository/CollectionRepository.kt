@@ -74,14 +74,10 @@ class CollectionRepository(
 		return sessionManager.api.getAlbumInfo(albumId)
 	}
 
-	suspend fun removeSongFromPlaylist(playlistId: String, songId: String) {
-		val playlist = getLocalData(playlistId) as? DomainPlaylist
-			?: error("Collection ID $playlistId is not a playlist")
-		val songIndex = playlist.songs.indexOfFirst { it.id == songId }
-		require(songIndex >= 0) { "Song ID $songId is not in playlist $playlistId" }
+	suspend fun removeSongFromPlaylist(playlistId: String, position: Int) {
 		sessionManager.api.updatePlaylist(
 			id = playlistId,
-			songIndicesToRemove = listOf(songIndex)
+			songIndicesToRemove = listOf(position)
 		)
 	}
 }
