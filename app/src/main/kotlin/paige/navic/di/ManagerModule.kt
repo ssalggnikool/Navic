@@ -6,6 +6,7 @@
 
 package paige.navic.di
 
+import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import paige.navic.domain.manager.AppIconManager
@@ -26,6 +27,8 @@ import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.manager.StorageManager
 import paige.navic.domain.manager.SyncManager
 import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
+import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.NavicDataSourceFactory
 
 val managerModule = module {
 	singleOf(::AppIconManager)
@@ -48,6 +51,14 @@ val managerModule = module {
 		SyncManager(get(), get(), get(), get(), get(), get()).apply {
 			startPeriodicSync()
 		}
+	}
+	single {
+		NavicDataSourceFactory(
+			downloadManager = get(),
+			sessionManager = get(),
+			preferenceManager = get(),
+			dnsResolver = get()
+		)
 	}
 	singleOf(::ExoStateHolder)
 }

@@ -8,7 +8,6 @@ package paige.navic.playback
 
 import android.app.Application
 import android.content.Intent
-import android.net.Uri
 import androidx.core.net.toUri
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -21,7 +20,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import dev.zt64.subsonic.api.model.MediaType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -32,7 +30,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.mapper.toDomainModel
@@ -52,9 +49,9 @@ import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.domain.repository.SongRepository
 import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildSongUri
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
-import java.io.File
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -65,7 +62,6 @@ class MediaPlayer(
 	private val stateRepository: PlayerStateRepository,
 	private val songRepository: SongRepository,
 	private val downloadManager: DownloadManager,
-	private val connectivityManager: ConnectivityManager,
 	private val preferenceManager: PreferenceManager,
 	private val audioGainManager: AudioGainManager,
 	private val application: Application,
@@ -73,7 +69,6 @@ class MediaPlayer(
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
 ) {
-	private val clientInfo = PlaybackUtils.buildClientInfo()
 	private val _uiState = MutableStateFlow(PlayerUiState())
 	val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 	private val scope = CoroutineScope(Dispatchers.Main)
@@ -190,31 +185,6 @@ class MediaPlayer(
 			controller = controllerFuture?.get()
 			setupController()
 		}, MoreExecutors.directExecutor())
-	}
-
-	// TODO: I THINK this could be somewhere else
-	private fun getStreamUrl(id: String): Uri = runBlocking {
-		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0, estimateContentLength = true)
-		try {
-			val transcodeDecision = withContext(Dispatchers.IO) {
-				sessionManager.api.getTranscodeDecision(
-					id,
-					MediaType.SONG,
-					clientInfo
-				)
-			}
-			val streamUrl = transcodeDecision.transcodeParams.let { params ->
-				if (!transcodeDecision.canDirectPlay && transcodeDecision.canTranscode && params != null) {
-					return@let sessionManager.api.getTranscodeStreamUrl(id, MediaType.SONG, 0, params)
-				} else {
-					return@let defaultStreamUrl
-				}
-			}.toUri()
-
-			return@runBlocking streamUrl
-		} catch (_: Exception) {
-			return@runBlocking defaultStreamUrl.toUri()
-		}
 	}
 
 	private fun setupController() = launch {
@@ -818,33 +788,24 @@ class MediaPlayer(
 		val albumArtistName = albumArtists.joinToString { it.name }.ifBlank { artistName }
 
 		val metadataBuilder = MediaMetadata.Builder()
-			.setTitle(title)
-			.setSubtitle(displayArtist)
-			.setArtist(displayArtist)
-			.setAlbumArtist(albumArtistName)
-			.setAlbumTitle(albumTitle)
-			.setDurationMs(duration.inWholeMilliseconds)
-			.setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
-
-		metadataBuilder.setArtworkUri(
-			coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
-		)
+			.apply {
+				setTitle(title)
+				setSubtitle(displayArtist)
+				setArtist(displayArtist)
+				setAlbumArtist(albumArtistName)
+				setAlbumTitle(albumTitle)
+				setDurationMs(duration.inWholeMilliseconds)
+				setArtworkUri(
+					coverArtId?.let { sessionManager.getCoverArtUrl(it).toUri() }
+				)
+				setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
+			}
 
 		val metadata = metadataBuilder.build()
 
 		val uri = when {
-			id.startsWith("radio_") && !filePath.isNullOrEmpty() -> {
-				filePath.toUri()
-			}
-
-			else -> {
-				val localPath = downloadManager.getDownloadedFilePath(id)
-				if (localPath != null) {
-					File(localPath).toUri()
-				} else {
-					getStreamUrl(id)
-				}
-			}
+			id.startsWith("radio_") && !filePath.isNullOrEmpty() -> filePath.toUri()
+			else -> id.buildSongUri()
 		}
 
 		val builder = MediaItem.Builder()

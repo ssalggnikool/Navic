@@ -21,8 +21,6 @@ import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.AudioProcessorChain
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer
 import androidx.media3.exoplayer.BaseRenderer
 import androidx.media3.exoplayer.DefaultLoadControl
@@ -58,16 +56,15 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.playback.exoplayer.impl.util.ExoArtworkLoader
+import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
-import paige.navic.util.network.NavicularDnsResolver
-import paige.navic.util.network.createOkHttpClient
+import paige.navic.playback.exoplayer.impl.util.ExoArtworkLoader
 
 @OptIn(UnstableApi::class)
 class ExoStateHolder : KoinComponent {
 	private val context: Context by inject()
 	private val preferenceManager: PreferenceManager by inject()
-	private val dnsResolver: NavicularDnsResolver by inject()
+	private val dataSource: NavicDataSource.NavicDataSourceFactory by inject()
 	private val imageLoader: ImageLoader by inject()
 	private val mutex = Mutex()
 
@@ -133,16 +130,6 @@ class ExoStateHolder : KoinComponent {
 			Mp3Extractor(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING)
 		)
 	}
-
-	// TODO: figure out why KtorDataSource causes #650
-	private val httpDataSourceFactory = OkHttpDataSource.Factory(
-		createOkHttpClient(
-			preferenceManager.dangerousSslNoopEnabled,
-			preferenceManager.customHeadersMap(),
-			preferenceManager.proxyUrl.takeIf { it.isNotEmpty() },
-			dnsResolver
-		)
-	)
 
 	private fun createRenderers(context: Context): RenderersFactory {
 		val audioProcessors = arrayOf<AudioProcessor>(gainProcessor)
@@ -240,8 +227,7 @@ class ExoStateHolder : KoinComponent {
 	}.build()
 
 	private suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
-		val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
-		val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory, extractorsFactory)
+		val mediaSourceFactory = DefaultMediaSourceFactory(dataSource, extractorsFactory)
 
 		playerInstance = ExoPlayer.Builder(
 			context,
@@ -296,7 +282,7 @@ class ExoStateHolder : KoinComponent {
 	private suspend fun createMediaSession(): MediaSession = mutex.withLock {
 		val bitmapLoader = ExoArtworkLoader(
 			context,
-			dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory),
+			dataSourceFactory = dataSource,
 			imageLoader
 		)
 		val sessionIntent = context.packageManager
