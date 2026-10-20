@@ -23,6 +23,7 @@ data class PlayerUiState(
 	val isLoading: Boolean = false,
 	val playbackSpeed: Float = 1.0f,
 	val playbackBitrate: Int? = null,
+	val playbackBitDepth: Int? = null,
 	val playbackSampleRate: Int? = null,
 	val playbackMimeType: String? = null
 )

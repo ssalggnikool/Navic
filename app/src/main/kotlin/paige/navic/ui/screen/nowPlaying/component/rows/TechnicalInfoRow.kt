@@ -64,12 +64,16 @@ fun NowPlayingTechnicalInfoRow() {
 						if (it >= 1000) "${it / 1000.0} kHz" else "$it Hz"
 					} ?: "-- kHz"
 
-				val isCellular = connectivityManager.isCellular.value
+				val isCellular = connectivityManager.isCellular.collectAsState().value
 				val requestedBitrate = if (preferenceManager.isAdvancedTranscodingActive) {
 					if (isCellular) preferenceManager.customMaxBitrateCellular else preferenceManager.customMaxBitrateWifi
 				} else {
 					if (isCellular) preferenceManager.streamingQualityCellular.bitrate else preferenceManager.streamingQualityWifi.bitrate
 				}
+
+				val bitDepthFormatted = playerState.playbackBitDepth
+					?.takeIf { it > 16 }
+					?.let { "$it bit" }
 
 				val bitrateFormatted = playerState.playbackBitrate?.let { "${it / 1000} kbps" }
 					?: if (requestedBitrate > 0) {
@@ -85,7 +89,8 @@ fun NowPlayingTechnicalInfoRow() {
 						?: "--"
 
 				Text(
-					text = "$format • $sampleRateFormatted • $bitrateFormatted",
+					text = bitDepthFormatted?.let { "$format • $it / $sampleRateFormatted • $bitrateFormatted" }
+						?: "$format • $sampleRateFormatted • $bitrateFormatted",
 					style = style,
 					color = color
 				)
