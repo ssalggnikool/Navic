@@ -478,7 +478,15 @@ class MediaPlayer(
 						state.copy(
 							playbackBitrate = format.bitrate.takeIf { it > 0 },
 							playbackSampleRate = format.sampleRate.takeIf { it > 0 },
-							playbackMimeType = format.sampleMimeType
+							playbackMimeType = format.sampleMimeType,
+							playbackBitDepth = when (format.pcmEncoding) {
+								C.ENCODING_PCM_8BIT -> 8
+								C.ENCODING_PCM_16BIT -> 16
+								C.ENCODING_PCM_24BIT -> 24
+								C.ENCODING_PCM_32BIT -> 32
+								C.ENCODING_PCM_FLOAT -> 32
+								else -> -1
+							}
 						)
 					}
 					break
