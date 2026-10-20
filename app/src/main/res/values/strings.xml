@@ -541,6 +541,6 @@
 	<string name="title_commit_message">Commit message</string>
 	<string name="title_branch_name">Branch name</string>
 	<string name="title_commit_author">Commit author</string>
-    <string name="option_bitperfect_playback">Bit-perfect playback</string>
-	<string name="subtitle_bitperfect_playback">Experimental. Requires application restart. Playback speed will no longer work if this option is enabled</string>
+    <string name="option_float_output">Float output precision</string>
+	<string name="subtitle_float_output">Experimental. Requires application restart. Playback speed will no longer work if this option is enabled</string>
 </resources>
