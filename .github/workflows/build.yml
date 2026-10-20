@@ -88,7 +88,7 @@ jobs:
 
   upload-artifacts-to-discord:
     name: Upload Artifacts to Discord
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/bleeding-edge')
     needs: [ build-android ]
     runs-on: ubuntu-latest
     steps:
@@ -97,11 +97,19 @@ jobs:
 
       - name: Post artifacts to Discord webhook
         shell: bash
-        if: env.CI_BUILD_WEBHOOK
+        if: "{{ secrets.CI_BUILD_WEBHOOK != '' || secrets.BLEEDING_EDGE_CI_WEBHOOK != '' }}"
         env:
           CI_BUILD_WEBHOOK: ${{ secrets.CI_BUILD_WEBHOOK }}
+          BLEEDING_EDGE_CI_WEBHOOK: ${{ secrets.BLEEDING_EDGE_CI_WEBHOOK }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           shopt -s nullglob globstar
+          
+          if [ "$REF_NAME" = "bleeding-edge" ] && [ -n "$BLEEDING_EDGE_CI_WEBHOOK" ]; then
+            WEBHOOK_URL="$BLEEDING_EDGE_CI_WEBHOOK"
+          else
+            WEBHOOK_URL="$CI_BUILD_WEBHOOK"
+          fi
 
           files=()
           i=1
@@ -119,7 +127,7 @@ jobs:
 
           payload=$(jq -n --arg content "Builds for [${GITHUB_SHA::7}](<$run_url>)" '{$content}')
 
-          curl -XPOST "$CI_BUILD_WEBHOOK" -F "payload_json=$payload" "${files[@]}"
+          curl -XPOST "$WEBHOOK_URL" -F "payload_json=$payload" "${files[@]}"
 
   create-release:
     name: Create GitHub Release
