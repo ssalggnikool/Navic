@@ -97,7 +97,6 @@ jobs:
 
       - name: Post artifacts to Discord webhook
         shell: bash
-        if: "{{ secrets.CI_BUILD_WEBHOOK != '' || secrets.BLEEDING_EDGE_CI_WEBHOOK != '' }}"
         env:
           CI_BUILD_WEBHOOK: ${{ secrets.CI_BUILD_WEBHOOK }}
           BLEEDING_EDGE_CI_WEBHOOK: ${{ secrets.BLEEDING_EDGE_CI_WEBHOOK }}
