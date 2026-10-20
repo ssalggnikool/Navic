@@ -87,18 +87,25 @@ fun AudioEffectsScreen() {
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 					SettingsToggleItem(
+						checked = preferenceManager.floatOutputEnabled,
+						onCheckedChange = { preferenceManager.floatOutputEnabled = it },
+						content = { Text(stringResource(R.string.option_bitperfect_playback)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_bitperfect_playback)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+					)
+					SettingsToggleItem(
 						checked = preferenceManager.gaplessPlayback,
 						onCheckedChange = { preferenceManager.gaplessPlayback = it },
 						content = { Text(stringResource(R.string.option_gapless_playback)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_gapless_playback)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.audioOffload,
 						onCheckedChange = { preferenceManager.audioOffload = it },
 						content = { Text(stringResource(R.string.option_audio_offload)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_audio_offload)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
 					)
 				}
 
