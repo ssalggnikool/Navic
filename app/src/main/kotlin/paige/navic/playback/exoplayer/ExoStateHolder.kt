@@ -141,22 +141,24 @@ class ExoStateHolder : KoinComponent {
 	)
 
 	private fun createRenderers(context: Context): RenderersFactory {
-		return RenderersFactory { handler, _, audioListener, _, _ ->
+		val audioSink = DefaultAudioSink.Builder(context)
+			.setEnableFloatOutput(true)
+			.setAudioProcessors(arrayOf(gainProcessor))
+			.build()
+
+		return RenderersFactory { eventHandler, _, eventListener, _, _ ->
 			arrayOf<BaseRenderer>(
 				FfmpegAudioRenderer(
-					context,
-					handler,
-					audioListener,
-					gainProcessor
+					eventHandler,
+					eventListener,
+					audioSink
 				),
 				MediaCodecAudioRenderer(
 					context,
 					MediaCodecSelector.DEFAULT,
-					handler,
-					audioListener,
-					DefaultAudioSink.Builder(context)
-						.setAudioProcessors(arrayOf(gainProcessor))
-						.build()
+					eventHandler,
+					eventListener,
+					audioSink
 				)
 			)
 		}
