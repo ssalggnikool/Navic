@@ -11,21 +11,60 @@ import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.disk.directory
+import coil3.intercept.Interceptor
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.ImageResult
 import coil3.request.crossfade
 import coil3.serviceLoaderEnabled
+import coil3.size.Dimension
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.util.network.NavicularDnsResolver
 import paige.navic.util.network.createHttpClientWithPreferences
+import androidx.core.net.toUri
 
 class CoilSingleton(
 	private val context: Context,
-	private val preferenceManager: PreferenceManager,
-	private val dnsResolver: NavicularDnsResolver
+	preferenceManager: PreferenceManager,
+	dnsResolver: NavicularDnsResolver
 ) {
 	private var sharedDiskCache: DiskCache? = null
 	private var sharedMemoryCache: MemoryCache? = null
+	@OptIn(ExperimentalCoilApi::class)
+	private val networkFetcher = KtorNetworkFetcherFactory(
+		createHttpClientWithPreferences(preferenceManager, dnsResolver)
+	)
+	// https://slack-chats.kotlinlang.org/t/8294624/hi-i-m-using-coil-to-load-images-in-compose-and-i-need-to-se
+	private class SizeInterceptor : Interceptor {
+		override suspend fun intercept(chain: Interceptor.Chain): ImageResult {
+			val request = chain.request
+			val width = chain.size.width
+			val newRequest = if (width is Dimension.Pixels) {
+				val url = (request.data as String).replace(
+					Regex("[?&]size=[0-9]+"), ""
+				)
+
+				val targetSize = width.px.toString()
+
+				val newUri = url.toUri()
+					.buildUpon()
+					.appendQueryParameter("size", targetSize)
+					.build()
+
+				val cacheKey = "$url#size=$targetSize"
+
+				request.newBuilder()
+					.data(newUri)
+					.memoryCacheKey(cacheKey)
+					.diskCacheKey(cacheKey)
+					.build()
+			} else {
+				request
+			}
+			return chain.withRequest(newRequest).proceed()
+		}
+	}
+	private val sizeInterceptor = SizeInterceptor()
 
 	val coilImageLoader: ImageLoader by lazy { getImageLoader() }
 	val staticCoilImageLoader: ImageLoader by lazy { getStaticImageLoader() }
@@ -43,15 +82,11 @@ class CoilSingleton(
 			.build().also { sharedMemoryCache = it }
 	}
 
-	@OptIn(ExperimentalCoilApi::class)
 	private fun getImageLoader(): ImageLoader {
 		return ImageLoader.Builder(context)
 			.components {
-				add(
-					KtorNetworkFetcherFactory(
-						createHttpClientWithPreferences(preferenceManager, dnsResolver)
-					)
-				)
+				add(networkFetcher)
+				add(sizeInterceptor)
 			}
 			.diskCache { getDiskCache() }
 			.memoryCache { getMemoryCache() }
@@ -64,16 +99,12 @@ class CoilSingleton(
 	 *
 	 * only used in `BlendBackground.kt` right now
 	 */
-	@OptIn(ExperimentalCoilApi::class)
 	private fun getStaticImageLoader(): ImageLoader {
 		return ImageLoader.Builder(context)
 			.serviceLoaderEnabled(false)
 			.components {
-				add(
-					KtorNetworkFetcherFactory(
-						createHttpClientWithPreferences(preferenceManager, dnsResolver)
-					)
-				)
+				add(networkFetcher)
+				add(sizeInterceptor)
 			}
 			.diskCache { getDiskCache() }
 			.memoryCache { getMemoryCache() }

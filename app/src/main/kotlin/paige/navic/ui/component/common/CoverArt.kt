@@ -78,10 +78,7 @@ fun CoverArt(
 		preferenceManager.artistImageShape.shape
 	}
 
-	val model = remember(coverArtId, preferenceManager.customHeaders) {
-		val networkHeaders = NetworkHeaders.Builder().apply {
-			preferenceManager.customHeadersMap().forEach { (key, value) -> add(key, value) }
-		}.build()
+	val model = remember(coverArtId) {
 		ImageRequest.Builder(coilPlatformContext)
 			.data(coverArtId?.let { sessionManager.getCoverArtUrl(it) })
 			.memoryCacheKey(coverArtId)
@@ -89,7 +86,6 @@ fun CoverArt(
 			.diskCachePolicy(CachePolicy.ENABLED)
 			.memoryCachePolicy(CachePolicy.ENABLED)
 			.crossfade(crossfadeMs)
-			.httpHeaders(networkHeaders)
 			.build()
 	}
 
