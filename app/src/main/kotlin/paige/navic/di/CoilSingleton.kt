@@ -37,7 +37,7 @@ class CoilSingleton(
 	)
 	// https://slack-chats.kotlinlang.org/t/8294624/hi-i-m-using-coil-to-load-images-in-compose-and-i-need-to-se
 	private class SizeInterceptor : Interceptor {
-		private val sizes = listOf(200, 512, 1024, 4096)
+		private val sizes = listOf(50, 100, 200, 512, 1024, 4096)
 
 		override suspend fun intercept(chain: Interceptor.Chain): ImageResult {
 			val request = chain.request
