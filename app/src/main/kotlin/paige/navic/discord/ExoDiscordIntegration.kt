@@ -25,7 +25,6 @@ import night.milkyway.antisocialcord.model.Activity
 import night.milkyway.antisocialcord.model.ActivityAssets
 import night.milkyway.antisocialcord.model.ActivityTimestamps
 import night.milkyway.antisocialcord.model.ActivityType
-import night.milkyway.antisocialcord.model.StatusDisplayType
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.domain.manager.PreferenceManager
@@ -55,10 +54,25 @@ class ExoDiscordIntegration(
 	private val scope = CoroutineScope(Dispatchers.Main)
 
 	init {
+		// idk how to combine flows of different types
 		scope.launch {
 			combine(
 				snapshotFlow { preferenceManager.enableDiscordIntegration },
 				snapshotFlow { preferenceManager.disableRpcWhenPowerSaving }
+			) { it }.collect {
+				setCurrentActivity(player.currentMediaItem)
+			}
+		}
+		scope.launch {
+			combine(
+				snapshotFlow { preferenceManager.discordStatusType }
+			) { it }.collect {
+				setCurrentActivity(player.currentMediaItem)
+			}
+		}
+		scope.launch {
+			combine(
+				snapshotFlow { preferenceManager.discordAppId }
 			) { it }.collect {
 				setCurrentActivity(player.currentMediaItem)
 			}
@@ -162,7 +176,7 @@ class ExoDiscordIntegration(
 			activityType = ActivityType.LISTENING,
 			state = song.artistName?.padEnd(2, INVISIBLE_CHARACTER),
 			details = song.title.padEnd(2, INVISIBLE_CHARACTER),
-			statusDisplayType = StatusDisplayType.STATE,
+			statusDisplayType = preferenceManager.discordStatusType.wrappedType,
 			assets = ActivityAssets(
 				largeUrl = null,
 				largeImage = largeImage,

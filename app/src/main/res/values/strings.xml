@@ -228,6 +228,10 @@
 	<string name="option_enable_ratings">Enable ratings</string>
 	<string name="option_enable_predictive_back_animations">Enable predictive back animations</string>
 	<string name="option_enable_discord_integration">Enable Discord integration</string>
+	<string name="option_discord_rpc_status_type">Discord status type</string>
+	<string name="option_discord_rpc_status_type_artist_name">Artist name</string>
+	<string name="option_discord_rpc_status_type_song_name">Song name</string>
+	<string name="option_discord_rpc_status_type_app_name">App name</string>
 	<string name="option_disable_rpc_when_power_saving">Disable presence on power saving mode</string>
 
 	<string name="info_status_idle">Idle</string>

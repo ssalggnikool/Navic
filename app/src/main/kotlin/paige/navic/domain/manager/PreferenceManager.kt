@@ -22,6 +22,7 @@ import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.CoverArtShape
 import paige.navic.domain.model.settings.CoverArtTapAction
+import paige.navic.domain.model.settings.DiscordStatusType
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.FontOption
 import paige.navic.domain.model.settings.GridSize
@@ -165,6 +166,7 @@ class PreferenceManager(
 	var enableDiscordIntegration by preference(false)
 	var disableRpcWhenPowerSaving by preference(true)
 	var discordAppId by preference(ExoDiscordIntegration.DISCORD_APPLICATION_ID)
+	var discordStatusType by preference(DiscordStatusType.AppName)
 
 	var proxyUrl by preference("")
 	var dangerousSslNoopEnabled by preference(false)
