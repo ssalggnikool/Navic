@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.audiofx.AudioEffect
 import android.media.audiofx.Equalizer
+import androidx.annotation.OptIn
 import androidx.media3.common.C
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -20,7 +21,7 @@ import paige.navic.domain.manager.EqualizerManager
 import paige.navic.domain.model.settings.EqualizerMode
 import paige.navic.util.Logger
 
-@UnstableApi
+@OptIn(UnstableApi::class)
 class ExoEqualizerManager(
 	private val equalizerManager: EqualizerManager,
 	private val context: Context
@@ -31,12 +32,13 @@ class ExoEqualizerManager(
 	private var equalizer: Equalizer? = null
 
 	override fun onAudioSessionIdChanged(audioSessionId: Int) {
+		releaseEqualizer()
 		currentAudioSessionId = audioSessionId
-		applyEqualizerMode(equalizerMode)
+		applyEqualizerMode(equalizerMode, closeCurrentSession = false)
 	}
 
 	private fun createEqualizer(sessionId: Int) {
-		releaseEqualizer()
+		if (sessionId == C.AUDIO_SESSION_ID_UNSET) return
 		try {
 			val equalizer = Equalizer(0, sessionId).apply {
 				enabled = true
@@ -82,10 +84,24 @@ class ExoEqualizerManager(
 		}
 	}
 
+	fun updateConfig() {
+		val mode = equalizerManager.config.value.mode
+		if (mode != equalizerMode) {
+			applyEqualizerMode(mode)
+		} else {
+			updateEqualizer()
+		}
+	}
+
 	fun applyEqualizerMode(mode: EqualizerMode) {
+		applyEqualizerMode(mode, closeCurrentSession = true)
+	}
+
+	private fun applyEqualizerMode(mode: EqualizerMode, closeCurrentSession: Boolean) {
 		equalizerMode = mode
-		closeAudioEffectSession(currentAudioSessionId)
-		releaseEqualizer()
+		if (closeCurrentSession) {
+			releaseEqualizer()
+		}
 
 		when (mode) {
 			EqualizerMode.BuiltIn -> createEqualizer(currentAudioSessionId)
@@ -109,11 +125,11 @@ class ExoEqualizerManager(
 	}
 
 	// Tells external equalizer apps our audio session is going away so they can release their effects
-	private fun closeAudioEffectSession(sessionId: Int) {
+	private fun closeAudioEffectSession() {
 		if (currentAudioSessionId == C.AUDIO_SESSION_ID_UNSET) return
 		context.sendBroadcast(
 			Intent(AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION).apply {
-				putExtra(AudioEffect.EXTRA_AUDIO_SESSION, sessionId)
+				putExtra(AudioEffect.EXTRA_AUDIO_SESSION, currentAudioSessionId)
 				putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
 			}
 		)
@@ -121,7 +137,8 @@ class ExoEqualizerManager(
 	}
 
 	fun releaseEqualizer() {
+		this.equalizer?.release()
 		this.equalizer = null
-		closeAudioEffectSession(currentAudioSessionId)
+		closeAudioEffectSession()
 	}
 }
