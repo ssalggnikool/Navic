@@ -14,8 +14,12 @@ import android.os.Bundle
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import androidx.media3.common.Format
+import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionParameters
+import androidx.media3.common.audio.AudioProcessor
+import androidx.media3.common.audio.AudioProcessorChain
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
@@ -141,9 +145,31 @@ class ExoStateHolder : KoinComponent {
 	)
 
 	private fun createRenderers(context: Context): RenderersFactory {
+		val audioProcessors = arrayOf<AudioProcessor>(gainProcessor)
+
 		val audioSink = DefaultAudioSink.Builder(context)
 			.setEnableFloatOutput(true)
-			.setAudioProcessors(arrayOf(gainProcessor))
+			.setAudioProcessorChain(object : AudioProcessorChain {
+				override fun getAudioProcessors(inputFormat: Format): Array<out AudioProcessor> {
+					return audioProcessors
+				}
+
+				override fun applyPlaybackParameters(playbackParameters: PlaybackParameters): PlaybackParameters {
+					return PlaybackParameters.DEFAULT
+				}
+
+				override fun applySkipSilenceEnabled(skipSilenceEnabled: Boolean): Boolean {
+					return false
+				}
+
+				override fun getMediaDuration(playoutDuration: Long): Long {
+					return playoutDuration
+				}
+
+				override fun getSkippedOutputFrameCount(): Long {
+					return 0
+				}
+			})
 			.build()
 
 		return RenderersFactory { eventHandler, _, eventListener, _, _ ->
