@@ -142,6 +142,19 @@ class SessionManager(
 		)
 	}
 
+	fun updateInstanceUrl(url: String) {
+		val rawUrl = url.trim().removeSuffix("/")
+		val formattedUrl = if (rawUrl.startsWith("https://") || rawUrl.startsWith("http://")) {
+			rawUrl
+		} else {
+			"https://$rawUrl"
+		}
+		if (formattedUrl.isNotBlank() && formattedUrl != instanceUrl) {
+			instanceUrl = formattedUrl
+			refreshClient()
+		}
+	}
+
 	fun getCoverArtUrl(coverArtId: String) = api.getCoverArtUrl(
 		coverArtId,
 		auth = true,

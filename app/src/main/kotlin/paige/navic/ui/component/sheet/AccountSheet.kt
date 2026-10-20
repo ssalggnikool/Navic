@@ -58,6 +58,7 @@ import paige.navic.domain.manager.SleepTimerMode
 import paige.navic.domain.manager.canUserShare
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Bedtime
+import paige.navic.ui.icons.outlined.Edit
 import paige.navic.ui.icons.outlined.Forum
 import paige.navic.ui.icons.outlined.Logout
 import paige.navic.ui.icons.outlined.Share
@@ -138,7 +139,11 @@ fun AccountSheet(
 		) {
 			Surface(
 				color = MaterialTheme.colorScheme.surfaceContainer,
-				shape = MaterialTheme.shapes.large
+				shape = MaterialTheme.shapes.large,
+				onClick = {
+					animateToDismiss()
+					backStack.add(Screen.Settings.ConnectionOptions)
+				}
 			) {
 				Row(
 					modifier = Modifier
@@ -178,6 +183,11 @@ fun AccountSheet(
 							color = MaterialTheme.colorScheme.onSurfaceVariant
 						)
 					}
+					Icon(
+						imageVector = Icons.Outlined.Edit,
+						contentDescription = stringResource(R.string.action_edit),
+						tint = MaterialTheme.colorScheme.onSurfaceVariant
+					)
 				}
 			}
 
