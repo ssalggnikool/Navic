@@ -19,7 +19,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -41,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.MarqueeSpeed
@@ -95,36 +99,32 @@ private fun Marquee(
 	val scrollState = rememberScrollState()
 	val edgeWidthPx = with(LocalDensity.current) { edgeWidth.toPx() }
 
-	var isVisible by remember { mutableStateOf(false) }
+	LaunchedEffect(Unit) {
+		snapshotFlow {
+			scrollState.maxValue != 0
+		}.collectLatest { shouldScroll ->
+			if (shouldScroll) {
+				while (true) {
+					delay(3.seconds)
 
-	LaunchedEffect(scrollState.maxValue) {
-		if (!isVisible || scrollState.maxValue == 0) return@LaunchedEffect
+					scrollState.animateScrollTo(
+						value = scrollState.maxValue,
+						animationSpec = tween(preferenceManager.marqueeSpeed.value)
+					)
 
-		while (true) {
-			delay(5.seconds)
+					delay(1.seconds)
 
-			scrollState.animateScrollTo(
-				value = scrollState.maxValue,
-				animationSpec = tween(preferenceManager.marqueeSpeed.value)
-			)
-
-			delay(1.seconds)
-
-			scrollState.animateScrollTo(
-				value = 0,
-				animationSpec = tween(preferenceManager.marqueeSpeed.value)
-			)
+					scrollState.animateScrollTo(
+						value = 0,
+						animationSpec = tween(preferenceManager.marqueeSpeed.value)
+					)
+				}
+			}
 		}
 	}
 
 	Box(
 		modifier = modifier
-			.onGloballyPositioned {
-				val windowBounds = it.boundsInWindow()
-				isVisible = it.isAttached &&
-					windowBounds.width > 0f &&
-					windowBounds.height > 0f
-			}
 			.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
 			.drawWithContent {
 				drawContent()
