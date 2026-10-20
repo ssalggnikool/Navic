@@ -6,6 +6,7 @@
 
 package paige.navic.domain.manager
 
+import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -13,7 +14,7 @@ import paige.navic.domain.model.DomainReplayGain
 import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.playback.exoplayer.ExoStateHolder
 
-@UnstableApi
+@OptIn(UnstableApi::class)
 class AudioGainManager: KoinComponent {
 	private val stateHolder: ExoStateHolder by inject()
 

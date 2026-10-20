@@ -89,8 +89,8 @@ fun AudioEffectsScreen() {
 					SettingsToggleItem(
 						checked = preferenceManager.floatOutputEnabled,
 						onCheckedChange = { preferenceManager.floatOutputEnabled = it },
-						content = { Text(stringResource(R.string.option_bitperfect_playback)) },
-						supportingContent = { Text(stringResource(R.string.subtitle_bitperfect_playback)) },
+						content = { Text(stringResource(R.string.option_float_output)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_float_output)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
 					)
 					SettingsToggleItem(
