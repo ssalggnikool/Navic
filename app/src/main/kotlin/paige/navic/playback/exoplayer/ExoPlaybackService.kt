@@ -7,6 +7,7 @@
 package paige.navic.playback.exoplayer
 
 import android.content.Intent
+import androidx.annotation.OptIn
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.DefaultMediaNotificationProvider
@@ -27,9 +28,9 @@ import paige.navic.domain.manager.EqualizerManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SyncManager
-import paige.navic.playback.exoplayer.impl.ExoEqualizerManager
+import paige.navic.playback.exoplayer.impl.playback.ExoEqualizerManager
 
-@UnstableApi
+@OptIn(UnstableApi::class)
 class ExoPlaybackService : MediaSessionService(), KoinComponent {
 	private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 

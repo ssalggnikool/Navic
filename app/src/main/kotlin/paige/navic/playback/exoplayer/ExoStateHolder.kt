@@ -58,8 +58,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.discord.ExoDiscordIntegration
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.playback.exoplayer.impl.ExoArtworkLoader
-import paige.navic.playback.exoplayer.impl.ExoAudioGainProcessor
+import paige.navic.playback.exoplayer.impl.util.ExoArtworkLoader
+import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
 import paige.navic.util.network.NavicularDnsResolver
 import paige.navic.util.network.createOkHttpClient
 
