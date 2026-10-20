@@ -15,12 +15,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,7 +45,8 @@ enum class DeletionEndpoint(
 	@StringRes val deletedText: Int
 ) {
 	PLAYLIST(R.string.title_delete_playlist, R.string.notice_deleted_playlist),
-	SHARE(R.string.title_delete_share, R.string.notice_deleted_share)
+	SHARE(R.string.title_delete_share, R.string.notice_deleted_share),
+	RADIO(R.string.title_delete_radio, R.string.notice_deleted_radio),
 }
 
 class DeletionViewModel(
@@ -67,14 +68,16 @@ class DeletionViewModel(
 		viewModelScope.launch {
 			state.value = UiState.Loading()
 			try {
-				if (endpoint == DeletionEndpoint.SHARE) {
-					sessionManager.api.deleteShare(id)
-				} else {
-					syncManager.enqueueAction(
-						actionType = SyncActionType.DELETE_PLAYLIST,
-						itemId = id
-					)
-					playlistDao.deletePlaylist(id)
+				when (endpoint) {
+					DeletionEndpoint.PLAYLIST -> {
+						syncManager.enqueueAction(
+							actionType = SyncActionType.DELETE_PLAYLIST,
+							itemId = id
+						)
+						playlistDao.deletePlaylist(id)
+					}
+					DeletionEndpoint.SHARE -> sessionManager.api.deleteShare(id)
+					DeletionEndpoint.RADIO -> sessionManager.api.deleteInternetRadioStation(id)
 				}
 				state.value = UiState.Success(null)
 				snackBarManager.notify(endpoint.deletedText)
@@ -98,7 +101,7 @@ fun DeletionDialog(
 	onRefresh: () -> Unit
 ) {
 	val viewModel = koinViewModel<DeletionViewModel>()
-	val state by viewModel.state.collectAsState()
+	val state by viewModel.state.collectAsStateWithLifecycle()
 
 	LaunchedEffect(Unit) {
 		viewModel.events.collect { event ->

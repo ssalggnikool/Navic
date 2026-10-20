@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?><!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
+<!--
 You're supposed to auto-generate this file via android.androidResources.generateLocaleConfig in build.gradle.kts,
 but it doesn't seem to see locales inside commonMain/composeResources
 -->
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
 	<locale android:name="en" />
+	<locale android:name="en-rAU" />
+	<locale android:name="en-rCA" />
+	<locale android:name="en-rGB" />
 	<locale android:name="ar" />
 	<locale android:name="bn" />
 	<locale android:name="de" />

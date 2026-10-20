@@ -12,6 +12,7 @@ import androidx.room3.PrimaryKey
 @Entity
 data class RadioEntity(
 	@PrimaryKey val radioId: String,
+	val coverArtId: String?,
 	val name: String,
 	val streamUrl: String,
 	val homepageUrl: String? = null

@@ -22,6 +22,7 @@ fun ApiAlbum.toEntity(
 	// TODO: figure out why this can be null and how to handle it
 	artistId = artistIdOverride ?: this.artistId ?: "unknown artist",
 	artistName = artistNameOverride ?: this.artistName,
+	displayArtist = this.displayArtist,
 	coverArtId = this.coverArtId,
 	songCount = this.songCount,
 	duration = this.duration,
@@ -43,6 +44,7 @@ fun AlbumWithSongs.toDomainModel() = DomainAlbum(
 	name = album.name,
 	artistId = album.artistId,
 	artistName = album.artistName,
+	displayArtist = album.displayArtist,
 	coverArtId = album.coverArtId,
 	songCount = album.songCount,
 	duration = album.duration,
@@ -67,6 +69,7 @@ fun DomainAlbum.toEntity() = AlbumEntity(
 	name = this.name,
 	artistId = this.artistId,
 	artistName = this.artistName,
+	displayArtist = this.displayArtist,
 	coverArtId = this.coverArtId,
 	songCount = this.songCount,
 	duration = this.duration,

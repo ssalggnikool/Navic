@@ -26,11 +26,20 @@ class RadioListViewModel(
 	val radiosState: StateFlow<UiState<ImmutableList<DomainRadio>>>
 		field = MutableStateFlow<UiState<ImmutableList<DomainRadio>>>(UiState.Loading())
 
+	val selectedRadio: StateFlow<DomainRadio?>
+		field = MutableStateFlow<DomainRadio?>(null)
+
 	val gridState = LazyGridState()
 
 	init {
 		viewModelScope.launch {
 			sessionManager.isLoggedIn.collect { if (it) refreshRadios(false) }
+		}
+	}
+
+	fun selectRadio(radio: DomainRadio?) {
+		viewModelScope.launch {
+			selectedRadio.value = radio
 		}
 	}
 

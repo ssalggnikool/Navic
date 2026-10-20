@@ -72,13 +72,12 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
 import paige.navic.domain.model.settings.MiniPlayerStyle
 import paige.navic.domain.model.settings.NavbarConfig
-import paige.navic.ui.icons.filled.Note
-import paige.navic.ui.icons.filled.SkipNext
-import paige.navic.ui.icons.outlined.Radio
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Note
+import paige.navic.ui.icons.filled.SkipNext
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
 import paige.navic.ui.util.playPauseIconPainter
@@ -139,7 +138,6 @@ fun MiniPlayer(
 	}
 
 	val hasSong = song != null
-	val isRadio = song?.id?.startsWith("radio_") == true
 	val isInteractive = enabled && hasSong
 
 	AnimatedVisibility(
@@ -238,9 +236,9 @@ fun MiniPlayer(
 									)
 									.background(MaterialTheme.colorScheme.surfaceVariant)
 							)
-							if (song?.coverArtId.isNullOrEmpty()) {
+							if (song?.coverArtId == null) {
 								Icon(
-									imageVector = if (isRadio) Icons.Outlined.Radio else Icons.Filled.Note,
+									imageVector = Icons.Filled.Note,
 									contentDescription = null,
 									tint = MaterialTheme.colorScheme.onSurface.copy(alpha = .38f)
 								)

@@ -57,7 +57,7 @@
     <string name="theme_seeded">Teinté</string>
     <string name="theme_ios">Cupertino</string>
     <string name="theme_apple_music">Music.app</string>
-    <string name="theme_spotify">Spotlight</string>
+    <string name="theme_spotify">À la une</string>
     <plurals name="count_songs">
         <item quantity="one">%1$d morceau</item>
         <item quantity="many">%1$d morceaux</item>
@@ -484,7 +484,7 @@
     <string name="notice_notifications_denied">Permission refusée</string>
     <string name="info_total_plays">Lectures totales</string>
     <string name="info_total_listening_time">Temps d\'écoute total</string>
-    <string name="info_listening_stats_ratio">%1$d%% du temps d\'écoute total</string>
+    <string name="info_listening_stats_ratio">%1$s du temps d\'écoute total</string>
     <string name="info_login_description">Connectez-vous à un serveur compatible Subsonic.</string>
     <string name="info_starred_songs">Chansons favorites</string>
     <string name="info_duration_left">%1$s restant</string>
@@ -493,4 +493,14 @@
     <string name="info_chat_unsupported">Soit votre serveur ne prend pas en charge cette fonctionnalité, soit vous n\'êtes pas connecté</string>
     <string name="info_content_unavailable">Rien ici</string>
     <string name="action_allow">Autoriser</string>
+    <string name="subtitle_equalizer">Régler et améliorer le son</string>
+    <string name="subtitle_equalizer_disabled">Non disponible lorsque le déchargement audio est activé</string>
+    <string name="option_equalizer">Égaliseur</string>
+    <string name="option_equalizer_mode">Sélection de l\'égaliseur</string>
+    <string name="option_equalizer_mode_disabled">Désactivé</string>
+    <string name="option_equalizer_mode_builtin">Intégré</string>
+    <string name="option_equalizer_mode_external">Externe</string>
+    <string name="action_copy">Copier</string>
+    <string name="info_equalizer_unsupported">Votre appareil ne prend pas en charge cette fonctionnalité.</string>
+    <string name="info_equalizer_mode_not_builtin">Veuillez régler l\'égaliseur externe via son application dédiée.</string>
 </resources>

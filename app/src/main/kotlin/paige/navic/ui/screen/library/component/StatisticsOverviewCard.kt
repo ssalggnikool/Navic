@@ -8,7 +8,6 @@ package paige.navic.ui.screen.library.component
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +23,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,51 +48,55 @@ import kotlin.time.Duration
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun StatisticsOverviewCard(
+	modifier: Modifier = Modifier,
 	statsState: StatisticsState,
 	onClick: () -> Unit,
 ) {
 	val pagerState = rememberPagerState { 3 }
 
-	Column(
-		modifier = Modifier
-			.fillMaxWidth()
-			.padding(horizontal = 16.dp)
-			.clip(MaterialTheme.shapes.large)
-			.background(MaterialTheme.colorScheme.surfaceContainerHigh)
-			.clickable(onClick = onClick)
-			.padding(vertical = 16.dp),
-		verticalArrangement = Arrangement.spacedBy(12.dp)
+	Surface(
+		modifier = modifier,
+		shape = MaterialTheme.shapes.large,
+		color = MaterialTheme.colorScheme.surfaceContainerHigh,
+		onClick = onClick
 	) {
-		HorizontalPager(
-			state = pagerState,
-			contentPadding = PaddingValues(horizontal = 16.dp),
-			pageSpacing = 16.dp
-		) { page ->
-			when (page) {
-				0 -> TopArtistPage(statsState)
-				1 -> TopAlbumPage(statsState)
-				2 -> TopSongPage(statsState)
-			}
-		}
-
-		Row(
-			modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-			horizontalArrangement = Arrangement.Center,
-			verticalAlignment = Alignment.CenterVertically
+		Box(
+			modifier = Modifier.fillMaxWidth()
 		) {
-			repeat(pagerState.pageCount) { page ->
-				val color by animateColorAsState(
-					if (pagerState.currentPage == page)
-						MaterialTheme.colorScheme.primary
-					else MaterialTheme.colorScheme.surfaceVariant
-				)
-				Box(
-					modifier = Modifier
-						.padding(2.dp)
-						.clip(CircleShape)
-						.background(color)
-						.size(6.dp)
-				)
+			HorizontalPager(
+				modifier = Modifier.fillMaxWidth(),
+				state = pagerState,
+				contentPadding = PaddingValues(16.dp),
+				pageSpacing = 16.dp
+			) { page ->
+				when (page) {
+					0 -> TopArtistPage(statsState)
+					1 -> TopAlbumPage(statsState)
+					2 -> TopSongPage(statsState)
+				}
+			}
+
+			Row(
+				modifier = Modifier
+					.padding(16.dp)
+					.align(Alignment.TopEnd),
+				horizontalArrangement = Arrangement.Center,
+				verticalAlignment = Alignment.CenterVertically
+			) {
+				repeat(pagerState.pageCount) { page ->
+					val color by animateColorAsState(
+						if (pagerState.currentPage == page)
+							MaterialTheme.colorScheme.primary
+						else MaterialTheme.colorScheme.surfaceContainer
+					)
+					Box(
+						modifier = Modifier
+							.padding(2.dp)
+							.clip(CircleShape)
+							.background(color)
+							.size(6.dp)
+					)
+				}
 			}
 		}
 	}

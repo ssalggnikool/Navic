@@ -40,16 +40,16 @@ import paige.navic.di.LocalSheetState
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingBackgroundStyle
 import paige.navic.domain.model.settings.ToolbarPosition
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.KeyboardArrowDown
-import paige.navic.ui.icons.outlined.List
-import paige.navic.ui.icons.outlined.Lyrics
 import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.component.common.BlendBackground
 import paige.navic.ui.component.layout.SheetScaffold
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.toolbar.SheetActionButton
 import paige.navic.ui.component.toolbar.SheetToolbar
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.KeyboardArrowDown
+import paige.navic.ui.icons.outlined.List
+import paige.navic.ui.icons.outlined.Lyrics
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.nowPlaying.component.controls.NowPlayingArtworkPager
 import paige.navic.ui.screen.nowPlaying.component.rows.NowPlayingControlsRow
@@ -156,6 +156,7 @@ fun NowPlayingScreen() {
 
 					else -> contentPadding
 				}
+				// TODO: figure out why artwork pager unnecessarily resizes when you drag the sheet
 				if (isLandscape) {
 					Row(
 						modifier = Modifier.fillMaxSize().padding(padding),

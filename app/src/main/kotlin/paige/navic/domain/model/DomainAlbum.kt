@@ -18,6 +18,7 @@ data class DomainAlbum(
 	override val name: String?,
 	val artistName: String?,
 	val artistId: String,
+	val displayArtist: String?,
 	val year: Int?,
 	override val coverArtId: String?,
 	val genre: String?,

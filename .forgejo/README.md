@@ -8,7 +8,6 @@ A modern (Open)Subsonic music streaming app for Android.
 [![Link to the latest release where you can download the APK or IPA directly](https://codeberg.org/Navic/Branding/raw/branch/main/assets/direct_download.svg)][LATEST_RELEASE]
 [![Discord](https://codeberg.org/Navic/Branding/raw/branch/main/assets/discord.svg)](https://discord.gg/TBcnNX66PH)
 [![IzzyOnDroid](https://codeberg.org/Navic/Branding/raw/branch/main/assets/izzyondroid.svg)](https://apt.izzysoft.de/fdroid/index/apk/paige.navic)
-[![F-droid](https://codeberg.org/Navic/Branding/raw/branch/main/assets/fdroid.svg)](https://f-droid.org/packages/paige.navic/)
 [![Translate](https://codeberg.org/Navic/Branding/raw/branch/main/assets/translate.svg)](#translating)
 [![Codeberg](https://codeberg.org/Navic/Branding/raw/branch/main/assets/codeberg.svg)](https://codeberg.org/paige/Navic)
 

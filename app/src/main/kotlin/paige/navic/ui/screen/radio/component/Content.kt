@@ -18,7 +18,8 @@ import paige.navic.ui.core.UiState
 
 fun LazyGridScope.radioListScreenContent(
 	state: UiState<List<DomainRadio>>,
-	onRadioClick: (DomainRadio) -> Unit
+	onRadioClick: (DomainRadio) -> Unit,
+	onRadioLongClick: (DomainRadio) -> Unit
 ) {
 	val data = state.data.orEmpty()
 
@@ -27,7 +28,8 @@ fun LazyGridScope.radioListScreenContent(
 			RadioListScreenCard(
 				modifier = Modifier.animateItem(),
 				radio = radio,
-				onPlayClick = { onRadioClick(radio) }
+				onClick = { onRadioClick(radio) },
+				onLongClick = { onRadioLongClick(radio) }
 			)
 		}
 	} else {

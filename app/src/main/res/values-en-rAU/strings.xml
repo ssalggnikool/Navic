@@ -1,0 +1,16 @@
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
+<resources>
+	<string name="option_equalizer">Equaliser</string>
+	<string name="option_equalizer_mode">Equaliser source</string>
+	<string name="option_equalizer_mode_builtin">In-built</string>
+	<string name="info_equalizer_mode_not_builtin">Please adjust the external equaliser using its dedicated app.</string>
+	<string name="subtitle_appearance">Themes, colours, layout, app icon</string>
+	<string name="subtitle_now_playing">Customise the now playing &amp; lyrics views</string>
+	<string name="subtitle_bottom_app_bar">Customise the bottom bar &amp; mini player</string>
+	<string name="title_sync_control">Synchronisation control</string>
+</resources>

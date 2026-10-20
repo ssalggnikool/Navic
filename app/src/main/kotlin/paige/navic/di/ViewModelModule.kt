@@ -34,6 +34,7 @@ import paige.navic.ui.screen.playlist.viewmodel.PlaylistUpdateDialogViewModel
 import paige.navic.ui.screen.queue.viewmodel.QueueViewModel
 import paige.navic.ui.screen.radio.viewmodel.RadioCreateDialogViewModel
 import paige.navic.ui.screen.radio.viewmodel.RadioListViewModel
+import paige.navic.ui.screen.radio.viewmodel.RadioUpdateDialogViewModel
 import paige.navic.ui.screen.search.viewmodel.SearchViewModel
 import paige.navic.ui.screen.settings.viewmodel.LyricsPriorityViewModel
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
@@ -127,6 +128,12 @@ val viewModelModule = module {
 	viewModelOf(::GenreListViewModel)
 	viewModelOf(::RadioListViewModel)
 	viewModelOf(::RadioCreateDialogViewModel)
+	viewModel { params ->
+		RadioUpdateDialogViewModel(
+			initialRadio = params.get(),
+			sessionManager = get()
+		)
+	}
 	viewModelOf(::PlaylistListViewModel)
 	viewModelOf(::QueueViewModel)
 	viewModelOf(::ShareListViewModel)

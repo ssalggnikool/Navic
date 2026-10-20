@@ -81,18 +81,18 @@ fun CollectionDetailScreenHeadingRow(
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			Text(
-				collection.name ?: "[unknown album]",
+				text = collection.name ?: "[unknown album]",
 				style = MaterialTheme.typography.headlineSmall,
 				textAlign = TextAlign.Center,
 				modifier = Modifier
 			)
 			val subtitle = when (collection) {
-				is DomainAlbum -> collection.artistName
+				is DomainAlbum -> collection.displayArtist ?: collection.artistName
 				is DomainPlaylist -> collection.comment
 			}
 			subtitle?.let { subtitle ->
 				Text(
-					subtitle,
+					text = subtitle,
 					color = MaterialTheme.colorScheme.primary,
 					modifier = Modifier.clickable(
 						collection is DomainAlbum,
@@ -106,7 +106,7 @@ fun CollectionDetailScreenHeadingRow(
 				)
 			}
 			Text(
-				if (collection is DomainAlbum)
+				text = if (collection is DomainAlbum)
 					"${collection.genre ?: stringResource(R.string.info_unknown_genre)} • ${
 						collection.year ?: stringResource(
 							R.string.info_unknown_year

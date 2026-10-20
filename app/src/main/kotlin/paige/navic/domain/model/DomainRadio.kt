@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DomainRadio(
 	val id: String,
+	val coverArtId: String?,
 	val name: String,
 	val streamUrl: String,
 	val homepageUrl: String?

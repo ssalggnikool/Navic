@@ -112,7 +112,7 @@ fun CoverArt(
 			else Modifier
 		)
 
-	if (coverArtId.isNullOrBlank()) return Box(commonModifier)
+	if (coverArtId == null) return Box(commonModifier)
 	SubcomposeAsyncImage(
 		model = model,
 		imageLoader = imageLoader,

@@ -35,13 +35,13 @@ import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainGenre
 import paige.navic.domain.model.DomainPlaylist
+import paige.navic.ui.component.layout.horizontalSection
+import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.History
 import paige.navic.ui.icons.outlined.LibraryAdd
 import paige.navic.ui.icons.outlined.Shuffle
 import paige.navic.ui.icons.outlined.Star
-import paige.navic.ui.component.layout.horizontalSection
-import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
 import paige.navic.ui.screen.artist.ArtistListScreenGridItem
@@ -220,6 +220,7 @@ fun LibraryScreenContent(
 		item(span = { GridItemSpan(maxLineSpan) }) {
 			val backStack = LocalNavStack.current
 			StatisticsOverviewCard(
+				modifier = Modifier.padding(horizontal = 16.dp),
 				statsState = statsState,
 				onClick = { backStack.add(Screen.Statistics(true)) }
 			)

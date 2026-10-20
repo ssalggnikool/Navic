@@ -6,6 +6,7 @@
 
 package paige.navic.ui.screen.radio.component
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +47,8 @@ import kotlin.math.abs
 fun RadioListScreenCard(
 	modifier: Modifier = Modifier,
 	radio: DomainRadio,
-	onPlayClick: () -> Unit
+	onClick: () -> Unit,
+	onLongClick: () -> Unit
 ) {
 	val inDarkTheme = isSystemInDarkTheme()
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -77,13 +79,17 @@ fun RadioListScreenCard(
 		color = colorScheme.primaryContainer,
 		contentColor = colorScheme.onPrimaryContainer,
 		shape = MaterialTheme.shapes.medium,
-		shadowElevation = 2.dp,
-		onClick = {
-			onPlayClick()
-		}
+		shadowElevation = 2.dp
 	) {
-		Box(modifier = Modifier.height(100.dp).fillMaxWidth()) {
-
+		Box(
+			modifier = Modifier
+				.height(100.dp)
+				.fillMaxWidth()
+				.combinedClickable(
+					onClick = onClick,
+					onLongClick = onLongClick
+				)
+		) {
 			Icon(
 				imageVector = Icons.Outlined.Radio,
 				contentDescription = null,

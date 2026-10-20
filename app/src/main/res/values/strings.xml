@@ -25,9 +25,11 @@
 	<string name="title_about">About</string>
 	<string name="title_delete_playlist">Delete playlist?</string>
 	<string name="title_delete_share">Delete share?</string>
+	<string name="title_delete_radio">Delete radio?</string>
 	<string name="title_create_share">Create share</string>
 	<string name="title_create_playlist">Create playlist</string>
 	<string name="title_create_radio">Add a radio</string>
+	<string name="title_update_radio">Update radio</string>
 	<string name="title_albums">Albums</string>
 	<string name="title_songs">Songs</string>
 	<string name="title_artists">Artists</string>
@@ -76,9 +78,9 @@
 	<string name="title_audio_effects">Audio effects</string>
 	<string name="title_chat">Chat</string>
 
-	<string name="subtitle_appearance">Themes, colours, layout, app icon</string>
-	<string name="subtitle_now_playing">Customise the now playing &amp; lyrics views</string>
-	<string name="subtitle_bottom_app_bar">Customise the bottom bar &amp; mini player</string>
+	<string name="subtitle_appearance">Themes, colors, layout, app icon</string>
+	<string name="subtitle_now_playing">Customize the now playing &amp; lyrics views</string>
+	<string name="subtitle_bottom_app_bar">Customize the bottom bar &amp; mini player</string>
 	<string name="subtitle_playback">Audio effects &amp; behaviour, scrobbling</string>
 	<string name="subtitle_data_storage">Syncing, caching, data usage</string>
 	<string name="subtitle_trigger_sync">Forces a full library pull immediately</string>
@@ -358,7 +360,7 @@
 	<string name="action_shuffle">Shuffle</string>
 	<string name="action_repeat">Repeat</string>
 	<string name="action_delete">Delete</string>
-	<string name="action_edit">edit</string>
+	<string name="action_edit">Edit</string>
 	<string name="action_cancel">Cancel</string>
 	<string name="action_refresh">Refresh</string>
 	<string name="action_share">Share</string>
@@ -427,6 +429,7 @@
 
 	<string name="notice_deleted_playlist">Playlist deleted.</string>
 	<string name="notice_deleted_share">Share deleted.</string>
+	<string name="notice_deleted_radio">Radio deleted.</string>
 	<string name="notice_created_playlist">Playlist %1$s created.</string>
 	<string name="notice_deleted_download">Download deleted.</string>
 	<string name="notice_removed_from_playlist">Removed from playlist.</string>
@@ -478,7 +481,7 @@
 	<string name="info_dynamic_replay_gain">Dynamic ReplayGain</string>
 	<string name="info_total_plays">Total plays</string>
 	<string name="info_total_listening_time">Total listening time</string>
-	<string name="info_listening_stats_ratio">%1$s of total listening time</string>
+	<string name="info_listening_stats_ratio">%1$s%% of total listening time</string>
 	<string name="info_track_replay_gain_effective">ReplayGain effective value</string>
 	<string name="info_update">Version "%1$s" has been released</string>
 	<string name="info_shared_by">Shared by %1$s</string>

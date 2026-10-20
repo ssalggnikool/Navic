@@ -12,6 +12,7 @@ import dev.zt64.subsonic.api.model.InternetRadioStation as ApiRadio
 
 fun ApiRadio.toEntity() = RadioEntity(
 	radioId = id,
+	coverArtId = coverArtId,
 	name = name,
 	streamUrl = streamUrl,
 	homepageUrl = homepageUrl
@@ -19,6 +20,7 @@ fun ApiRadio.toEntity() = RadioEntity(
 
 fun RadioEntity.toDomainModel() = DomainRadio(
 	id = radioId,
+	coverArtId = coverArtId,
 	name = name,
 	streamUrl = streamUrl,
 	homepageUrl = homepageUrl

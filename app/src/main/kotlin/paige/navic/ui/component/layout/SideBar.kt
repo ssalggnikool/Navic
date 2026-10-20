@@ -46,14 +46,13 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.settings.NavbarConfig
 import paige.navic.domain.model.settings.NavbarTab
+import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.ui.component.common.CoverArt
+import paige.navic.ui.component.common.WideNavigationRailItem
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Note
 import paige.navic.ui.icons.outlined.Menu
 import paige.navic.ui.icons.outlined.MenuOpen
-import paige.navic.ui.icons.outlined.Radio
-import paige.navic.shared.MediaPlayerViewModel
-import paige.navic.ui.component.common.CoverArt
-import paige.navic.ui.component.common.WideNavigationRailItem
 import paige.navic.ui.navigation.NavigationTab
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
@@ -131,7 +130,6 @@ private fun SideBarMiniPlayer(
 	val player = koinInject<MediaPlayerViewModel>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val song = playerState.currentSong
-	val isRadio = song?.id?.startsWith("radio_") == true
 
 	val padding by animateDpAsState(
 		if (railExpanded) 8.dp else 0.dp,
@@ -161,9 +159,9 @@ private fun SideBarMiniPlayer(
 					contentDescription = song?.title,
 					shape = ContinuousRoundedRectangle(12.dp)
 				)
-				if (song?.coverArtId.isNullOrEmpty()) {
+				if (song?.coverArtId == null) {
 					Icon(
-						imageVector = if (isRadio) Icons.Outlined.Radio else Icons.Filled.Note,
+						imageVector = Icons.Filled.Note,
 						contentDescription = null,
 						tint = MaterialTheme.colorScheme.onSurface.copy(alpha = .38f)
 					)
