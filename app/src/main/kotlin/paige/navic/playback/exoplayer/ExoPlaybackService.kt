@@ -79,7 +79,7 @@ class ExoPlaybackService : MediaSessionService(), KoinComponent {
 			exoEqualizerManager.apply {
 				applyEqualizerMode(equalizerManager.config.value.mode)
 				scope.launch(Dispatchers.Main) {
-					equalizerManager.config.collect { updateEqualizer() }
+					equalizerManager.config.collect { updateConfig() }
 				}
 			}
 		}
