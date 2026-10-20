@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,16 +31,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -78,6 +85,20 @@ fun AccountSheet(
 		initialValue = SheetValue.Hidden,
 		enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
 	)
+	var profilePictureUrl by remember { mutableStateOf<String?>(null) }
+
+	LaunchedEffect(Unit) {
+		try {
+			sessionManager.username
+				.takeIf { it.isNotBlank() }
+				?.let { username ->
+					profilePictureUrl = sessionManager.api.getAvatarUrl(username)
+				}
+		} catch (_: Exception) {
+			profilePictureUrl = null
+		}
+	}
+
 
 	val scope = rememberCoroutineScope()
 	val animateToDismiss = {
@@ -120,11 +141,29 @@ fun AccountSheet(
 				shape = MaterialTheme.shapes.large
 			) {
 				Row(
-					modifier = Modifier.padding(12.dp).fillMaxWidth(),
+					modifier = Modifier
+						.padding(12.dp)
+						.fillMaxWidth(),
 					verticalAlignment = Alignment.CenterVertically,
 					horizontalArrangement = Arrangement.spacedBy(12.dp)
 				) {
-					Monogram(text = sessionManager.username)
+					if (profilePictureUrl != null) {
+						SubcomposeAsyncImage(
+							model = profilePictureUrl,
+							contentDescription = null,
+							modifier = Modifier
+								.size(56.dp)
+								.clip(CircleShape),
+							loading = {
+								Surface(color = MaterialTheme.colorScheme.secondary) {
+									Box(modifier = Modifier.fillMaxSize())
+								}
+							},
+							error = { Monogram(text = sessionManager.username) }
+						)
+					} else {
+						Monogram(text = sessionManager.username)
+					}
 					Column(
 						modifier = Modifier.weight(1f)
 					) {
