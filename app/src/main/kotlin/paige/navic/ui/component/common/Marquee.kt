@@ -16,6 +16,10 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -26,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -89,11 +95,13 @@ private fun Marquee(
 	val scrollState = rememberScrollState()
 	val edgeWidthPx = with(LocalDensity.current) { edgeWidth.toPx() }
 
+	var isVisible by remember { mutableStateOf(false) }
+
 	LaunchedEffect(scrollState.maxValue) {
-		if (scrollState.maxValue == 0) return@LaunchedEffect
+		if (!isVisible || scrollState.maxValue == 0) return@LaunchedEffect
 
 		while (true) {
-			delay(1.seconds)
+			delay(5.seconds)
 
 			scrollState.animateScrollTo(
 				value = scrollState.maxValue,
@@ -111,6 +119,12 @@ private fun Marquee(
 
 	Box(
 		modifier = modifier
+			.onGloballyPositioned {
+				val windowBounds = it.boundsInWindow()
+				isVisible = it.isAttached &&
+					windowBounds.width > 0f &&
+					windowBounds.height > 0f
+			}
 			.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
 			.drawWithContent {
 				drawContent()
