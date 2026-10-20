@@ -6,7 +6,7 @@
 
 package paige.navic.playback.exoplayer.impl
 
-import android.media.AudioFormat
+import androidx.media3.common.C
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.AudioProcessor.StreamMetadata
 import androidx.media3.common.audio.BaseAudioProcessor
@@ -19,7 +19,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.abs
 
-
 @UnstableApi
 class ExoAudioGainProcessor : BaseAudioProcessor() {
 	private companion object {
@@ -27,7 +26,6 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 	}
 
 	private var replayGainMetadata: DomainReplayGain? = null
-
 	private var isReplayGainActive = false
 
 	private val finalVolume: Float
@@ -87,16 +85,17 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 	}
 
 	override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
-		if (inputAudioFormat.encoding == AudioFormat.ENCODING_PCM_16BIT || inputAudioFormat.encoding == AudioFormat.ENCODING_PCM_32BIT) {
+		if (inputAudioFormat.encoding == C.ENCODING_PCM_16BIT ||
+			inputAudioFormat.encoding == C.ENCODING_PCM_32BIT ||
+			inputAudioFormat.encoding == C.ENCODING_PCM_FLOAT) {
 			return inputAudioFormat
 		}
 		throw AudioProcessor.UnhandledAudioFormatException(inputAudioFormat)
 	}
 
 	override fun queueInput(inputBuffer: ByteBuffer) {
-		val pos = inputBuffer.position()
 		val limit = inputBuffer.limit()
-		val outputBuffer = replaceOutputBuffer(limit - pos)
+		val outputBuffer = replaceOutputBuffer(limit - inputBuffer.position())
 
 		inputBuffer.order(ByteOrder.LITTLE_ENDIAN)
 		outputBuffer.order(ByteOrder.LITTLE_ENDIAN)
@@ -105,23 +104,53 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 
 		if (abs(computedVolume - 1.0f) < 0.0001f) {
 			outputBuffer.put(inputBuffer)
-		} else {
-			val shortBufferInput = inputBuffer.asShortBuffer()
-			val shortBufferOutput = outputBuffer.asShortBuffer()
+			outputBuffer.flip()
+			return
+		}
 
-			while (shortBufferInput.hasRemaining()) {
-				// prevent popping
-				val sample = shortBufferInput.get()
-				val scaledSample = (sample * computedVolume)
-					.toInt()
-					.coerceAtLeast(Short.MIN_VALUE.toInt())
-					.coerceAtMost(Short.MAX_VALUE.toInt())
-					.toShort()
-
-				shortBufferOutput.put(scaledSample)
+		when (inputAudioFormat.encoding) {
+			C.ENCODING_PCM_16BIT -> {
+				val shortInput = inputBuffer.asShortBuffer()
+				val shortOutput = outputBuffer.asShortBuffer()
+				while (shortInput.hasRemaining()) {
+					val sample = shortInput.get()
+					val scaled = (sample * computedVolume)
+						.toInt()
+						.coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt())
+						.toShort()
+					shortOutput.put(scaled)
+				}
+				inputBuffer.position(inputBuffer.position() + shortInput.position() * 2)
+				outputBuffer.position(outputBuffer.position() + shortOutput.position() * 2)
 			}
-			inputBuffer.position(inputBuffer.position() + shortBufferInput.position() * 2)
-			outputBuffer.position(outputBuffer.position() + shortBufferOutput.position() * 2)
+			C.ENCODING_PCM_32BIT -> {
+				val intInput = inputBuffer.asIntBuffer()
+				val intOutput = outputBuffer.asIntBuffer()
+				while (intInput.hasRemaining()) {
+					val sample = intInput.get()
+					val scaled = (sample * computedVolume)
+						.toLong()
+						.coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong())
+						.toInt()
+					intOutput.put(scaled)
+				}
+				inputBuffer.position(inputBuffer.position() + intInput.position() * 4)
+				outputBuffer.position(outputBuffer.position() + intOutput.position() * 4)
+			}
+			C.ENCODING_PCM_FLOAT -> {
+				val floatInput = inputBuffer.asFloatBuffer()
+				val floatOutput = outputBuffer.asFloatBuffer()
+				while (floatInput.hasRemaining()) {
+					val sample = floatInput.get()
+					val scaled = sample * computedVolume
+					floatOutput.put(scaled)
+				}
+				inputBuffer.position(inputBuffer.position() + floatInput.position() * 4)
+				outputBuffer.position(outputBuffer.position() + floatOutput.position() * 4)
+			}
+			else -> {
+				throw AudioProcessor.UnhandledAudioFormatException(inputAudioFormat)
+			}
 		}
 		outputBuffer.flip()
 	}
