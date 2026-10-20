@@ -260,7 +260,7 @@ fun CollectionDetailScreen(
 												}
 											},
 											onLongClick = {
-												viewModel.selectSong(song)
+												viewModel.selectSong(song, index)
 											},
 											onPlayNext = {
 												player.playNextSingle(song)
@@ -313,7 +313,7 @@ fun CollectionDetailScreen(
 										}
 									},
 									onLongClick = {
-										viewModel.selectSong(song)
+										viewModel.selectSong(song, index)
 									},
 									onPlayNext = {
 										player.playNextSingle(song)
