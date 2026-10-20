@@ -270,7 +270,8 @@ fun CollectionDetailScreen(
 											},
 											isStarred = song.starredAt != null,
 											download = download,
-											isOffline = !isOnline
+											isOffline = !isOnline,
+											showArtist = song.artists.toSet() != song.albumArtists.toSet()
 										)
 										CollectionDetailScreenSongRowDropdown(
 											expanded = state.data?.selectedSong == song,
@@ -395,7 +396,7 @@ fun CollectionDetailScreen(
 											ArtistDetail(album.artistId)
 										) },
 										rating = album.userRating ?: 0,
-										onSetRating = { it: Int -> viewModel.rateSelectedAlbum(it) },
+										onSetRating = { viewModel.rateSelectedAlbum(it) },
 										starred = isStarred,
 										onSetStarred = {
 											viewModel.starSelectedAlbum(!isStarred)

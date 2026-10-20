@@ -46,19 +46,10 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.database.entity.DownloadEntity
 import paige.navic.database.entity.DownloadStatus
-import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Check
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Lock
-import paige.navic.ui.icons.outlined.Offline
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.ui.icons.outlined.QueuePlayNext
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
@@ -68,7 +59,14 @@ import paige.navic.ui.component.common.SmallRatingRow
 import paige.navic.ui.component.common.SwipeToDismissBox
 import paige.navic.ui.component.common.Waveform
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
-import paige.navic.ui.navigation.Screen
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Star
+import paige.navic.ui.icons.outlined.Check
+import paige.navic.ui.icons.outlined.DownloadOff
+import paige.navic.ui.icons.outlined.Lock
+import paige.navic.ui.icons.outlined.Offline
+import paige.navic.ui.icons.outlined.Queue
+import paige.navic.ui.icons.outlined.QueuePlayNext
 import paige.navic.ui.util.InlineExplicitIcon
 import paige.navic.ui.util.buildSongInfoString
 import paige.navic.util.toHoursMinutesSeconds
@@ -85,7 +83,8 @@ fun CollectionDetailScreenSongRow(
 	onAddToQueue: (() -> Unit),
 	isStarred: Boolean,
 	download: DownloadEntity? = null,
-	isOffline: Boolean = false
+	isOffline: Boolean = false,
+	showArtist: Boolean = true
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 
@@ -102,8 +101,6 @@ fun CollectionDetailScreenSongRow(
 	val scope = rememberCoroutineScope()
 
 	var isPlayNextPending by rememberSaveable { mutableStateOf<Boolean?>(null) }
-
-	val backStack = LocalNavStack.current
 
 	SwipeToDismissBox(
 		modifier = Modifier.padding(horizontal = 16.dp, vertical = 1.5.dp),
@@ -199,14 +196,16 @@ fun CollectionDetailScreenSongRow(
 						},
 						inlineContent = InlineExplicitIcon
 					)
-					MarqueeText(
-						text = buildSongInfoString(
-							song = song,
-							showYear = false,
-							showAlbum = false
-						),
-						style = MaterialTheme.typography.bodySmall
-					)
+					if (showArtist) {
+						MarqueeText(
+							text = buildSongInfoString(
+								song = song,
+								showYear = false,
+								showAlbum = false
+							),
+							style = MaterialTheme.typography.bodySmall
+						)
+					}
 					if (song.userRating != null && song.userRating != 0) {
 						SmallRatingRow(rating = song.userRating)
 					}
