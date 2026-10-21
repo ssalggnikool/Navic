@@ -215,9 +215,9 @@ class ArtistDetailViewModel(
 		viewModelScope.launch {
 			runCatching {
 				if (isStarred) {
-					artistRepository.starArtist(artist)
+					artistRepository.starArtist(artist.id)
 				} else {
-					artistRepository.unstarArtist(artist)
+					artistRepository.unstarArtist(artist.id)
 				}
 				starred.value = isStarred
 			}
