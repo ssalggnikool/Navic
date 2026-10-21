@@ -266,7 +266,7 @@ fun CollectionSheet(
 						content = { Text(stringResource(R.string.action_cancel_download)) },
 						leadingContent = { Icon(Icons.Outlined.Close, null) },
 						onClick = {
-							downloadManager.cancelCollectionDownload(collection)
+							downloadManager.cancelCollectionDownload(collection.songs.map { it.id })
 							onDismissRequest()
 						},
 						colors = colors,
@@ -279,7 +279,7 @@ fun CollectionSheet(
 						content = { Text(stringResource(R.string.action_delete_download)) },
 						leadingContent = { Icon(Icons.Outlined.Delete, null) },
 						onClick = {
-							downloadManager.deleteDownloadedCollection(collection)
+							downloadManager.deleteDownloadedCollection(collection.songs.map { it.id })
 							onDismissRequest()
 						},
 						colors = colors,
@@ -311,7 +311,7 @@ fun CollectionSheet(
 						},
 						onClick = {
 							scope.launch {
-								downloadManager.downloadCollection(collection)
+								downloadManager.downloadCollection(collection.songs.map { it.id })
 							}
 							onDismissRequest()
 						},
@@ -326,7 +326,7 @@ fun CollectionSheet(
 						leadingContent = { Icon(Icons.Outlined.Download, null) },
 						onClick = {
 							scope.launch {
-								downloadManager.downloadCollection(collection)
+								downloadManager.downloadCollection(collection.songs.map { it.id })
 							}
 							onDismissRequest()
 						},

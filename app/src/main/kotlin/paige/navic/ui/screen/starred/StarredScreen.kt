@@ -155,7 +155,7 @@ fun StarredScreen() {
 				selectedSongIsStarred = songsState.data?.selected?.starredAt != null,
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
-				onDownloadSong = { downloadManager.downloadSong(it) },
+				onDownloadSong = { downloadManager.downloadSong(it.id) },
 				onCancelDownloadSong = { song ->
 					downloadManager.cancelDownload(song.id)
 				},

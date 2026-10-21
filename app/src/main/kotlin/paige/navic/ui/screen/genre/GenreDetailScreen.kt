@@ -133,7 +133,7 @@ fun GenreDetailScreen(
 					player.playNow(songsLazyItems.itemSnapshotList.items, index)
 				},
 				onSetSongRating = { songsViewModel.rateSelectedSong(it) },
-				onDownloadSong = { downloadManager.downloadSong(it) },
+				onDownloadSong = { downloadManager.downloadSong(it.id) },
 				onCancelDownloadSong = { song ->
 					downloadManager.cancelDownload(song.id)
 				},

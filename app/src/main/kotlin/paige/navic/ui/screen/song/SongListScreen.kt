@@ -199,7 +199,7 @@ fun SongListScreen(
 							onSetRating = { it: Int -> viewModel.rateSelectedSong(it) },
 							download = download,
 							onDownload = {
-								downloadManager.downloadSong(song)
+								downloadManager.downloadSong(song.id)
 							},
 							onCancelDownload = {
 								downloadManager.cancelDownload(song.id)

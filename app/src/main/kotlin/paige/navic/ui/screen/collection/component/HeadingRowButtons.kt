@@ -116,16 +116,16 @@ fun CollectionDetailScreenHeadingRowButtons(
 				scope.launch {
 					when (downloadStatus) {
 						DownloadStatus.NOT_DOWNLOADED, DownloadStatus.FAILED -> {
-							downloadManager.downloadCollection(collection)
+							downloadManager.downloadCollection(collection.songs.map { it.id })
 							snackBarManager.notify(R.string.notice_download_started)
 						}
 
 						DownloadStatus.DOWNLOADING -> {
-							downloadManager.cancelCollectionDownload(collection)
+							downloadManager.cancelCollectionDownload(collection.songs.map { it.id })
 						}
 
 						DownloadStatus.DOWNLOADED -> {
-							downloadManager.deleteDownloadedCollection(collection)
+							downloadManager.deleteDownloadedCollection(collection.songs.map { it.id })
 							snackBarManager.notify(R.string.notice_deleted_download)
 						}
 					}

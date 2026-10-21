@@ -242,12 +242,12 @@ fun ArtistDetailScreen(
 								},
 								onCancelDownload = {
 									state.albums.forEach { album ->
-										downloadManager.cancelCollectionDownload(album)
+										downloadManager.cancelCollectionDownload(album.songs.map { it.id })
 									}
 								},
 								onDeleteDownload = {
 									state.albums.forEach { album ->
-										downloadManager.deleteDownloadedCollection(album)
+										downloadManager.deleteDownloadedCollection(album.songs.map { it.id })
 									}
 									snackBarManager.notify(R.string.notice_deleted_download)
 								},
@@ -329,7 +329,7 @@ fun ArtistDetailScreen(
 													onAddStar = { viewModel.starSelectedSong() },
 													onRemoveStar = { viewModel.unstarSelectedSong() },
 													download = download,
-													onDownload = { downloadManager.downloadSong(song) },
+													onDownload = { downloadManager.downloadSong(song.id) },
 													onCancelDownload = {
 														downloadManager.cancelDownload(song.id)
 													},
