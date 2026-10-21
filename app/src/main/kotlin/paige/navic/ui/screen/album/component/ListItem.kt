@@ -101,7 +101,7 @@ fun AlbumListScreenListItem(
 
 		if (playlistDialogShown) {
 			PlaylistUpdateDialog(
-				songs = album.songs.toPersistentList(),
+				songIds = album.songs.map { it.id }.toPersistentList(),
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}

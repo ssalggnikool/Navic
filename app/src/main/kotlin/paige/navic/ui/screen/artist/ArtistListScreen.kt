@@ -215,7 +215,7 @@ fun ArtistListScreenGridItem(
 		}
 		if (playlistDialogShown) {
 			PlaylistUpdateDialog(
-				songs = selectedArtistAlbums?.flatMap { it.songs }.orEmpty().toPersistentList(),
+				songIds = selectedArtistAlbums?.flatMap { album -> album.songs.map { it.id } }.orEmpty().toPersistentList(),
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}

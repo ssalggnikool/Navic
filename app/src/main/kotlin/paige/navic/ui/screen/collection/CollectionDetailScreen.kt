@@ -408,7 +408,7 @@ fun CollectionDetailScreen(
 							if (albumToAddToPlaylist != null) {
 								albumToAddToPlaylist?.let {
 									PlaylistUpdateDialog(
-										songs = it.songs.toPersistentList(),
+										songIds = it.songs.map { song -> song.id }.toPersistentList(),
 										onDismissRequest = { albumToAddToPlaylist = null }
 									)
 								}

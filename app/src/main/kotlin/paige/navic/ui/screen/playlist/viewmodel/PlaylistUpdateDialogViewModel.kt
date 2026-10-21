@@ -16,12 +16,11 @@ import kotlinx.coroutines.launch
 import paige.navic.R
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
-import paige.navic.domain.model.DomainSong
 import paige.navic.ui.core.UiState
 import dev.zt64.subsonic.api.model.Playlist as ApiPlaylist
 
 class PlaylistUpdateDialogViewModel(
-	private val songs: List<DomainSong>,
+	private val songIds: List<String>,
 	private val playlistToExclude: String?,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
@@ -73,7 +72,7 @@ class PlaylistUpdateDialogViewModel(
 				selected.forEach { playlist ->
 					sessionManager.api.updatePlaylist(
 						playlist.id,
-						songIdsToAdd = songs.map { it.id }
+						songIdsToAdd = songIds
 					)
 				}
 				confirmState.value = UiState.Success(null)
