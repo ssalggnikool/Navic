@@ -61,7 +61,7 @@ fun LyricsScreen(
 
 	val viewModel = koinViewModel<LyricsScreenViewModel>(
 		key = song?.id,
-		parameters = { parametersOf(song) },
+		parameters = { parametersOf(song?.id) },
 		viewModelStoreOwner = koinInject<PersistentViewModelStoreOwner>()
 	)
 	val lyricsState by viewModel.lyricsState.collectAsStateWithLifecycle()

@@ -11,13 +11,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.lyrics.LyricsResult
 import paige.navic.domain.repository.LyricsRepository
 import paige.navic.ui.core.UiState
 
 class LyricsScreenViewModel(
-	private val song: DomainSong?,
+	private val songId: String?,
 	private val repository: LyricsRepository
 ) : ViewModel() {
 	val lyricsState: StateFlow<UiState<LyricsResult?>>
@@ -29,14 +28,14 @@ class LyricsScreenViewModel(
 
 	fun refreshResults() {
 		viewModelScope.launch {
-			if (song == null) {
+			if (songId == null) {
 				lyricsState.value = UiState.Success(null)
 				return@launch
 			}
 			lyricsState.value = UiState.Loading()
 			try {
 				lyricsState.value = UiState.Success(
-					repository.fetchLyrics(song)
+					repository.fetchLyrics(songId)
 				)
 			} catch (e: Exception) {
 				lyricsState.value = UiState.Error(e)
