@@ -9,16 +9,21 @@ package paige.navic.domain.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.map
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.LetterCount
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
+import paige.navic.database.paging.IdArrayPagingSource
 import paige.navic.database.query.getAlbumLetterCountsQuery
 import paige.navic.database.query.toSqlQuery
+import paige.navic.database.relation.AlbumWithSongs
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
@@ -32,21 +37,45 @@ class AlbumRepository(
 ) {
 	suspend fun getAlbumById(id: String) = albumDao.getAlbumById(id)?.toDomainModel()
 
-	private fun getLocalData(
+	private suspend fun getLocalData(
 		listType: DomainAlbumListType,
 		reversed: Boolean,
 		filters: Set<DomainFilter> = emptySet()
 	): Flow<PagingData<DomainAlbum>> {
+		val pagingSourceFactory = when (listType) {
+			DomainAlbumListType.Random -> randomPagingSourceFactory(listType, filters)
+			else -> albumsPagingSourceFactory(listType, reversed, filters)
+		}
+
 		return Pager(
-			config = PagingConfig(
-				pageSize = 20,
-				maxSize = 100
-			),
-			pagingSourceFactory = {
-				albumDao
-					.getAlbumsByQuery(listType.toSqlQuery(reversed, filters))
-			}
+			config = PagingConfig(pageSize = 20, maxSize = 100),
+			pagingSourceFactory = pagingSourceFactory
 		).flow.map { data -> data.map { it.toDomainModel() } }
+	}
+
+	private suspend fun randomPagingSourceFactory(
+		listType: DomainAlbumListType,
+		filters: Set<DomainFilter>
+	): () -> PagingSource<Int, AlbumWithSongs> {
+		val shuffledIds = withContext(Dispatchers.Default) {
+			albumDao.getAlbumIdsByQuery(listType.toSqlQuery(filters = filters, idsOnly = true)).shuffled()
+		}
+		return {
+			IdArrayPagingSource(
+				ids = shuffledIds,
+				getId = { it.album.albumId },
+				fetchByIds = albumDao::getAlbumsByIds
+			)
+		}
+	}
+
+	private fun albumsPagingSourceFactory(
+		listType: DomainAlbumListType,
+		reversed: Boolean,
+		filters: Set<DomainFilter>
+	): () -> PagingSource<Int, AlbumWithSongs> {
+		val query = listType.toSqlQuery(reversed, filters)
+		return { albumDao.getAlbumsByQuery(query) }
 	}
 
 	private suspend fun refreshLocalData(
