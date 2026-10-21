@@ -34,21 +34,6 @@ interface ArtistDao {
 	@RawQuery(observedEntities = [ArtistEntity::class])
 	fun getArtistLetterCounts(query: RoomRawQuery): Flow<List<LetterCount>>
 
-	@Query("SELECT * FROM ArtistEntity ORDER BY name COLLATE NOCASE ASC")
-	suspend fun getArtistsAlphabeticalByName(): List<ArtistEntity>
-
-	@Query("SELECT * FROM ArtistEntity ORDER BY RANDOM()")
-	suspend fun getArtistsRandom(): List<ArtistEntity>
-
-	@Query("SELECT * FROM ArtistEntity WHERE starredAt IS NOT NULL ORDER BY starredAt DESC")
-	suspend fun getArtistsStarred(): List<ArtistEntity>
-
-	@Query("SELECT * FROM ArtistEntity ORDER BY name COLLATE NOCASE ASC")
-	fun getAllArtists(): Flow<List<ArtistEntity>>
-
-	@Query("SELECT * FROM ArtistEntity")
-	suspend fun getAllArtistsList(): List<ArtistEntity>
-
 	@Query("SELECT * FROM ArtistEntity WHERE artistId = :artistId LIMIT 1")
 	suspend fun getArtistById(artistId: String): ArtistEntity?
 
@@ -78,18 +63,6 @@ interface ArtistDao {
 
 	@Query("SELECT * FROM ArtistEntity WHERE artistId IN (:ids)")
 	suspend fun getArtistsByIds(ids: List<String>): List<ArtistEntity>
-
-	@Transaction
-	suspend fun updateAllArtists(remoteArtists: List<ArtistEntity>) {
-		val remoteIds = remoteArtists.map { it.artistId }.toSet()
-		getAllArtistIds().forEach { localId ->
-			if (localId !in remoteIds) {
-				Logger.w("ArtistDao", "artist $localId no longer exists remotely")
-				deleteArtist(localId)
-			}
-		}
-		insertArtists(remoteArtists)
-	}
 
 	@Transaction
 	suspend fun deleteObsoleteArtists(remoteIds: Set<String>) {

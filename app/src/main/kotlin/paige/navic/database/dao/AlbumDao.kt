@@ -83,18 +83,6 @@ interface AlbumDao {
 	suspend fun getAlbumsByIds(ids: List<String>): List<AlbumWithSongs>
 
 	@Transaction
-	suspend fun updateAllAlbums(remoteAlbums: List<AlbumEntity>) {
-		val remoteIds = remoteAlbums.map { it.albumId }.toSet()
-		getAllAlbumIds().forEach { localId ->
-			if (localId !in remoteIds) {
-				Logger.w("AlbumDao", "album $localId no longer exists remotely")
-				deleteAlbum(localId)
-			}
-		}
-		insertAlbums(remoteAlbums)
-	}
-
-	@Transaction
 	suspend fun deleteObsoleteAlbums(remoteIds: Set<String>) {
 		getAllAlbumIds().forEach { localId ->
 			if (localId !in remoteIds) {
