@@ -96,8 +96,8 @@ class SearchViewModel(
 	fun selectSong(song: DomainSong) {
 		viewModelScope.launch {
 			selectedSong.value = song
-			selectedSongIsStarred.value = songRepository.isSongStarred(song)
-			selectedSongRating.value = songRepository.getSongRating(song)
+			selectedSongIsStarred.value = songRepository.isSongStarred(song.id)
+			selectedSongRating.value = songRepository.getSongRating(song.id)
 		}
 	}
 
@@ -106,9 +106,9 @@ class SearchViewModel(
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
 				if (starred) {
-					songRepository.starSong(selection)
+					songRepository.starSong(selection.id)
 				} else {
-					songRepository.unstarSong(selection)
+					songRepository.unstarSong(selection.id)
 				}
 				selectedSongIsStarred.value = starred
 			}
@@ -119,7 +119,7 @@ class SearchViewModel(
 		viewModelScope.launch {
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
-				songRepository.rateSong(selection, rating)
+				songRepository.rateSong(selection.id, rating)
 				selectedSongRating.value = rating
 			}
 		}
