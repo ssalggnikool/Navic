@@ -6,9 +6,9 @@
 
 package paige.navic.di
 
-import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import paige.navic.domain.download.DownloadProcessor
 import paige.navic.domain.manager.AppIconManager
 import paige.navic.domain.manager.AudioGainManager
 import paige.navic.domain.manager.ConnectivityManager
@@ -26,8 +26,9 @@ import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.manager.StorageManager
 import paige.navic.domain.manager.SyncManager
+import paige.navic.domain.sync.SyncActionProcessor
+import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.playback.exoplayer.ExoStateHolder
-import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.NavicDataSourceFactory
 
 val managerModule = module {
@@ -35,6 +36,7 @@ val managerModule = module {
 	singleOf(::AudioGainManager)
 	singleOf(::ConnectivityManager)
 	singleOf(::DownloadManager)
+	singleOf(::DownloadProcessor)
 	singleOf(::EqualizerManager)
 	singleOf(::LinkManager)
 	singleOf(::LogManager)
@@ -47,10 +49,10 @@ val managerModule = module {
 	singleOf(::SleepTimerManager)
 	singleOf(::SnackBarManager)
 	singleOf(::StorageManager)
+	singleOf(::SyncActionProcessor)
+	singleOf(::SyncCoordinator)
 	single(createdAtStart = true) {
-		SyncManager(get(), get(), get(), get(), get(), get()).apply {
-			startPeriodicSync()
-		}
+		SyncManager(get(), get(), get(), get(), get())
 	}
 	single {
 		NavicDataSourceFactory(

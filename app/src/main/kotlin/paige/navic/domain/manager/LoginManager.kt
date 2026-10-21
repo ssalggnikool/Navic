@@ -6,6 +6,8 @@
 
 package paige.navic.domain.manager
 
+import android.content.Context
+import androidx.annotation.StringRes
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,13 +18,20 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import paige.navic.R
 import paige.navic.domain.repository.DbRepository
+import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.util.AddressUtil
 
 class LoginManager(
-    private val repository: DbRepository,
-    private val sessionManager: SessionManager
+	private val repository: DbRepository,
+	private val sessionManager: SessionManager,
+	private val syncManager: SyncManager,
+	private val syncCoordinator: SyncCoordinator,
+	private val notificationManager: NotificationManager,
+	private val downloadManager: DownloadManager,
+	private val context: Context
 ) {
 	val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -103,12 +112,28 @@ class LoginManager(
 					passwordState.text.toString()
 				)
 
-				repository.syncEverything { progress, message ->
-					loginState.value = LoginUiState.Syncing(progress, message)
-				}.onSuccess {
+				syncManager.startPeriodicSync(syncImmediately = false)
+
+				val result = try {
+					syncCoordinator.run(force = true) { progress, message ->
+						loginState.value = LoginUiState.Syncing(progress, message)
+
+						notificationManager.showProgressNotification(
+							id = NotificationIds.SYNC_LIBRARY,
+							title = contextTitle(progress),
+							message = contextString(message),
+							progress = progress,
+							indeterminate = progress <= 0f
+						)
+					}
+				} finally {
+					notificationManager.cancelNotification(NotificationIds.SYNC_LIBRARY)
+				}
+
+				result.onSuccess {
 					loginState.value = LoginUiState.Success
 				}.onFailure { e ->
-					loginState.value = LoginUiState.Error(e as Exception)
+					loginState.value = LoginUiState.Error(e as? Exception ?: Exception(e))
 				}
 
 			} catch (e: Exception) {
@@ -119,10 +144,24 @@ class LoginManager(
 		return true
 	}
 
+	private fun contextTitle(progress: Float): String {
+		val title = context.getString(R.string.title_sync_control)
+		return "$title (${(progress * 100).toInt()}%)"
+	}
+
+	private fun contextString(@StringRes id: Int): String {
+		return context.getString(id)
+	}
+
 	fun logout() {
 		loginState.value = LoginUiState.Idle
+		syncManager.stopPeriodicSync()
+		downloadManager.cancelAllActiveDownloads()
 		sessionManager.logout()
+
 		scope.launch {
+			syncManager.stopPeriodicSyncAndWait()
+			syncCoordinator.awaitIdle()
 			repository.removeEverything()
 		}
 	}

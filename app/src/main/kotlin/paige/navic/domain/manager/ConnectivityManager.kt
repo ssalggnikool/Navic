@@ -104,4 +104,5 @@ class ConnectivityManager(
 		.distinctUntilChanged()
 		.flowOn(dispatcher)
 		.stateIn(scope, started, true)
+
 }

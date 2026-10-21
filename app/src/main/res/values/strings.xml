@@ -77,6 +77,7 @@
 	<string name="title_link_confirmation">Leaving Navic</string>
 	<string name="title_audio_effects">Audio effects</string>
 	<string name="title_chat">Chat</string>
+	<string name="title_change_download_location">Move downloads?</string>
 
 	<string name="subtitle_appearance">Themes, colors, layout, app icon</string>
 	<string name="subtitle_now_playing">Customize the now playing &amp; lyrics views</string>
@@ -108,6 +109,8 @@
 	<string name="subtitle_custom_headers">Additional information attached to each request</string>
 	<string name="subtitle_ignore_ssl_certificates">Only enable this if you know what you\'re doing. Useful if you\'re using a proxy for inspecting requests.</string>
 	<string name="subtitle_enable_discord_integration">Show off on Discord what music you\'re currently listening to</string>
+	<string name="subtitle_download_location">Where new downloads are saved</string>
+	<string name="subtitle_sd_card_unavailable">No SD card detected; downloads will use internal storage</string>
 
 	<string name="option_off">Off</string>
 	<string name="option_now_playing_background_style">Background style</string>
@@ -179,6 +182,9 @@
 	<string name="option_last_sync">Last full sync</string>
 	<string name="option_pending_actions">Pending sync actions</string>
 	<string name="option_downloaded_songs">Downloaded songs</string>
+	<string name="option_download_location">Download location</string>
+	<string name="option_download_storage_internal">Internal storage</string>
+	<string name="option_download_storage_external">SD card</string>
 	<string name="option_custom_headers">Custom headers</string>
 	<string name="option_connection_options">Connection options</string>
 	<string name="subtitle_connection_options">Server URLs, proxy, &amp; custom headers</string>
@@ -237,6 +243,10 @@
 	<string name="info_status_idle">Idle</string>
 	<string name="info_status_calculating">Calculating...</string>
 	<string name="info_status_downloading">Download in progress...</string>
+	<string name="info_status_moving_downloads">Moving downloads...</string>
+	<string name="info_move_downloads">This will move your existing downloads to the new location. Continue?</string>
+	<string name="action_move_downloads">Move downloads</string>
+	<string name="action_keep_downloads">Leave in place</string>
 	<string name="info_sync_never">Never</string>
 	<string name="info_sync_just_now">Just now</string>
 	<string name="info_bulk_download_warning">Are you sure you want to download every album by %1$s?\nThis may require a significant amount of storage and data.</string>

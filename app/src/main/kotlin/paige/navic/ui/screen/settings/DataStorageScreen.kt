@@ -56,15 +56,21 @@ import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
+import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.StorageManager
 import paige.navic.domain.model.settings.CoverArtQuality
+import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.OfflineMode
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Offline
+import paige.navic.ui.component.common.SegmentedListButton
+import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.BulkDownloadDialog
 import paige.navic.ui.component.dialog.BulkDownloadTarget
+import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
 import paige.navic.ui.navigation.Screen
@@ -84,6 +90,8 @@ fun SettingsDataStorageScreen() {
 	val sizeClass = LocalSizeClass.current
 	val hideBack = sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 	val preferenceManager = koinInject<PreferenceManager>()
+	val storageManager = koinInject<StorageManager>()
+	val downloadManager = koinInject<DownloadManager>()
 	val scope = rememberCoroutineScope()
 	val imageLoader = koinInject<ImageLoader>()
 
@@ -95,6 +103,9 @@ fun SettingsDataStorageScreen() {
 	var showLibraryDownloadDialog by remember { mutableStateOf(false) }
 	val isDownloadingLibrary by viewModel.isDownloadingLibrary.collectAsStateWithLifecycle()
 	val libraryDownloadProgress by viewModel.libraryDownloadProgress.collectAsStateWithLifecycle()
+
+	val hasExternalStorage = remember { storageManager.isExternalStorageAvailable() }
+	var pendingDownloadStorage by remember { mutableStateOf<DownloadStorage?>(null) }
 
 	val isOnline by viewModel.isOnline.collectAsStateWithLifecycle()
 
@@ -165,6 +176,38 @@ fun SettingsDataStorageScreen() {
 		showDialog = showLibraryDownloadDialog,
 		onDismissRequest = { showLibraryDownloadDialog = false }
 	)
+
+	pendingDownloadStorage?.let { target ->
+		FormDialog(
+			onDismissRequest = { pendingDownloadStorage = null },
+			title = { Text(stringResource(R.string.title_change_download_location)) },
+			content = { Text(stringResource(R.string.info_move_downloads)) },
+			buttons = {
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = {
+						preferenceManager.downloadStorage = target
+						downloadManager.migrateDownloads(target)
+						pendingDownloadStorage = null
+					},
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2),
+					colors = SegmentedListButtonDefaults.primaryColors()
+				) {
+					Text(stringResource(R.string.action_move_downloads))
+				}
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = {
+						preferenceManager.downloadStorage = target
+						pendingDownloadStorage = null
+					},
+					shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
+				) {
+					Text(stringResource(R.string.action_keep_downloads))
+				}
+			}
+		)
+	}
 
 	Scaffold(
 		topBar = {
@@ -266,6 +309,33 @@ fun SettingsDataStorageScreen() {
 				}
 
 				SettingsGroup(title = { Text(stringResource(R.string.title_cache_management)) }) {
+					SettingsChoiceItem(
+						choices = DownloadStorage.entries.toImmutableList(),
+						selectedChoice = preferenceManager.downloadStorage,
+						onChoiceSelected = { choice ->
+							if (choice != preferenceManager.downloadStorage) {
+								if (downloadCount > 0) {
+									pendingDownloadStorage = choice
+								} else {
+									preferenceManager.downloadStorage = choice
+								}
+							}
+						},
+						description = if (preferenceManager.downloadStorage == DownloadStorage.External &&
+							!hasExternalStorage
+						) {
+							stringResource(R.string.subtitle_sd_card_unavailable)
+						} else {
+							stringResource(R.string.subtitle_download_location)
+						},
+						choiceEnabled = {
+							it != DownloadStorage.External || hasExternalStorage
+						},
+						content = { Text(stringResource(R.string.option_download_location)) },
+						label = { stringResource(it.displayName) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 5)
+					)
+
 					SegmentedListItem(
 						onClick = {},
 						content = { Text(stringResource(R.string.option_pending_actions)) },
@@ -277,7 +347,7 @@ fun SettingsDataStorageScreen() {
 								)
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5)
 					)
 
 					SegmentedListItem(
@@ -292,14 +362,14 @@ fun SettingsDataStorageScreen() {
 								) + downloadsSizeMb
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
 					)
 
 					SegmentedListItem(
 						onClick = {},
 						content = { Text(stringResource(R.string.option_image_cache_size)) },
 						supportingContent = { Text(imageCacheSizeMb) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5)
 					)
 
 					SegmentedListItem(
@@ -371,7 +441,7 @@ fun SettingsDataStorageScreen() {
 							}
 						},
 						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 5)
 					)
 				}
 

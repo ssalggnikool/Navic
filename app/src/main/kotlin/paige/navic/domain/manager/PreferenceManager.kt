@@ -23,6 +23,7 @@ import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.CoverArtShape
 import paige.navic.domain.model.settings.CoverArtTapAction
 import paige.navic.domain.model.settings.DiscordStatusType
+import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.FontOption
 import paige.navic.domain.model.settings.GridSize
@@ -86,6 +87,7 @@ class PreferenceManager(
 	var customFormatWifi by preference("")
 	var customFormatCellular by preference("")
 
+	var downloadStorage by preference(DownloadStorage.Internal)
 	var downloadQualityWifi by preference(StreamingQuality.Lossless)
 	var downloadQualityCellular by preference(StreamingQuality.Lossless)
 	var isAdvancedDownloadTranscodingActive by preference(false)
