@@ -71,7 +71,7 @@ class AlbumListViewModel(
 	fun starAlbum(isStarred: Boolean) {
 		launch {
 			val selection = selected ?: return@launch
-			if (isStarred) repository.starAlbum(selection) else repository.unstarAlbum(selection)
+			if (isStarred) repository.starAlbum(selection.id) else repository.unstarAlbum(selection.id)
 			refreshAlbums(false)
 		}
 	}
@@ -79,7 +79,7 @@ class AlbumListViewModel(
 	fun setRating(newRating: Int) {
 		launch {
 			val selection = selected ?: return@launch
-			repository.rateAlbum(selection, newRating)
+			repository.rateAlbum(selection.id, newRating)
 			refreshAlbums(false)
 		}
 	}

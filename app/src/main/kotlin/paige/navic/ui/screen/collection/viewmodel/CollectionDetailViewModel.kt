@@ -83,8 +83,8 @@ class CollectionDetailViewModel(
 		val state = if (collection is DomainAlbum) {
 			CollectionViewState(
 				collection = collection,
-				starred = albumRepository.isAlbumStarred(collection),
-				rating = albumRepository.getAlbumRating(collection),
+				starred = albumRepository.isAlbumStarred(collection.id),
+				rating = albumRepository.getAlbumRating(collection.id),
 				albumInfo = repository.getAlbumInfo(collectionId).toDomainModel()
 			)
 		} else {
@@ -139,7 +139,7 @@ class CollectionDetailViewModel(
 
 	fun rateAlbum(newRating: Int) = launch {
 		(uiState.value.data?.collection as? DomainAlbum)?.let { album ->
-			albumRepository.rateAlbum(album, newRating)
+			albumRepository.rateAlbum(album.id, newRating)
 		}
 	}
 
@@ -148,9 +148,9 @@ class CollectionDetailViewModel(
 			val collection = data?.collection
 			if (collection !is DomainAlbum) return@launch
 			if (starred) {
-				albumRepository.starAlbum(collection)
+				albumRepository.starAlbum(collection.id)
 			} else {
-				albumRepository.unstarAlbum(collection)
+				albumRepository.unstarAlbum(collection.id)
 			}
 			refreshCollection(false)
 		}
@@ -158,7 +158,7 @@ class CollectionDetailViewModel(
 
 	fun rateSelectedAlbum(rating: Int) {
 		launch {
-			data?.selectedAlbum?.let { albumRepository.rateAlbum(it, rating) }
+			data?.selectedAlbum?.let { albumRepository.rateAlbum(it.id, rating) }
 		}
 	}
 
@@ -166,9 +166,9 @@ class CollectionDetailViewModel(
 		launch {
 			val album = data?.selectedAlbum ?: return@launch
 			if (starred) {
-				albumRepository.starAlbum(album)
+				albumRepository.starAlbum(album.id)
 			} else {
-				albumRepository.unstarAlbum(album)
+				albumRepository.unstarAlbum(album.id)
 			}
 		}
 	}

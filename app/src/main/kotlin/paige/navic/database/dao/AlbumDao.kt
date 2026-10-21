@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import paige.navic.database.entity.AlbumEntity
 import paige.navic.database.relation.AlbumWithSongs
 import paige.navic.util.Logger
+import kotlin.time.Instant
 
 @Dao
 interface AlbumDao {
@@ -43,6 +44,12 @@ interface AlbumDao {
 
 	@Query("SELECT userRating FROM AlbumEntity WHERE albumId = :albumId")
 	suspend fun getAlbumRating(albumId: String): Int?
+
+	@Query("UPDATE AlbumEntity SET starredAt = :starredAt WHERE albumId = :albumId")
+	suspend fun updateAlbumStarredAt(albumId: String, starredAt: Instant?)
+
+	@Query("UPDATE AlbumEntity SET userRating = :userRating WHERE albumId = :albumId")
+	suspend fun updateAlbumRating(albumId: String, userRating: Int?)
 
 	@Transaction
 	@Query("SELECT * FROM AlbumEntity WHERE artistId = :artistId ORDER BY year DESC")

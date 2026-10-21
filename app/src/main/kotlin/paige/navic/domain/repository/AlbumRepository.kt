@@ -12,7 +12,6 @@ import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.LetterCount
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
-import paige.navic.database.mapper.toEntity
 import paige.navic.database.paging.createPagedFlow
 import paige.navic.database.query.getAlbumLetterCountsQuery
 import paige.navic.database.query.toSqlQuery
@@ -65,37 +64,28 @@ class AlbumRepository(
 		}
 	}
 
-	suspend fun isAlbumStarred(album: DomainAlbum) = albumDao.isAlbumStarred(album.id)
-	suspend fun getAlbumRating(album: DomainAlbum) = albumDao.getAlbumRating(album.id) ?: 0
+	suspend fun isAlbumStarred(albumId: String) = albumDao.isAlbumStarred(albumId)
+	suspend fun getAlbumRating(albumId: String) = albumDao.getAlbumRating(albumId) ?: 0
 
-	suspend fun starAlbum(album: DomainAlbum) {
-		val starredEntity = album.toEntity().copy(
-			starredAt = Clock.System.now()
-		)
-		albumDao.insertAlbum(starredEntity)
-		syncManager.enqueueAction(SyncActionType.STAR, album.id)
+	suspend fun starAlbum(albumId: String) {
+		albumDao.updateAlbumStarredAt(albumId, Clock.System.now())
+		syncManager.enqueueAction(SyncActionType.STAR, albumId)
 	}
 
-	suspend fun unstarAlbum(album: DomainAlbum) {
-		val unstarredEntity = album.toEntity().copy(
-			starredAt = null
-		)
-		albumDao.insertAlbum(unstarredEntity)
-		syncManager.enqueueAction(SyncActionType.UNSTAR, album.id)
+	suspend fun unstarAlbum(albumId: String) {
+		albumDao.updateAlbumStarredAt(albumId, null)
+		syncManager.enqueueAction(SyncActionType.UNSTAR, albumId)
 	}
 
-	suspend fun rateAlbum(album: DomainAlbum, rating: Int) {
-		val ratedEntity = album.toEntity().copy(
-			userRating = rating
-		)
-		albumDao.insertAlbum(ratedEntity)
+	suspend fun rateAlbum(albumId: String, rating: Int) {
+		albumDao.updateAlbumRating(albumId, rating.takeIf { it > 0 })
 		when (rating) {
-			0 -> syncManager.enqueueAction(SyncActionType.STAR_0, album.id)
-			1 -> syncManager.enqueueAction(SyncActionType.STAR_1, album.id)
-			2 -> syncManager.enqueueAction(SyncActionType.STAR_2, album.id)
-			3 -> syncManager.enqueueAction(SyncActionType.STAR_3, album.id)
-			4 -> syncManager.enqueueAction(SyncActionType.STAR_4, album.id)
-			5 -> syncManager.enqueueAction(SyncActionType.STAR_5, album.id)
+			0 -> syncManager.enqueueAction(SyncActionType.STAR_0, albumId)
+			1 -> syncManager.enqueueAction(SyncActionType.STAR_1, albumId)
+			2 -> syncManager.enqueueAction(SyncActionType.STAR_2, albumId)
+			3 -> syncManager.enqueueAction(SyncActionType.STAR_3, albumId)
+			4 -> syncManager.enqueueAction(SyncActionType.STAR_4, albumId)
+			5 -> syncManager.enqueueAction(SyncActionType.STAR_5, albumId)
 		}
 	}
 

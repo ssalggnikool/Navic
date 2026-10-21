@@ -12,7 +12,6 @@ import paige.navic.database.dao.ArtistDao
 import paige.navic.database.dao.LetterCount
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
-import paige.navic.database.mapper.toEntity
 import paige.navic.database.paging.createPagedFlow
 import paige.navic.database.query.getArtistLetterCountsQuery
 import paige.navic.database.query.toSqlQuery
@@ -61,22 +60,16 @@ class ArtistRepository(
 		}
 	}
 
-	suspend fun isArtistStarred(artist: DomainArtist) = artistDao.isArtistStarred(artist.id)
+	suspend fun isArtistStarred(artistId: String) = artistDao.isArtistStarred(artistId)
 
-	suspend fun starArtist(artist: DomainArtist) {
-		val starredEntity = artist.toEntity().copy(
-			starredAt = Clock.System.now()
-		)
-		artistDao.insertArtist(starredEntity)
-		syncManager.enqueueAction(SyncActionType.STAR, artist.id)
+	suspend fun starArtist(artistId: String) {
+		artistDao.updateArtistStarredAt(artistId, Clock.System.now())
+		syncManager.enqueueAction(SyncActionType.STAR, artistId)
 	}
 
-	suspend fun unstarArtist(artist: DomainArtist) {
-		val unstarredEntity = artist.toEntity().copy(
-			starredAt = null
-		)
-		artistDao.insertArtist(unstarredEntity)
-		syncManager.enqueueAction(SyncActionType.UNSTAR, artist.id)
+	suspend fun unstarArtist(artistId: String) {
+		artistDao.updateArtistStarredAt(artistId, null)
+		syncManager.enqueueAction(SyncActionType.UNSTAR, artistId)
 	}
 
 	fun getArtistLetterCounts(

@@ -17,6 +17,7 @@ import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 import paige.navic.database.entity.ArtistEntity
 import paige.navic.util.Logger
+import kotlin.time.Instant
 
 data class LetterCount(
 	val letter: String,
@@ -39,6 +40,9 @@ interface ArtistDao {
 
 	@Query("SELECT EXISTS(SELECT 1 FROM ArtistEntity WHERE artistId = :artistId AND starredAt IS NOT NULL)")
 	suspend fun isArtistStarred(artistId: String): Boolean
+
+	@Query("UPDATE ArtistEntity SET starredAt = :starredAt WHERE artistId = :artistId")
+	suspend fun updateArtistStarredAt(artistId: String, starredAt: Instant?)
 
 	@Query("SELECT * FROM ArtistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchArtistsList(query: String): List<ArtistEntity>
