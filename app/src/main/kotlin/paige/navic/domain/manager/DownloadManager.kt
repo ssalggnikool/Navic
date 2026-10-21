@@ -444,7 +444,7 @@ class DownloadManager(
 	private suspend fun cacheLyrics(song: DomainSong) {
 		Logger.i("DownloadManager", "caching lyrics for ${song.id}")
 		try {
-			val lyricsResult = lyricsRepository.fetchLyrics(song)
+			val lyricsResult = lyricsRepository.fetchLyrics(song.id)
 			if (lyricsResult?.rawContent != null) {
 				lyricDao.insertLyrics(
 					LyricEntity(
