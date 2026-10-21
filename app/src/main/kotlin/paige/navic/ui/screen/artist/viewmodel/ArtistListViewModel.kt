@@ -81,7 +81,7 @@ class ArtistListViewModel(
 	fun starArtist(isStarred: Boolean) {
 		launch {
 			val artist = selected ?: return@launch
-			if (isStarred) repository.starArtist(artist) else repository.unstarArtist(artist)
+			if (isStarred) repository.starArtist(artist.id) else repository.unstarArtist(artist.id)
 			refreshArtists(false)
 		}
 	}
