@@ -94,18 +94,13 @@ fun SettingsAboutScreen() {
 
 			SettingsGroup {
 				SettingsNavItem(
-					onClick = { linkToOpen = "https://github.com/ssalggnikool/Navic" },
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4),
-					content = { Text(stringResource(R.string.title_github)) }
-				)
-				SettingsNavItem(
 					onClick = { linkToOpen = "https://codeberg.org/paige/Navic" },
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4),
+					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2),
 					content = { Text(stringResource(R.string.title_codeberg)) }
 				)
 				SettingsNavItem(
 					onClick = { linkToOpen = "https://discord.gg/TBcnNX66PH" },
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3),
+					shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2),
 					content = { Text(stringResource(R.string.title_discord_server)) }
 				)
 			}
