@@ -14,7 +14,6 @@ import androidx.room3.Query
 import androidx.room3.RawQuery
 import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
-import kotlinx.coroutines.flow.Flow
 import paige.navic.database.entity.PlaylistEntity
 import paige.navic.database.entity.PlaylistSongCrossRef
 import paige.navic.database.relation.PlaylistWithSongs
@@ -43,26 +42,6 @@ interface PlaylistDao {
 	suspend fun insertPlaylistSongCrossRefs(crossRefs: List<PlaylistSongCrossRef>)
 
 	@Transaction
-	@Query("SELECT * FROM PlaylistEntity ORDER BY name ASC")
-	suspend fun getAllPlaylistsByName(): List<PlaylistWithSongs>
-
-	@Transaction
-	@Query("SELECT * FROM PlaylistEntity ORDER BY createdAt DESC")
-	suspend fun getAllPlaylistsByDateAdded(): List<PlaylistWithSongs>
-
-	@Transaction
-	@Query("SELECT * FROM PlaylistEntity ORDER BY duration DESC")
-	suspend fun getAllPlaylistsByDuration(): List<PlaylistWithSongs>
-
-	@Transaction
-	@Query("SELECT * FROM PlaylistEntity ORDER BY RANDOM()")
-	suspend fun getAllPlaylistsRandom(): List<PlaylistWithSongs>
-
-	@Transaction
-	@Query("SELECT * FROM PlaylistEntity ORDER BY name ASC")
-	fun getAllPlaylistsFlow(): Flow<List<PlaylistWithSongs>>
-
-	@Transaction
 	@Query("SELECT * FROM PlaylistEntity WHERE playlistId = :playlistId LIMIT 1")
 	suspend fun getPlaylistById(playlistId: String): PlaylistWithSongs?
 
@@ -78,9 +57,6 @@ interface PlaylistDao {
 		insertPlaylistSongCrossRefs(crossRefs)
 	}
 
-	@Query("SELECT COUNT(*) FROM PlaylistEntity")
-	suspend fun getPlaylistCount(): Int
-
 	@Query("DELETE FROM PlaylistEntity")
 	suspend fun clearAllPlaylists()
 
@@ -90,18 +66,6 @@ interface PlaylistDao {
 	@Transaction
 	@Query("SELECT * FROM PlaylistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchPlaylistsList(query: String): List<PlaylistWithSongs>
-
-	@Transaction
-	suspend fun updateAllPlaylists(remotePlaylists: List<PlaylistEntity>) {
-		val remoteIds = remotePlaylists.map { it.playlistId }.toSet()
-		getAllPlaylistIds().forEach { localId ->
-			if (localId !in remoteIds) {
-				Logger.w("PlaylistDao", "playlist $localId no longer exists remotely")
-				deletePlaylist(localId)
-			}
-		}
-		insertPlaylists(remotePlaylists)
-	}
 
 	@Transaction
 	suspend fun deleteObsoletePlaylists(remoteIds: Set<String>) {

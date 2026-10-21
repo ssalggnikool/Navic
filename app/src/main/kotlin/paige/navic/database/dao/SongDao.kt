@@ -39,12 +39,6 @@ interface SongDao {
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
 	suspend fun insertSongsIgnoringConflicts(songs: List<SongEntity>)
 
-	@Query("SELECT * FROM SongEntity")
-	fun getAllPagedSongs(): PagingSource<Int, SongEntity>
-
-	@Query("SELECT (songId) FROM SongEntity")
-	fun getAllSongsIds(): List<String>
-
 	@Query("SELECT SUM(playCount) FROM SongEntity")
 	fun getTotalPlayCount(): Flow<Int?>
 
@@ -95,16 +89,10 @@ interface SongDao {
 	suspend fun getSongsByIds(ids: List<String>): List<SongEntity>
 
 	@Query("SELECT * FROM SongEntity ORDER BY RANDOM() LIMIT :count")
-	fun getRandomSongs(count: Int): PagingSource<Int, SongEntity>
-
-	@Query("SELECT * FROM SongEntity ORDER BY RANDOM() LIMIT :count")
 	suspend fun getRandomSongsList(count: Int): List<SongEntity>
 
 	@Query("SELECT * FROM SongEntity WHERE title LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchSongsList(query: String): List<SongEntity>
-
-	@Query("SELECT * FROM SongEntity WHERE artistId = :artistId")
-	suspend fun getSongsByArtistId(artistId: String): List<SongEntity>
 
 	@Transaction
 	suspend fun updateSongsByAlbumId(albumId: String, remoteSongs: List<SongEntity>) {
@@ -113,18 +101,6 @@ interface SongDao {
 			if (localSong.songId !in remoteIds) {
 				Logger.w("SongDao", "song ${localSong.songId} no longer belongs to album $albumId")
 				deleteSong(localSong.songId)
-			}
-		}
-		insertSongs(remoteSongs)
-	}
-
-	@Transaction
-	suspend fun updateAllSongs(remoteSongs: List<SongEntity>) {
-		val remoteIds = remoteSongs.map { it.songId }.toSet()
-		getAllSongIds().forEach { localId ->
-			if (localId !in remoteIds) {
-				Logger.w("SongDao", "song $localId no longer exists remotely")
-				deleteSong(localId)
 			}
 		}
 		insertSongs(remoteSongs)
