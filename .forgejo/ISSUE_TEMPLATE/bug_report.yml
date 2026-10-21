@@ -76,7 +76,5 @@ body:
       options:
         - label: "I've searched existing issues and this hasn't been reported before"
           required: true
-        - label: "I did NOT write this issue with an LLM"
-          required: true
         - label: "I've ensured I am on the LATEST app version in case this was already fixed recently"
           required: true

@@ -7,17 +7,8 @@
 
 > [!WARNING]
 >
-> **LLM-assisted contributions are not allowed**, and you will be blocked from this repository if I
-> suspect you are using an LLM. It is very obvious to tell if something is LLM generated, so do not
-> even bother trying to hide it. Additionally, Codeberg and IzzyOnDroid do not allow LLM-generated
-> content.
->
-> If you don't know how to develop for Android, or can't do it without an LLM, make an issue for
-> what you wanted to contribute instead, and we can implement it ourselves. Just don't write that
-> issue with an LLM :)
->
-> I believe code is art, and LLMs are trained off of stolen art, including my art in this very
-> repository. I don't support that at all.
+> Remember to follow [Codeberg's Terms of Use][CodebergTerms]
+> and [IzzyOnDroid's policies][IzzyPolicy] when contributing.
 
 ## Rules & conventions
 
@@ -48,7 +39,7 @@
 You *need* to clone with submodules otherwise Navic will not compile:
 
 ```sh
-git clone --recurse-submodules git@codeberg.org:paige/Navic.git
+git clone --recurse-submodules https://codeberg.org/paige/Navic.git
 cd Navic
 # to update submodules:
 git submodule update --remote --merge --recursive
@@ -86,6 +77,10 @@ within the IDE.
 ## Contributing help & discussion
 
 Join the [Discord][Discord] and ask in `#🟢-android-development`.
+
+[CodebergTerms]: https://codeberg.org/Codeberg/org/src/branch/main/TermsOfUse.md
+
+[IzzyPolicy]: https://izzyondroid.org/docs/general/AppInclusionPolicy/
 
 [LegallySignificant]: http://gnu.ist.utl.pt/prep/maintain/html_node/Legally-Significant.html
 
