@@ -9,14 +9,19 @@ package paige.navic.domain.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.map
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import paige.navic.database.dao.ArtistDao
 import paige.navic.database.dao.LetterCount
+import paige.navic.database.entity.ArtistEntity
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
+import paige.navic.database.paging.IdArrayPagingSource
 import paige.navic.database.query.getArtistLetterCountsQuery
 import paige.navic.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
@@ -30,21 +35,45 @@ class ArtistRepository(
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
-	private fun getLocalData(
+	private suspend fun getLocalData(
 		listType: DomainArtistListType,
 		filters: Set<DomainFilter> = emptySet(),
 		reversed: Boolean = false,
 	): Flow<PagingData<DomainArtist>> {
+		val pagingSourceFactory = when (listType) {
+			DomainArtistListType.Random -> randomPagingSourceFactory(listType, filters)
+			else -> artistsPagingSourceFactory(listType, reversed, filters)
+		}
+
 		return Pager(
-			config = PagingConfig(
-				pageSize = 20,
-				maxSize = 100
-			),
-			pagingSourceFactory = {
-				artistDao
-					.getArtistsByQuery(listType.toSqlQuery(reversed, filters))
-			}
-			).flow.map { data -> data.map { it.toDomainModel() } }
+			config = PagingConfig(pageSize = 20, maxSize = 100),
+			pagingSourceFactory = pagingSourceFactory
+		).flow.map { data -> data.map { it.toDomainModel() } }
+	}
+
+	private suspend fun randomPagingSourceFactory(
+		listType: DomainArtistListType,
+		filters: Set<DomainFilter>
+	): () -> PagingSource<Int, ArtistEntity> {
+		val shuffledIds = withContext(Dispatchers.Default) {
+			artistDao.getArtistIdsByQuery(listType.toSqlQuery(filters = filters, idsOnly = true)).shuffled()
+		}
+		return {
+			IdArrayPagingSource(
+				ids = shuffledIds,
+				getId = { it.artistId },
+				fetchByIds = artistDao::getArtistsByIds
+			)
+		}
+	}
+
+	private fun artistsPagingSourceFactory(
+		listType: DomainArtistListType,
+		reversed: Boolean,
+		filters: Set<DomainFilter>
+	): () -> PagingSource<Int, ArtistEntity> {
+		val query = listType.toSqlQuery(reversed, filters)
+		return { artistDao.getArtistsByQuery(query) }
 	}
 
 	private suspend fun refreshLocalData(
