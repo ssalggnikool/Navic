@@ -21,11 +21,10 @@ import paige.navic.database.mapper.toEntity
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainPlaylist
-import paige.navic.domain.model.DomainSong
 import paige.navic.ui.core.UiState
 
 class PlaylistCreateDialogViewModel(
-	private val songs: List<DomainSong>,
+	private val songIds: List<String>,
 	private val playlistDao: PlaylistDao,
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager
@@ -44,7 +43,7 @@ class PlaylistCreateDialogViewModel(
 			try {
 				val playlist = sessionManager.api.createPlaylist(
 					name = name.text.toString(),
-					songIds = songs.map { it.id }
+					songIds = songIds
 				)
 				playlistDao.insertPlaylist(playlist.toEntity())
 				_events.send(
