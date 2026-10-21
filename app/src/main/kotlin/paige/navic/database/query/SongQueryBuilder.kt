@@ -12,7 +12,8 @@ import paige.navic.domain.model.DomainSongListType
 
 fun DomainSongListType.toSqlQuery(
 	reversed: Boolean = false,
-	filters: Set<DomainFilter> = emptySet()
+	filters: Set<DomainFilter> = emptySet(),
+	idsOnly: Boolean = false
 ): RoomRawQuery {
 	val whereClauses = mutableListOf<String>()
 	val args = mutableListOf<Any>()
@@ -46,6 +47,11 @@ fun DomainSongListType.toSqlQuery(
 		" WHERE " + whereClauses.joinToString(" AND ")
 	} else {
 		""
+	}
+
+	if (idsOnly) {
+		val sql = "SELECT songId FROM SongEntity$whereSql"
+		return createRoomRawQuery(sql, args)
 	}
 
 	var orderBy = when (this) {
