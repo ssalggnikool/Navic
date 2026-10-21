@@ -240,6 +240,7 @@ dependencies {
 	implementation(libs.androidx.glance.appwidget)
 	implementation(libs.androidx.glance.material3)
 	implementation(libs.androidx.browser)
+	implementation(libs.androidx.work.runtime.ktx)
 
 	// Kotlinx
 	implementation(libs.kotlinx.datetime)
@@ -273,8 +274,10 @@ dependencies {
 	implementation(libs.koin.android)
 	implementation(libs.koin.compose)
 	implementation(libs.koin.compose.viewmodel)
+	implementation(libs.koin.androidx.workmanager)
 	implementation(libs.subsonicKotlin)
 	implementation(libs.antisocialcord)
 	ksp(libs.androidx.room3.compiler)
+	implementation(libs.cryptohash)
 	coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

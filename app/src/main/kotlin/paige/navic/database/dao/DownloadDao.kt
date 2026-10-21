@@ -19,17 +19,29 @@ interface DownloadDao {
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertDownload(download: DownloadEntity)
 
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	suspend fun insertDownloads(downloads: List<DownloadEntity>)
+
 	@Query("SELECT * FROM DownloadEntity WHERE songId = :songId")
 	suspend fun getDownloadById(songId: String): DownloadEntity?
 
 	@Query("SELECT * FROM DownloadEntity")
 	fun getAllDownloads(): Flow<List<DownloadEntity>>
 
+	@Query("SELECT * FROM DownloadEntity WHERE status = :status")
+	suspend fun getDownloadsByStatus(status: DownloadStatus): List<DownloadEntity>
+
+	@Query("SELECT COUNT(*) FROM DownloadEntity WHERE status = :status")
+	suspend fun countDownloadsByStatus(status: DownloadStatus): Int
+
 	@Query("SELECT COUNT(*) FROM DownloadEntity WHERE status = :status")
 	fun getDownloadsCount(status: DownloadStatus = DownloadStatus.DOWNLOADED): Flow<Int>
 
 	@Query("DELETE FROM DownloadEntity WHERE songId = :songId")
 	suspend fun deleteDownload(songId: String)
+
+	@Query("DELETE FROM DownloadEntity WHERE status = :status")
+	suspend fun deleteDownloadsByStatus(status: DownloadStatus)
 
 	@Query("UPDATE DownloadEntity SET status = :status, progress = :progress WHERE songId = :songId")
 	suspend fun updateProgress(songId: String, status: DownloadStatus, progress: Float)

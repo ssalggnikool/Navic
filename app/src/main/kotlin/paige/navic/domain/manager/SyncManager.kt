@@ -6,29 +6,38 @@
 
 package paige.navic.domain.manager
 
+import android.content.Context
 import androidx.annotation.StringRes
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.await
+import androidx.work.workDataOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import paige.navic.R
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.SyncActionDao
 import paige.navic.database.entity.SyncActionEntity
 import paige.navic.database.entity.SyncActionType
-import paige.navic.domain.repository.DbRepository
 import paige.navic.util.Logger
+import paige.navic.work.LibrarySyncWorker
+import paige.navic.work.SyncActionWorker
+import paige.navic.work.WorkKeys
+import paige.navic.work.WorkNames
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
 data class SyncState(
@@ -38,143 +47,159 @@ data class SyncState(
 )
 
 class SyncManager(
-	private val repository: DbRepository,
+	private val context: Context,
 	private val syncDao: SyncActionDao,
 	private val albumDao: AlbumDao,
-	private val connectivityManager: ConnectivityManager,
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager
 ) {
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-	private var syncJob: Job? = null
-	private val syncMutex = Mutex()
-
-	private val fullSyncThreshold = 1.hours
-
-	val syncState: StateFlow<SyncState>
-		field = MutableStateFlow(SyncState())
+	private val workManager = WorkManager.getInstance(context)
 
 	init {
+		if (sessionManager.isLoggedIn.value) {
+			startPeriodicSync()
+			schedulePendingActions()
+		}
+	}
+
+	val syncState: StateFlow<SyncState> = combine(
+		workManager.getWorkInfosForUniqueWorkFlow(WorkNames.LIBRARY_SYNC_MANUAL),
+		workManager.getWorkInfosForUniqueWorkFlow(WorkNames.LIBRARY_SYNC_PERIODIC)
+	) { manual, periodic ->
+		val running = (manual + periodic)
+			.firstOrNull { it.state == WorkInfo.State.RUNNING }
+
+		if (running == null) {
+			SyncState()
+		} else {
+			SyncState(
+				isSyncing = true,
+				progress = running.progress.getFloat(WorkKeys.PROGRESS, 0f),
+				message = running.progress.getInt(
+					WorkKeys.MESSAGE,
+					R.string.info_status_idle
+				)
+			)
+		}
+	}.stateIn(
+		scope = scope,
+		started = SharingStarted.WhileSubscribed(5000),
+		initialValue = SyncState()
+	)
+
+	fun startPeriodicSync(syncImmediately: Boolean = true) {
+		if (!sessionManager.isLoggedIn.value) return
+
+		schedulePeriodicWork()
+
+		if (!syncImmediately) return
+
 		scope.launch {
-			connectivityManager.isOnline.collect { isOnline ->
-				if (!syncMutex.isLocked && isOnline) {
-					syncMutex.withLock { processQueue() }
-				}
+			if (albumDao.getAlbumCount() == 0 || preferenceManager.lastFullSyncTime <= 0L) {
+				Logger.i("SyncManager", "Syncing now because we haven't synced before")
+				enqueueManualSync(
+					force = false,
+					policy = ExistingWorkPolicy.KEEP
+				)
 			}
 		}
 	}
 
-	fun startPeriodicSync() {
-		Logger.i("SyncManager", "Starting periodic sync cycle.")
-		if (syncJob?.isActive == true) return
+	private fun schedulePeriodicWork() {
+		Logger.i("SyncManager", "Scheduling periodic sync.")
 
-		scope.launch {
-			if (albumDao.getAlbumCount() == 0
-				|| preferenceManager.lastFullSyncTime <= 0L
-			) {
-				Logger.i("SyncManager", "Syncing now because we haven't synced before")
-				runSyncCycle()
-			}
-		}
+		val request = PeriodicWorkRequestBuilder<LibrarySyncWorker>(15, java.util.concurrent.TimeUnit.MINUTES)
+			.setConstraints(networkConstraints())
+			.setInputData(
+				workDataOf(
+					WorkKeys.FORCE to false,
+					WorkKeys.PERIODIC to true
+				)
+			)
+			.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, java.util.concurrent.TimeUnit.SECONDS)
+			.addTag(WorkNames.SYNC_TAG)
+			.build()
 
-		syncJob = scope.launch {
-			while (isActive) {
-				runSyncCycle()
-				delay(15.minutes)
-			}
-		}
+		workManager.enqueueUniquePeriodicWork(
+			WorkNames.LIBRARY_SYNC_PERIODIC,
+			ExistingPeriodicWorkPolicy.KEEP,
+			request
+		)
 	}
 
 	fun triggerManualSync() {
-		scope.launch {
-			preferenceManager.lastFullSyncTime = 0
-			runSyncCycle()
-		}
+		if (!sessionManager.isLoggedIn.value) return
+
+		schedulePeriodicWork()
+		preferenceManager.lastFullSyncTime = 0
+		enqueueManualSync(force = true)
+	}
+
+	private fun enqueueManualSync(
+		force: Boolean,
+		policy: ExistingWorkPolicy = ExistingWorkPolicy.REPLACE
+	) {
+		val request = OneTimeWorkRequestBuilder<LibrarySyncWorker>()
+			.setConstraints(networkConstraints())
+			.setInputData(workDataOf(WorkKeys.FORCE to force))
+			.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, java.util.concurrent.TimeUnit.SECONDS)
+			.addTag(WorkNames.SYNC_TAG)
+			.build()
+
+		workManager.enqueueUniqueWork(
+			WorkNames.LIBRARY_SYNC_MANUAL,
+			policy,
+			request
+		)
 	}
 
 	fun stopPeriodicSync() {
-		syncJob?.cancel()
-		syncState.value = SyncState(isSyncing = false)
+		workManager.cancelUniqueWork(WorkNames.LIBRARY_SYNC_PERIODIC)
+		workManager.cancelUniqueWork(WorkNames.LIBRARY_SYNC_MANUAL)
+		workManager.cancelUniqueWork(WorkNames.SYNC_ACTIONS)
 	}
 
-	fun enqueueAction(actionType: SyncActionType, itemId: String, time: Instant = Clock.System.now()) {
+	suspend fun stopPeriodicSyncAndWait() {
+		workManager.cancelUniqueWork(WorkNames.LIBRARY_SYNC_PERIODIC).await()
+		workManager.cancelUniqueWork(WorkNames.LIBRARY_SYNC_MANUAL).await()
+		workManager.cancelUniqueWork(WorkNames.SYNC_ACTIONS).await()
+	}
+
+	fun enqueueAction(
+		actionType: SyncActionType,
+		itemId: String,
+		time: Instant = Clock.System.now()
+	) {
 		scope.launch {
 			syncDao.enqueue(SyncActionEntity(actionType = actionType, itemId = itemId, time = time))
-			if (!syncMutex.isLocked) {
-				syncMutex.withLock { processQueue() }
+			scheduleActionWorker()
+		}
+	}
+
+	private fun schedulePendingActions() {
+		scope.launch {
+			if (syncDao.getPendingActions().isNotEmpty()) {
+				scheduleActionWorker()
 			}
 		}
 	}
 
-	private suspend fun runSyncCycle() {
-		syncMutex.withLock {
-			processQueue()
+	private fun scheduleActionWorker() {
+		val request = OneTimeWorkRequestBuilder<SyncActionWorker>()
+			.setConstraints(networkConstraints())
+			.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, java.util.concurrent.TimeUnit.SECONDS)
+			.addTag(WorkNames.SYNC_ACTION_TAG)
+			.build()
 
-			val currentTime = Clock.System.now()
-			if (currentTime - Instant.fromEpochMilliseconds(preferenceManager.lastFullSyncTime) > fullSyncThreshold) {
-				Logger.i("SyncManager", "Starting full library pull...")
-
-				syncState.update {
-					it.copy(isSyncing = true)
-				}
-
-				val result = repository.syncEverything { progress, message ->
-					syncState.update {
-						it.copy(isSyncing = true, progress = progress, message = message)
-					}
-				}
-
-				preferenceManager.lastFullSyncTime = currentTime.toEpochMilliseconds()
-
-				// TODO: error should show up in UI as snack bar or something
-				try {
-					result.getOrThrow()
-					Logger.i("SyncManager", "Full library sync complete.")
-				} catch (ex: Exception) {
-					Logger.e("SyncManager", "couldn't sync library", ex)
-				}
-
-				syncState.update {
-					it.copy(isSyncing = false, message = R.string.info_status_idle)
-				}
-			}
-		}
+		workManager.enqueueUniqueWork(
+			WorkNames.SYNC_ACTIONS,
+			ExistingWorkPolicy.APPEND_OR_REPLACE,
+			request
+		)
 	}
 
-	private suspend fun processQueue() {
-		val actions = syncDao.getPendingActions()
-		if (actions.isEmpty()) return
-
-		for (action in actions) {
-			try {
-				when (action.actionType) {
-					SyncActionType.STAR -> sessionManager.api.star(action.itemId)
-					SyncActionType.UNSTAR -> sessionManager.api.unstar(action.itemId)
-					SyncActionType.DELETE_PLAYLIST -> sessionManager.api.deletePlaylist(action.itemId)
-					SyncActionType.SCROBBLE -> sessionManager.api.scrobble(
-						action.itemId,
-						submission = true,
-						time = action.time // i'm sorry for you if this defaults to "now"
-					)
-
-					SyncActionType.STAR_0 -> sessionManager.api.setRating(action.itemId, 0)
-					SyncActionType.STAR_1 -> sessionManager.api.setRating(action.itemId, 1)
-					SyncActionType.STAR_2 -> sessionManager.api.setRating(action.itemId, 2)
-					SyncActionType.STAR_3 -> sessionManager.api.setRating(action.itemId, 3)
-					SyncActionType.STAR_4 -> sessionManager.api.setRating(action.itemId, 4)
-					SyncActionType.STAR_5 -> sessionManager.api.setRating(action.itemId, 5)
-				}
-
-				syncDao.removeAction(action.id)
-				Logger.i(
-					"SyncManager",
-					"Successfully synced ${action.actionType} for ${action.itemId}"
-				)
-
-			} catch (e: Exception) {
-				Logger.e("SyncManager", "Network failed. Action left in queue.", e)
-				break
-			}
-		}
-	}
+	private fun networkConstraints() = Constraints.Builder()
+		.setRequiredNetworkType(NetworkType.CONNECTED)
+		.build()
 }

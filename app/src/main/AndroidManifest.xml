@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Navic, a Subsonic music streaming app for Android
   ~ Copyright (c) 2026 paige
   ~ SPDX-License-Identifier: GPL-3.0-only
@@ -25,6 +24,7 @@
 		android:name="android.permission.FOREGROUND_SERVICE"
 		tools:ignore="ForegroundServicesPolicy" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
 	<!-- needed for notifications for downloads and syncing db -->
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -110,6 +110,22 @@
 				<action android:name="android.media.browse.MediaBrowserService" />
 			</intent-filter>
 		</service>
+
+		<!-- WorkManager stuff -->
+		<service
+			android:name="androidx.work.impl.foreground.SystemForegroundService"
+			android:foregroundServiceType="dataSync"
+			tools:node="merge" />
+		<provider
+			android:name="androidx.startup.InitializationProvider"
+			android:authorities="${applicationId}.androidx-startup"
+			android:exported="false"
+			tools:node="merge">
+			<meta-data
+				android:name="androidx.work.WorkManagerInitializer"
+				android:value="androidx.startup"
+				tools:node="remove" />
+		</provider>
 
 		<!-- miniplayer receiver -->
 		<receiver

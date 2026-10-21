@@ -7,26 +7,160 @@
 package paige.navic.domain.manager
 
 import android.content.Context
+import android.os.Environment
+import com.appmattus.crypto.Algorithm
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import paige.navic.domain.model.settings.DownloadStorage
 import java.io.File
 import java.io.FileOutputStream
 
 class StorageManager(
-	private val context: Context
+	private val context: Context,
+	private val preferenceManager: PreferenceManager
 ) {
 	private val dispatcher = Dispatchers.IO
 
-	fun getDownloadPath(songId: String, extension: String): String {
-		val dir = File(context.filesDir, "downloads")
-		if (!dir.exists()) dir.mkdirs()
+	private fun internalDownloadDir(): File = File(context.filesDir, "downloads")
+
+	private fun externalDownloadDirs(): List<File> =
+		context.getExternalFilesDirs(null)
+			.filterNotNull()
+			.filter { dir ->
+				runCatching {
+					val volume = context
+						.getSystemService(android.os.storage.StorageManager::class.java)
+						?.getStorageVolume(dir)
+
+					volume?.isRemovable == true &&
+						Environment.getExternalStorageState(dir) == Environment.MEDIA_MOUNTED
+				}.getOrDefault(false)
+			}
+			.map { File(it, "downloads") }
+
+	fun externalDownloadDir(): File? = externalDownloadDirs().firstOrNull()
+
+	fun isExternalStorageAvailable(): Boolean = externalDownloadDir() != null
+
+	fun getDownloadDirFor(storage: DownloadStorage): File? = when (storage) {
+		DownloadStorage.Internal -> internalDownloadDir().apply { mkdirs() }
+		DownloadStorage.External -> externalDownloadDir()?.apply { mkdirs() }
+	}
+
+	fun currentDownloadDir(): File =
+		getDownloadDirFor(preferenceManager.downloadStorage)
+			?: internalDownloadDir().apply { mkdirs() }
+
+	fun allDownloadDirs(): List<File> =
+		(listOf(internalDownloadDir()) + externalDownloadDirs())
+			.distinctBy { it.absolutePath }
+
+	private fun generatePathHash(albumId: String, songId: String): Pair<String, String> {
+		val template = "${albumId}-${songId}".takeIf { it.length >= 4 }
+			?: "dummy-${songId}"
+		val hash = template.hashString()
+
+		return Pair(
+			hash.substring(0..2),
+			hash.substring(2..4)
+		)
+	}
+
+	fun getHashedPath(
+		songId: String,
+		albumId: String? = null,
+		storage: DownloadStorage? = null
+	): File {
+		val downloadsDir = storage?.let { getDownloadDirFor(it) }
+			?: currentDownloadDir()
+
+		return generatePathHash(albumId ?: songId, songId).let { hash ->
+			File(
+				File(downloadsDir, hash.first),
+				hash.second
+			).apply { mkdirs() }
+		}
+	}
+
+	fun getDownloadPath(songId: String, albumId: String, extension: String): String {
+		val dir = getHashedPath(songId, albumId)
 		return File(dir, "$songId.$extension").absolutePath
+	}
+
+	fun getTempDownloadPath(path: String): String = "$path.part"
+
+	fun commitFile(tempPath: String, finalPath: String): Boolean {
+		val tempFile = File(tempPath)
+		val finalFile = File(finalPath)
+		if (!tempFile.exists()) return false
+
+		if (finalFile.exists()) finalFile.delete()
+
+		return tempFile.renameTo(finalFile)
+	}
+
+	fun moveFile(sourcePath: String, targetPath: String): Boolean {
+		val source = File(sourcePath)
+		if (!source.exists()) return false
+
+		val target = File(targetPath)
+		target.parentFile?.mkdirs()
+
+		if (target.exists()) target.delete()
+
+		if (source.renameTo(target)) return true
+
+		val temp = File("$targetPath.part")
+		return try {
+			source.inputStream().use { input ->
+				temp.outputStream().use { output -> input.copyTo(output) }
+			}
+
+			if (target.exists()) target.delete()
+
+			if (temp.renameTo(target)) {
+				source.delete()
+				true
+			} else {
+				temp.delete()
+				false
+			}
+		} catch (_: Exception) {
+			temp.delete()
+			false
+		}
 	}
 
 	fun deleteFile(path: String): Boolean {
 		return File(path).delete()
+	}
+
+	fun deleteTempFile(path: String): Boolean {
+		return deleteFile(getTempDownloadPath(path))
+	}
+
+	fun deleteSongFiles(songId: String) {
+		allDownloadDirs().forEach { dir ->
+			if (!dir.exists()) return@forEach
+
+			dir.walkTopDown()
+				.filter { it.isFile && it.name.startsWith("$songId.") }
+				.toList()
+				.forEach { it.delete() }
+		}
+	}
+
+	fun clearTempDownloads() {
+		allDownloadDirs().forEach { dir ->
+			if (!dir.exists()) return@forEach
+
+			dir.walkTopDown()
+				.filter { it.isFile && it.name.endsWith(".part") }
+				.toList()
+				.forEach { it.delete() }
+		}
 	}
 
 	fun getFileSize(path: String): Long {
@@ -46,9 +180,16 @@ class StorageManager(
 	}
 
 	fun clearDownloads() {
-		val dir = File(context.filesDir, "downloads")
-		if (dir.exists()) {
-			dir.listFiles()?.forEach { it.deleteRecursively() }
+		allDownloadDirs().forEach { dir ->
+			if (dir.exists()) {
+				dir.listFiles()?.forEach { it.deleteRecursively() }
+			}
 		}
+	}
+
+	private fun String.hashString(): String {
+		val digest = Algorithm.XXHash32().createDigest()
+		return digest.digest(this.toByteArray(Charsets.UTF_8))
+			.joinToString("") { byte -> "%02x".format(byte) }
 	}
 }
