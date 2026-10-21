@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,18 +39,17 @@ import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.DragHandle
-import paige.navic.ui.icons.outlined.Lock
-import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.SwipeToDismissBox
 import paige.navic.ui.component.common.Waveform
-import paige.navic.ui.navigation.Screen
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Delete
+import paige.navic.ui.icons.outlined.DragHandle
+import paige.navic.ui.icons.outlined.Lock
+import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.util.buildSongInfoString
 
 @Composable
@@ -98,10 +98,10 @@ fun QueueScreenItem(
 		backgroundContent = {
 			Box(
 				modifier = Modifier
-					.fillMaxSize()
-					.clip(itemShape.shape)
-					.background(MaterialTheme.colorScheme.errorContainer)
-					.padding(horizontal = 20.dp)
+                    .fillMaxSize()
+                    .clip(itemShape.shape)
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(horizontal = 20.dp)
 			) {
 				Icon(
 					imageVector = Icons.Outlined.Delete,
@@ -133,17 +133,26 @@ fun QueueScreenItem(
 					),
 					shapes = itemShape,
 					verticalAlignment = Alignment.CenterVertically,
-					content = { MarqueeText(song.title) },
-					supportingContent = {
-						MarqueeText(
-							buildSongInfoString(
-								song = song,
-								onClickArtist = {
-									backStack.remove(Screen.Queue)
-									backStack.remove(Screen.NowPlaying)
-									backStack.add(Screen.ArtistDetail(it))
-								}
+					content = {
+						if (isPlaying) {
+							MarqueeText(song.title)
+						} else {
+							Text(
+								song.title,
+								modifier = Modifier.weight(1f),
+								maxLines = 1
 							)
+						}
+					},
+					supportingContent = {
+						Text(
+							buildSongInfoString(
+								song,
+								showYear = false,
+								showAlbum = false
+							),
+							modifier = Modifier.weight(1f),
+							maxLines = 1
 						)
 					},
 					leadingContent = {
