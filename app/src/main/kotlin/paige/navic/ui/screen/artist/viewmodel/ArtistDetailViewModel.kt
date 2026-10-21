@@ -106,7 +106,7 @@ class ArtistDetailViewModel(
 					artistDao.getArtistById(id)?.toDomainModel()
 				}
 
-				starred.value = artistRepository.isArtistStarred(domainArtist)
+				starred.value = artistRepository.isArtistStarred(domainArtist.id)
 
 				artistState.value = UiState.Success(
 					ArtistState(
@@ -159,8 +159,8 @@ class ArtistDetailViewModel(
 	fun selectAlbum(album: DomainAlbum) {
 		viewModelScope.launch {
 			selectedAlbum.value = album
-			selectedAlbumIsStarred.value = albumRepository.isAlbumStarred(album)
-			selectedAlbumRating.value = albumRepository.getAlbumRating(album)
+			selectedAlbumIsStarred.value = albumRepository.isAlbumStarred(album.id)
+			selectedAlbumRating.value = albumRepository.getAlbumRating(album.id)
 		}
 	}
 
@@ -169,7 +169,7 @@ class ArtistDetailViewModel(
 			val selection = selectedAlbum.value ?: return@launch
 			runCatching {
 				selectedAlbumRating.value = rating
-				albumRepository.rateAlbum(selection, rating)
+				albumRepository.rateAlbum(selection.id, rating)
 			}
 		}
 	}
@@ -229,9 +229,9 @@ class ArtistDetailViewModel(
 			val selection = selectedAlbum.value ?: return@launch
 			runCatching {
 				if (starred) {
-					albumRepository.starAlbum(selection)
+					albumRepository.starAlbum(selection.id)
 				} else {
-					albumRepository.unstarAlbum(selection)
+					albumRepository.unstarAlbum(selection.id)
 				}
 				selectedAlbumIsStarred.value = starred
 			}
