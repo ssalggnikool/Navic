@@ -13,7 +13,6 @@ import org.koin.dsl.module
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainFilter
-import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.DeletionViewModel
@@ -81,9 +80,9 @@ val viewModelModule = module {
 		)
 	}
 
-	viewModel { (song: DomainSong?) ->
+	viewModel { (songId: String?) ->
 		LyricsScreenViewModel(
-			song = song,
+			songId = songId,
 			repository = get()
 		)
 	}

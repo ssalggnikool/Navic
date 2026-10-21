@@ -26,7 +26,9 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import paige.navic.database.dao.LyricDao
+import paige.navic.database.dao.SongDao
 import paige.navic.database.entity.LyricEntity
+import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.lyrics.LyricsConfig
@@ -39,6 +41,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class LyricsRepository(
 	private val lyricDao: LyricDao,
+	private val songDao: SongDao,
 	private val settings: Settings,
 	private val sessionManager: SessionManager
 ) {
@@ -72,9 +75,9 @@ class LyricsRepository(
 		}
 	}
 
-	suspend fun fetchLyrics(song: DomainSong): LyricsResult? {
+	suspend fun fetchLyrics(songId: String): LyricsResult? {
 		try {
-			val cached = lyricDao.getLyrics(song.id)
+			val cached = lyricDao.getLyrics(songId)
 			if (cached != null) {
 				val parsed = LyricsContentParser.parse(cached.rawContent)
 				if (!parsed.isNullOrEmpty()) return LyricsResult(
@@ -86,6 +89,8 @@ class LyricsRepository(
 		} catch (ex: Exception) {
 			Logger.w("LyricsRepository", "failed getting cached lyrics", ex)
 		}
+
+		val song = songDao.getSongById(songId)?.toDomainModel() ?: return null
 
 		val currentConfig = getConfig()
 		for (provider in currentConfig.providers.filter { it.enabled }) {
