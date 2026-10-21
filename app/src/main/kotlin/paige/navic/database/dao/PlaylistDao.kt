@@ -26,6 +26,13 @@ interface PlaylistDao {
 	@RawQuery
 	fun getPlaylistsByQuery(query: RoomRawQuery): PagingSource<Int, PlaylistWithSongs>
 
+	@RawQuery
+	suspend fun getPlaylistIdsByQuery(query: RoomRawQuery): List<String>
+
+	@Transaction
+	@Query("SELECT * FROM PlaylistEntity WHERE playlistId IN (:ids)")
+	suspend fun getPlaylistsByIds(ids: List<String>): List<PlaylistWithSongs>
+
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertPlaylist(playlist: PlaylistEntity)
 
