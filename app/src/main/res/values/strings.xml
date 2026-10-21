@@ -181,7 +181,7 @@
 	<string name="option_downloaded_songs">Downloaded songs</string>
 	<string name="option_custom_headers">Custom headers</string>
 	<string name="option_connection_options">Connection options</string>
-	<string name="subtitle_connection_options">Server URL, proxy, alternate addresses, and custom headers</string>
+	<string name="subtitle_connection_options">Server URLs, proxy, &amp; custom headers</string>
 	<string name="option_check_for_updates">Check for updates</string>
 	<string name="option_radio_name">Name</string>
 	<string name="option_radio_stream_url">Stream URL</string>
