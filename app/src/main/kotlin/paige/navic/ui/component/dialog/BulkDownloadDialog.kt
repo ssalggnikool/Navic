@@ -71,7 +71,7 @@ fun BulkDownloadDialog(
 							when (target) {
 								is BulkDownloadTarget.Artist -> {
 									target.albums.forEach { album ->
-										downloadManager.downloadCollection(album)
+										downloadManager.downloadCollection(album.songs.map { it.id })
 									}
 								}
 								is BulkDownloadTarget.Library -> {

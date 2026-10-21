@@ -51,7 +51,6 @@ import paige.navic.database.entity.DownloadStatus
 import paige.navic.database.entity.LyricEntity
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.model.DomainSong
-import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.repository.LyricsRepository
 import paige.navic.util.Logger
 import paige.navic.util.network.NavicularDnsResolver
@@ -71,7 +70,7 @@ class DownloadManager(
 	private val preferenceManager: PreferenceManager,
 	private val connectivityManager: ConnectivityManager,
 	private val notificationManager: NotificationManager,
-	private val dnsResolver: NavicularDnsResolver,
+	dnsResolver: NavicularDnsResolver,
 	private val context: Context
 ) {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -178,15 +177,15 @@ class DownloadManager(
 		return downloadedSongs.value[songId]
 	}
 
-	fun downloadSong(song: DomainSong): Job {
-		return downloadSongInternal(song, incrementCounter = true)
+	fun downloadSong(songId: String): Job {
+		return downloadSongInternal(songId, incrementCounter = true)
 	}
 
-	private fun downloadSongInternal(song: DomainSong, incrementCounter: Boolean): Job {
+	private fun downloadSongInternal(songId: String, incrementCounter: Boolean): Job {
 		val job = scope.launch(Dispatchers.IO) {
 			val alreadyActive =
-				activeDownloadsMutex.withLock { activeDownloads.containsKey(song.id) }
-			if (alreadyActive || isDownloaded(song.id)) return@launch
+				activeDownloadsMutex.withLock { activeDownloads.containsKey(songId) }
+			if (alreadyActive || isDownloaded(songId)) return@launch
 
 			if (incrementCounter) {
 				downloadProgressMutex.withLock {
@@ -199,10 +198,10 @@ class DownloadManager(
 			}
 
 			try {
-				activeDownloadsMutex.withLock { activeDownloads[song.id] = coroutineContext[Job]!! }
+				activeDownloadsMutex.withLock { activeDownloads[songId] = coroutineContext[Job]!! }
 
 				downloadSemaphore.withPermit {
-					executeDownloadProcess(song)
+					executeDownloadProcess(songId)
 				}
 
 				downloadProgressMutex.withLock {
@@ -216,15 +215,15 @@ class DownloadManager(
 				}
 				throw e
 			} finally {
-				activeDownloadsMutex.withLock { activeDownloads.remove(song.id) }
+				activeDownloadsMutex.withLock { activeDownloads.remove(songId) }
 			}
 		}
 		return job
 	}
 
-	suspend fun downloadCollection(collection: DomainSongCollection) {
-		collection.songs
-			.filter { !isDownloaded(it.id) }
+	suspend fun downloadCollection(songIds: Collection<String>) {
+		songIds
+			.filter { !isDownloaded(it) }
 			.forEach { downloadSong(it) }
 	}
 
@@ -237,11 +236,8 @@ class DownloadManager(
 				isDownloadingLibrary.value = true
 				libraryDownloadProgress.value = 0f
 
-				val songs = songDao.getAllSongIds()
-					.mapNotNull { id -> songDao.getSongById(id) }
-					.map { it.toDomainModel() }
-
-				val songsToDownload = songs.filter { !isDownloaded(it.id) }
+				val songIds = songDao.getAllSongIds()
+				val songsToDownload = songIds.filter { !isDownloaded(it) }
 				val totalToDownload = songsToDownload.size
 
 				if (totalToDownload == 0) {
@@ -258,7 +254,7 @@ class DownloadManager(
 					updateDownloadNotification()
 				}
 
-				val downloadQueue = Channel<DomainSong>(Channel.UNLIMITED)
+				val downloadQueue = Channel<String>(Channel.UNLIMITED)
 				songsToDownload.forEach { downloadQueue.trySend(it) }
 				downloadQueue.close()
 
@@ -267,8 +263,8 @@ class DownloadManager(
 
 				val workers = List(10) {
 					launch {
-						for (song in downloadQueue) {
-							downloadSongInternal(song, incrementCounter = false).join()
+						for (songId in downloadQueue) {
+							downloadSongInternal(songId, incrementCounter = false).join()
 
 							progressMutex.withLock {
 								processedCount++
@@ -334,9 +330,9 @@ class DownloadManager(
 		}
 	}
 
-	fun cancelCollectionDownload(collection: DomainSongCollection) {
-		collection.songs.forEach { song ->
-			cancelDownload(song.id)
+	fun cancelCollectionDownload(songIds: Collection<String>) {
+		songIds.forEach { songId ->
+			cancelDownload(songId)
 		}
 	}
 
@@ -349,9 +345,9 @@ class DownloadManager(
 		}
 	}
 
-	fun deleteDownloadedCollection(collection: DomainSongCollection) {
-		collection.songs.forEach { song ->
-			deleteDownload(song.id)
+	fun deleteDownloadedCollection(songIds: Collection<String>) {
+		songIds.forEach { songId ->
+			deleteDownload(songId)
 		}
 	}
 
@@ -384,23 +380,28 @@ class DownloadManager(
 		}
 	}
 
-	private suspend fun executeDownloadProcess(song: DomainSong) {
+	private suspend fun executeDownloadProcess(songId: String) {
 		try {
-			Logger.i("DownloadManager", "beginning download for ${song.id}")
-			downloadDao.insertDownload(DownloadEntity(song.id, DownloadStatus.DOWNLOADING, 0f))
+			Logger.i("DownloadManager", "beginning download for $songId")
+			downloadDao.insertDownload(DownloadEntity(songId, DownloadStatus.DOWNLOADING, 0f))
 
-			cacheCoverArt(song.coverArtId)
-			cacheAlbumCoverArt(song.albumId)
-			cacheLyrics(song)
-			downloadAudioFile(song)
-
+			val song = songDao.getSongById(songId)?.toDomainModel()
+			if (song != null) {
+				cacheCoverArt(song.coverArtId)
+				cacheAlbumCoverArt(song.albumId) //Maybe use a Dao function to retrieve these??
+				cacheLyrics(songId)
+				downloadAudioFile(song)
+			} else {
+				Logger.e("DownloadManager", "Song $songId not found for download")
+				downloadDao.insertDownload(DownloadEntity(songId, DownloadStatus.FAILED, 0f))
+			}
 		} catch (e: Exception) {
 			if (e is CancellationException) throw e
-			Logger.e("DownloadManager", "Failed to download song ${song.id}", e)
-			downloadDao.insertDownload(DownloadEntity(song.id, DownloadStatus.FAILED, 0f))
+			Logger.e("DownloadManager", "Failed to download song $songId", e)
+			downloadDao.insertDownload(DownloadEntity(songId, DownloadStatus.FAILED, 0f))
 		} finally {
 			activeDownloadsMutex.withLock {
-				activeDownloads.remove(song.id)
+				activeDownloads.remove(songId)
 			}
 		}
 	}
@@ -441,23 +442,23 @@ class DownloadManager(
 		}
 	}
 
-	private suspend fun cacheLyrics(song: DomainSong) {
-		Logger.i("DownloadManager", "caching lyrics for ${song.id}")
+	private suspend fun cacheLyrics(songId: String) {
+		Logger.i("DownloadManager", "caching lyrics for $songId")
 		try {
-			val lyricsResult = lyricsRepository.fetchLyrics(song.id)
+			val lyricsResult = lyricsRepository.fetchLyrics(songId)
 			if (lyricsResult?.rawContent != null) {
 				lyricDao.insertLyrics(
 					LyricEntity(
-						songId = song.id,
+						songId = songId,
 						rawContent = lyricsResult.rawContent,
 						providerName = lyricsResult.providerName
 					)
 				)
-				Logger.i("DownloadManager", "cached lyrics for ${song.id}")
+				Logger.i("DownloadManager", "cached lyrics for $songId")
 			}
 		} catch (e: Exception) {
 			if (e is CancellationException) throw e
-			Logger.e("DownloadManager", "Failed to cache lyrics for ${song.id}", e)
+			Logger.e("DownloadManager", "Failed to cache lyrics for $songId", e)
 		}
 	}
 
