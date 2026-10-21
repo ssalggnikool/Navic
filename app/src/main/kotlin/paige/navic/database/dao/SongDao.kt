@@ -24,6 +24,9 @@ interface SongDao {
 	@RawQuery
 	fun getPagedSongsByQuery(query: RoomRawQuery): PagingSource<Int, SongEntity>
 
+	@RawQuery
+	suspend fun getSongIdsByQuery(query: RoomRawQuery): List<String>
+
 	@Query("SELECT * FROM SongEntity WHERE songId = :songId LIMIT 1")
 	suspend fun getSongById(songId: String): SongEntity?
 
