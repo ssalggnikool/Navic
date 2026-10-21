@@ -491,7 +491,7 @@ fun ArtistDetailScreen(
 
 		if (playlistDialogShown) {
 			PlaylistUpdateDialog(
-				songs = selectedAlbum?.songs.orEmpty().toPersistentList(),
+				songIds = selectedAlbum?.songs.orEmpty().map { it.id }.toPersistentList(),
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}

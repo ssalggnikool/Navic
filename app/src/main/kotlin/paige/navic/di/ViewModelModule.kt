@@ -88,9 +88,9 @@ val viewModelModule = module {
 		)
 	}
 
-	viewModel { (songs: List<DomainSong>, playlistToExclude: String?) ->
+	viewModel { (songIds: List<String>, playlistToExclude: String?) ->
 		PlaylistUpdateDialogViewModel(
-			songs = songs,
+			songIds = songIds,
 			playlistToExclude = playlistToExclude,
 			sessionManager = get(),
 			snackBarManager = get()

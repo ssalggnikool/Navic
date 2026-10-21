@@ -112,7 +112,7 @@ fun StarredScreenContent(
 
 	val layoutDirection = LocalLayoutDirection.current
 
-	var songsToAddToPlaylist by rememberSaveable { mutableStateOf<ImmutableList<DomainSong>?>(null) }
+	var songIdsToAddToPlaylist by rememberSaveable { mutableStateOf<ImmutableList<String>?>(null) }
 
 	val scrollState = rememberScrollState()
 
@@ -246,7 +246,7 @@ fun StarredScreenContent(
 						onAddToQueue = onAddAlbumToQueue,
 						onSetStarred = { onStarSelectedAlbum(!selectedAlbumIsStarred) },
 						onAddAllToPlaylist = {
-							songsToAddToPlaylist = selectedAlbum.songs.toImmutableList()
+							songIdsToAddToPlaylist = selectedAlbum.songs.map { it.id }.toImmutableList()
 						},
 						rating = selectedAlbumRating,
 						onSetRating = onRateSelectedAlbum
@@ -277,8 +277,8 @@ fun StarredScreenContent(
 						onPlayNext = onPlayArtistNext,
 						onAddToQueue = onAddArtistToQueue,
 						onAddAllToPlaylist = {
-							songsToAddToPlaylist =
-								selectedArtistAlbums?.flatMap { it.songs }.orEmpty()
+							songIdsToAddToPlaylist =
+								selectedArtistAlbums?.flatMap { album -> album.songs.map { it.id } }.orEmpty()
 									.toImmutableList()
 						},
 						starred = selectedArtistIsStarred,
@@ -288,8 +288,8 @@ fun StarredScreenContent(
 		}
 	}
 
-	songsToAddToPlaylist?.let {
+	songIdsToAddToPlaylist?.let {
 		PlaylistUpdateDialog(
-			songs = it, onDismissRequest = { songsToAddToPlaylist = null })
+			songIds = it, onDismissRequest = { songIdsToAddToPlaylist = null })
 	}
 }
