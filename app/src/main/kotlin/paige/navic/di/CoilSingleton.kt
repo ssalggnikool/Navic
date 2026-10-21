@@ -49,18 +49,19 @@ class CoilSingleton(
 
 				val targetSize = sizes.minBy { abs(it - width.px) }.toString()
 
-				val newUri = url.toUri()
+				val uri = url.toUri()
+				val newUri = uri
 					.buildUpon()
 					.appendQueryParameter("size", targetSize)
 					.build()
 
 				val cacheKey = "$url#size=$targetSize"
+				val coverId = uri.getQueryParameter("id")
 
-				request.newBuilder()
-					.data(newUri)
-					.memoryCacheKey(cacheKey)
-					.diskCacheKey(cacheKey)
-					.build()
+				val builder = request.newBuilder().data(newUri)
+				if (request.memoryCacheKey == null) builder.memoryCacheKey(cacheKey)
+				if (request.diskCacheKey == null) builder.diskCacheKey(coverId ?: cacheKey)
+				builder.build()
 			} else {
 				request
 			}
