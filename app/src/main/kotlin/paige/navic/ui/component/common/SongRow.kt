@@ -258,7 +258,7 @@ fun SongRow(
 
 	if (playlistDialogShown) {
 		PlaylistUpdateDialog(
-			songs = persistentListOf(song),
+			songIds = persistentListOf(song.id),
 			onDismissRequest = { playlistDialogShown = false }
 		)
 	}

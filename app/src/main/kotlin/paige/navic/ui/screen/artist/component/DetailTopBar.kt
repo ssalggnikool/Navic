@@ -102,7 +102,7 @@ fun ArtistDetailScreenTopBar(
 		)
 		if (playlistDialogShown) {
 			PlaylistUpdateDialog(
-				songs = state.albums.flatMap { it.songs }.toPersistentList(),
+				songIds = state.albums.flatMap { album -> album.songs.map { it.id } }.toPersistentList(),
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}

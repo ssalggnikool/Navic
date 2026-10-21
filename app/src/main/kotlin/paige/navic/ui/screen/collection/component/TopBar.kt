@@ -98,7 +98,7 @@ fun CollectionDetailScreenTopBar(
 
 	if (playlistDialogShown) {
 		PlaylistUpdateDialog(
-			songs = collection?.songs.orEmpty().toPersistentList(),
+			songIds = collection?.songs.orEmpty().map { it.id }.toPersistentList(),
 			onDismissRequest = { playlistDialogShown = false }
 		)
 	}

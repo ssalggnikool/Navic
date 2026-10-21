@@ -118,7 +118,7 @@ fun NowPlayingMoreButton(
 	if (playlistDialogShown && song != null) {
 		NavicTheme(colorScheme) {
 			PlaylistUpdateDialog(
-				songs = persistentListOf(song),
+				songIds = persistentListOf(song.id),
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}
