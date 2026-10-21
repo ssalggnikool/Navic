@@ -11,19 +11,12 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
-import androidx.room3.RawQuery
-import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
 import paige.navic.database.entity.RadioEntity
 import paige.navic.util.Logger
 
 @Dao
 interface RadioDao {
-	@RawQuery
-	suspend fun getRadiosByQuery(query: RoomRawQuery): List<RadioEntity>
-
-	@Insert(onConflict = OnConflictStrategy.REPLACE)
-	suspend fun insertRadio(radio: RadioEntity)
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertRadios(radios: List<RadioEntity>)
@@ -39,18 +32,6 @@ interface RadioDao {
 
 	@Query("SELECT radioId FROM RadioEntity")
 	suspend fun getAllRadioIds(): List<String>
-
-	@Transaction
-	suspend fun updateAllRadios(remoteRadios: List<RadioEntity>) {
-		val remoteIds = remoteRadios.map { it.radioId }.toSet()
-		getAllRadioIds().forEach { localId ->
-			if (localId !in remoteIds) {
-				Logger.w("RadioDao", "Radio $localId no longer exists remotely")
-				deleteRadio(localId)
-			}
-		}
-		insertRadios(remoteRadios)
-	}
 
 	@Transaction
 	suspend fun deleteObsoleteRadios(remoteIds: Set<String>) {

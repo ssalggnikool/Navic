@@ -25,9 +25,6 @@ interface DownloadDao {
 	@Query("SELECT * FROM DownloadEntity")
 	fun getAllDownloads(): Flow<List<DownloadEntity>>
 
-	@Query("SELECT * FROM DownloadEntity")
-	suspend fun getAllDownloadsList(): List<DownloadEntity>
-
 	@Query("SELECT COUNT(*) FROM DownloadEntity WHERE status = :status")
 	fun getDownloadsCount(status: DownloadStatus = DownloadStatus.DOWNLOADED): Flow<Int>
 
