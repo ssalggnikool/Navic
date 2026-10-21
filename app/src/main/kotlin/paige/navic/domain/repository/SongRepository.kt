@@ -6,21 +6,13 @@
 
 package paige.navic.domain.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
-import androidx.paging.map
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import paige.navic.database.dao.SongDao
-import paige.navic.database.entity.SongEntity
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
-import paige.navic.database.paging.IdArrayPagingSource
+import paige.navic.database.paging.createPagedFlow
 import paige.navic.database.query.toSqlQuery
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.model.DomainFilter
@@ -43,42 +35,14 @@ class SongRepository(
 		listType: DomainSongListType,
 		reversed: Boolean = false,
 		filters: Set<DomainFilter> = emptySet()
-	): Flow<PagingData<DomainSong>> {
-		val pagingSourceFactory = when (listType) {
-			DomainSongListType.Random -> randomPagingSourceFactory(listType, filters)
-			else -> songsPagingSourceFactory(listType, reversed, filters)
-		}
-
-		return Pager(
-			config = PagingConfig(pageSize = 20, maxSize = 100),
-			pagingSourceFactory = pagingSourceFactory
-		).flow.map { data -> data.map { it.toDomainModel() } }
-	}
-
-	private suspend fun randomPagingSourceFactory(
-		listType: DomainSongListType,
-		filters: Set<DomainFilter>
-	): () -> PagingSource<Int, SongEntity> {
-		val shuffledIds = withContext(Dispatchers.Default) {
-			songDao.getSongIdsByQuery(listType.toSqlQuery(filters = filters, idsOnly = true)).shuffled()
-		}
-		return {
-			IdArrayPagingSource(
-				ids = shuffledIds,
-				getId = { it.songId },
-				fetchByIds = songDao::getSongsByIds
-			)
-		}
-	}
-
-	private fun songsPagingSourceFactory(
-		listType: DomainSongListType,
-		reversed: Boolean,
-		filters: Set<DomainFilter>
-	): () -> PagingSource<Int, SongEntity> {
-		val query = listType.toSqlQuery(reversed, filters)
-		return { songDao.getPagedSongsByQuery(query) }
-	}
+	): Flow<PagingData<DomainSong>> = createPagedFlow(
+		isRandom = (listType == DomainSongListType.Random),
+		getRandomIds = { songDao.getSongIdsByQuery(listType.toSqlQuery(filters = filters, idsOnly = true)) },
+		getEntityId = { it.songId },
+		fetchByIds = songDao::getSongsByIds,
+		getStandardQuery = { songDao.getPagedSongsByQuery(listType.toSqlQuery(reversed, filters)) },
+		toDomain = { it.toDomainModel() }
+	)
 
 	private suspend fun refreshLocalData(
 		listType: DomainSongListType,
