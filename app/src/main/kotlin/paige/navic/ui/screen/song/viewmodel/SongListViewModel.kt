@@ -57,9 +57,9 @@ class SongListViewModel(
 		launch {
 			val selection = selected ?: return@launch
 			if (isStarred) {
-				repository.starSong(selection)
+				repository.starSong(selection.id)
 			} else {
-				repository.unstarSong(selection)
+				repository.unstarSong(selection.id)
 			}
 			refreshSongs(false)
 		}
@@ -68,7 +68,7 @@ class SongListViewModel(
 	fun rateSelectedSong(rating: Int) {
 		launch {
 			val selection = selected ?: return@launch
-			repository.rateSong(selection, rating)
+			repository.rateSong(selection.id, rating)
 		}
 	}
 

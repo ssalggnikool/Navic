@@ -122,19 +122,19 @@ class CollectionDetailViewModel(
 
 	fun starSelectedSong() = launch {
 		val selection = uiState.value.data?.selectedSong ?: return@launch
-		songRepository.starSong(selection)
+		songRepository.starSong(selection.id)
 		refreshCollection(false)
 	}
 
 	fun unstarSelectedSong() = launch {
 		val selection = uiState.value.data?.selectedSong ?: return@launch
-		songRepository.unstarSong(selection)
+		songRepository.unstarSong(selection.id)
 		refreshCollection(false)
 	}
 
 	fun rateSelectedSong(rating: Int) = launch {
 		val selection = uiState.value.data?.selectedSong ?: return@launch
-		songRepository.rateSong(selection, rating)
+		songRepository.rateSong(selection.id, rating)
 	}
 
 	fun rateAlbum(newRating: Int) = launch {

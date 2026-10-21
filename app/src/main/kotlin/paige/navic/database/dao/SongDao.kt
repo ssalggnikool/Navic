@@ -18,6 +18,7 @@ import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
 import paige.navic.database.entity.SongEntity
 import paige.navic.util.Logger
+import kotlin.time.Instant
 
 @Dao
 interface SongDao {
@@ -78,6 +79,12 @@ interface SongDao {
 
 	@Query("SELECT userRating FROM SongEntity WHERE songId = :songId")
 	suspend fun getSongRating(songId: String): Int?
+
+	@Query("UPDATE SongEntity SET starredAt = :starredAt WHERE songId = :songId")
+	suspend fun updateSongStarredAt(songId: String, starredAt: Instant?)
+
+	@Query("UPDATE SongEntity SET userRating = :userRating WHERE songId = :songId")
+	suspend fun updateSongRating(songId: String, userRating: Int?)
 
 	@Query("DELETE FROM SongEntity")
 	suspend fun clearAllSongs()
