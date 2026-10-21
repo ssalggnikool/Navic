@@ -6,7 +6,6 @@
 
 package paige.navic.playback
 
-import android.media.MediaCodecInfo
 import android.media.MediaCodecList
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
@@ -19,198 +18,186 @@ object PlaybackUtils {
 	private const val TAG = "PlaybackCapabilities"
 	private const val MIMETYPE_PREFIX = "audio/"
 
-	private val KNOWN_SUPPORTED_FFMPEG_DECODERS = listOf(
-		"flac", "alac"
-	)
+	// "ALAC supports up to 8 channels of audio"
+	// https://en.wikipedia.org/wiki/Apple_Lossless_Audio_Codec
+	// "FLAC supports from 1 to 8 channels per stream."
+	// https://xiph.org/flac/faq.html#general__channels
+	private const val FFMPEG_MAX_CHANNELS = 8
+
+	private val PROTOCOL = ClientInfo.Protocol.HTTP
+	private val SUPPORTED_PROTOCOLS = listOf(PROTOCOL)
+
+	private val KNOWN_SUPPORTED_FFMPEG_DECODERS = listOf("flac", "alac")
+
 	private val CORRECTED_CODEC_NAME = mapOf(
 		"mp4a-latm" to "aac",
 		"mpeg" to "mp3",
 		"raw" to "wav"
 	)
-	private val CONTAINER_MAPPING = mapOf(
-		"mp4a-latm" to "mp4",
-		"alac" to "mp4",
-		"opus" to "ogg",
-		"mpeg" to "mp3",
-		"vorbis" to "ogg",
-		"raw" to "wav"
+
+	private val CODEC_CONTAINERS = mapOf(
+		"mp3" to listOf("mp3"),
+		"aac" to listOf("mp4", "m4a", "aac"),
+		"alac" to listOf("mp4", "m4a"),
+		"flac" to listOf("flac"),
+		"vorbis" to listOf("ogg"),
+		"opus" to listOf("ogg", "opus"),
+		"wav" to listOf("wav")
 	)
-	private val WEIRD_CODECS = listOf("g711", "gsm")
-	private val SANE_CODECS = listOf("mp3", "flac", "vorbis", "opus")
-	private val SUPPORTED_PROTOCOLS = listOf(ClientInfo.Protocol.HTTP)
+	private val SUPPORTED_CODECS = CODEC_CONTAINERS.keys
 
-	fun getPrettyFormatName(mimeType: String) = mimeType.removePrefix(MIMETYPE_PREFIX).lowercase()
-		.let { CORRECTED_CODEC_NAME.getOrDefault(it, it) }
+	private val TRANSCODING_CONTAINERS = linkedMapOf(
+		"opus" to "ogg",
+		"mp3" to "mp3"
+	)
 
-	private fun getTranscodingProfiles(): List<ClientInfo.TranscodingProfile> {
-		return buildList {
-			for (codec in SANE_CODECS) {
-				ClientInfo.TranscodingProfile(
-					audioCodec = codec,
-					container = CONTAINER_MAPPING.getOrDefault(codec, codec),
-					protocol = SUPPORTED_PROTOCOLS.first()
-				).let(::add)
-			}
+	private data class CodecCaps(
+		val maxChannels: Int = 0,
+		val sampleRates: Set<Int> = sortedSetOf()
+	)
+
+	private val codecCapabilities: Map<String, CodecCaps> by lazy {
+		buildMap {
+			addNativeDecoders(this)
+			addFfmpegDecoders(this)
 		}
 	}
+
+	fun getPrettyFormatName(mimeType: String): String {
+		val name = mimeType.lowercase().removePrefix(MIMETYPE_PREFIX)
+		return CORRECTED_CODEC_NAME.getOrDefault(name, name)
+	}
+
+	private fun getTranscodingProfiles(): List<ClientInfo.TranscodingProfile> =
+		TRANSCODING_CONTAINERS.map { (codec, container) ->
+			ClientInfo.TranscodingProfile(
+				audioCodec = codec,
+				container = container,
+				protocol = PROTOCOL
+			)
+		}
 
 	fun buildClientInfo(
 		transcodingProfiles: List<ClientInfo.TranscodingProfile> = getTranscodingProfiles()
 	): ClientInfo {
-		val baseClientInfo = ClientInfo(
-			name = "Navic",
-			platform = "Android"
-		)
+		val capabilities = codecCapabilities
 
-		val nativeProfilesPair = getNativeProfilesWithLimitations()
-		val audioLimitations = nativeProfilesPair.mapNotNull { it.second }
-		val nativeProfiles = nativeProfilesPair.map { it.first }
-		val ffmpegProfiles = getFfmpegProfiles()
+		val directPlayProfiles = capabilities.entries
+			.flatMap { (codec, caps) ->
+				val channels = caps.maxChannels.takeIf { it > 0 }
+				CODEC_CONTAINERS.getValue(codec).map { container ->
+					Triple(container, channels, codec)
+				}
+			}
+			.groupBy({ it.first to it.second }, { it.third })
+			.map { (key, codecs) ->
+				ClientInfo.DirectPlayProfile(
+					audioCodecs = codecs,
+					protocols = SUPPORTED_PROTOCOLS,
+					containers = listOf(key.first),
+					maxAudioChannels = key.second
+				)
+			}
 
-		val allProfiles = nativeProfiles + ffmpegProfiles
-
-		val mergedProfiles = allProfiles
-			.flatMap { profile ->
-				profile.containers.map { container ->
-					profile.copy(
-						containers = listOf(
-							container
+		val codecProfiles = capabilities.mapNotNull { (codec, caps) ->
+			val limitations = buildList {
+				if (caps.sampleRates.isNotEmpty()) {
+					add(
+						ClientInfo.CodecProfile.Limitation(
+							comparison = ClientInfo.CodecProfile.Limitation.Comparison.Equals,
+							name = ClientInfo.CodecProfile.Limitation.Type.AudioSampleRate,
+							required = false,
+							values = caps.sampleRates.map { it.toString() }
+						)
+					)
+				}
+				if (caps.maxChannels > 0) {
+					add(
+						ClientInfo.CodecProfile.Limitation(
+							comparison = ClientInfo.CodecProfile.Limitation.Comparison.Equals,
+							name = ClientInfo.CodecProfile.Limitation.Type.AudioChannels,
+							values = (1..caps.maxChannels).map { it.toString() }
 						)
 					)
 				}
 			}
-			.groupBy { it.containers.first() }
-			.values
-			.map { group ->
-				group.reduce { acc, profile -> acc.merge(profile) }
-			}
+			if (limitations.isEmpty()) null
+			else ClientInfo.CodecProfile(
+				name = codec,
+				type = ClientInfo.CodecType.AudioCodec,
+				limitations = limitations
+			)
+		}
 
-		return baseClientInfo.copy(
-			directPlayProfiles = mergedProfiles,
-			codecProfiles = audioLimitations.distinctBy { it.name },
+		return ClientInfo(
+			name = "Navic",
+			platform = "Android",
+			directPlayProfiles = directPlayProfiles,
+			codecProfiles = codecProfiles,
 			transcodingProfiles = transcodingProfiles
 		)
 	}
 
-
-	private fun getFfmpegProfiles(): List<ClientInfo.DirectPlayProfile> {
+	private fun addFfmpegDecoders(out: MutableMap<String, CodecCaps>) {
 		if (!FfmpegLibrary.isAvailable()) {
-			Logger.w(TAG, "ffmpeg is currently unavaliable")
-			return emptyList()
+			Logger.w(TAG, "ffmpeg is currently unavailable")
+			return
+		}
+		for (codec in KNOWN_SUPPORTED_FFMPEG_DECODERS) {
+			if (!FfmpegLibrary.supportsFormat("$MIMETYPE_PREFIX$codec")) {
+				continue
+			}
+
+			out.getOrPut(codec) { CodecCaps() }.let { caps ->
+				out[codec] = caps.copy(
+					maxChannels = maxOf(caps.maxChannels, FFMPEG_MAX_CHANNELS)
+				)
+			}
+		}
+	}
+
+	private fun addNativeDecoders(out: MutableMap<String, CodecCaps>) {
+		val codecInfos = try {
+			MediaCodecList(MediaCodecList.ALL_CODECS).codecInfos
+		} catch (e: Exception) {
+			Logger.w(TAG, "unable to list media codecs, relying on ffmpeg only", e)
+			return
 		}
 
-		return buildList {
-			for (codec in KNOWN_SUPPORTED_FFMPEG_DECODERS) {
-				if (!FfmpegLibrary.supportsFormat("$MIMETYPE_PREFIX$codec")) {
+		for (info in codecInfos) {
+			if (info.isEncoder) {
+				continue
+			}
+
+			for (mimetype in info.supportedTypes) {
+				val lower = mimetype.lowercase()
+				if (!lower.startsWith(MIMETYPE_PREFIX)) {
 					continue
 				}
-				val container = CONTAINER_MAPPING.getOrDefault(codec, codec)
 
-				ClientInfo.DirectPlayProfile(
-					audioCodecs = listOf(codec),
-					protocols = SUPPORTED_PROTOCOLS,
-					containers = listOf(container),
-					// "ALAC supports up to 8 channels of audio"
-					// https://en.wikipedia.org/wiki/Apple_Lossless_Audio_Codec
-					// "FLAC supports from 1 to 8 channels per stream."
-					// https://xiph.org/flac/faq.html#general__channels
-					maxAudioChannels = when (codec) {
-						"flac", "alac" -> 8
-						else -> null
-					}
-				).let(::add)
-			}
-		}
-	}
+				val stripped = lower.removePrefix(MIMETYPE_PREFIX)
+				val codec = CORRECTED_CODEC_NAME.getOrDefault(stripped, stripped)
+				if (codec !in SUPPORTED_CODECS) {
+					continue
+				}
+				val caps = out.getOrPut(codec) { CodecCaps() }
 
-	// what Android supports for audio codecs
-	private fun getNativeProfilesWithLimitations(): List<Pair<ClientInfo.DirectPlayProfile, ClientInfo.CodecProfile?>> {
-		val codecList = MediaCodecList(MediaCodecList.ALL_CODECS)
-		val codecInfos = try {
-			codecList.codecInfos
-		} catch (e: Exception) {
-			Logger.w(TAG, "i don't feel so good...", e)
-			emptyArray<MediaCodecInfo>()
-		}
-		return buildList {
-			for (codecInfo in codecInfos) {
-				if (codecInfo.isEncoder) continue
+				try {
+					val audioCaps = info.getCapabilitiesForType(mimetype).audioCapabilities
+						?: continue
 
-				val supportedTypes = codecInfo.supportedTypes
-
-				for (mimetype in supportedTypes) {
-					if (!mimetype.startsWith(MIMETYPE_PREFIX)) {
-						continue
-					}
-
-					val strippedMimetype = mimetype.removePrefix(MIMETYPE_PREFIX)
-						.lowercase()
-					val codec =
-						CORRECTED_CODEC_NAME.getOrDefault(strippedMimetype, strippedMimetype)
-
-					if (WEIRD_CODECS.contains(codec)) {
-						continue
-					}
-
-					val container =
-						CONTAINER_MAPPING.getOrDefault(strippedMimetype, strippedMimetype)
-							.lowercase()
-
-					try {
-						val capabilities = codecInfo.getCapabilitiesForType(mimetype)
-						val audioCaps = capabilities.audioCapabilities
-						if (audioCaps != null) {
-							val maxChannels = audioCaps.maxInputChannelCount
-							val sampleRates = audioCaps.supportedSampleRates
-
-							Pair(
-								ClientInfo.DirectPlayProfile(
-									audioCodecs = listOf(codec),
-									protocols = SUPPORTED_PROTOCOLS,
-									containers = listOf(container),
-									maxAudioChannels = maxChannels
-								), ClientInfo.CodecProfile(
-									name = codec,
-									type = ClientInfo.CodecType.AudioCodec,
-									limitations = listOf(
-										ClientInfo.CodecProfile.Limitation(
-											comparison = ClientInfo.CodecProfile.Limitation.Comparison.Equals,
-											name = ClientInfo.CodecProfile.Limitation.Type.AudioSampleRate,
-											required = false,
-											values = sampleRates.map { it.toString() }),
-										ClientInfo.CodecProfile.Limitation(
-											comparison = ClientInfo.CodecProfile.Limitation.Comparison.Equals,
-											name = ClientInfo.CodecProfile.Limitation.Type.AudioChannels,
-											values = (1..maxChannels).toList()
-												.map { it.toString() })
-									)
-								)
-							).let(::add)
-						}
-					} catch (e: Exception) {
-						Logger.e(
-							TAG,
-							"unable to query codec info for ${codecInfo.name}, appending bare information to the profile",
-							e
-						)
-						Pair(
-							ClientInfo.DirectPlayProfile(
-								audioCodecs = listOf(codec),
-								protocols = SUPPORTED_PROTOCOLS,
-								containers = listOf(container)
-							), null
-						).let(::add)
-					}
+					out[codec] = caps.copy(
+						maxChannels = maxOf(caps.maxChannels, audioCaps.maxInputChannelCount),
+						sampleRates = audioCaps.supportedSampleRates.toSortedSet()
+					)
+				} catch (e: Exception) {
+					Logger.e(
+						TAG,
+						"unable to query $mimetype limits for ${info.name}, advertising $codec without limits",
+						e
+					)
 				}
 			}
 		}
 	}
-}
-
-
-private fun ClientInfo.DirectPlayProfile.merge(other: ClientInfo.DirectPlayProfile): ClientInfo.DirectPlayProfile {
-	return this.copy(
-		audioCodecs = ((this.audioCodecs) + (other.audioCodecs)).distinct(),
-		containers = ((this.containers) + (other.containers)).distinct()
-	)
 }
