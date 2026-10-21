@@ -29,8 +29,8 @@ class NowPlayingViewModel(
 		viewModelScope.launch {
 			player.uiState.collect { state ->
 				state.currentSong?.let { song ->
-					songIsStarred.value = songRepository.isSongStarred(song)
-					songRating.value = songRepository.getSongRating(song)
+					songIsStarred.value = songRepository.isSongStarred(song.id)
+					songRating.value = songRepository.getSongRating(song.id)
 				}
 			}
 		}
@@ -42,9 +42,9 @@ class NowPlayingViewModel(
 				player.uiState.value.currentSong?.let { song ->
 					songIsStarred.value = starred
 					if (starred) {
-						songRepository.starSong(song)
+						songRepository.starSong(song.id)
 					} else {
-						songRepository.unstarSong(song)
+						songRepository.unstarSong(song.id)
 					}
 				}
 			}
@@ -56,7 +56,7 @@ class NowPlayingViewModel(
 			runCatching {
 				player.uiState.value.currentSong?.let { song ->
 					songRating.value = rating
-					songRepository.rateSong(song, rating)
+					songRepository.rateSong(song.id, rating)
 				}
 			}
 		}

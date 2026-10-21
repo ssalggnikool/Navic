@@ -147,8 +147,8 @@ class ArtistDetailViewModel(
 	fun selectSong(song: DomainSong) {
 		viewModelScope.launch {
 			selectedSong.value = song
-			selectedSongIsStarred.value = songRepository.isSongStarred(song)
-			selectedSongRating.value = songRepository.getSongRating(song)
+			selectedSongIsStarred.value = songRepository.isSongStarred(song.id)
+			selectedSongRating.value = songRepository.getSongRating(song.id)
 		}
 	}
 
@@ -183,7 +183,7 @@ class ArtistDetailViewModel(
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
 				selectedSongIsStarred.value = true
-				songRepository.starSong(selection)
+				songRepository.starSong(selection.id)
 				loadArtistData()
 			}
 		}
@@ -194,7 +194,7 @@ class ArtistDetailViewModel(
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
 				selectedSongIsStarred.value = false
-				songRepository.unstarSong(selection)
+				songRepository.unstarSong(selection.id)
 				loadArtistData()
 			}
 		}
@@ -205,7 +205,7 @@ class ArtistDetailViewModel(
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
 				selectedSongRating.value = rating
-				songRepository.rateSong(selection, rating)
+				songRepository.rateSong(selection.id, rating)
 			}
 		}
 	}
