@@ -62,8 +62,6 @@ import paige.navic.domain.manager.StorageManager
 import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.OfflineMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.common.SegmentedListItem
@@ -73,12 +71,15 @@ import paige.navic.ui.component.dialog.BulkDownloadTarget
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.component.SettingsChoiceItem
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.viewmodel.SettingsDataStorageViewModel
+import paige.navic.util.toFileSize
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -113,13 +114,13 @@ fun SettingsDataStorageScreen() {
 	var imageCacheSizeMb by remember { mutableStateOf(calculating) }
 
 	val downloadsSizeMb = remember(downloadSize) {
-		val mb = downloadSize.toDouble() / (1024 * 1024)
-		if (mb > 1024) {
-			val gb = mb / 1024
-			" // ${(gb * 100).toInt() / 100.0} GB"
-		} else {
-			" // ${mb.toInt()} MB"
-		}
+		downloadSize.toFileSize()
+	}
+
+	val freeSpaceSize = storageManager.getCurrentFreeSpace()
+
+	val freeSpaceFormatted = remember(freeSpaceSize) {
+		freeSpaceSize.toFileSize()
 	}
 
 	val smoothSyncProgress by animateFloatAsState(
@@ -282,7 +283,9 @@ fun SettingsDataStorageScreen() {
 												1f
 											else smoothSyncProgress.coerceIn(0f, 1f)
 										},
-										modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+										modifier = Modifier
+											.fillMaxWidth()
+											.padding(top = 8.dp)
 									)
 								}
 							}
@@ -355,11 +358,13 @@ fun SettingsDataStorageScreen() {
 						content = { Text(stringResource(R.string.option_downloaded_songs)) },
 						supportingContent = {
 							Text(
-								text = pluralStringResource(
-									R.plurals.count_songs,
-									downloadCount,
-									downloadCount
-								) + downloadsSizeMb
+								text = "${
+									pluralStringResource(
+										R.plurals.count_songs,
+										downloadCount,
+										downloadCount
+									)
+								} ($downloadsSizeMb) // $freeSpaceFormatted free"
 							)
 						},
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
@@ -394,7 +399,11 @@ fun SettingsDataStorageScreen() {
 									enter = fadeIn() + expandVertically(clip = false),
 									exit = fadeOut() + shrinkVertically(clip = false)
 								) {
-									Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+									Column(
+										modifier = Modifier
+											.fillMaxWidth()
+											.padding(top = 12.dp)
+									) {
 										Row(
 											modifier = Modifier.fillMaxWidth(),
 											horizontalArrangement = Arrangement.SpaceBetween,
@@ -434,7 +443,9 @@ fun SettingsDataStorageScreen() {
 
 										LinearProgressIndicator(
 											progress = { smoothLibraryDownloadProgress },
-											modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+											modifier = Modifier
+												.fillMaxWidth()
+												.padding(top = 4.dp)
 										)
 									}
 								}
