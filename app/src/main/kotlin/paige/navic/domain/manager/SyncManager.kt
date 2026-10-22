@@ -47,7 +47,7 @@ data class SyncState(
 )
 
 class SyncManager(
-	private val context: Context,
+	context: Context,
 	private val syncDao: SyncActionDao,
 	private val albumDao: AlbumDao,
 	private val sessionManager: SessionManager,
@@ -109,17 +109,22 @@ class SyncManager(
 	private fun schedulePeriodicWork() {
 		Logger.i("SyncManager", "Scheduling periodic sync.")
 
-		val request = PeriodicWorkRequestBuilder<LibrarySyncWorker>(15, java.util.concurrent.TimeUnit.MINUTES)
-			.setConstraints(networkConstraints())
-			.setInputData(
-				workDataOf(
-					WorkKeys.FORCE to false,
-					WorkKeys.PERIODIC to true
+		val request =
+			PeriodicWorkRequestBuilder<LibrarySyncWorker>(15, java.util.concurrent.TimeUnit.MINUTES)
+				.setConstraints(networkConstraints())
+				.setInputData(
+					workDataOf(
+						WorkKeys.FORCE to false,
+						WorkKeys.PERIODIC to true
+					)
 				)
-			)
-			.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, java.util.concurrent.TimeUnit.SECONDS)
-			.addTag(WorkNames.SYNC_TAG)
-			.build()
+				.setBackoffCriteria(
+					BackoffPolicy.EXPONENTIAL,
+					30,
+					java.util.concurrent.TimeUnit.SECONDS
+				)
+				.addTag(WorkNames.SYNC_TAG)
+				.build()
 
 		workManager.enqueueUniquePeriodicWork(
 			WorkNames.LIBRARY_SYNC_PERIODIC,
@@ -143,7 +148,11 @@ class SyncManager(
 		val request = OneTimeWorkRequestBuilder<LibrarySyncWorker>()
 			.setConstraints(networkConstraints())
 			.setInputData(workDataOf(WorkKeys.FORCE to force))
-			.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, java.util.concurrent.TimeUnit.SECONDS)
+			.setBackoffCriteria(
+				BackoffPolicy.EXPONENTIAL,
+				30,
+				java.util.concurrent.TimeUnit.SECONDS
+			)
 			.addTag(WorkNames.SYNC_TAG)
 			.build()
 
@@ -188,7 +197,11 @@ class SyncManager(
 	private fun scheduleActionWorker() {
 		val request = OneTimeWorkRequestBuilder<SyncActionWorker>()
 			.setConstraints(networkConstraints())
-			.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, java.util.concurrent.TimeUnit.SECONDS)
+			.setBackoffCriteria(
+				BackoffPolicy.EXPONENTIAL,
+				30,
+				java.util.concurrent.TimeUnit.SECONDS
+			)
 			.addTag(WorkNames.SYNC_ACTION_TAG)
 			.build()
 

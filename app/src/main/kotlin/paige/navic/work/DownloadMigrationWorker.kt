@@ -61,9 +61,7 @@ class DownloadMigrationWorker(
 				val sourcePath = download.filePath ?: return@forEach
 				val song = songRepository.getSongById(download.songId) ?: return@forEach
 
-				val hashedDir = storageManager.getHashedPath(song.id, song.albumId)
-				val targetPath = File(hashedDir, File(sourcePath).name).absolutePath
-
+				val targetPath = storageManager.getDownloadPath(song.id, song.albumId)
 				if (sourcePath != targetPath) {
 					if (!File(sourcePath).exists()) {
 						downloadDao.deleteDownload(download.songId)
