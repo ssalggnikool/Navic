@@ -34,7 +34,6 @@ import kotlinx.coroutines.withContext
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.AudioGainManager
-import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.SessionManager
@@ -248,6 +247,51 @@ class MediaPlayer(
 
 				override fun onTimelineChanged(timeline: Timeline, reason: Int) {
 					updatePlaybackState()
+				}
+
+				override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+					val currentSong = _uiState.value.currentSong ?: return
+					if (currentSong.id.startsWith("radio_")) {
+						val title = mediaMetadata.title?.toString()?.takeIf { it.isNotBlank() }
+						val artist = mediaMetadata.artist?.toString()?.takeIf { it.isNotBlank() }
+							?: mediaMetadata.station?.toString()?.takeIf { it.isNotBlank() }
+							?: mediaMetadata.subtitle?.toString()?.takeIf { it.isNotBlank() }
+
+						val updatedSong = if (title != null && artist != null) {
+							currentSong.copy(
+								title = title,
+								artistName = artist
+							)
+						} else if (title != null) {
+							val parts = title.split(" - ", limit = 2)
+							if (parts.size == 2) {
+								currentSong.copy(
+									artistName = parts[0].trim(),
+									title = parts[1].trim()
+								)
+							} else {
+								currentSong.copy(
+									title = title,
+									artistName = "Live Radio"
+								)
+							}
+						} else {
+							currentSong
+						}
+
+						if (updatedSong != currentSong) {
+							_uiState.update { state ->
+								val updatedQueue = state.queue.map { song ->
+									if (song.id == currentSong.id) updatedSong else song
+								}
+								state.copy(
+									currentSong = updatedSong,
+									queue = updatedQueue
+								)
+							}
+							updatePlaybackState()
+						}
+					}
 				}
 			})
 			updatePlaybackState()
