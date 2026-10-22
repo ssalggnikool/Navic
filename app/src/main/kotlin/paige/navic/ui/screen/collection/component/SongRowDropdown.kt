@@ -17,10 +17,7 @@ import org.koin.compose.koinInject
 import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.model.DomainAlbum
-import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSong
-import paige.navic.domain.model.DomainSongCollection
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.sheet.SongSheet
@@ -34,7 +31,8 @@ fun CollectionDetailScreenSongRowDropdown(
 	onRemoveStar: () -> Unit,
 	onAddStar: () -> Unit,
 	onShare: () -> Unit,
-	collection: DomainSongCollection,
+	isPlaylist: Boolean = false,
+	collectionId: String? = null,
 	song: DomainSong,
 	onRemoveFromPlaylist: () -> Unit,
 	starred: Boolean,
@@ -58,7 +56,7 @@ fun CollectionDetailScreenSongRowDropdown(
 		SongSheet(
 			onDismissRequest = onDismissRequest,
 			song = song,
-			isPlaylist = collection is DomainPlaylist,
+			isPlaylist = isPlaylist,
 			starred = starred,
 			onSetStarred = { starred ->
 				if (starred) onAddStar() else onRemoveStar()
@@ -81,7 +79,7 @@ fun CollectionDetailScreenSongRowDropdown(
 			onTrackInfo = dropUnlessResumed {
 				backStack.add(Screen.SongDetailScreen(song.id, song.coverArtId))
 			},
-			onViewAlbum = if (collection !is DomainAlbum && song.albumId != null) {
+			onViewAlbum = if (isPlaylist && song.albumId != null) {
 				dropUnlessResumed {
 					backStack.add(
 						Screen.CollectionDetail(
@@ -110,9 +108,7 @@ fun CollectionDetailScreenSongRowDropdown(
 	if (playlistDialogShown) {
 		PlaylistUpdateDialog(
 			songIds = persistentListOf(song.id),
-			playlistToExclude = if (collection is DomainPlaylist)
-				collection.id
-			else null,
+			playlistToExclude = if (isPlaylist) collectionId else null,
 			onDismissRequest = { playlistDialogShown = false }
 		)
 	}
