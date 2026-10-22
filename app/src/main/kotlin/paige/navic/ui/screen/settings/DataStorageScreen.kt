@@ -114,13 +114,12 @@ fun SettingsDataStorageScreen() {
 
 	val calculating = stringResource(R.string.info_status_calculating)
 	var imageCacheSizeMb by remember { mutableStateOf(calculating) }
+	val freeSpaceSize = storageManager.getCurrentFreeSpace()
 	var streamCacheSize by remember { mutableStateOf(calculating) }
 
 	val downloadsSizeMb = remember(downloadSize) {
 		downloadSize.toFileSize()
 	}
-
-	val freeSpaceSize = storageManager.getCurrentFreeSpace()
 
 	val freeSpaceFormatted = remember(freeSpaceSize) {
 		freeSpaceSize.toFileSize()
@@ -299,6 +298,20 @@ fun SettingsDataStorageScreen() {
 					)
 
 					SegmentedListItem(
+						onClick = {},
+						content = { Text(stringResource(R.string.option_pending_actions)) },
+						supportingContent = {
+							Text(
+								text = stringResource(
+									R.string.subtitle_pending_actions,
+									pendingActionCount
+								)
+							)
+						},
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
+					)
+
+					SegmentedListItem(
 						onClick = viewModel::triggerManualSync,
 						enabled = isOnline,
 						content = { Text(stringResource(R.string.action_trigger_sync)) },
@@ -315,7 +328,7 @@ fun SettingsDataStorageScreen() {
 					)
 				}
 
-				SettingsGroup(title = { Text(stringResource(R.string.title_cache_management)) }) {
+				SettingsGroup(title = { Text(stringResource(R.string.title_storage_management)) }) {
 					SettingsChoiceItem(
 						choices = DownloadStorage.entries.toImmutableList(),
 						selectedChoice = preferenceManager.downloadStorage,
@@ -345,20 +358,6 @@ fun SettingsDataStorageScreen() {
 
 					SegmentedListItem(
 						onClick = {},
-						content = { Text(stringResource(R.string.option_pending_actions)) },
-						supportingContent = {
-							Text(
-								text = stringResource(
-									R.string.subtitle_pending_actions,
-									pendingActionCount
-								)
-							)
-						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
-					)
-
-					SegmentedListItem(
-						onClick = {},
 						content = { Text(stringResource(R.string.option_downloaded_songs)) },
 						supportingContent = {
 							Text(
@@ -372,20 +371,6 @@ fun SettingsDataStorageScreen() {
 							)
 						},
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 6)
-					)
-
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(R.string.option_image_cache_size)) },
-						supportingContent = { Text(imageCacheSizeMb) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 6)
-					)
-
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(R.string.option_streaming_cache)) },
-						supportingContent = { Text(streamCacheSize) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 6)
 					)
 
 					SegmentedListItem(
@@ -464,6 +449,21 @@ fun SettingsDataStorageScreen() {
 						},
 						trailingContent = offlineIcon,
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
+					)
+				}
+				SettingsGroup(title = { Text(stringResource(R.string.title_cache_management)) }) {
+					SegmentedListItem(
+						onClick = {},
+						content = { Text(stringResource(R.string.option_image_cache_size)) },
+						supportingContent = { Text(imageCacheSizeMb) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2)
+					)
+
+					SegmentedListItem(
+						onClick = {},
+						content = { Text(stringResource(R.string.option_streaming_cache)) },
+						supportingContent = { Text(streamCacheSize) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)
 					)
 				}
 

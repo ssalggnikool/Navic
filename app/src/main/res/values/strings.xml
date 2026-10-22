@@ -19,7 +19,7 @@
 	<string name="title_playback">Playback</string>
 	<string name="title_data_storage">Data &amp; Storage</string>
 	<string name="title_sync_control">Synchronization control</string>
-	<string name="title_cache_management">Cache &amp; storage management</string>
+	<string name="title_cache_management">Cache management</string>
 	<string name="title_danger_zone">Danger zone</string>
 	<string name="title_developer">Developer options</string>
 	<string name="title_about">About</string>
@@ -550,15 +550,16 @@
 	<string name="info_chat_unsupported">Your server does not support this feature, or you are offline</string>
 	<string name="info_content_unavailable">Nothing here</string>
 	<string name="action_allow">Allow</string>
-    <string name="option_alternate_addresses">Alternate addresses</string>
+	<string name="option_alternate_addresses">Alternate addresses</string>
 	<string name="subtitle_alternative_addresses">Fallback addresses to reach the music server</string>
 	<string name="alt_addresses_edit_address">Edit address</string>
 	<string name="alt_addresses_dialog_hint">Insert a bare IP or hostname (specifying the port is allowed):</string>
 	<string name="alt_addresses_text_field_placeholder">Eg. 192.168.1.6</string>
-    <string name="title_commit_hash">Commit hash</string>
+	<string name="title_commit_hash">Commit hash</string>
 	<string name="title_commit_message">Commit message</string>
 	<string name="title_branch_name">Branch name</string>
 	<string name="title_commit_author">Commit author</string>
-    <string name="option_float_output">Float output precision</string>
+	<string name="option_float_output">Float output precision</string>
 	<string name="subtitle_float_output">Experimental. Requires application restart. Playback speed will no longer work if this option is enabled</string>
+	<string name="title_storage_management">Storage management</string>
 </resources>
