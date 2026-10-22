@@ -67,7 +67,7 @@ fun NowPlayingTechnicalInfoRow() {
 
 				val isCellular = connectivityManager.isCellular.collectAsState().value
 				val requestedBitrate = if (preferenceManager.isAdvancedTranscodingActive) {
-					if (isCellular) preferenceManager.customMaxBitrateCellular else preferenceManager.customMaxBitrateWifi
+					if (isCellular) preferenceManager.customMaxBitrateCellular else preferenceManager.customMaxBitrate
 				} else {
 					if (isCellular) preferenceManager.streamingQualityCellular.bitrate else preferenceManager.streamingQualityWifi.bitrate
 				}

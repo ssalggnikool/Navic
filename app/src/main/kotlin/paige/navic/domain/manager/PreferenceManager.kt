@@ -45,8 +45,8 @@ import com.russhwolf.settings.Settings as KmpSettings
 class PreferenceManager(
 	settings: KmpSettings
 ) : BasePreferenceManager(settings) {
-    var queueInfoType by (preference(QueueInfoType.Full))
-    var appIconVariant by preference(AppIconVariant.Default)
+	var queueInfoType by (preference(QueueInfoType.Full))
+	var appIconVariant by preference(AppIconVariant.Default)
 	var font by preference(FontOption.GoogleSans)
 	var fontPath by preference("")
 	var animationStyle by preference(AnimationStyle.Expressive)
@@ -82,18 +82,18 @@ class PreferenceManager(
 	var streamingQualityWifi by preference(StreamingQuality.Lossless)
 	var streamingQualityCellular by preference(StreamingQuality.Lossless)
 	var isAdvancedTranscodingActive by preference(false)
-	var customMaxBitrateWifi by preference(0)
+	var customMaxBitrate by preference(0)
 	var customMaxBitrateCellular by preference(0)
 	var customFormatWifi by preference("")
-	var customFormatCellular by preference("")
+	var customFormat by preference("")
 
 	var downloadStorage by preference(DownloadStorage.Internal)
-	var downloadQualityWifi by preference(StreamingQuality.Lossless)
+	var downloadQuality by preference(StreamingQuality.Lossless)
 	var downloadQualityCellular by preference(StreamingQuality.Lossless)
 	var isAdvancedDownloadTranscodingActive by preference(false)
-	var customDownloadMaxBitrateWifi by preference(0)
+	var customDownloadMaxBitrate by preference(0)
 	var customDownloadMaxBitrateCellular by preference(0)
-	var customDownloadFormatWifi by preference("")
+	var customDownloadFormat by preference("")
 	var customDownloadFormatCellular by preference("")
 
 	var nowPlayingToolbarPosition by preference(ToolbarPosition.Bottom)

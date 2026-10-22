@@ -206,12 +206,9 @@
 	<string name="option_quality_lossless">Lossless (no transcoding)</string>
 	<string name="option_stream_custom_quality">Use custom streaming quality</string>
 	<string name="option_download_custom_quality">Use custom download quality</string>
-	<string name="option_max_bitrate_wifi">Max bitrate over Wi-Fi (kbps)</string>
-	<string name="option_max_bitrate_cellular">Max bitrate over cellular (kbps)</string>
-	<string name="option_stream_format_wifi">Stream format Wi-Fi</string>
-	<string name="option_stream_format_cellular">Stream format over cellular</string>
-	<string name="option_download_format_wifi">Download format over Wi-Fi</string>
-	<string name="option_download_format_cellular">Download format Cellular</string>
+	<string name="option_max_bitrate">Max bitrate (kbps)</string>
+	<string name="option_stream_format">Stream format</string>
+	<string name="option_download_format">Download format</string>
 	<string name="option_cover_art_quality">Cover art quality</string>
 	<string name="option_palette_style">Palette style</string>
 	<string name="option_palette_specification">Palette specification</string>

@@ -200,14 +200,14 @@ class DownloadProcessor(
 		var lastProgress = 0f
 
 		val bitrate = if (preferenceManager.isAdvancedDownloadTranscodingActive) {
-			preferenceManager.customDownloadMaxBitrateWifi
+			preferenceManager.customDownloadMaxBitrate
 		} else {
-			preferenceManager.downloadQualityWifi.bitrate
+			preferenceManager.downloadQuality.bitrate
 		}
 		val container = if (preferenceManager.isAdvancedDownloadTranscodingActive) {
-			preferenceManager.customDownloadFormatWifi
+			preferenceManager.customDownloadFormat
 		} else {
-			preferenceManager.downloadQualityWifi.container
+			preferenceManager.downloadQuality.container
 		}
 
 		val extension = container?.takeIf { it.isNotBlank() } ?: song.fileExtension ?: "bin"
