@@ -58,7 +58,7 @@ fun CollectionDetailScreenSongRowDropdown(
 		SongSheet(
 			onDismissRequest = onDismissRequest,
 			song = song,
-			collection = collection,
+			isPlaylist = collection is DomainPlaylist,
 			starred = starred,
 			onSetStarred = { starred ->
 				if (starred) onAddStar() else onRemoveStar()
