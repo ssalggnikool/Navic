@@ -6,13 +6,13 @@
 
 @file:Suppress("UnstableApiUsage")
 
-import androidx.media3.buildlogic.includeMedia3
+//import androidx.media3.buildlogic.includeMedia3
 
 rootProject.name = "Navic"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
-	includeBuild("vendor/androidx-media/build-logic-settings")
+//	includeBuild("vendor/androidx-media/build-logic-settings")
 	repositories {
 		google {
 			mavenContent {
@@ -26,9 +26,9 @@ pluginManagement {
 	}
 }
 
-plugins {
-	id("gradlebuild.media3-settings-logic")
-}
+//plugins {
+//	id("gradlebuild.media3-settings-logic")
+//}
 
 dependencyResolutionManagement {
 	repositories {
@@ -58,5 +58,5 @@ dependencyResolutionManagement {
 }
 
 include(":app")
-includeMedia3(file("vendor/androidx-media"))
+//includeMedia3(file("vendor/androidx-media"))
 includeBuild("vendor/subsonic-kotlin")
