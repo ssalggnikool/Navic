@@ -17,11 +17,17 @@ import kotlinx.coroutines.withContext
 import paige.navic.domain.model.settings.DownloadStorage
 import java.io.File
 import java.io.FileOutputStream
+import java.util.UUID
 
 class StorageManager(
 	private val context: Context,
 	private val preferenceManager: PreferenceManager
 ) {
+	private data class HashResult(
+		val parentDirectory: Pair<String, String>,
+		val fileName: String
+	)
+
 	private val dispatcher = Dispatchers.IO
 
 	private fun internalDownloadDir(): File = File(context.filesDir, "downloads")
@@ -58,36 +64,35 @@ class StorageManager(
 		(listOf(internalDownloadDir()) + externalDownloadDirs())
 			.distinctBy { it.absolutePath }
 
-	private fun generatePathHash(albumId: String, songId: String): Pair<String, String> {
-		val template = "${albumId}-${songId}".takeIf { it.length >= 4 }
-			?: "dummy-${songId}"
+	private fun generatePathHash(albumId: String, songId: String): HashResult {
+		val template = "$albumId-$songId".takeIf { it.length > 4 }
+			?: UUID.randomUUID().toString()
 		val hash = template.hashString()
 
-		return Pair(
-			hash.substring(0..2),
-			hash.substring(2..4)
+		return HashResult(
+			parentDirectory = Pair(
+				hash.substring(0, 2),
+				hash.substring(2, 4)
+			),
+			fileName = hash.substring(4)
 		)
 	}
 
-	fun getHashedPath(
+	fun getDownloadPath(
 		songId: String,
 		albumId: String? = null,
-		storage: DownloadStorage? = null
-	): File {
-		val downloadsDir = storage?.let { getDownloadDirFor(it) }
-			?: currentDownloadDir()
+		extension: String = "bin"
+	): String {
+		val downloadsDir = currentDownloadDir()
+		return generatePathHash(albumId ?: songId, songId)
+			.let { hashResult ->
+				val dir = File(
+					File(downloadsDir, hashResult.parentDirectory.first),
+					hashResult.parentDirectory.second
+				).apply { mkdirs() }
 
-		return generatePathHash(albumId ?: songId, songId).let { hash ->
-			File(
-				File(downloadsDir, hash.first),
-				hash.second
-			).apply { mkdirs() }
-		}
-	}
-
-	fun getDownloadPath(songId: String, albumId: String, extension: String): String {
-		val dir = getHashedPath(songId, albumId)
-		return File(dir, "$songId.$extension").absolutePath
+				File(dir, "${hashResult.fileName}.$extension").absolutePath
+			}
 	}
 
 	fun getTempDownloadPath(path: String): String = "$path.part"
