@@ -432,4 +432,12 @@
     <string name="info_app_icon">Schimbarea pictogramei aplicației va închide Navic, deoarece Android necesită acest lucru. Unele iconițe pot arăta identic pe ecranul principal dacă lansatorul aplică dinamic teme de culoare al iconiței.</string>
     <string name="info_lyric_provider_disclaimer">Activarea LRCLIB și/sau LyricsPlus va trimite cereri către servicii web externe și neafiliate cu Navic.</string>
     <string name="info_dynamic_replay_gain">ReplayGain Dinamic</string>
+    <string name="title_delete_radio">Sterge radio?</string>
+    <string name="title_update_radio">Editare radio</string>
+    <string name="title_statistics">Statistici</string>
+    <string name="title_top_songs">Melodii populare</string>
+    <string name="title_top_artists">Artisti populari</string>
+    <string name="title_top_albums">Albume populare</string>
+    <string name="title_audio_effects">Effecte audio</string>
+    <string name="title_chat">Chat</string>
 </resources>

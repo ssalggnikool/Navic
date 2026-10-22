@@ -156,7 +156,7 @@
     <string name="option_choose_theme">App Theme</string>
     <string name="option_replay_gain">Lautstärke-Normalisierung</string>
     <string name="option_gapless_playback">Nahtlose Wiedergabe</string>
-    <string name="option_audio_offload">Audio-Auslagerung</string>
+    <string name="option_audio_offload">Audio-Offload</string>
     <string name="option_live_status">Status</string>
     <string name="option_image_cache_size">Bild Cache Größe</string>
     <string name="option_last_sync">Letzte volle Synchronisation</string>
@@ -271,7 +271,7 @@
     <string name="title_disc_number">Disc %1$s</string>
     <string name="title_library_download">Gesamte Bibliothek herunterladen</string>
     <string name="title_network">Netzwerk</string>
-    <string name="title_streaming_quality">Streaming Qualität</string>
+    <string name="title_streaming_quality">Streamingqualität</string>
     <string name="title_wifi">WLAN</string>
     <string name="title_cellular">Mobile Daten</string>
     <string name="title_select_lyrics">Liedtexte auswählen</string>
@@ -323,10 +323,10 @@
         <item quantity="one">%1$d Zeile ausgewählt</item>
         <item quantity="other">%1$d Zeilen ausgewählt</item>
     </plurals>
-    <string name="action_sleep_timer">Schlaf Timer</string>
+    <string name="action_sleep_timer">Schlaftimer</string>
     <string name="action_sleep_timer_enabled">Sleep timer - %1$s übrig</string>
     <string name="action_disable_sleep_timer">Timer ausschalten</string>
-    <string name="option_playback_speed">Wiedergabe Geschwindigkeit</string>
+    <string name="option_playback_speed">Wiedergabegeschwindigkeit</string>
     <string name="action_play_next">Als nächstes spielen</string>
     <string name="action_clear_queue">Wiedergabeliste leeren</string>
     <string name="info_no_radios">Keine Radios</string>
@@ -334,7 +334,7 @@
     <string name="title_starred">Favorit</string>
     <string name="option_cover_art_quality">Cover qualität</string>
     <string name="info_no_starred">Keine Favoriten</string>
-    <string name="title_download_quality">Download Qualität</string>
+    <string name="title_download_quality">Downloadqualität</string>
     <string name="title_logs">Logs</string>
     <string name="title_palette">Farbpalette</string>
     <string name="title_account">Konto</string>
@@ -479,4 +479,12 @@
     <string name="info_proxy_url_placeholder">z.B. http://127.0.0.1:8080</string>
     <string name="info_incorrect_proxy_url_format">Falsches Proxy-URL-Format. Unterstützte Protokolle sind HTTP und SOCKS.</string>
     <string name="info_chat_unsupported">Dein Server unterstützt dieses Feature nicht oder du bist offline</string>
+    <string name="title_delete_radio">Radio löschen?</string>
+    <string name="subtitle_equalizer_disabled">Nicht verfügbar, wenn Audio-Offload aktiviert ist</string>
+    <string name="option_equalizer">Equalizer</string>
+    <string name="option_equalizer_mode">Equalizer Quelle</string>
+    <string name="option_equalizer_mode_disabled">Deaktiviert</string>
+    <string name="option_enable_discord_integration">Discord-Integration aktivieren</string>
+    <string name="action_copy">Kopieren</string>
+    <string name="notice_deleted_radio">Radio gelöscht.</string>
 </resources>

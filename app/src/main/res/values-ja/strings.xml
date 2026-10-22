@@ -410,7 +410,7 @@
     <string name="info_dynamic_replay_gain">ダイナミック</string>
     <string name="info_total_plays">総再生回数</string>
     <string name="info_total_listening_time">総再生時間</string>
-    <string name="info_listening_stats_ratio">総再生時間の%1$s</string>
+    <string name="info_listening_stats_ratio">総再生時間の%1$s%%</string>
     <string name="info_track_replay_gain_effective">ReplayGain実効値</string>
     <string name="info_update">バージョン%1$sがリリースされました</string>
     <string name="info_shared_by">%1$sが共有しました</string>
