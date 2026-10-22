@@ -25,6 +25,14 @@ interface SongDao {
 	@RawQuery
 	fun getPagedSongsByQuery(query: RoomRawQuery): PagingSource<Int, SongEntity>
 
+	@Query("""
+		SELECT s.* FROM SongEntity s
+		INNER JOIN PlaylistSongCrossRef ps ON s.songId = ps.songId
+		WHERE ps.playlistId = :playlistId
+		ORDER BY ps.position ASC
+	""")
+	fun getPagedSongsByPlaylistId(playlistId: String): PagingSource<Int, SongEntity>
+
 	@RawQuery
 	suspend fun getSongIdsByQuery(query: RoomRawQuery): List<String>
 
