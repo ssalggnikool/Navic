@@ -87,17 +87,19 @@ class NavicDataSource(
 			null
 		}
 
-		val targetUri = if (songId != null) {
-			val localPath = downloadManager.getDownloadedFilePath(songId)
-			if (localPath != null) {
-				Uri.fromFile(File(localPath))
-			} else {
-				runBlocking {
-					resolveStreamUrl(songId)
+		val targetUri = runBlocking {
+			withContext(Dispatchers.IO) {
+				if (songId != null) {
+					val localPath = downloadManager.getDownloadedFilePath(songId)
+					if (localPath != null) {
+						Uri.fromFile(File(localPath))
+					} else {
+						resolveStreamUrl(songId)
+					}
+				} else {
+					uri
 				}
 			}
-		} else {
-			uri
 		}
 
 		val resolvedDataSpec = dataSpec.buildUpon().setUri(targetUri).build()
