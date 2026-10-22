@@ -18,7 +18,6 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.SnackBarManager
-import paige.navic.domain.model.DomainSongCollection
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.icons.Icons
@@ -27,7 +26,7 @@ import paige.navic.ui.icons.outlined.Download
 sealed interface BulkDownloadTarget {
 	data class Artist(
 		val name: String,
-		val albums: List<DomainSongCollection>
+		val songIds: List<String>
 	) : BulkDownloadTarget
 
 	data object Library : BulkDownloadTarget
@@ -70,9 +69,7 @@ fun BulkDownloadDialog(
 						scope.launch {
 							when (target) {
 								is BulkDownloadTarget.Artist -> {
-									target.albums.forEach { album ->
-										downloadManager.downloadCollection(album.songs.map { it.id })
-									}
+									downloadManager.downloadCollection(target.songIds)
 								}
 								is BulkDownloadTarget.Library -> {
 									downloadManager.downloadEntireLibrary()

@@ -214,7 +214,7 @@ fun ArtistDetailScreen(
 						BulkDownloadDialog(
 							target = BulkDownloadTarget.Artist(
 								name = state.artist.name,
-								albums = state.albums
+								songIds = state.albums.flatMap { album -> album.songs.map { song -> song.id } }
 							),
 							showDialog = showDownloadDialog,
 							onDismissRequest = { showDownloadDialog = false }
