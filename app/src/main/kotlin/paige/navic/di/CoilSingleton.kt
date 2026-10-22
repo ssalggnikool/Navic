@@ -7,6 +7,7 @@
 package paige.navic.di
 
 import android.content.Context
+import androidx.core.net.toUri
 import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
@@ -21,7 +22,6 @@ import coil3.size.Dimension
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.util.network.NavicularDnsResolver
 import paige.navic.util.network.createHttpClientWithPreferences
-import androidx.core.net.toUri
 import kotlin.math.abs
 
 class CoilSingleton(
@@ -31,10 +31,12 @@ class CoilSingleton(
 ) {
 	private var sharedDiskCache: DiskCache? = null
 	private var sharedMemoryCache: MemoryCache? = null
+
 	@OptIn(ExperimentalCoilApi::class)
 	private val networkFetcher = KtorNetworkFetcherFactory(
 		createHttpClientWithPreferences(preferenceManager, dnsResolver)
 	)
+
 	// https://slack-chats.kotlinlang.org/t/8294624/hi-i-m-using-coil-to-load-images-in-compose-and-i-need-to-se
 	private class SizeInterceptor : Interceptor {
 		private val sizes = listOf(50, 100, 200, 512, 1024, 4096)
@@ -55,12 +57,19 @@ class CoilSingleton(
 					.appendQueryParameter("size", targetSize)
 					.build()
 
-				val cacheKey = "$url#size=$targetSize"
-				val coverId = uri.getQueryParameter("id")
+				val cacheKey = "#size=$targetSize".let { suffix ->
+					uri.getQueryParameter("id")
+						?.let { "$it$suffix" }
+						?: "$url$suffix"
+				}
 
 				val builder = request.newBuilder().data(newUri)
-				if (request.memoryCacheKey == null) builder.memoryCacheKey(cacheKey)
-				if (request.diskCacheKey == null) builder.diskCacheKey(coverId ?: cacheKey)
+				request.memoryCacheKey?.let {
+					builder.memoryCacheKey(cacheKey)
+				}
+				request.diskCacheKey?.let {
+					builder.diskCacheKey(cacheKey)
+				}
 				builder.build()
 			} else {
 				request
@@ -68,6 +77,7 @@ class CoilSingleton(
 			return chain.withRequest(newRequest).proceed()
 		}
 	}
+
 	private val sizeInterceptor = SizeInterceptor()
 
 	val coilImageLoader: ImageLoader by lazy { getImageLoader() }
