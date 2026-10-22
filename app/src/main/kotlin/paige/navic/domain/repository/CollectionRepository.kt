@@ -6,6 +6,11 @@
 
 package paige.navic.domain.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.PlaylistDao
@@ -15,6 +20,7 @@ import paige.navic.database.mapper.toEntity
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
+import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import dev.zt64.subsonic.api.model.AlbumInfo as ApiAlbumInfo
 
@@ -79,5 +85,18 @@ class CollectionRepository(
 			id = playlistId,
 			songIndicesToRemove = listOf(position)
 		)
+	}
+
+	fun getPagedPlaylistSongs(playlistId: String): Flow<PagingData<DomainSong>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				prefetchDistance = 10,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				songDao.getPagedSongsByPlaylistId(playlistId)
+			}
+		).flow.map { pagingData -> pagingData.map { it.toDomainModel() } }
 	}
 }
