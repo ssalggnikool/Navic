@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.materialkolor.dynamiccolor.ColorSpec
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
@@ -99,6 +100,7 @@ fun CollectionDetailScreen(
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val pagedPlaylistSongs = viewModel.pagedSongs.collectAsLazyPagingItems()
 	val collection = state.data?.collection
 
 	val selectedAlbum = state.data?.selectedAlbum
@@ -299,13 +301,17 @@ fun CollectionDetailScreen(
 							}
 						}
 					} else {
-						itemsIndexed(collection.songs) { index, song ->
+						items(
+							count = pagedPlaylistSongs.itemCount,
+							key = { index -> pagedPlaylistSongs[index]?.id ?: index }
+						) { index ->
+							val song = pagedPlaylistSongs[index] ?: return@items
 							val download = allDownloads.find { it.songId == song.id }
 							Box {
 								CollectionDetailScreenSongRow(
 									song = song,
 									index = index,
-									count = collection.songs.count(),
+									count = pagedPlaylistSongs.itemCount,
 									isPlaylist = true,
 									onClick = {
 										if (playerState.currentSong?.id != song.id) {
@@ -351,7 +357,13 @@ fun CollectionDetailScreen(
 						}
 					}
 
-					if (collection.songs.isEmpty()) {
+					val isCollectionEmpty = if (collection is DomainPlaylist) {
+						pagedPlaylistSongs.itemCount == 0
+					} else {
+						collection.songs.isEmpty()
+					}
+
+					if (isCollectionEmpty) {
 						item {
 							ContentUnavailable(
 								label = stringResource(R.string.info_no_songs)
