@@ -25,6 +25,7 @@ import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
+import paige.navic.domain.model.DomainPlaylist
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.MoreHoriz
 import paige.navic.playback.MediaPlayer
@@ -70,7 +71,7 @@ fun NowPlayingMoreButton(
 			SongSheet(
 				onDismissRequest = { expanded = false },
 				song = song,
-				collection = playerState.currentCollection,
+				isPlaylist = playerState.currentCollection is DomainPlaylist,
 				onViewAlbum = dropUnlessResumed {
 					playerState.currentCollection?.let { collection ->
 						backStack.remove(Screen.NowPlaying)
