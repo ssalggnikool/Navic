@@ -105,7 +105,7 @@ class DownloadProcessor(
 
 		cacheCoverArt(song.coverArtId)
 		cacheAlbumCoverArt(song.albumId)
-		cacheLyrics(song)
+		cacheLyrics(song.id)
 		downloadAudioFile(song, onProgress)
 	}
 
@@ -173,23 +173,23 @@ class DownloadProcessor(
 		}
 	}
 
-	private suspend fun cacheLyrics(song: DomainSong) {
-		Logger.i("DownloadProcessor", "caching lyrics for ${song.id}")
+	private suspend fun cacheLyrics(songId: String) {
+		Logger.i("DownloadProcessor", "caching lyrics for $songId")
 		try {
-			val lyricsResult = lyricsRepository.fetchLyrics(song)
+			val lyricsResult = lyricsRepository.fetchLyrics(songId)
 			if (lyricsResult?.rawContent != null) {
 				lyricDao.insertLyrics(
 					LyricEntity(
-						songId = song.id,
+						songId = songId,
 						rawContent = lyricsResult.rawContent,
 						providerName = lyricsResult.providerName
 					)
 				)
-				Logger.i("DownloadProcessor", "cached lyrics for ${song.id}")
+				Logger.i("DownloadProcessor", "cached lyrics for $songId")
 			}
 		} catch (e: Exception) {
 			if (e is CancellationException) throw e
-			Logger.e("DownloadProcessor", "Failed to cache lyrics for ${song.id}", e)
+			Logger.e("DownloadProcessor", "Failed to cache lyrics for $songId", e)
 		}
 	}
 

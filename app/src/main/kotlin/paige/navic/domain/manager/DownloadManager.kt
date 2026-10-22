@@ -31,8 +31,6 @@ import paige.navic.database.dao.DownloadDao
 import paige.navic.database.dao.SongDao
 import paige.navic.database.entity.DownloadEntity
 import paige.navic.database.entity.DownloadStatus
-import paige.navic.domain.model.DomainSong
-import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.util.Logger
 import paige.navic.work.DownloadMigrationWorker
@@ -111,14 +109,14 @@ class DownloadManager(
 		return downloadedSongs.value[songId]
 	}
 
-	fun downloadSong(song: DomainSong) {
+	fun downloadSong(songId: String) {
 		scope.launch {
-			enqueueSongs(listOf(song.id))
+			enqueueSongs(listOf(songId))
 		}
 	}
 
-	suspend fun downloadCollection(collection: DomainSongCollection) {
-		enqueueSongs(collection.songs.map { it.id })
+	suspend fun downloadCollection(collection: List<String>) {
+		enqueueSongs(collection)
 	}
 
 	fun downloadEntireLibrary() {
