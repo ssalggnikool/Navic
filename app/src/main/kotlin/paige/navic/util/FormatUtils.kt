@@ -6,6 +6,7 @@
 
 package paige.navic.util
 
+import com.appmattus.crypto.Algorithm
 import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.time.Duration
@@ -57,4 +58,13 @@ fun Long.toFileSize(): String {
 	val roundedSize = (size * 100).toInt() / 100.0
 
 	return "$roundedSize ${units[digitGroups]}"
+}
+
+/**
+ * Hash `String` using a non-cryptographic and non-expensive algorithm (xxHash), returns a formatted hex string.
+ */
+fun String.xxHash32(): String {
+	val digest = Algorithm.XXHash32().createDigest()
+	return digest.digest(this.toByteArray(Charsets.UTF_8))
+		.joinToString("") { byte -> "%02x".format(byte) }
 }

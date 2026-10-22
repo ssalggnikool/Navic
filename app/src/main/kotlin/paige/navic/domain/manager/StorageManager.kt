@@ -9,12 +9,12 @@ package paige.navic.domain.manager
 import android.content.Context
 import android.os.Environment
 import android.os.StatFs
-import com.appmattus.crypto.Algorithm
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import paige.navic.domain.model.settings.DownloadStorage
+import paige.navic.util.xxHash32
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -67,7 +67,7 @@ class StorageManager(
 	private fun generatePathHash(albumId: String, songId: String): HashResult {
 		val template = "$albumId-$songId".takeIf { it.length > 4 }
 			?: UUID.randomUUID().toString()
-		val hash = template.hashString()
+		val hash = template.xxHash32()
 
 		return HashResult(
 			parentDirectory = Pair(
@@ -196,11 +196,5 @@ class StorageManager(
 	fun getCurrentFreeSpace(): Long {
 		val fileStats = StatFs(currentDownloadDir().absolutePath)
 		return fileStats.freeBytes
-	}
-
-	private fun String.hashString(): String {
-		val digest = Algorithm.XXHash32().createDigest()
-		return digest.digest(this.toByteArray(Charsets.UTF_8))
-			.joinToString("") { byte -> "%02x".format(byte) }
 	}
 }

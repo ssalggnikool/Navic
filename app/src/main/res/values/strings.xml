@@ -179,6 +179,7 @@
 	<string name="option_audio_offload">Audio offload</string>
 	<string name="option_live_status">Live status</string>
 	<string name="option_image_cache_size">Image cache size</string>
+	<string name="option_streaming_cache">Streaming cache</string>
 	<string name="option_last_sync">Last full sync</string>
 	<string name="option_pending_actions">Pending sync actions</string>
 	<string name="option_downloaded_songs">Downloaded songs</string>
@@ -425,6 +426,7 @@
 	<string name="action_search_history">Recent searches</string>
 	<string name="action_remove_from_history">Remove from history</string>
 	<string name="action_clear_image_cache">Clear image cache</string>
+	<string name="action_clear_stream_cache">Clear streaming cache</string>
 	<string name="action_clear_pending_actions">Clear pending sync actions</string>
 	<string name="action_clear_downloads">Clear downloads</string>
 	<string name="action_rebuild_database">Rebuild database</string>

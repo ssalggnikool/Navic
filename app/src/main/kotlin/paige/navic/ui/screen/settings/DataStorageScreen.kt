@@ -59,6 +59,7 @@ import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.DownloadManager
 import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.manager.StorageManager
+import paige.navic.domain.manager.StreamCacheManager
 import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.OfflineMode
@@ -92,6 +93,7 @@ fun SettingsDataStorageScreen() {
 	val hideBack = sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 	val preferenceManager = koinInject<PreferenceManager>()
 	val storageManager = koinInject<StorageManager>()
+	val streamCacheManager = koinInject<StreamCacheManager>()
 	val downloadManager = koinInject<DownloadManager>()
 	val scope = rememberCoroutineScope()
 	val imageLoader = koinInject<ImageLoader>()
@@ -112,6 +114,7 @@ fun SettingsDataStorageScreen() {
 
 	val calculating = stringResource(R.string.info_status_calculating)
 	var imageCacheSizeMb by remember { mutableStateOf(calculating) }
+	var streamCacheSize by remember { mutableStateOf(calculating) }
 
 	val downloadsSizeMb = remember(downloadSize) {
 		downloadSize.toFileSize()
@@ -169,6 +172,7 @@ fun SettingsDataStorageScreen() {
 		withContext(Dispatchers.IO) {
 			val sizeBytes = imageLoader.diskCache?.size ?: 0L
 			imageCacheSizeMb = "${sizeBytes / (1024 * 1024)} MB"
+			streamCacheSize = streamCacheManager.size.toFileSize()
 		}
 	}
 
@@ -336,7 +340,7 @@ fun SettingsDataStorageScreen() {
 						},
 						content = { Text(stringResource(R.string.option_download_location)) },
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 6)
 					)
 
 					SegmentedListItem(
@@ -350,7 +354,7 @@ fun SettingsDataStorageScreen() {
 								)
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
 					)
 
 					SegmentedListItem(
@@ -367,14 +371,21 @@ fun SettingsDataStorageScreen() {
 								} ($downloadsSizeMb) // $freeSpaceFormatted free"
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 6)
 					)
 
 					SegmentedListItem(
 						onClick = {},
 						content = { Text(stringResource(R.string.option_image_cache_size)) },
 						supportingContent = { Text(imageCacheSizeMb) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 6)
+					)
+
+					SegmentedListItem(
+						onClick = {},
+						content = { Text(stringResource(R.string.option_streaming_cache)) },
+						supportingContent = { Text(streamCacheSize) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 6)
 					)
 
 					SegmentedListItem(
@@ -452,7 +463,7 @@ fun SettingsDataStorageScreen() {
 							}
 						},
 						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 5)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
 					)
 				}
 
@@ -466,19 +477,30 @@ fun SettingsDataStorageScreen() {
 							}
 						},
 						content = { Text(stringResource(R.string.action_clear_image_cache)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4),
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 5),
+						colors = SegmentedListItemDefaults.segmentedErrorColors()
+					)
+					SegmentedListItem(
+						onClick = {
+							scope.launch(Dispatchers.IO) {
+								streamCacheManager.clear()
+								streamCacheSize = "0 B"
+							}
+						},
+						content = { Text(stringResource(R.string.action_clear_stream_cache)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5),
 						colors = SegmentedListItemDefaults.segmentedErrorColors()
 					)
 					SegmentedListItem(
 						onClick = viewModel::removeAllActions,
 						content = { Text(stringResource(R.string.action_clear_pending_actions)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4),
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5),
 						colors = SegmentedListItemDefaults.segmentedErrorColors()
 					)
 					SegmentedListItem(
 						onClick = viewModel::clearAllDownloads,
 						content = { Text(stringResource(R.string.action_clear_downloads)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4),
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5),
 						colors = SegmentedListItemDefaults.segmentedErrorColors()
 					)
 					SegmentedListItem(
@@ -487,7 +509,7 @@ fun SettingsDataStorageScreen() {
 						content = { Text(stringResource(R.string.action_rebuild_database)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_rebuild_database)) },
 						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4),
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 5),
 						colors = SegmentedListItemDefaults.segmentedErrorColors()
 					)
 				}

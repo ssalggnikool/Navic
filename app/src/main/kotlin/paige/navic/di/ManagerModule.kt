@@ -25,6 +25,7 @@ import paige.navic.domain.manager.ShareManager
 import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.manager.StorageManager
+import paige.navic.domain.manager.StreamCacheManager
 import paige.navic.domain.manager.SyncManager
 import paige.navic.domain.sync.SyncActionProcessor
 import paige.navic.domain.sync.SyncCoordinator
@@ -49,6 +50,7 @@ val managerModule = module {
 	singleOf(::SleepTimerManager)
 	singleOf(::SnackBarManager)
 	singleOf(::StorageManager)
+	singleOf(::StreamCacheManager)
 	singleOf(::SyncActionProcessor)
 	singleOf(::SyncCoordinator)
 	single(createdAtStart = true) {
@@ -58,6 +60,7 @@ val managerModule = module {
 		NavicDataSourceFactory(
 			downloadManager = get(),
 			sessionManager = get(),
+			streamCacheManager = get(),
 			preferenceManager = get(),
 			dnsResolver = get()
 		)
