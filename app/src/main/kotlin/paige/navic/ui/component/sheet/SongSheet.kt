@@ -45,10 +45,8 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SleepTimerMode
 import paige.navic.domain.manager.canUserShare
-import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
-import paige.navic.domain.model.DomainSongCollection
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Star
 import paige.navic.ui.icons.outlined.Album
@@ -82,7 +80,7 @@ import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 fun SongSheet(
 	onDismissRequest: () -> Unit,
 	song: DomainSong,
-	collection: DomainSongCollection? = null,
+	isPlaylist: Boolean = false,
 	starred: Boolean? = null,
 	onSetStarred: ((Boolean) -> Unit)? = null,
 	onShare: (() -> Unit)? = null,
@@ -331,7 +329,7 @@ fun SongSheet(
 						content = {
 							Text(
 								stringResource(
-									if (collection != null && collection !is DomainAlbum)
+									if (isPlaylist)
 										R.string.action_add_to_another_playlist
 									else R.string.action_add_to_playlist
 								)
@@ -347,7 +345,7 @@ fun SongSheet(
 					)
 				}
 
-				if (onRemoveFromPlaylist != null && collection != null && collection !is DomainAlbum) {
+				if (onRemoveFromPlaylist != null && isPlaylist) {
 					ListItem(
 						content = { Text(stringResource(R.string.action_remove_from_playlist)) },
 						leadingContent = { Icon(Icons.Outlined.PlaylistRemove, null) },
