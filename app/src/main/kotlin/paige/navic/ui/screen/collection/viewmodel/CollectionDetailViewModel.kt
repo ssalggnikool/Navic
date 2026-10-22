@@ -8,13 +8,9 @@ package paige.navic.ui.screen.collection.viewmodel
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -25,7 +21,6 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SnackBarManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
-import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.repository.AlbumRepository
@@ -65,12 +60,6 @@ class CollectionDetailViewModel(
 	val listState = LazyListState()
 
 	val isOnline = connectivityManager.isOnline
-
-	val pagedSongs: Flow<PagingData<DomainSong>> = uiState
-		.map { state -> state.data?.collection }
-		.filterIsInstance<DomainPlaylist>()
-		.flatMapLatest { playlist -> repository.getPagedPlaylistSongs(playlist.id) }
-		.cachedIn(viewModelScope)
 
 	val otherAlbums = uiState
 		.map { state -> (state.data?.collection as? DomainAlbum) }
