@@ -8,6 +8,7 @@ package paige.navic.domain.manager
 
 import android.content.Context
 import android.os.Environment
+import android.os.StatFs
 import com.appmattus.crypto.Algorithm
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.jvm.javaio.copyTo
@@ -185,6 +186,11 @@ class StorageManager(
 				dir.listFiles()?.forEach { it.deleteRecursively() }
 			}
 		}
+	}
+
+	fun getCurrentFreeSpace(): Long {
+		val fileStats = StatFs(currentDownloadDir().absolutePath)
+		return fileStats.freeBytes
 	}
 
 	private fun String.hashString(): String {

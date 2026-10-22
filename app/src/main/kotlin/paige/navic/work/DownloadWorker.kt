@@ -203,5 +203,4 @@ class DownloadWorker(
 		val total = downloadDao.countDownloadsByStatus(DownloadStatus.DOWNLOADING)
 		return createForegroundInfo(0, total)
 	}
-
 }

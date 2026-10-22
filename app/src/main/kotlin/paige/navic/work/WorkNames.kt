@@ -19,7 +19,6 @@ object WorkNames {
 }
 
 object WorkKeys {
-	const val SONG_ID = "song_id"
 	const val FORCE = "force"
 	const val PERIODIC = "periodic"
 	const val STORAGE = "storage"
