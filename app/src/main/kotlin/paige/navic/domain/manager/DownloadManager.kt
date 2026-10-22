@@ -105,8 +105,8 @@ class DownloadManager(
 		}
 	}
 
-	fun getDownloadedFilePath(songId: String): String? {
-		return downloadedSongs.value[songId]
+	suspend fun getDownloadedFilePath(songId: String): String? {
+		return downloadDao.getDownloadById(songId)?.filePath
 	}
 
 	fun downloadSong(songId: String) {
