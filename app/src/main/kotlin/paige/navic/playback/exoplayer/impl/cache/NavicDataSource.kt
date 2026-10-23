@@ -17,6 +17,7 @@ import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.FileDataSource
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
+import androidx.media3.extractor.metadata.icy.IcyHeaders
 import dev.zt64.subsonic.api.model.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -74,6 +75,10 @@ class NavicDataSource(
 			preferenceManager.customHeadersMap(),
 			preferenceManager.proxyUrl.takeIf { it.isNotEmpty() },
 			dnsResolver
+		)
+	).setDefaultRequestProperties(
+		mapOf(
+			IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME to IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_VALUE
 		)
 	)
 
