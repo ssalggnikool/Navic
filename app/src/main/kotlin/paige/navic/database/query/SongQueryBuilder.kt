@@ -38,9 +38,7 @@ fun DomainSongListType.toSqlQuery(
 	}
 
 	if (filters.contains(DomainFilter.Downloaded)) {
-		whereClauses.add(
-			"songId IN (SELECT songId FROM DownloadEntity WHERE status = 'DOWNLOADED')",
-		)
+		whereClauses.add("isDownloaded = 1")
 	}
 
 	val whereSql = if (whereClauses.isNotEmpty()) {

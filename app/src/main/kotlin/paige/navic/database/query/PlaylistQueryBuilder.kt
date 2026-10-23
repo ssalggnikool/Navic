@@ -20,11 +20,13 @@ fun DomainPlaylistListType.toSqlQuery(
 
 	if (filters.contains(DomainFilter.Downloaded)) {
 		whereClauses.add(
-			"EXISTS (SELECT 1 FROM PlaylistSongCrossRef ref WHERE ref.playlistId = PlaylistEntity.playlistId) " +
-				"AND NOT EXISTS (" +
-				"SELECT 1 FROM PlaylistSongCrossRef ref " +
+			"EXISTS (" +
+				"SELECT 1 FROM PlaylistSongCrossRef ref INNER JOIN SongEntity s ON ref.songId = s.songId " +
+				"WHERE ref.playlistId = PlaylistEntity.playlistId" +
+				") AND NOT EXISTS (" +
+				"SELECT 1 FROM PlaylistSongCrossRef ref INNER JOIN SongEntity s ON ref.songId = s.songId " +
 				"WHERE ref.playlistId = PlaylistEntity.playlistId " +
-				"AND ref.songId NOT IN (SELECT songId FROM DownloadEntity WHERE status = 'DOWNLOADED')" +
+				"AND s.isDownloaded = 0" +
 				")",
 		)
 	}

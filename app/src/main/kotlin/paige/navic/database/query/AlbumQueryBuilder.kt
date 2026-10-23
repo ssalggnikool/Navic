@@ -50,10 +50,13 @@ fun DomainAlbumListType.toSqlQuery(
 
 	if (filters.contains(DomainFilter.Downloaded)) {
 		whereClauses.add(
-			"NOT EXISTS (" +
+			"EXISTS (" +
+				"SELECT 1 FROM SongEntity s " +
+				"WHERE s.belongsToAlbumId = AlbumEntity.albumId" +
+				") AND NOT EXISTS (" +
 				"SELECT 1 FROM SongEntity s " +
 				"WHERE s.belongsToAlbumId = AlbumEntity.albumId " +
-				"AND s.songId NOT IN (SELECT songId FROM DownloadEntity WHERE status = 'DOWNLOADED')" +
+				"AND s.isDownloaded = 0" +
 				")",
 		)
 	}
@@ -104,10 +107,13 @@ fun getAlbumLetterCountsQuery(
 
 	if (filters.contains(DomainFilter.Downloaded)) {
 		whereClauses.add(
-			"NOT EXISTS (" +
+			"EXISTS (" +
+				"SELECT 1 FROM SongEntity s " +
+				"WHERE s.belongsToAlbumId = AlbumEntity.albumId" +
+				") AND NOT EXISTS (" +
 				"SELECT 1 FROM SongEntity s " +
 				"WHERE s.belongsToAlbumId = AlbumEntity.albumId " +
-				"AND s.songId NOT IN (SELECT songId FROM DownloadEntity WHERE status = 'DOWNLOADED')" +
+				"AND s.isDownloaded = 0" +
 				")",
 		)
 	}

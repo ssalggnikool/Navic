@@ -30,11 +30,14 @@ fun DomainArtistListType.toSqlQuery(
 
 	if (filters.contains(DomainFilter.Downloaded)) {
 		whereClauses.add(
-			"EXISTS (SELECT 1 FROM SongEntity s WHERE s.artistId = ArtistEntity.artistId) " +
-				"AND NOT EXISTS (" +
+			"EXISTS (" +
 				"SELECT 1 FROM SongEntity s " +
 				"WHERE s.artistId = ArtistEntity.artistId " +
-				"AND s.songId NOT IN (SELECT songId FROM DownloadEntity WHERE status = 'DOWNLOADED')" +
+				"OR s.belongsToAlbumId IN (SELECT albumId FROM AlbumEntity WHERE artistId = ArtistEntity.artistId)" +
+				") AND NOT EXISTS (" +
+				"SELECT 1 FROM SongEntity s " +
+				"WHERE (s.artistId = ArtistEntity.artistId OR s.belongsToAlbumId IN (SELECT albumId FROM AlbumEntity WHERE artistId = ArtistEntity.artistId)) " +
+				"AND s.isDownloaded = 0" +
 				")",
 		)
 	}
@@ -76,11 +79,14 @@ fun getArtistLetterCountsQuery(
 
 	if (filters.contains(DomainFilter.Downloaded)) {
 		whereClauses.add(
-			"EXISTS (SELECT 1 FROM SongEntity s WHERE s.artistId = ArtistEntity.artistId) " +
-				"AND NOT EXISTS (" +
+			"EXISTS (" +
 				"SELECT 1 FROM SongEntity s " +
 				"WHERE s.artistId = ArtistEntity.artistId " +
-				"AND s.songId NOT IN (SELECT songId FROM DownloadEntity WHERE status = 'DOWNLOADED')" +
+				"OR s.belongsToAlbumId IN (SELECT albumId FROM AlbumEntity WHERE artistId = ArtistEntity.artistId)" +
+				") AND NOT EXISTS (" +
+				"SELECT 1 FROM SongEntity s " +
+				"WHERE (s.artistId = ArtistEntity.artistId OR s.belongsToAlbumId IN (SELECT albumId FROM AlbumEntity WHERE artistId = ArtistEntity.artistId)) " +
+				"AND s.isDownloaded = 0" +
 				")",
 		)
 	}
