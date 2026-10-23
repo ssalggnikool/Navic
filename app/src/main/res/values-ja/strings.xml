@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<<<<<<< HEAD
     <string name="title_library">ライブラリ</string>
     <string name="title_playlists">プレイリスト</string>
     <string name="title_settings">設定</string>
@@ -411,7 +410,7 @@
     <string name="info_dynamic_replay_gain">ダイナミック</string>
     <string name="info_total_plays">総再生回数</string>
     <string name="info_total_listening_time">総再生時間</string>
-    <string name="info_listening_stats_ratio">総再生時間の%1$s%%</string>
+    <string name="info_listening_stats_ratio">総再生時間の%1$s</string>
     <string name="info_track_replay_gain_effective">ReplayGain実効値</string>
     <string name="info_update">バージョン%1$sがリリースされました</string>
     <string name="info_shared_by">%1$sが共有しました</string>
@@ -485,7 +484,6 @@
     <string name="title_delete_radio">ラジオを削除しますか？</string>
     <string name="title_update_radio">ラジオを編集</string>
     <string name="notice_deleted_radio">ラジオを削除しました。</string>
-=======
 	<string name="title_library">ライブラリ</string>
 	<string name="title_playlists">プレイリスト</string>
 	<string name="title_settings">設定</string>
@@ -939,5 +937,6 @@
 	<string name="title_delete_radio">ラジオを削除しますか？</string>
 	<string name="title_update_radio">ラジオを編集</string>
 	<string name="notice_deleted_radio">ラジオを削除しました。</string>
->>>>>>> 22c3d1b7 (FIX STRINGS)
+=======
+>>>>>>> 852d4826 (Revert "FIX STRINGS")
 </resources>

@@ -40,6 +40,8 @@
 	<string name="title_shares">Shares</string>
 	<string name="title_choose_font">Application font</string>
 	<string name="title_fonts_inbuilt">Built-in</string>
+	<string name="title_fonts_external">External</string>
+	<string name="title_more_by_artist">More by %1$s</string>
 	<string name="title_disc_number">Disc %1$s</string>
 	<string name="title_genres">Genres</string>
 	<string name="title_navigation_bar">Navigation Bar</string>
@@ -52,6 +54,7 @@
 	<string name="title_library_download">Download entire library</string>
 	<string name="title_confirm">Confirm</string>
 	<string name="title_update">Update available</string>
+	<string name="title_changelog">Release notes</string>
 	<string name="title_network">Network</string>
 	<string name="title_streaming_quality">Streaming quality</string>
 	<string name="title_download_quality">Download quality</string>
@@ -161,9 +164,11 @@
 	<string name="option_scrobble_percentage">Scrobble percentage</string>
 	<string name="option_min_duration_to_scrobble">Min. duration to scrobble</string>
 	<string name="option_playlist_name">Name</string>
+	<string name="option_playlist_songs">Songs</string>
 	<string name="option_enable_scrobbling">Enable scrobbling</string>
 	<string name="option_choose_theme">Application theme</string>
 	<string name="option_choose_app_icon">Application icon</string>
+	<string name="option_replay_gain">ReplayGain</string>
 	<string name="option_replaygain_mode">ReplayGain mode</string>
 	<string name="option_title_preamp">Preamp options</string>
 	<string name="option_preamp_with_rg">With ReplayGain tags</string>
@@ -274,9 +279,11 @@
 	<string name="option_mini_player_progress_style_visible">Visible</string>
 	<string name="option_mini_player_progress_style_seekable">Seekable</string>
 
+	<string name="option_queue_info_type">Queue information</string>
 	<string name="option_queue_info_type_remining">Show songs/time remaining</string>
 	<string name="option_queue_info_type_full">Show songs/time of the whole queue</string>
 
+	<string name="option_proxy_settings">Proxy settings</string>
 	<string name="option_proxy_url">Proxy URL</string>
 	<string name="option_ignore_ssl_certificates">Ignore SSL certificates</string>
 
@@ -303,6 +310,11 @@
 	<plurals name="count_albums">
 		<item quantity="one">%1$d album</item>
 		<item quantity="other">%1$d albums</item>
+	</plurals>
+
+	<plurals name="count_playlists">
+		<item quantity="one">%1$d playlist</item>
+		<item quantity="other">%1$d playlists</item>
 	</plurals>
 
 	<plurals name="count_artists">
@@ -350,6 +362,7 @@
 		<item quantity="other">%1$d lines selected</item>
 	</plurals>
 
+	<string name="action_start">Start</string>
 	<string name="action_ok">OK</string>
 	<string name="action_copy">Copy</string>
 	<string name="action_play">Play</string>
@@ -358,6 +371,7 @@
 	<string name="action_pause">Pause</string>
 	<string name="action_new">New</string>
 	<string name="action_shuffle">Shuffle</string>
+	<string name="action_repeat">Repeat</string>
 	<string name="action_delete">Delete</string>
 	<string name="action_edit">Edit</string>
 	<string name="action_cancel">Cancel</string>
@@ -366,7 +380,9 @@
 	<string name="action_save">Save</string>
 	<string name="action_track_info">View track info</string>
 	<string name="action_view_album">View album</string>
+	<string name="action_view_playlist">View playlist</string>
 	<string name="action_view_artist">View artist</string>
+	<string name="action_view_statistics">View statistics</string>
 	<string name="action_star">Star</string>
 	<string name="action_remove_star">Unstar</string>
 	<string name="action_download">Download</string>
@@ -376,6 +392,7 @@
 	<string name="action_sleep_timer_enabled">Sleep timer - %1$s left </string>
 	<string name="action_sleep_timer_songs_enabled">Sleep timer - %1$d songs left</string>
 	<string name="action_sleep_timer_queue_enabled">Sleep timer - end of queue</string>
+	<string name="action_sleep_timer_songs">Stop after %1$d songs</string>
 	<string name="action_sleep_timer_queue">Stop at end of current queue</string>
 	<string name="action_disable_sleep_timer">Turn off timer</string>
 	<string name="title_sleep_timer_time">Time</string>
@@ -390,6 +407,7 @@
 	<string name="action_more">More</string>
 	<string name="action_add_to_playlist">Add to playlist</string>
 	<string name="action_add_to_another_playlist">Add to another playlist</string>
+	<string name="action_add_all_to_playlist">Add all to playlist</string>
 	<string name="action_remove_from_playlist">Remove from playlist</string>
 	<string name="action_see_all">See all</string>
 	<string name="action_view_on_lastfm">View on last.fm</string>
@@ -450,7 +468,9 @@
 	<string name="info_action_is_permanent">This action cannot be undone</string>
 	<string name="info_error">Something went wrong.</string>
 	<string name="info_error_show">Show details</string>
+	<string name="info_error_hide">Hide details</string>
 	<string name="info_unknown">Unknown</string>
+	<string name="info_unknown_album">Unknown Album</string>
 	<string name="info_unknown_year">Unknown Year</string>
 	<string name="info_unknown_genre">Unknown Genre</string>
 	<string name="info_not_playing">Not playing</string>
@@ -481,21 +501,27 @@
 	<string name="info_update">Version "%1$s" has been released</string>
 	<string name="info_shared_by">Shared by %1$s</string>
 	<string name="info_share_expires_in">Expires in %1$s</string>
+	<string name="info_share_expires_never">Never expires</string>
 	<string name="info_share_expired">Expired</string>
 	<string name="info_no_shares">No shares</string>
 	<string name="info_no_lyrics">No lyrics</string>
+	<string name="info_no_albums">No albums</string>
 	<string name="info_no_artists">No artists</string>
 	<string name="info_no_songs">No songs</string>
 	<string name="info_no_search_results">No results</string>
 	<string name="info_not_available_offline">Not available offline</string>
 	<string name="info_no_queue">Nothing queued</string>
+	<string name="info_no_genres">No genres</string>
 	<string name="info_no_radios">No radios</string>
 	<string name="info_no_starred">Nothing\'s starred</string>
+	<string name="info_no_playlists_short">No playlists</string>
 	<string name="info_lyrics_provider">Lyrics provided by %1$s</string>
+	<string name="info_image_failed_to_load">Failed to load</string>
 	<string name="info_download_failed">Download failed</string>
 	<string name="info_click_to_retry">Click to retry</string>
 	<string name="info_downloaded">Downloaded</string>
 	<string name="info_syncing">Syncing...</string>
+	<string name="info_syncing_saving">Saving...</string>
 	<string name="info_syncing_saved">Saved.</string>
 	<string name="info_syncing_finished">Finished.</string>
 	<string name="info_syncing_albums">Syncing albums...</string>
@@ -521,6 +547,7 @@
 	<string name="info_incorrect_instance_url_format">Instance URL cannot be empty</string>
 	<string name="info_chat_unsupported">Your server does not support this feature, or you are offline</string>
 	<string name="info_content_unavailable">Nothing here</string>
+	<string name="action_allow">Allow</string>
 	<string name="option_alternate_addresses">Alternate addresses</string>
 	<string name="subtitle_alternative_addresses">Fallback addresses to reach the music server</string>
 	<string name="alt_addresses_edit_address">Edit address</string>
