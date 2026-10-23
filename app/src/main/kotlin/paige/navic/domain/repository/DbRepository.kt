@@ -22,6 +22,7 @@ import kotlinx.serialization.SerializationException
 import paige.navic.R
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.ArtistDao
+import paige.navic.database.dao.DownloadDao
 import paige.navic.database.dao.GenreDao
 import paige.navic.database.dao.LyricDao
 import paige.navic.database.dao.PlaylistDao
@@ -46,6 +47,7 @@ class DbRepository(
 	private val albumDao: AlbumDao,
 	private val playlistDao: PlaylistDao,
 	private val songDao: SongDao,
+	private val downloadDao: DownloadDao,
 	private val genreDao: GenreDao,
 	private val artistDao: ArtistDao,
 	private val radioDao: RadioDao,
@@ -66,6 +68,12 @@ class DbRepository(
 				Result.failure(e)
 			}
 		}
+
+	suspend fun syncDownloadedFlags() {
+		val downloadedIds = downloadDao.getDownloadedSongIds()
+		songDao.clearAllDownloadedFlags()
+		songDao.markSongsDownloaded(downloadedIds)
+	}
 
 	suspend fun removeEverything(): Result<Unit> = runDbOp {
 		albumDao.clearAllAlbums()
@@ -230,7 +238,7 @@ class DbRepository(
 					album.songs.forEach { song ->
 						val songEntity = song.toEntity(
 							artistIdOverride = albumEntity.artistId.takeIf { song.artistId.isNullOrBlank() },
-							artistNameOverride = albumEntity.artistName.takeIf { song.artistName.isNullOrBlank() }
+							artistNameOverride = albumEntity.artistName.takeIf { song.artistName.isBlank() }
 						)
 						songBatch.add(songEntity)
 						allValidSongIds.add(songEntity.songId)
@@ -258,6 +266,8 @@ class DbRepository(
 			"DbRepository",
 			"- Songs Synced: $totalAlbums albums, $finalSongsSynced songs"
 		)
+
+		syncDownloadedFlags()
 
 		onProgress(1.0f, R.string.info_syncing_saved)
 		allValidAlbumIds to allValidSongIds
@@ -289,7 +299,7 @@ class DbRepository(
 					"could not deserialize playlist $playlistId; skipping it",
 					e
 				)
-				return@runDbOp emptySet<String>()
+				return@runDbOp emptySet()
 			} else {
 				throw e
 			}
@@ -312,6 +322,7 @@ class DbRepository(
 		}
 
 		Logger.i("DbRepository", "- Playlist [$playlistId] synced: ${songEntities.size} songs")
+		syncDownloadedFlags()
 		songIds
 	}
 

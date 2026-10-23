@@ -16,6 +16,7 @@ import androidx.work.workDataOf
 import kotlinx.coroutines.CancellationException
 import paige.navic.R
 import paige.navic.database.dao.DownloadDao
+import paige.navic.database.dao.SongDao
 import paige.navic.database.entity.DownloadEntity
 import paige.navic.database.entity.DownloadStatus
 import paige.navic.domain.manager.NotificationIds
@@ -31,6 +32,7 @@ class DownloadMigrationWorker(
 	params: WorkerParameters,
 	private val storageManager: StorageManager,
 	private val downloadDao: DownloadDao,
+	private val songDao: SongDao,
 	private val songRepository: SongRepository,
 	private val notificationManager: NotificationManager
 ) : CoroutineWorker(context, params) {
@@ -65,6 +67,7 @@ class DownloadMigrationWorker(
 				if (sourcePath != targetPath) {
 					if (!File(sourcePath).exists()) {
 						downloadDao.deleteDownload(download.songId)
+						songDao.updateSongDownloaded(download.songId, false)
 					} else if (storageManager.moveFile(sourcePath, targetPath)) {
 						downloadDao.insertDownload(
 							DownloadEntity(

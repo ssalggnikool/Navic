@@ -70,6 +70,10 @@ class DownloadManager(
 
 	init {
 		scope.launch {
+			syncDownloadedFlags()
+		}
+
+		scope.launch {
 			allDownloads.collectLatest { downloads ->
 				downloadedSongs.value = downloads
 					.filter { it.status == DownloadStatus.DOWNLOADED && it.filePath != null }
@@ -230,6 +234,7 @@ class DownloadManager(
 		scope.launch {
 			val existing = downloadDao.getDownloadById(songId)
 			downloadDao.deleteDownload(songId)
+			songDao.updateSongDownloaded(songId, false)
 
 			val filePath = existing?.filePath
 			if (filePath != null) {
@@ -276,8 +281,15 @@ class DownloadManager(
 			cancelActiveDownloadsInternal()
 			storageManager.clearDownloads()
 			downloadDao.clearAllDownloads()
+			songDao.clearAllDownloadedFlags()
 			Logger.i("DownloadManager", "cleared all downloads")
 		}
+	}
+
+	suspend fun syncDownloadedFlags() {
+		val downloadedIds = downloadDao.getDownloadedSongIds()
+		songDao.clearAllDownloadedFlags()
+		songDao.markSongsDownloaded(downloadedIds)
 	}
 
 	fun migrateDownloads(target: DownloadStorage) {
