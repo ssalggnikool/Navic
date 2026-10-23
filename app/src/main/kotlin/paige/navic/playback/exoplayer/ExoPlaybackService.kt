@@ -22,10 +22,12 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import paige.navic.R
-import paige.navic.domain.manager.ScrobbleManager
 import paige.navic.domain.manager.ConnectivityManager
 import paige.navic.domain.manager.EqualizerManager
+import paige.navic.domain.manager.NotificationIds
+import paige.navic.domain.manager.NotificationStringIds
 import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.ScrobbleManager
 import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SyncManager
 import paige.navic.playback.exoplayer.impl.playback.ExoEqualizerManager
@@ -52,13 +54,18 @@ class ExoPlaybackService : MediaSessionService(), KoinComponent {
 	override fun onCreate() {
 		super.onCreate()
 		exoEqualizerManager = ExoEqualizerManager(
-            equalizerManager,
-            this
-        )
+			equalizerManager,
+			this
+		)
 		stateHolder.initState()
 
 		val notificationProvider = DefaultMediaNotificationProvider.Builder(this)
-			.build().apply {
+			.apply {
+				setChannelId(NotificationStringIds.CHANNEL_MEDIA_SESSION_ID)
+				setNotificationId(NotificationIds.MEDIA_SESSION)
+				setChannelName(R.string.media_session_channel_name)
+			}.build()
+			.apply {
 				setSmallIcon(R.drawable.ic_navic)
 			}
 
@@ -68,12 +75,12 @@ class ExoPlaybackService : MediaSessionService(), KoinComponent {
 			player as Player
 
 			scrobbleManager = ScrobbleManager(
-                player,
-                connectivityManager,
-                syncManager,
-                sessionManager,
-                preferenceManager
-            )
+				player,
+				connectivityManager,
+				syncManager,
+				sessionManager,
+				preferenceManager
+			)
 
 			player.addListener(exoEqualizerManager)
 

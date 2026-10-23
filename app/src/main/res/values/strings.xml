@@ -537,4 +537,5 @@
 	<string name="option_float_output">Float output precision</string>
 	<string name="subtitle_float_output">Experimental. Requires application restart. Playback speed will no longer work if this option is enabled</string>
 	<string name="title_storage_management">Storage management</string>
+	<string name="media_session_channel_name">Media playback</string>
 </resources>
