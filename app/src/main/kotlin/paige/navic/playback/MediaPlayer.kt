@@ -252,26 +252,25 @@ class MediaPlayer(
 				override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
 					val currentSong = _uiState.value.currentSong ?: return
 					if (currentSong.id.startsWith("radio_")) {
-						val title = mediaMetadata.title?.toString()?.takeIf { it.isNotBlank() }
-						val artist = mediaMetadata.artist?.toString()?.takeIf { it.isNotBlank() }
-							?: mediaMetadata.station?.toString()?.takeIf { it.isNotBlank() }
-							?: mediaMetadata.subtitle?.toString()?.takeIf { it.isNotBlank() }
+						val rawTitle = mediaMetadata.title?.toString()?.takeIf { it.isNotBlank() }
+						val rawArtist = mediaMetadata.artist?.toString()?.takeIf { it.isNotBlank() && it != "Live Radio" }
+							?: mediaMetadata.subtitle?.toString()?.takeIf { it.isNotBlank() && it != "Live Radio" }
 
-						val updatedSong = if (title != null && artist != null) {
-							currentSong.copy(
-								title = title,
-								artistName = artist
-							)
-						} else if (title != null) {
-							val parts = title.split(" - ", limit = 2)
+						val updatedSong = if (rawTitle != null) {
+							val parts = rawTitle.split(" - ", limit = 2)
 							if (parts.size == 2) {
 								currentSong.copy(
 									artistName = parts[0].trim(),
 									title = parts[1].trim()
 								)
+							} else if (rawArtist != null) {
+								currentSong.copy(
+									title = rawTitle,
+									artistName = rawArtist
+								)
 							} else {
 								currentSong.copy(
-									title = title,
+									title = rawTitle,
 									artistName = "Live Radio"
 								)
 							}
