@@ -11,6 +11,7 @@ import android.app.NotificationChannel
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
 import paige.navic.R
 import android.app.NotificationManager as AndroidNotificationManager
 
@@ -60,8 +61,10 @@ class NotificationManager(
 		progress: Float,
 		indeterminate: Boolean
 	): Notification {
-		val channelId = if (id == NotificationIds.SYNC_LIBRARY) CHANNEL_SYNC_ID else CHANNEL_DOWNLOAD_ID
+		val channelId =
+			if (id == NotificationIds.SYNC_LIBRARY) CHANNEL_SYNC_ID else CHANNEL_DOWNLOAD_ID
 		return NotificationCompat.Builder(context, channelId)
+			.setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
 			.setSmallIcon(R.drawable.ic_navic)
 			.setContentTitle(title)
 			.setContentText(message)

@@ -56,9 +56,7 @@ class PermissionManager(
 			Manifest.permission.ACCESS_LOCAL_NETWORK
 		) == PackageManager.PERMISSION_GRANTED
 
-		if (alreadyGranted) return true
-
-		return suspendCancellableCoroutine { continuation ->
+		return alreadyGranted || suspendCancellableCoroutine { continuation ->
 			pendingContinuation = continuation
 			continuation.invokeOnCancellation {
 				pendingContinuation = null
@@ -76,9 +74,7 @@ class PermissionManager(
 			Manifest.permission.POST_NOTIFICATIONS
 		) == PackageManager.PERMISSION_GRANTED
 
-		if (alreadyGranted) return true
-
-		return suspendCancellableCoroutine { continuation ->
+		return alreadyGranted || suspendCancellableCoroutine { continuation ->
 			pendingContinuation = continuation
 			continuation.invokeOnCancellation {
 				pendingContinuation = null
