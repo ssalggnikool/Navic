@@ -22,6 +22,7 @@ import paige.navic.ui.screen.artist.viewmodel.ArtistDetailViewModel
 import paige.navic.ui.screen.artist.viewmodel.ArtistListViewModel
 import paige.navic.ui.screen.chat.viewmodel.ChatViewModel
 import paige.navic.ui.screen.collection.viewmodel.CollectionDetailViewModel
+import paige.navic.ui.screen.download.viewmodel.DownloadListViewModel
 import paige.navic.ui.screen.genre.viewmodel.GenreListViewModel
 import paige.navic.ui.screen.lyrics.viewmodel.LyricsScreenViewModel
 import paige.navic.ui.screen.nowPlaying.viewmodel.NowPlayingViewModel
@@ -172,4 +173,5 @@ val viewModelModule = module {
 	viewModelOf(::RootViewModel)
 	viewModelOf(::StatisticsViewModel)
 	viewModelOf(::ChatViewModel)
+	viewModelOf(::DownloadListViewModel)
 }

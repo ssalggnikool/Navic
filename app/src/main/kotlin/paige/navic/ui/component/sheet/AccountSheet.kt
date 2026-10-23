@@ -44,7 +44,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.launch
@@ -56,15 +55,16 @@ import paige.navic.domain.manager.SessionManager
 import paige.navic.domain.manager.SleepTimerManager
 import paige.navic.domain.manager.SleepTimerMode
 import paige.navic.domain.manager.canUserShare
+import paige.navic.ui.component.common.Monogram
+import paige.navic.ui.component.common.SegmentedListItem
+import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Bedtime
+import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.Edit
 import paige.navic.ui.icons.outlined.Forum
 import paige.navic.ui.icons.outlined.Logout
 import paige.navic.ui.icons.outlined.Share
-import paige.navic.ui.component.common.Monogram
-import paige.navic.ui.component.common.SegmentedListItem
-import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.positive
 import paige.navic.ui.util.label
@@ -194,7 +194,7 @@ fun AccountSheet(
 			Spacer(Modifier.height(9.dp))
 
 			val isSharingAllowed = sessionManager.canUserShare()
-			val count = if (isSharingAllowed) 4 else 3
+			val count = if (isSharingAllowed) 5 else 4
 
 			if (isSharingAllowed) {
 				SegmentedListItem(
@@ -210,6 +210,19 @@ fun AccountSheet(
 					content = { Text(stringResource(R.string.action_view_shares)) }
 				)
 			}
+
+			SegmentedListItem(
+				shapes = SegmentedListItemDefaults.segmentedShapes(
+					index = count - 4,
+					count = count
+				),
+				onClick = {
+					animateToDismiss()
+					backStack.add(Screen.DownloadList)
+				},
+				leadingContent = { Icon(Icons.Outlined.Download, null) },
+				content = { Text(stringResource(R.string.title_downloads)) }
+			)
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(
