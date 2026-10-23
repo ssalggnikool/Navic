@@ -823,8 +823,19 @@ class MediaPlayer(
 	}
 
 	fun setPlaybackSpeed(value: Float) = this@MediaPlayer.launch {
-		controller?.setPlaybackSpeed(value)
+		controller?.playbackParameters = PlaybackParameters(
+			value,
+			if (uiState.value.preservePitch) 1f else value
+		)
 		_uiState.update { it.copy(playbackSpeed = value) }
+	}
+
+	fun setPreservePitch(value: Boolean) = this@MediaPlayer.launch {
+		controller?.playbackParameters = PlaybackParameters(
+			uiState.value.playbackSpeed,
+			if (value) 1f else uiState.value.playbackSpeed
+		)
+		_uiState.update { it.copy(preservePitch = value) }
 	}
 
 	private fun DomainSong.toMediaItem(): MediaItem {

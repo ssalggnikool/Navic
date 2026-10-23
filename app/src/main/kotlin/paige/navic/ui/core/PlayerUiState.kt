@@ -21,6 +21,7 @@ data class PlayerUiState(
 	val repeatMode: Int = 0,
 	val progress: Float = 0f,
 	val isLoading: Boolean = false,
+	val preservePitch: Boolean = true,
 	val playbackSpeed: Float = 1.0f,
 	val playbackBitrate: Int? = null,
 	val playbackBitDepth: Int? = null,

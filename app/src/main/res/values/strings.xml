@@ -398,6 +398,7 @@
 	<string name="title_sleep_timer_time">Time</string>
 	<string name="title_sleep_timer_songs">Songs</string>
 	<string name="option_playback_speed">Playback speed</string>
+	<string name="option_preserve_pitch">Preserve pitch</string>
 	<string name="action_navigate_back">Navigate up</string>
 	<string name="action_log_out">Log out</string>
 	<string name="action_log_in">Log in</string>
