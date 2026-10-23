@@ -271,6 +271,7 @@ class DownloadProcessor(
 					finalPath
 				)
 			)
+			songDao.updateSongDownloaded(song.id, true)
 		} catch (e: Exception) {
 			storageManager.deleteTempFile(finalPath)
 			throw e

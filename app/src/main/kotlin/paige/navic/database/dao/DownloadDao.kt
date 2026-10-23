@@ -31,6 +31,9 @@ interface DownloadDao {
 	@Query("SELECT * FROM DownloadEntity WHERE status = :status")
 	suspend fun getDownloadsByStatus(status: DownloadStatus): List<DownloadEntity>
 
+	@Query("SELECT songId FROM DownloadEntity WHERE status = :status")
+	suspend fun getDownloadedSongIds(status: DownloadStatus = DownloadStatus.DOWNLOADED): List<String>
+
 	@Query("SELECT COUNT(*) FROM DownloadEntity WHERE status = :status")
 	suspend fun countDownloadsByStatus(status: DownloadStatus): Int
 

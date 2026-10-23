@@ -22,7 +22,7 @@ import kotlin.time.Instant
 
 @Dao
 interface SongDao {
-	@RawQuery
+	@RawQuery(observedEntities = [SongEntity::class])
 	fun getPagedSongsByQuery(query: RoomRawQuery): PagingSource<Int, SongEntity>
 
 	@Query("""
@@ -128,6 +128,23 @@ interface SongDao {
 				Logger.w("SongDao", "song $localId no longer exists remotely")
 				deleteSong(localId)
 			}
+		}
+	}
+
+	@Query("UPDATE SongEntity SET isDownloaded = :isDownloaded WHERE songId = :songId")
+	suspend fun updateSongDownloaded(songId: String, isDownloaded: Boolean)
+
+	@Query("UPDATE SongEntity SET isDownloaded = 0")
+	suspend fun clearAllDownloadedFlags()
+
+	@Query("UPDATE SongEntity SET isDownloaded = 1 WHERE songId IN (:songIds)")
+	suspend fun markSongsDownloadedBatch(songIds: List<String>)
+
+	@Transaction
+	suspend fun markSongsDownloaded(songIds: List<String>) {
+		if (songIds.isEmpty()) return
+		songIds.chunked(500).forEach { chunk ->
+			markSongsDownloadedBatch(chunk)
 		}
 	}
 }
