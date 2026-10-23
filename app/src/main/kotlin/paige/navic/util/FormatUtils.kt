@@ -52,9 +52,9 @@ fun Duration.toSummaryString(): String {
 fun Long.toFileSize(): String {
 	if (this <= 0) return "0 B"
 	val units = arrayOf("B", "KB", "MB", "GB", "TB", "PB")
-	val digitGroups = (log10(this.toDouble()) / log10(1024.0)).toInt()
+	val digitGroups = (log10(this.toDouble()) / log10(1000.0)).toInt()
 
-	val size = this / 1024.0.pow(digitGroups.toDouble())
+	val size = this / 1000.0.pow(digitGroups.toDouble())
 	val roundedSize = (size * 100).toInt() / 100.0
 
 	return "$roundedSize ${units[digitGroups]}"
