@@ -72,7 +72,6 @@
 	<string name="title_top_artists">Top artists</string>
 	<string name="title_top_albums">Top albums</string>
 	<string name="title_lyric_providers">Lyric providers</string>
-	<string name="title_github">GitHub</string>
 	<string name="title_codeberg">Codeberg</string>
 	<string name="title_link_confirmation">Leaving Navic</string>
 	<string name="title_audio_effects">Audio effects</string>
@@ -92,7 +91,7 @@
 	<string name="subtitle_gapless_playback">Experimental. Requires an application restart. May conflict with audio offload on some devices</string>
 	<string name="subtitle_audio_offload">Experimental. Requires application restart. May conflict with gapless playback on some devices</string>
 	<string name="subtitle_now_playing_background_style">Choose static if you have performance issues</string>
-	<string name="subtitle_check_for_updates">Check GitHub for updates when the app opens</string>
+	<string name="subtitle_check_for_updates">Check Codeberg for updates when the app opens</string>
 	<string name="subtitle_offline_mode">Dictates when the app should go into an offline mode. Requires application restart</string>
 	<string name="subtitle_streaming_quality">Adjust the quality of streamed music</string>
 	<string name="subtitle_download_quality">Adjust the quality of downloaded music</string>

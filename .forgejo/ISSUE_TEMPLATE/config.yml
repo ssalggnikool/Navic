@@ -1,7 +1,7 @@
 contact_links:
-  - name: "Discussions"
-    url: https://github.com/ssalggnikool/Navic/discussions
-    about: Qestions, known issues, announcements & more
+  - name: "Wiki"
+    url: https://codeberg.org/paige/Navic/wiki/
+    about: Guides, FAQs, announcements, etc.
   - name: "Discord"
     url: https://discord.gg/TBcnNX66PH
     about: Development discussion & random other things

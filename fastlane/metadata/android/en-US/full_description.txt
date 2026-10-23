@@ -13,7 +13,6 @@
 <h2>Links</h2>
 <ul>
 	<li><a href="https://navic.app/">Website</a></li>
-	<li><a href="https://github.com/ssalggnikool/Navic">GitHub</a></li>
 	<li><a href="https://codeberg.org/paige/Navic">Codeberg</a></li>
 	<li><a href="https://hosted.weblate.org/engage/navic/">Translations</a></li>
 </ul>

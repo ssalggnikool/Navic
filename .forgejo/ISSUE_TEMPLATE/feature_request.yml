@@ -26,7 +26,7 @@ body:
       options:
         - label: "I've searched existing issues and this hasn't been suggested before"
           required: true
-        - label: "I did NOT write this issue with an LLM"
+        - label: "I did NOT write this issue with an LLM (nobody wants to talk to a robot)"
           required: true
         - label: "I've ensured I am on the LATEST app version in case this was already added recently"
           required: true
