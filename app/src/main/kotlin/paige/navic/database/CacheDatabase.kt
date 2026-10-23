@@ -6,6 +6,7 @@
 
 package paige.navic.database
 
+import androidx.room3.AutoMigration
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
@@ -33,7 +34,7 @@ import paige.navic.database.entity.SongEntity
 import paige.navic.database.entity.SyncActionEntity
 
 @Database(
-	version = 24,
+	version = 25,
 	entities = [
 		AlbumEntity::class,
 		ArtistEntity::class,
@@ -45,6 +46,9 @@ import paige.navic.database.entity.SyncActionEntity
 		RadioEntity::class,
 		SongEntity::class,
 		SyncActionEntity::class
+	],
+	autoMigrations = [
+		AutoMigration(from = 24, to = 25),
 	]
 )
 @ColumnTypeConverters(Converters::class)
