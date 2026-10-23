@@ -153,6 +153,10 @@ class NavicDataSource(
 		return wrappedDataSource?.uri ?: currentUri
 	}
 
+	override fun getResponseHeaders(): Map<String, List<String>> {
+		return wrappedDataSource?.responseHeaders ?: emptyMap()
+	}
+
 	override fun close() {
 		wrappedDataSource?.close()
 		wrappedDataSource = null
