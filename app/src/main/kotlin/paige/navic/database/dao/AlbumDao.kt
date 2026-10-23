@@ -17,18 +17,19 @@ import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 import paige.navic.database.entity.AlbumEntity
 import paige.navic.database.relation.AlbumWithSongs
+import paige.navic.database.entity.SongEntity
 import paige.navic.util.Logger
 import kotlin.time.Instant
 
 @Dao
 interface AlbumDao {
-	@RawQuery
+	@RawQuery(observedEntities = [AlbumEntity::class, SongEntity::class])
 	fun getAlbumsByQuery(query: RoomRawQuery): PagingSource<Int, AlbumWithSongs>
 
 	@RawQuery
 	suspend fun getAlbumIdsByQuery(query: RoomRawQuery): List<String>
 
-	@RawQuery(observedEntities = [AlbumEntity::class])
+	@RawQuery(observedEntities = [AlbumEntity::class, SongEntity::class])
 	fun getAlbumLetterCounts(query: RoomRawQuery): Flow<List<LetterCount>>
 
 	@Transaction

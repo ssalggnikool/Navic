@@ -17,6 +17,8 @@ import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 import paige.navic.database.entity.ArtistEntity
 import paige.navic.util.Logger
+import paige.navic.database.entity.AlbumEntity
+import paige.navic.database.entity.SongEntity
 import kotlin.time.Instant
 
 data class LetterCount(
@@ -26,13 +28,13 @@ data class LetterCount(
 
 @Dao
 interface ArtistDao {
-	@RawQuery
+	@RawQuery(observedEntities = [ArtistEntity::class, AlbumEntity::class, SongEntity::class])
 	fun getArtistsByQuery(query: RoomRawQuery): PagingSource<Int, ArtistEntity>
 
 	@RawQuery
 	suspend fun getArtistIdsByQuery(query: RoomRawQuery): List<String>
 
-	@RawQuery(observedEntities = [ArtistEntity::class])
+	@RawQuery(observedEntities = [ArtistEntity::class, AlbumEntity::class, SongEntity::class])
 	fun getArtistLetterCounts(query: RoomRawQuery): Flow<List<LetterCount>>
 
 	@Query("SELECT * FROM ArtistEntity WHERE artistId = :artistId LIMIT 1")

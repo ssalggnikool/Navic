@@ -17,12 +17,13 @@ import androidx.room3.Transaction
 import paige.navic.database.entity.PlaylistEntity
 import paige.navic.database.entity.PlaylistSongCrossRef
 import paige.navic.database.relation.PlaylistWithSongs
+import paige.navic.database.entity.SongEntity
 import paige.navic.util.Logger
 
 @Dao
 interface PlaylistDao {
 	@Transaction
-	@RawQuery
+	@RawQuery(observedEntities = [PlaylistEntity::class, PlaylistSongCrossRef::class, SongEntity::class])
 	fun getPlaylistsByQuery(query: RoomRawQuery): PagingSource<Int, PlaylistWithSongs>
 
 	@RawQuery
