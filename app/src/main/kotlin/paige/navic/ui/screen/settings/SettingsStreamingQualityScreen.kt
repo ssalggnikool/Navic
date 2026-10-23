@@ -175,7 +175,7 @@ private fun RadioButtons(
 @Composable
 private fun CustomOptions() {
 	val preferenceManager = koinInject<PreferenceManager>()
-	var wifiInput by remember {
+	var bitrateInput by remember {
 		val current = preferenceManager.customMaxBitrate
 		mutableStateOf(if (current > 0) current.toString() else "")
 	}
@@ -185,10 +185,10 @@ private fun CustomOptions() {
 		verticalArrangement = Arrangement.spacedBy(8.dp)
 	) {
 		OutlinedTextField(
-			value = wifiInput,
+			value = bitrateInput,
 			onValueChange = { newValue ->
 				if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-					wifiInput = newValue
+					bitrateInput = newValue
 					preferenceManager.customMaxBitrate =
 						newValue.toIntOrNull() ?: 0
 				}
