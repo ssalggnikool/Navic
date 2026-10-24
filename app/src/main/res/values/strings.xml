@@ -373,6 +373,12 @@
 	<string name="action_download">Download</string>
 	<string name="action_delete_download">Delete download</string>
 	<string name="action_cancel_download">Cancel download</string>
+	<string name="option_confirm_download_deletion">Confirm download deletion</string>
+	<string name="subtitle_confirm_download_deletion">Choose when to ask for confirmation before deleting downloads</string>
+	<string name="title_delete_download">Delete download?</string>
+	<string name="info_delete_download_single">Are you sure you want to delete the downloaded file for %1$d?</string>
+	<string name="info_delete_download_collection">Are you sure you want to delete downloaded songs for %1$d?</string>
+	<string name="info_delete_download_library">Are you sure you want to delete all downloaded songs from your device?</string>
 	<string name="action_sleep_timer">Sleep timer</string>
 	<string name="action_sleep_timer_enabled">Sleep timer - %1$s left </string>
 	<string name="action_sleep_timer_songs_enabled">Sleep timer - %1$d songs left</string>

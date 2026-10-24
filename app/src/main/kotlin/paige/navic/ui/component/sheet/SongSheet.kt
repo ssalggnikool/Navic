@@ -29,6 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -47,9 +50,12 @@ import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.canUserShare
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
+import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.RatingRow
+import paige.navic.ui.component.dialog.DeleteDownloadDialog
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Star
 import paige.navic.ui.icons.outlined.Album
@@ -109,6 +115,8 @@ fun SongSheet(
 	val sleepTimerManager = koinInject<SleepTimerManager>()
 	val sleepTimerMode by sleepTimerManager.mode.collectAsStateWithLifecycle()
 	val contentPadding = PaddingValues(horizontal = 16.dp)
+
+	var deleteDownloadTarget by remember { mutableStateOf<DeleteDownloadTarget?>(null) }
 
 	val colorScheme = if (useSongTheme) rememberColorSchemeFromCoverArt(song.coverArtId) else null
 
@@ -233,8 +241,12 @@ fun SongSheet(
 								content = { Text(stringResource(R.string.action_delete_download)) },
 								leadingContent = { Icon(Icons.Outlined.Delete, null) },
 								onClick = {
-									onDeleteDownload?.invoke()
-									onDismissRequest()
+									if (preferenceManager.isDownloadDeletionConfirmationEnabled(DownloadDeletionType.SONG)) {
+										deleteDownloadTarget = DeleteDownloadTarget.Single(song.id, song.title)
+									} else {
+										onDeleteDownload?.invoke()
+										onDismissRequest()
+									}
 								},
 								colors = colors,
 								contentPadding = contentPadding
@@ -462,4 +474,15 @@ fun SongSheet(
 			}
 		}
 	}
+
+	DeleteDownloadDialog(
+		target = deleteDownloadTarget,
+		onDismissRequest = {
+			deleteDownloadTarget = null
+			onDismissRequest()
+		},
+		onConfirmDelete = {
+			onDeleteDownload?.invoke()
+		}
+	)
 }

@@ -23,6 +23,7 @@ import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.CoverArtShape
 import paige.navic.domain.model.settings.CoverArtTapAction
 import paige.navic.domain.model.settings.DiscordStatusType
+import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.FontOption
@@ -83,7 +84,7 @@ class PreferenceManager(
 	var streamingQualityCellular by preference(StreamingQuality.Lossless)
 	var isAdvancedTranscodingActive by preference(false)
 	var customMaxBitrate by preference(0)
-	var customMaxBitrateCellular by preference(0)
+	var customMaxBitrateCellular by preference(0)//is it normal that is unused???
 	var customFormatWifi by preference("")
 	var customFormat by preference("")
 
@@ -92,6 +93,22 @@ class PreferenceManager(
 	var isAdvancedDownloadTranscodingActive by preference(false)
 	var customDownloadMaxBitrate by preference(0)
 	var customDownloadFormat by preference("")
+	var confirmDownloadDeletionTypes by jsonPreference(
+		null,
+		DownloadDeletionType.entries.toSet()
+	)
+	fun isDownloadDeletionConfirmationEnabled(type: DownloadDeletionType): Boolean {
+		return confirmDownloadDeletionTypes.contains(type)
+	}
+
+	fun toggleDownloadDeletionConfirmation(type: DownloadDeletionType) {
+		val current = confirmDownloadDeletionTypes
+		confirmDownloadDeletionTypes = if (current.contains(type)) {
+			current - type
+		} else {
+			current + type
+		}
+	}
 
 	var nowPlayingToolbarPosition by preference(ToolbarPosition.Bottom)
 	var nowPlayingSongInfo by preference(true)

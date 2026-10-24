@@ -37,7 +37,10 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.playback.MediaPlayer
+import paige.navic.ui.component.dialog.DeleteDownloadDialog
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.component.layout.NestedTopBar
@@ -103,6 +106,7 @@ fun StarredScreen() {
 	val player = koinInject<MediaPlayer>()
 
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
+	var deleteDownloadTarget by remember { mutableStateOf<DeleteDownloadTarget?>(null) }
 
 	val isOnline by songsViewModel.isOnline.collectAsStateWithLifecycle()
 
@@ -160,7 +164,11 @@ fun StarredScreen() {
 					downloadManager.cancelDownload(song.id)
 				},
 				onDeleteDownloadSong = { song ->
-					downloadManager.deleteDownload(song.id)
+					if (preferenceManager.isDownloadDeletionConfirmationEnabled(DownloadDeletionType.SONG)) {
+						deleteDownloadTarget = DeleteDownloadTarget.Single(song.id, song.title)
+					} else {
+						downloadManager.deleteDownload(song.id)
+					}
 				},
 				onPlaySongNext = { song ->
 					if (player.checkDuplicate(song.id, preferenceManager)) {
@@ -224,5 +232,17 @@ fun StarredScreen() {
 	QueueDuplicateDialog(
 		song = songToQueue,
 		onDismissRequest = { songToQueue = null }
+	)
+
+	DeleteDownloadDialog(
+		target = deleteDownloadTarget,
+		onDismissRequest = { deleteDownloadTarget = null },
+		onConfirmDelete = {
+			deleteDownloadTarget?.let { target ->
+				if (target is DeleteDownloadTarget.Single) {
+					downloadManager.deleteDownload(target.id)
+				}
+			}
+		}
 	)
 }

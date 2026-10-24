@@ -77,11 +77,14 @@ import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.ArtistAlbumViewMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SongRow
 import paige.navic.ui.component.dialog.BulkDownloadDialog
 import paige.navic.ui.component.dialog.BulkDownloadTarget
+import paige.navic.ui.component.dialog.DeleteDownloadDialog
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
@@ -151,6 +154,7 @@ fun ArtistDetailScreen(
 	val gridState = rememberLazyGridState()
 
 	var showDownloadDialog by remember { mutableStateOf(false) }
+	var deleteDownloadTarget by remember { mutableStateOf<DeleteDownloadTarget?>(null) }
 
 	var shareId by remember { mutableStateOf<String?>(null) }
 
@@ -255,10 +259,16 @@ fun ArtistDetailScreen(
 									}
 								},
 								onDeleteDownload = {
-									state.albums.forEach { album ->
-										downloadManager.deleteDownloadedCollection(album.songs.map { it.id })
+									val allSongIds = state.albums.flatMap { album -> album.songs.map { it.id } }
+									if (preferenceManager.isDownloadDeletionConfirmationEnabled(DownloadDeletionType.ARTIST)) {
+										deleteDownloadTarget = DeleteDownloadTarget.Collection(
+											state.artist.name,
+											allSongIds
+										)
+									} else {
+										downloadManager.deleteDownloadedCollection(allSongIds)
+										snackBarManager.notify(R.string.notice_deleted_download)
 									}
-									snackBarManager.notify(R.string.notice_deleted_download)
 								},
 								downloadStatus = downloadStatus,
 								playEnabled = state.albums.isNotEmpty(),
@@ -536,6 +546,16 @@ fun ArtistDetailScreen(
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}
+
+		DeleteDownloadDialog(
+			target = deleteDownloadTarget,
+			onDismissRequest = { deleteDownloadTarget = null },
+			onConfirmDelete = {
+				val allSongIds = artistState.data?.albums.orEmpty().flatMap { album -> album.songs.map { it.id } }
+				downloadManager.deleteDownloadedCollection(allSongIds)
+				snackBarManager.notify(R.string.notice_deleted_download)
+			}
+		)
 	}
 }
 

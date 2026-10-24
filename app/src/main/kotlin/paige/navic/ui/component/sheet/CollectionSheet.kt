@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -48,9 +49,12 @@ import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
+import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.RatingRow
+import paige.navic.ui.component.dialog.DeleteDownloadDialog
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.brand.LastFM
@@ -100,6 +104,7 @@ fun CollectionSheet(
 		headlineColor = MaterialTheme.colorScheme.onSurface
 	)
 	var linkToOpen by rememberSaveable { mutableStateOf<String?>(null) }
+	var deleteDownloadTarget by remember { mutableStateOf<DeleteDownloadTarget?>(null) }
 
 	ModalBottomSheet(
 		onDismissRequest = onDismissRequest,
@@ -279,8 +284,20 @@ fun CollectionSheet(
 						content = { Text(stringResource(R.string.action_delete_download)) },
 						leadingContent = { Icon(Icons.Outlined.Delete, null) },
 						onClick = {
-							downloadManager.deleteDownloadedCollection(collection.songs.map { it.id })
-							onDismissRequest()
+							val type = if (collection is DomainAlbum) {
+								DownloadDeletionType.ALBUM
+							} else {
+								DownloadDeletionType.PLAYLIST
+							}
+							if (preferenceManager.isDownloadDeletionConfirmationEnabled(type)) {
+								deleteDownloadTarget = DeleteDownloadTarget.Collection(
+									collection.name ?: "",
+									collection.songs.map { it.id }
+								)
+							} else {
+								downloadManager.deleteDownloadedCollection(collection.songs.map { it.id })
+								onDismissRequest()
+							}
 						},
 						colors = colors,
 						contentPadding = contentPadding
@@ -354,5 +371,16 @@ fun CollectionSheet(
 	LinkConfirmationDialog(
 		linkToOpen = linkToOpen,
 		onDismissRequest = { linkToOpen = null }
+	)
+
+	DeleteDownloadDialog(
+		target = deleteDownloadTarget,
+		onDismissRequest = {
+			deleteDownloadTarget = null
+			onDismissRequest()
+		},
+		onConfirmDelete = {
+			downloadManager.deleteDownloadedCollection(collection.songs.map { it.id })
+		}
 	)
 }

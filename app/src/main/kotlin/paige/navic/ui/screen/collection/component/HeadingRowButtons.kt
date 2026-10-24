@@ -23,7 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -35,10 +38,15 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.database.entity.DownloadStatus
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.ui.SnackBarManager
+import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainSongCollection
+import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.playback.MediaPlayer
+import paige.navic.ui.component.dialog.DeleteDownloadDialog
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Play
 import paige.navic.ui.icons.outlined.Close
@@ -55,7 +63,9 @@ fun CollectionDetailScreenHeadingRowButtons(
 	val player = koinInject<MediaPlayer>()
 	val snackBarManager = koinInject<SnackBarManager>()
 	val downloadManager = koinInject<DownloadManager>()
+	val preferenceManager = koinInject<PreferenceManager>()
 	val scope = rememberCoroutineScope()
+	var deleteDownloadTarget by remember { mutableStateOf<DeleteDownloadTarget?>(null) }
 
 	val downloadStatus by downloadManager
 		.getCollectionDownloadStatus(collection.songs.map { it.id })
@@ -129,8 +139,20 @@ fun CollectionDetailScreenHeadingRowButtons(
 						}
 
 						DownloadStatus.DOWNLOADED -> {
-							downloadManager.deleteDownloadedCollection(collection.songs.map { it.id })
-							snackBarManager.notify(R.string.notice_deleted_download)
+							val type = if (collection is DomainAlbum) {
+								DownloadDeletionType.ALBUM
+							} else {
+								DownloadDeletionType.PLAYLIST
+							}
+							if (preferenceManager.isDownloadDeletionConfirmationEnabled(type)) {
+								deleteDownloadTarget = DeleteDownloadTarget.Collection(
+									collection.name ?: "",
+									collection.songs.map { it.id }
+								)
+							} else {
+								downloadManager.deleteDownloadedCollection(collection.songs.map { it.id })
+								snackBarManager.notify(R.string.notice_deleted_download)
+							}
 						}
 					}
 				}
@@ -185,4 +207,13 @@ fun CollectionDetailScreenHeadingRowButtons(
 			}
 		}
 	}
+
+	DeleteDownloadDialog(
+		target = deleteDownloadTarget,
+		onDismissRequest = { deleteDownloadTarget = null },
+		onConfirmDelete = {
+			downloadManager.deleteDownloadedCollection(collection.songs.map { it.id })
+			snackBarManager.notify(R.string.notice_deleted_download)
+		}
+	)
 }
