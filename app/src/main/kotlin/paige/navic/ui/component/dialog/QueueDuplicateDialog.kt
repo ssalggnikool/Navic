@@ -26,7 +26,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.model.DomainSong
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.icons.Icons
@@ -34,66 +36,75 @@ import paige.navic.ui.icons.outlined.PlaylistAdd
 
 @Composable
 fun QueueDuplicateDialog(
+	song: DomainSong? = null,
+	showDialog: Boolean = song != null,
 	onDismissRequest: () -> Unit,
-	onConfirm: () -> Unit
+	onConfirm: (() -> Unit)? = null
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
+	val player = koinInject<MediaPlayer>()
 
-	FormDialog(
-		onDismissRequest = onDismissRequest,
-		icon = { Icon(Icons.Outlined.PlaylistAdd, null) },
-		title = { Text(stringResource(R.string.title_confirm)) },
-		contentGap = 0.dp,
-		verticalArrangement = Arrangement.spacedBy(0.dp),
-		content = {
-			Text(stringResource(R.string.notice_queue_duplicate))
+	if (showDialog) {
+		FormDialog(
+			onDismissRequest = onDismissRequest,
+			icon = { Icon(Icons.Outlined.PlaylistAdd, null) },
+			title = { Text(stringResource(R.string.title_confirm)) },
+			contentGap = 0.dp,
+			verticalArrangement = Arrangement.spacedBy(0.dp),
+			content = {
+				Text(stringResource(R.string.notice_queue_duplicate))
 
-			val interactionSource = remember { MutableInteractionSource() }
-			Row(
-				modifier = Modifier
-					.clickable(
-						interactionSource = interactionSource,
-						onClick = {
-							preferenceManager.shushQueueDuplicateDialog =
-								!preferenceManager.shushQueueDuplicateDialog
-						},
-						role = Role.Checkbox
+				val interactionSource = remember { MutableInteractionSource() }
+				Row(
+					modifier = Modifier
+						.clickable(
+							interactionSource = interactionSource,
+							onClick = {
+								preferenceManager.shushQueueDuplicateDialog =
+									!preferenceManager.shushQueueDuplicateDialog
+							},
+							role = Role.Checkbox
+						)
+						.fillMaxWidth()
+						.minimumInteractiveComponentSize()
+						.clip(MaterialTheme.shapes.medium),
+					verticalAlignment = Alignment.CenterVertically,
+					horizontalArrangement = Arrangement.SpaceBetween
+				) {
+					Text(
+						text = stringResource(R.string.action_dont_show_again),
+						color = MaterialTheme.colorScheme.onSurfaceVariant
 					)
-					.fillMaxWidth()
-					.minimumInteractiveComponentSize()
-					.clip(MaterialTheme.shapes.medium),
-				verticalAlignment = Alignment.CenterVertically,
-				horizontalArrangement = Arrangement.SpaceBetween
-			) {
-				Text(
-					text = stringResource(R.string.action_dont_show_again),
-					color = MaterialTheme.colorScheme.onSurfaceVariant
-				)
-				Checkbox(
-					checked = preferenceManager.shushQueueDuplicateDialog,
-					interactionSource = interactionSource,
-					onCheckedChange = null
-				)
-			}
-		},
-		buttons = {
-			SegmentedListButton(
-				modifier = Modifier.fillMaxWidth(),
-				onClick = {
-					onConfirm()
-					onDismissRequest()
-				},
-				shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2)
-			) {
-				Text(stringResource(R.string.action_ok))
-			}
-			SegmentedListButton(
-				modifier = Modifier.fillMaxWidth(),
-				onClick = onDismissRequest,
-				shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
-			) {
-				Text(stringResource(R.string.action_cancel))
-			}
-		},
-	)
+					Checkbox(
+						checked = preferenceManager.shushQueueDuplicateDialog,
+						interactionSource = interactionSource,
+						onCheckedChange = null
+					)
+				}
+			},
+			buttons = {
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = {
+						if (onConfirm != null) {
+							onConfirm()
+						} else if (song != null) {
+							player.addToQueueSingle(song)
+						}
+						onDismissRequest()
+					},
+					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2)
+				) {
+					Text(stringResource(R.string.action_ok))
+				}
+				SegmentedListButton(
+					modifier = Modifier.fillMaxWidth(),
+					onClick = onDismissRequest,
+					shapes = SegmentedListButtonDefaults.shapes(index = 1, count = 2)
+				) {
+					Text(stringResource(R.string.action_cancel))
+				}
+			},
+		)
+	}
 }

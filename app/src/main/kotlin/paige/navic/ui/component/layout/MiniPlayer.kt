@@ -67,12 +67,12 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
 import paige.navic.domain.model.settings.MiniPlayerStyle
 import paige.navic.domain.model.settings.NavbarConfig
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
@@ -89,7 +89,7 @@ fun MiniPlayer(
 	windowInsets: WindowInsets,
 	enabled: Boolean = true
 ) {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val preferenceManager = koinInject<PreferenceManager>()
 	val navtabsViewModel = koinViewModel<NavtabsViewModel>()
 	val navtabsState by navtabsViewModel.state.collectAsState()

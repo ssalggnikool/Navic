@@ -51,7 +51,7 @@ import kotlinx.serialization.json.Json
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.ui.component.common.Markdown
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
 import paige.navic.ui.theme.defaultFont
@@ -192,10 +192,8 @@ fun ChangelogSheet() {
 		}
 	}
 
-	if (linkToOpen != null) {
-		LinkConfirmationDialog(
-			linkToOpen = linkToOpen!!,
-			onDismissRequest = { linkToOpen = null }
-		)
-	}
+	LinkConfirmationDialog(
+		linkToOpen = linkToOpen,
+		onDismissRequest = { linkToOpen = null }
+	)
 }

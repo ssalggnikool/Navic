@@ -17,24 +17,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
-import paige.navic.domain.manager.LoginManager
+import paige.navic.domain.manager.session.LoginManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.DeletionDialog
-import paige.navic.ui.component.dialog.DeletionEndpoint
+import paige.navic.ui.component.dialog.DeletionTarget
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
@@ -48,10 +49,8 @@ import paige.navic.ui.screen.genre.viewmodel.GenreListViewModel
 import paige.navic.ui.screen.library.component.LibraryScreenContent
 import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistListViewModel
-import paige.navic.ui.screen.share.dialog.ShareDialog
 import paige.navic.ui.screen.stats.viewmodel.StatisticsViewModel
 import paige.navic.ui.viewmodel.RootViewModel
-import kotlin.time.Duration
 
 @Composable
 fun LibraryScreen() {
@@ -62,31 +61,28 @@ fun LibraryScreen() {
 		parameters = { parametersOf(DomainAlbumListType.Recent) },
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val albumsState by albumsViewModel.albumsState.collectAsStateWithLifecycle()
-	val selectedAlbum by albumsViewModel.selectedAlbum.collectAsStateWithLifecycle()
-	val selectedAlbumIsStarred by albumsViewModel.starred.collectAsStateWithLifecycle()
-	val selectedAlbumRating by albumsViewModel.rating.collectAsStateWithLifecycle()
+	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
+	val albumsLazyItems = albumsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val playlistsViewModel = koinViewModel<PlaylistListViewModel>(
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val playlistsState by playlistsViewModel.playlistsState.collectAsStateWithLifecycle()
-	val selectedPlaylist by playlistsViewModel.selectedPlaylist.collectAsStateWithLifecycle()
+	val playlistsState by playlistsViewModel.uiState.collectAsStateWithLifecycle()
+	val playlistsLazyItems = playlistsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val artistsViewModel = koinViewModel<ArtistListViewModel>(
 		key = "libraryArtists",
 		parameters = { parametersOf(DomainArtistListType.AlphabeticalByName) },
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val artistsState by artistsViewModel.artistsState.collectAsStateWithLifecycle()
-	val selectedArtist by artistsViewModel.selectedArtist.collectAsStateWithLifecycle()
-	val selectedArtistAlbums by artistsViewModel.selectedArtistAlbums.collectAsStateWithLifecycle()
-	val selectedArtistIsStarred by artistsViewModel.starred.collectAsStateWithLifecycle()
+	val artistsState by artistsViewModel.uiState.collectAsStateWithLifecycle()
+	val artistsLazyItems = artistsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val genresViewModel = koinViewModel<GenreListViewModel>(
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val genresState by genresViewModel.genresState.collectAsStateWithLifecycle()
+	val genresState by genresViewModel.uiState.collectAsStateWithLifecycle()
+	val genresLazyItems = genresState.data?.collectAsLazyPagingItems() ?: return
 
 	val statsViewModel = koinViewModel<StatisticsViewModel>(
 		viewModelStoreOwner = persistentViewModelStoreOwner
@@ -97,11 +93,10 @@ fun LibraryScreen() {
 	val loginState by loginManager.loginState.collectAsStateWithLifecycle()
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	var playlistDeletionId by rememberSaveable { mutableStateOf<String?>(null) }
 	var playlistCreateDialogShown by rememberSaveable { mutableStateOf(false) }
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -145,27 +140,35 @@ fun LibraryScreen() {
 			},
 			key = listOf(albumsState, playlistsState, artistsState, genresState)
 		) {
+			val selectedAlbum = albumsState.data?.selected
+			val selectedArtist = artistsState.data?.selected
+			val selectedPlaylist = playlistsState.data?.selected
+
 			LibraryScreenContent(
 				state = gridState,
 				scrollBehavior = scrollBehavior,
 				innerPadding = innerPadding,
 				onSetShareId = { shareId = it },
 
-				albumsState = albumsState,
-				selectedAlbum = selectedAlbum,
-				selectedAlbumIsStarred = selectedAlbumIsStarred,
-				selectedAlbumRating = selectedAlbumRating,
-				onSelectAlbum = { albumsViewModel.selectAlbum(it) },
-				onClearAlbumSelection = { albumsViewModel.clearSelection() },
+				albumsState = albumsLazyItems,
+				selectedAlbum = albumsState.data?.selected,
+				selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
+				selectedAlbumRating = selectedAlbum?.userRating ?: 0,
+				onSelectAlbum = {
+					albumsViewModel.selected = it
+				},
+				onClearAlbumSelection = {
+					albumsViewModel.selected = null
+				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
-				onPlayAlbumNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
-				onAddAlbumToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
+				onPlayAlbumNext = { selectedAlbum?.let { player.playNext(it as DomainSongCollection) } },
+				onAddAlbumToQueue = { selectedAlbum?.let { player.addToQueue(selectedAlbum as DomainSongCollection) } },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 
-				artistsState = artistsState,
+				artistsState = artistsLazyItems,
 				selectedArtist = selectedArtist,
-				selectedArtistAlbums = selectedArtistAlbums,
-				selectedArtistIsStarred = selectedArtistIsStarred,
+				selectedArtistAlbums = null,
+				selectedArtistIsStarred = artistsState.data?.selected?.starredAt != null,
 				onSelectArtist = { artistsViewModel.selectArtist(it) },
 				onClearArtistSelection = { artistsViewModel.clearSelection() },
 				onStarSelectedArtist = { artistsViewModel.starArtist(it) },
@@ -180,10 +183,12 @@ fun LibraryScreen() {
 					)
 				},
 
-				playlistsState = playlistsState,
+				playlistsState = playlistsLazyItems,
 				selectedPlaylist = selectedPlaylist,
-				onSelectPlaylist = { playlistsViewModel.selectPlaylist(it) },
-				onClearPlaylistSelection = { playlistsViewModel.clearSelection() },
+				onSelectPlaylist = {
+					playlistsViewModel.selected = it
+				},
+				onClearPlaylistSelection = { playlistsViewModel.clear() },
 				onDeletePlaylist = { playlistDeletionId = it },
 				onPlayPlaylistNext = {
 					if (selectedPlaylist != null) player.playNext(
@@ -196,7 +201,7 @@ fun LibraryScreen() {
 					)
 				},
 
-				genresState = genresState,
+				genresState = genresLazyItems,
 				statsState = statsState
 			)
 		}
@@ -221,15 +226,12 @@ fun LibraryScreen() {
 
 	ShareDialog(
 		id = shareId,
-		onIdClear = { shareId = null },
-		expiry = shareExpiry,
-		onExpiryChange = { shareExpiry = it }
+		onDismissRequest = { shareId = null }
 	)
 
 	DeletionDialog(
-		endpoint = DeletionEndpoint.PLAYLIST,
-		id = playlistDeletionId,
-		onIdClear = { playlistDeletionId = null },
+		target = playlistDeletionId?.let { DeletionTarget.Playlist(it) },
+		onDismissRequest = { playlistDeletionId = null },
 		onRefresh = { playlistsViewModel.refreshPlaylists(false) }
 	)
 

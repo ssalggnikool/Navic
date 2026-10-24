@@ -8,30 +8,36 @@ package paige.navic.di
 
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import paige.navic.domain.manager.AppIconManager
-import paige.navic.domain.manager.AudioGainManager
-import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.DownloadManager
-import paige.navic.domain.manager.EqualizerManager
-import paige.navic.domain.manager.LinkManager
-import paige.navic.domain.manager.LogManager
-import paige.navic.domain.manager.LoginManager
-import paige.navic.domain.manager.NotificationManager
-import paige.navic.domain.manager.PermissionManager
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.manager.ShareManager
-import paige.navic.domain.manager.SleepTimerManager
-import paige.navic.domain.manager.SnackBarManager
-import paige.navic.domain.manager.StorageManager
-import paige.navic.domain.manager.SyncManager
-import paige.navic.exoplayer.ExoStateHolder
+import paige.navic.domain.download.DownloadProcessor
+import paige.navic.domain.manager.playback.AudioGainManager
+import paige.navic.domain.manager.playback.EqualizerManager
+import paige.navic.domain.manager.playback.SleepTimerManager
+import paige.navic.domain.manager.playback.StreamCacheManager
+import paige.navic.domain.manager.runtime.NotificationManager
+import paige.navic.domain.manager.runtime.PermissionManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.runtime.StorageManager
+import paige.navic.domain.manager.session.ConnectivityManager
+import paige.navic.domain.manager.session.DownloadManager
+import paige.navic.domain.manager.session.LoginManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.SyncManager
+import paige.navic.domain.manager.ui.AppIconManager
+import paige.navic.domain.manager.ui.LinkManager
+import paige.navic.domain.manager.ui.LogManager
+import paige.navic.domain.manager.ui.ShareManager
+import paige.navic.domain.manager.ui.SnackBarManager
+import paige.navic.domain.sync.SyncActionProcessor
+import paige.navic.domain.sync.SyncCoordinator
+import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.NavicDataSourceFactory
 
 val managerModule = module {
 	singleOf(::AppIconManager)
 	singleOf(::AudioGainManager)
 	singleOf(::ConnectivityManager)
 	singleOf(::DownloadManager)
+	singleOf(::DownloadProcessor)
 	singleOf(::EqualizerManager)
 	singleOf(::LinkManager)
 	singleOf(::LogManager)
@@ -44,10 +50,20 @@ val managerModule = module {
 	singleOf(::SleepTimerManager)
 	singleOf(::SnackBarManager)
 	singleOf(::StorageManager)
+	singleOf(::StreamCacheManager)
+	singleOf(::SyncActionProcessor)
+	singleOf(::SyncCoordinator)
 	single(createdAtStart = true) {
-		SyncManager(get(), get(), get(), get(), get(), get()).apply {
-			startPeriodicSync()
-		}
+		SyncManager(get(), get(), get(), get(), get())
+	}
+	single {
+		NavicDataSourceFactory(
+			downloadManager = get(),
+			sessionManager = get(),
+			streamCacheManager = get(),
+			preferenceManager = get(),
+			dnsResolver = get()
+		)
 	}
 	singleOf(::ExoStateHolder)
 }

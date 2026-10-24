@@ -45,7 +45,7 @@ fun RadioUpdateDialog(
 	val viewModel = koinViewModel<RadioUpdateDialogViewModel>(
 		parameters = { parametersOf(radio) }
 	)
-	val state by viewModel.updateState.collectAsState()
+	val state by viewModel.uiState.collectAsState()
 
 	LaunchedEffect(Unit) {
 		viewModel.events.collect { event ->

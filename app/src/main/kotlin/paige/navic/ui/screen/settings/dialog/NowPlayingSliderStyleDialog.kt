@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingSliderStyle
 import paige.navic.ui.component.common.SlimSlider
 import paige.navic.ui.component.common.SpermSlider
@@ -86,7 +86,9 @@ fun NowPlayingSliderStyleDialog(
 										state = sliderState,
 										onValueChange = onValueChange,
 										interactionSource = interactionSource,
-										modifier = Modifier.requiredWidth(200.dp).scale(.5f)
+										modifier = Modifier
+											.requiredWidth(200.dp)
+											.scale(.5f)
 									)
 								}
 
@@ -95,7 +97,9 @@ fun NowPlayingSliderStyleDialog(
 									SpermSlider(
 										state = sliderState,
 										onValueChange = onValueChange,
-										modifier = Modifier.requiredWidth(200.dp).scale(.5f),
+										modifier = Modifier
+											.requiredWidth(200.dp)
+											.scale(.5f),
 										thumb = {
 											SliderDefaults.Thumb(
 												thumbSize = if (isYoyo) DpSize(
@@ -120,7 +124,9 @@ fun NowPlayingSliderStyleDialog(
 									SlimSlider(
 										state = sliderState,
 										onValueChange = onValueChange,
-										modifier = Modifier.requiredWidth(200.dp).scale(.5f)
+										modifier = Modifier
+											.requiredWidth(200.dp)
+											.scale(.5f)
 									)
 								}
 							}

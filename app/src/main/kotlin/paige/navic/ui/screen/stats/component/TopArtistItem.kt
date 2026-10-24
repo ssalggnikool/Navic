@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.screen.stats.viewmodel.ArtistStats
 import paige.navic.ui.theme.defaultFont
@@ -57,7 +57,8 @@ fun TopArtistItem(
 		},
 		overlineContent = {
 			val listenTime = stats.listeningTime.toSummaryString()
-			val plays = pluralStringResource(R.plurals.count_plays, stats.playCount, stats.playCount)
+			val plays =
+				pluralStringResource(R.plurals.count_plays, stats.playCount, stats.playCount)
 			Text(
 				text = "$listenTime • $plays",
 				fontWeight = FontWeight.SemiBold,
@@ -68,10 +69,10 @@ fun TopArtistItem(
 			LinearProgressIndicator(
 				progress = { ratio },
 				modifier = Modifier
-					.fillMaxWidth()
-					.padding(top = 4.dp)
-					.height(8.dp)
-					.clip(MaterialTheme.shapes.extraSmall),
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
+                    .height(8.dp)
+                    .clip(MaterialTheme.shapes.extraSmall),
 				color = barColor,
 				trackColor = barColor.copy(alpha = 0.2f),
 				strokeCap = StrokeCap.Round

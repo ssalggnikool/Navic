@@ -6,21 +6,22 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.coroutines.Dispatchers
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.PlaylistDao
-import paige.navic.data.database.dao.SongDao
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.mapper.toEntity
-import paige.navic.domain.manager.SessionManager
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.PlaylistDao
+import paige.navic.database.dao.SongDao
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.mapper.toEntity
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
+import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.ui.core.UiState
 import dev.zt64.subsonic.api.model.AlbumInfo as ApiAlbumInfo
 
 class CollectionRepository(
@@ -33,7 +34,7 @@ class CollectionRepository(
 	suspend fun getLocalData(collectionId: String): DomainSongCollection {
 		return albumDao.getAlbumById(collectionId)?.toDomainModel()
 			?: playlistDao.getPlaylistById(collectionId)?.toDomainModel()
-			?: throw Error("Collection ID $collectionId is neither a known album or playlist")
+			?: error("Collection ID $collectionId is neither a known album or playlist")
 	}
 
 	private suspend fun refreshLocalData(collectionId: String): DomainSongCollection {
@@ -42,35 +43,30 @@ class CollectionRepository(
 				val album = sessionManager.api.getAlbum(collection.id)
 				songDao.updateSongsByAlbumId(album.id, album.songs.map { it.toEntity() })
 				albumDao.insertAlbum(album.toEntity())
-				albumDao.getAlbumById(album.id)!!.toDomainModel()
+				albumDao.getAlbumById(collectionId)
 			}
 
 			is DomainPlaylist -> {
 				val playlist = sessionManager.api.getPlaylist(collection.id)
 				playlistDao.insertPlaylist(playlist.toEntity())
 				dbRepository.syncPlaylistSongs(collection.id)
-				playlistDao.getPlaylistById(playlist.id)!!.toDomainModel()
+				playlistDao.getPlaylistById(collectionId)
 			}
 		}
 		return getLocalData(collectionId)
 	}
 
-	fun getCollectionFlow(
+	suspend fun getCollection(
 		fullRefresh: Boolean,
 		collectionId: String
-	): Flow<UiState<DomainSongCollection>> = flow {
+	): DomainSongCollection {
 		val localData = getLocalData(collectionId)
-		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData(collectionId)))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+		return if (fullRefresh) {
+			refreshLocalData(collectionId)
 		} else {
-			emit(UiState.Success(data = localData))
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 
 	fun getOtherAlbums(artistId: String, albumId: String) = albumDao
 		.getAlbumsByArtistExcluding(artistId, albumId)
@@ -81,6 +77,25 @@ class CollectionRepository(
 		?.toDomainModel()
 
 	suspend fun getAlbumInfo(albumId: String): ApiAlbumInfo {
-		return sessionManager.api.getAlbumInfo(albumId)
+		return sessionManager.api.getAlbumInfoID3(albumId)
+	}
+
+	suspend fun removeSongFromPlaylist(playlistId: String, position: Int) {
+		sessionManager.api.updatePlaylist(
+			id = playlistId,
+			songIndicesToRemove = listOf(position)
+		)
+	}
+
+	fun getPagedPlaylistSongs(playlistId: String): Flow<PagingData<DomainSong>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				prefetchDistance = 10
+			),
+			pagingSourceFactory = {
+				songDao.getPagedSongsByPlaylistId(playlistId)
+			}
+		).flow.map { pagingData -> pagingData.map { it.toDomainModel() } }
 	}
 }

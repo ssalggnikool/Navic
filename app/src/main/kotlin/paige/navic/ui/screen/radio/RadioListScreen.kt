@@ -19,6 +19,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
@@ -40,17 +41,20 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
+import paige.navic.R.string.info_no_radios
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
+import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeletionDialog
-import paige.navic.ui.component.dialog.DeletionEndpoint
+import paige.navic.ui.component.dialog.DeletionTarget
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -62,7 +66,8 @@ import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Add
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
-import paige.navic.ui.screen.radio.component.radioListScreenContent
+import paige.navic.ui.screen.radio.component.RadioListScreenCard
+import paige.navic.ui.screen.radio.component.RadioListScreenCardPlaceholder
 import paige.navic.ui.screen.radio.dialog.RadioCreateDialog
 import paige.navic.ui.screen.radio.dialog.RadioUpdateDialog
 import paige.navic.ui.screen.radio.viewmodel.RadioListViewModel
@@ -81,9 +86,10 @@ fun RadioListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val player = koinInject<MediaPlayerViewModel>()
-	val radiosState by viewModel.radiosState.collectAsStateWithLifecycle()
-	val selectedRadio by viewModel.selectedRadio.collectAsStateWithLifecycle()
+	val player = koinInject<MediaPlayer>()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
+
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 	val slideSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 	val scaleInSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>()
@@ -150,7 +156,8 @@ fun RadioListScreen(
 			val preferVisible =
 				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 			if (!nested
-				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+			) {
 				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
@@ -159,31 +166,57 @@ fun RadioListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = radiosState !is UiState.Loading,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshRadios(true) },
-			key = radiosState
+			key = state
 		) {
-			ArtGrid(
-				modifier = if (!nested)
-					Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-				else Modifier,
-				contentPadding = innerPadding.withoutTop(),
-				state = viewModel.gridState,
-				verticalArrangement = if ((radiosState as? UiState.Success)?.data?.isEmpty() == true)
-					Arrangement.Center
-				else Arrangement.spacedBy(12.dp)
-			) {
-				radioListScreenContent(
-					state = radiosState,
-					onRadioClick = player::playRadio,
-					onRadioLongClick = viewModel::selectRadio
-				)
+			lazyPagingItems?.let {
+				ArtGrid(
+					modifier = if (!nested)
+						Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+					else Modifier,
+					contentPadding = innerPadding.withoutTop(),
+					state = viewModel.gridState,
+					verticalArrangement = if (it.itemCount < 0)
+						Arrangement.Center
+					else Arrangement.spacedBy(12.dp)
+				) {
+					if (lazyPagingItems.itemCount > 0) {
+						items(lazyPagingItems.itemCount) { index ->
+							val radio = lazyPagingItems[index]
+							if (radio != null) {
+								RadioListScreenCard(
+									modifier = Modifier.animateItem(),
+									radio = radio,
+									onClick = { player.playRadio(radio) },
+									onLongClick = { viewModel.selected = radio }
+								)
+							}
+						}
+					} else {
+						when (state) {
+							is UiState.Loading -> {
+								items(10) {
+									RadioListScreenCardPlaceholder()
+								}
+							}
+
+							else -> {
+								item(span = { GridItemSpan(maxLineSpan) }) {
+									ContentUnavailable(
+										label = stringResource(info_no_radios)
+									)
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 
 	ErrorSnackBar(
-		error = (radiosState as? UiState.Error)?.error,
+		error = (state as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 
@@ -194,9 +227,9 @@ fun RadioListScreen(
 		)
 	}
 
-	selectedRadio?.let { selectedRadio ->
+	viewModel.selected?.let { selectedRadio ->
 		RadioSheet(
-			onDismissRequest = { viewModel.selectRadio(null) },
+			onDismissRequest = { viewModel.selected = null },
 			radio = selectedRadio,
 			onUpdateRadioRequest = { updateDialogShown = true },
 			onDeleteRadioRequest = { deleteDialogShown = true }
@@ -208,23 +241,19 @@ fun RadioListScreen(
 				radio = selectedRadio,
 				onRefresh = {
 					updateDialogShown = false
-					viewModel.selectRadio(null)
+					viewModel.selected = null
 					viewModel.refreshRadios(true)
 				}
 			)
 		}
 
-		if (deleteDialogShown) {
-			DeletionDialog(
-				endpoint = DeletionEndpoint.RADIO,
-				id = selectedRadio.id,
-				onIdClear = { deleteDialogShown = false },
-				onRefresh = {
-					deleteDialogShown = false
-					viewModel.selectRadio(null)
-					viewModel.refreshRadios(true)
-				}
-			)
-		}
+		DeletionDialog(
+			target = if (deleteDialogShown) DeletionTarget.Radio(selectedRadio.id) else null,
+			onDismissRequest = {
+				deleteDialogShown = false
+				viewModel.selected = null
+			},
+			onRefresh = { viewModel.refreshRadios(true) }
+		)
 	}
 }

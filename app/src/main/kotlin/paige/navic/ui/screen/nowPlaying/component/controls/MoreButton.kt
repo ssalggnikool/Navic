@@ -25,17 +25,17 @@ import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
+import paige.navic.domain.model.DomainPlaylist
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.MoreHoriz
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.sheet.SleepTimerSheet
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
-import kotlin.time.Duration
 
 @Composable
 fun NowPlayingMoreButton(
@@ -43,14 +43,13 @@ fun NowPlayingMoreButton(
 	onSetSongRating: (Int) -> Unit
 ) {
 	val backStack = LocalNavStack.current
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsState()
 	val song = playerState.currentSong
 	var expanded by remember { mutableStateOf(false) }
 	var sleepTimerSheetShown by rememberSaveable { mutableStateOf(false) }
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	val colorScheme = rememberColorSchemeFromCoverArt(song?.coverArtId)
 
 	IconButton(
@@ -72,7 +71,7 @@ fun NowPlayingMoreButton(
 			SongSheet(
 				onDismissRequest = { expanded = false },
 				song = song,
-				collection = playerState.currentCollection,
+				isPlaylist = playerState.currentCollection is DomainPlaylist,
 				onViewAlbum = dropUnlessResumed {
 					playerState.currentCollection?.let { collection ->
 						backStack.remove(Screen.NowPlaying)
@@ -120,7 +119,7 @@ fun NowPlayingMoreButton(
 	if (playlistDialogShown && song != null) {
 		NavicTheme(colorScheme) {
 			PlaylistUpdateDialog(
-				songs = persistentListOf(song),
+				songIds = persistentListOf(song.id),
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}
@@ -129,9 +128,7 @@ fun NowPlayingMoreButton(
 	NavicTheme(colorScheme) {
 		ShareDialog(
 			id = shareId,
-			onIdClear = { shareId = null },
-			expiry = shareExpiry,
-			onExpiryChange = { shareExpiry = it }
+			onDismissRequest = { shareId = null }
 		)
 	}
 }

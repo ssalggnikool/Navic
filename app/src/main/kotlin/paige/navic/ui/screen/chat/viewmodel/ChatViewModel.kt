@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import paige.navic.domain.manager.SessionManager
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.ui.core.UiState
 import paige.navic.util.Logger
 import kotlin.time.Duration.Companion.seconds
@@ -53,7 +53,8 @@ class ChatViewModel(
 			println("refresh")
 			state.value = UiState.Loading(state.value.data)
 			try {
-				state.value = UiState.Success(sessionManager.api.getChatMessages().toPersistentList())
+				state.value =
+					UiState.Success(sessionManager.api.getChatMessages().toPersistentList())
 			} catch (ex: Exception) {
 				state.value = UiState.Error(ex, state.value.data)
 				Logger.e("ChatViewModel", "could not refresh messages", ex)

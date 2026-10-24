@@ -42,13 +42,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.SleepTimerManager
-import paige.navic.domain.manager.SleepTimerMode
+import paige.navic.domain.manager.playback.SleepTimerManager
+import paige.navic.domain.manager.playback.SleepTimerMode
+import paige.navic.ui.component.common.OptionCard
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Bedtime
 import paige.navic.ui.icons.outlined.Queue
 import paige.navic.ui.icons.outlined.QueuePlayNext
-import paige.navic.ui.component.common.OptionCard
 import paige.navic.ui.util.label
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -151,6 +151,7 @@ fun SleepTimerSheet(
 						}
 					}
 				}
+
 				SleepTimerTab.SONGS -> {
 					Column(
 						modifier = Modifier.padding(horizontal = 16.dp),
@@ -174,7 +175,11 @@ fun SleepTimerSheet(
 						) {
 							songCounts.forEach { count ->
 								OptionCard(
-									label = pluralStringResource(R.plurals.count_songs, count, count),
+									label = pluralStringResource(
+										R.plurals.count_songs,
+										count,
+										count
+									),
 									icon = Icons.Outlined.Queue,
 									isActive = (currentMode as? SleepTimerMode.Songs)?.remaining == count,
 									onClick = {

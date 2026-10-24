@@ -19,13 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
 import paige.navic.ui.component.common.CoverArt
@@ -39,7 +38,7 @@ fun ArtistListScreenListItem(
 	modifier: Modifier = Modifier,
 	artist: DomainArtist,
 	selected: Boolean,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	starred: Boolean,
 	onSelect: () -> Unit,
 	onDeselect: () -> Unit,
@@ -68,11 +67,13 @@ fun ArtistListScreenListItem(
 			supportingContent = {
 				MarqueeText(
 					buildString {
-						append(pluralStringResource(
-							R.plurals.count_albums,
-							artist.albumCount,
-							artist.albumCount
-						))
+						append(
+							pluralStringResource(
+								R.plurals.count_albums,
+								artist.albumCount,
+								artist.albumCount
+							)
+						)
 					}
 				)
 			},
@@ -96,7 +97,8 @@ fun ArtistListScreenListItem(
 		}
 		if (playlistDialogShown) {
 			PlaylistUpdateDialog(
-				songs = selectedArtistAlbums?.flatMap { it.songs }.orEmpty().toPersistentList(),
+				songIds = selectedArtistAlbums?.flatMap { album -> album.songs.map { it.id } }
+					.orEmpty().toPersistentList(),
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}

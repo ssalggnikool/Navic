@@ -6,7 +6,6 @@
 
 package paige.navic.domain.repository
 
-import android.content.Context
 import androidx.room3.concurrent.AtomicInt
 import dev.zt64.subsonic.api.model.SubsonicException
 import kotlinx.coroutines.Dispatchers
@@ -21,24 +20,22 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import paige.navic.R
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.ArtistDao
-import paige.navic.data.database.dao.GenreDao
-import paige.navic.data.database.dao.LyricDao
-import paige.navic.data.database.dao.PlaylistDao
-import paige.navic.data.database.dao.RadioDao
-import paige.navic.data.database.dao.SongDao
-import paige.navic.data.database.dao.SyncActionDao
-import paige.navic.data.database.entity.AlbumEntity
-import paige.navic.data.database.entity.ArtistEntity
-import paige.navic.data.database.entity.PlaylistEntity
-import paige.navic.data.database.entity.PlaylistSongCrossRef
-import paige.navic.data.database.entity.SongEntity
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.mapper.toEntity
-import paige.navic.domain.manager.NotificationIds
-import paige.navic.domain.manager.NotificationManager
-import paige.navic.domain.manager.SessionManager
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.ArtistDao
+import paige.navic.database.dao.GenreDao
+import paige.navic.database.dao.LyricDao
+import paige.navic.database.dao.PlaylistDao
+import paige.navic.database.dao.RadioDao
+import paige.navic.database.dao.SongDao
+import paige.navic.database.dao.SyncActionDao
+import paige.navic.database.entity.AlbumEntity
+import paige.navic.database.entity.ArtistEntity
+import paige.navic.database.entity.PlaylistEntity
+import paige.navic.database.entity.PlaylistSongCrossRef
+import paige.navic.database.entity.SongEntity
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.mapper.toEntity
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.DomainArtist
 import paige.navic.util.Logger
 import kotlin.coroutines.cancellation.CancellationException
@@ -54,9 +51,7 @@ class DbRepository(
 	private val radioDao: RadioDao,
 	private val lyricDao: LyricDao,
 	private val syncDao: SyncActionDao,
-	private val sessionManager: SessionManager,
-	private val notificationManager: NotificationManager,
-	private val context: Context
+	private val sessionManager: SessionManager
 ) {
 	private val concurrentRequestLimit = Semaphore(20)
 
@@ -85,82 +80,70 @@ class DbRepository(
 	}
 
 	suspend fun syncEverything(
-		onProgress: (Float, Int) -> Unit = { _, _ -> }
+		onProgress: suspend (Float, Int) -> Unit = { _, _ -> }
 	): Result<Unit> = runDbOp {
 		coroutineScope {
 			val progressCallback = suspend { progress: Float, message: Int ->
-				Logger.i("DbRepository", "$progress ${context.resources.getString(message)}")
+				Logger.i("DbRepository", "$progress message=$message")
 				onProgress(progress, message)
+			}
 
-				notificationManager.showProgressNotification(
-					id = NotificationIds.SYNC_LIBRARY,
-					title = "${context.resources.getString(R.string.title_sync_control)} (${(progress * 100).toInt()}%)",
-					message = context.resources.getString(message),
-					progress = progress,
-					indeterminate = progress <= 0f
+			progressCallback(0.0f, R.string.info_syncing)
+
+			progressCallback(0.01f, R.string.info_syncing_genres)
+			syncGenres().getOrThrow()
+
+			progressCallback(0.02f, R.string.info_syncing_radios)
+			try {
+				syncRadios().getOrThrow()
+			} catch (ex: SubsonicException) {
+				Logger.e(
+					tag = "DbRepository",
+					msg = "could not sync radio stations, maybe this server doesn't support it",
+					tr = ex
 				)
 			}
 
-			try {
-				progressCallback(0.0f, R.string.info_syncing)
+			progressCallback(0.04f, R.string.info_syncing_artists)
+			syncArtists().getOrThrow()
 
-				progressCallback(0.01f, R.string.info_syncing_genres)
-				syncGenres().getOrThrow()
+			progressCallback(0.07f, R.string.info_syncing_playlists)
+			val playlists = syncPlaylists().getOrThrow()
 
-				progressCallback(0.02f, R.string.info_syncing_radios)
-				try {
-					syncRadios().getOrThrow()
-				} catch (ex: SubsonicException) {
-					Logger.e(
-						tag = "DbRepository",
-						msg = "could not sync radio stations, maybe this server doesn't support it",
-						tr = ex
-					)
-				}
+			val validAlbumIds = mutableSetOf<String>()
+			val validSongIds = mutableSetOf<String>()
 
-				progressCallback(0.04f, R.string.info_syncing_artists)
-				syncArtists().getOrThrow()
+			val libraryResult = syncLibrarySongs { localProgress, message ->
+				val globalProgress = 0.10f + (localProgress * 0.65f)
+				progressCallback(globalProgress, message)
+			}.getOrThrow()
 
-				progressCallback(0.07f, R.string.info_syncing_playlists)
-				val playlists = syncPlaylists().getOrThrow()
+			validAlbumIds.addAll(libraryResult.first)
+			validSongIds.addAll(libraryResult.second)
 
-				val validAlbumIds = mutableSetOf<String>()
-				val validSongIds = mutableSetOf<String>()
+			val totalPlaylists = playlists.size
+			if (totalPlaylists > 0) {
+				val completedPlaylists = AtomicInt(0)
 
-				val libraryResult = syncLibrarySongs { localProgress, message ->
-					val globalProgress = 0.10f + (localProgress * 0.65f)
-					progressCallback(globalProgress, message)
-				}.getOrThrow()
+				playlists.map { playlist ->
+					async {
+						concurrentRequestLimit.withPermit {
+							val playlistSongIds =
+								syncPlaylistSongs(playlist.playlistId).getOrThrow()
+							validSongIds.addAll(playlistSongIds)
 
-				validAlbumIds.addAll(libraryResult.first)
-				validSongIds.addAll(libraryResult.second)
-
-				val totalPlaylists = playlists.size
-				if (totalPlaylists > 0) {
-					val completedPlaylists = AtomicInt(0)
-
-					playlists.map { playlist ->
-						async {
-							concurrentRequestLimit.withPermit {
-								val playlistSongIds =
-									syncPlaylistSongs(playlist.playlistId).getOrThrow()
-								validSongIds.addAll(playlistSongIds)
-
-								val done = completedPlaylists.incrementAndGet()
-								val globalProgress = 0.75f + (0.25f * (done.toFloat() / totalPlaylists))
-								progressCallback(globalProgress, R.string.info_syncing_playlists)
-							}
+							val done = completedPlaylists.incrementAndGet()
+							val globalProgress = 0.75f + (0.25f * (done.toFloat() / totalPlaylists))
+							progressCallback(globalProgress, R.string.info_syncing_playlists)
 						}
-					}.awaitAll()
-				}
-
-				albumDao.deleteObsoleteAlbums(validAlbumIds)
-				songDao.deleteObsoleteSongs(validSongIds)
-
-				progressCallback(1.0f, R.string.info_syncing_finished)
-			} finally {
-				notificationManager.cancelNotification(NotificationIds.SYNC_LIBRARY)
+					}
+				}.awaitAll()
 			}
+
+			albumDao.deleteObsoleteAlbums(validAlbumIds)
+			songDao.deleteObsoleteSongs(validSongIds)
+
+			progressCallback(1.0f, R.string.info_syncing_finished)
 		}
 	}
 
@@ -174,7 +157,11 @@ class DbRepository(
 		onProgress(0.0f, R.string.info_syncing_albums)
 		while (true) {
 			val batch =
-				sessionManager.api.getAlbums(ApiAlbumListType.AlphabeticalByName, pageSize, offset)
+				sessionManager.api.getAlbumsID3(
+					ApiAlbumListType.AlphabeticalByName,
+					pageSize,
+					offset
+				)
 			if (batch.isEmpty()) break
 			allAlbumSummaries.addAll(batch)
 			if (batch.size < pageSize) break
@@ -347,7 +334,7 @@ class DbRepository(
 	suspend fun syncArtists(): Result<Unit> = runDbOp {
 		//val pageSize = 500
 		//var offset = 0
-		val artists =	 mutableListOf<ArtistEntity>()
+		val artists = mutableListOf<ArtistEntity>()
 
 		// reverting this for now
 		// see https://github.com/ssalggnikool/Navic/issues/521

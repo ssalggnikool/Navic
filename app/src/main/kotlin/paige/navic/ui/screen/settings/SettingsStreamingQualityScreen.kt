@@ -35,14 +35,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.ConnectivityManager
 import paige.navic.domain.model.settings.StreamingQuality
 import paige.navic.domain.model.settings.description
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsRadioItem
@@ -175,12 +175,8 @@ private fun RadioButtons(
 @Composable
 private fun CustomOptions() {
 	val preferenceManager = koinInject<PreferenceManager>()
-	var wifiInput by remember {
-		val current = preferenceManager.customMaxBitrateWifi
-		mutableStateOf(if (current > 0) current.toString() else "")
-	}
-	var cellularInput by remember {
-		val current = preferenceManager.customMaxBitrateCellular
+	var bitrateInput by remember {
+		val current = preferenceManager.customMaxBitrate
 		mutableStateOf(if (current > 0) current.toString() else "")
 	}
 
@@ -189,15 +185,15 @@ private fun CustomOptions() {
 		verticalArrangement = Arrangement.spacedBy(8.dp)
 	) {
 		OutlinedTextField(
-			value = wifiInput,
+			value = bitrateInput,
 			onValueChange = { newValue ->
 				if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-					wifiInput = newValue
-					preferenceManager.customMaxBitrateWifi =
+					bitrateInput = newValue
+					preferenceManager.customMaxBitrate =
 						newValue.toIntOrNull() ?: 0
 				}
 			},
-			label = { Text(stringResource(R.string.option_max_bitrate_wifi)) },
+			label = { Text(stringResource(R.string.option_max_bitrate)) },
 			placeholder = { Text("0") },
 			keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
 			modifier = Modifier.fillMaxWidth(),
@@ -205,33 +201,9 @@ private fun CustomOptions() {
 		)
 
 		OutlinedTextField(
-			value = cellularInput,
-			onValueChange = { newValue ->
-				if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-					cellularInput = newValue
-					preferenceManager.customMaxBitrateCellular =
-						newValue.toIntOrNull() ?: 0
-				}
-			},
-			label = { Text(stringResource(R.string.option_max_bitrate_cellular)) },
-			placeholder = { Text("0") },
-			keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-			modifier = Modifier.fillMaxWidth(),
-			singleLine = true
-		)
-
-		OutlinedTextField(
-			value = preferenceManager.customFormatWifi,
-			onValueChange = { preferenceManager.customFormatWifi = it },
-			label = { Text(stringResource(R.string.option_stream_format_wifi)) },
-			modifier = Modifier.fillMaxWidth(),
-			singleLine = true
-		)
-
-		OutlinedTextField(
-			value = preferenceManager.customFormatCellular,
-			onValueChange = { preferenceManager.customFormatCellular = it },
-			label = { Text(stringResource(R.string.option_stream_format_cellular)) },
+			value = preferenceManager.customFormat,
+			onValueChange = { preferenceManager.customFormat = it },
+			label = { Text(stringResource(R.string.option_stream_format)) },
 			supportingText = { Text(stringResource(R.string.info_transcoding_defaults)) },
 			modifier = Modifier.fillMaxWidth(),
 			singleLine = true

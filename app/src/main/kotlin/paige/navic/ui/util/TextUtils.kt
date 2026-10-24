@@ -69,20 +69,24 @@ fun AnnotatedString.Builder.appendBulletPoint()
 
 fun AnnotatedString.Builder.appendArtists(
 	artists: List<DomainSongArtist>,
-	onClick: (artistId: String) -> Unit
+	onClick: ((artistId: String) -> Unit)? = null
 ) {
 	val listener = LinkInteractionListener { annotation ->
 		val artistId = (annotation as LinkAnnotation.Clickable).tag
-		onClick(artistId)
+		onClick?.invoke(artistId)
 	}
 	artists.forEachIndexed { index, artist ->
-		withLink(
-			link = LinkAnnotation.Clickable(
-				linkInteractionListener = listener,
-				tag = artist.id,
-				styles = TextLinkStyles()
-			)
-		) {
+		if (onClick != null) {
+			withLink(
+				link = LinkAnnotation.Clickable(
+					linkInteractionListener = listener,
+					tag = artist.id,
+					styles = TextLinkStyles()
+				)
+			) {
+				append(artist.name)
+			}
+		} else {
 			append(artist.name)
 		}
 		if (index != artists.lastIndex) {
@@ -94,7 +98,7 @@ fun AnnotatedString.Builder.appendArtists(
 @Composable
 fun buildSongInfoString(
 	song: DomainSong,
-	onClickArtist: (artistId: String) -> Unit,
+	onClickArtist: ((artistId: String) -> Unit)? = null,
 	showExternal: Boolean = true,
 	showAlbum: Boolean = true,
 	showYear: Boolean = true,

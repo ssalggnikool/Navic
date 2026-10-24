@@ -51,21 +51,21 @@ import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Headphones
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Note
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.sheet.ArtistSheet
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Headphones
+import paige.navic.ui.icons.filled.Star
+import paige.navic.ui.icons.outlined.Note
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.stats.component.StatSummaryCard
 import paige.navic.ui.screen.stats.component.TopArtistItem
@@ -105,7 +105,8 @@ fun StatisticsScreen(
 				val preferVisible =
 					preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 				if (!nested
-					|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+					|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+				) {
 					RootBottomBar(scrolled = scrollManager.isTriggered)
 				}
 			}
@@ -143,7 +144,9 @@ fun StatisticsScreen(
 									Icon(
 										imageVector = Icons.Filled.Headphones,
 										contentDescription = null,
-										modifier = Modifier.padding(16.dp).size(32.dp)
+										modifier = Modifier
+											.padding(16.dp)
+											.size(32.dp)
 									)
 								}
 							},

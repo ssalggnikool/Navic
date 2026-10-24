@@ -6,99 +6,82 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
+import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import paige.navic.data.database.dao.ArtistDao
-import paige.navic.data.database.dao.DownloadDao
-import paige.navic.data.database.dao.SongDao
-import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.data.database.entity.SyncActionType
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.data.database.mapper.toEntity
-import paige.navic.domain.manager.SyncManager
+import paige.navic.database.dao.ArtistDao
+import paige.navic.database.dao.LetterCount
+import paige.navic.database.entity.SyncActionType
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.paging.createPagedFlow
+import paige.navic.database.query.getArtistLetterCountsQuery
+import paige.navic.database.query.toSqlQuery
+import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainFilter
-import paige.navic.ui.core.UiState
 import kotlin.time.Clock
 
 class ArtistRepository(
 	private val artistDao: ArtistDao,
-	private val songDao: SongDao,
-	private val downloadDao: DownloadDao,
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
 	private suspend fun getLocalData(
 		listType: DomainArtistListType,
-		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainArtist> {
-		val artists = when (listType) {
-			DomainArtistListType.AlphabeticalByName -> artistDao.getArtistsAlphabeticalByName()
-			DomainArtistListType.Random -> artistDao.getArtistsRandom()
-		}.map { it.toDomainModel() }
-
-		return artists.filter { artist ->
-			filters.all { filter ->
-				when (filter) {
-					DomainFilter.Starred -> artist.starredAt != null
-					DomainFilter.Downloaded -> songDao
-						.getSongsByArtistId(artist.id)
-						.takeIf { it.isNotEmpty() }
-						?.all {
-							val download = downloadDao.getDownloadById(it.songId)
-							return@all download?.status == DownloadStatus.DOWNLOADED
-						} ?: false
-				}
-			}
-		}.toImmutableList()
-	}
+		filters: Set<DomainFilter> = emptySet(),
+		reversed: Boolean = false,
+	): Flow<PagingData<DomainArtist>> = createPagedFlow(
+		isRandom = (listType == DomainArtistListType.Random),
+		getRandomIds = {
+			artistDao.getArtistIdsByQuery(
+				listType.toSqlQuery(
+					filters = filters,
+					idsOnly = true
+				)
+			)
+		},
+		getEntityId = { it.artistId },
+		fetchByIds = artistDao::getArtistsByIds,
+		getStandardQuery = { artistDao.getArtistsByQuery(listType.toSqlQuery(reversed, filters)) },
+		toDomain = { it.toDomainModel() }
+	)
 
 	private suspend fun refreshLocalData(
 		listType: DomainArtistListType,
 		filters: Set<DomainFilter> = emptySet()
-	): ImmutableList<DomainArtist> {
+	): Flow<PagingData<DomainArtist>> {
 		dbRepository.syncArtists().getOrThrow()
 		return getLocalData(listType, filters)
 	}
 
-	fun getArtistsFlow(
+	suspend fun getArtists(
 		fullRefresh: Boolean,
 		listType: DomainArtistListType,
 		filters: Set<DomainFilter> = emptySet()
-	): Flow<UiState<ImmutableList<DomainArtist>>> = flow {
+	): Flow<PagingData<DomainArtist>> {
 		val localData = getLocalData(listType, filters)
-		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData(listType, filters)))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+		return if (fullRefresh) {
+			refreshLocalData(listType, filters)
 		} else {
-			emit(UiState.Success(data = localData))
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
-
-	suspend fun isArtistStarred(artist: DomainArtist) = artistDao.isArtistStarred(artist.id)
-
-	suspend fun starArtist(artist: DomainArtist) {
-		val starredEntity = artist.toEntity().copy(
-			starredAt = Clock.System.now()
-		)
-		artistDao.insertArtist(starredEntity)
-		syncManager.enqueueAction(SyncActionType.STAR, artist.id)
 	}
 
-	suspend fun unstarArtist(artist: DomainArtist) {
-		val unstarredEntity = artist.toEntity().copy(
-			starredAt = null
-		)
-		artistDao.insertArtist(unstarredEntity)
-		syncManager.enqueueAction(SyncActionType.UNSTAR, artist.id)
+	suspend fun isArtistStarred(artistId: String) = artistDao.isArtistStarred(artistId)
+
+	suspend fun starArtist(artistId: String) {
+		artistDao.updateArtistStarredAt(artistId, Clock.System.now())
+		syncManager.enqueueAction(SyncActionType.STAR, artistId)
+	}
+
+	suspend fun unstarArtist(artistId: String) {
+		artistDao.updateArtistStarredAt(artistId, null)
+		syncManager.enqueueAction(SyncActionType.UNSTAR, artistId)
+	}
+
+	fun getArtistLetterCounts(
+		filters: Set<DomainFilter> = emptySet()
+	): Flow<List<LetterCount>> {
+		return artistDao.getArtistLetterCounts(getArtistLetterCountsQuery(filters))
 	}
 }

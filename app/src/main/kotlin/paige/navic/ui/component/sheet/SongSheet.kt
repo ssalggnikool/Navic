@@ -38,17 +38,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.manager.SleepTimerManager
-import paige.navic.domain.manager.SleepTimerMode
-import paige.navic.domain.manager.canUserShare
-import paige.navic.domain.model.DomainAlbum
+import paige.navic.domain.manager.playback.SleepTimerManager
+import paige.navic.domain.manager.playback.SleepTimerMode
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.canUserShare
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
-import paige.navic.domain.model.DomainSongCollection
+import paige.navic.ui.component.common.CoverArt
+import paige.navic.ui.component.common.MarqueeText
+import paige.navic.ui.component.common.RatingRow
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Star
 import paige.navic.ui.icons.outlined.Album
@@ -66,9 +67,6 @@ import paige.navic.ui.icons.outlined.QueuePlayNext
 import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.icons.outlined.Speed
 import paige.navic.ui.icons.outlined.Star
-import paige.navic.ui.component.common.CoverArt
-import paige.navic.ui.component.common.MarqueeText
-import paige.navic.ui.component.common.RatingRow
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.theme.positive
@@ -82,7 +80,7 @@ import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 fun SongSheet(
 	onDismissRequest: () -> Unit,
 	song: DomainSong,
-	collection: DomainSongCollection? = null,
+	isPlaylist: Boolean = false,
 	starred: Boolean? = null,
 	onSetStarred: ((Boolean) -> Unit)? = null,
 	onShare: (() -> Unit)? = null,
@@ -331,7 +329,7 @@ fun SongSheet(
 						content = {
 							Text(
 								stringResource(
-									if (collection != null && collection !is DomainAlbum)
+									if (isPlaylist)
 										R.string.action_add_to_another_playlist
 									else R.string.action_add_to_playlist
 								)
@@ -347,7 +345,7 @@ fun SongSheet(
 					)
 				}
 
-				if (onRemoveFromPlaylist != null && collection != null && collection !is DomainAlbum) {
+				if (onRemoveFromPlaylist != null && isPlaylist) {
 					ListItem(
 						content = { Text(stringResource(R.string.action_remove_from_playlist)) },
 						leadingContent = { Icon(Icons.Outlined.PlaylistRemove, null) },

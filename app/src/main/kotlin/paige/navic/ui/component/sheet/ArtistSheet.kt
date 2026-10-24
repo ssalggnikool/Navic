@@ -36,8 +36,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.database.entity.DownloadStatus
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainArtist
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
@@ -282,10 +282,8 @@ fun ArtistSheet(
 		}
 	}
 
-	if (linkToOpen != null) {
-		LinkConfirmationDialog(
-			linkToOpen = linkToOpen!!,
-			onDismissRequest = { linkToOpen = null }
-		)
-	}
+	LinkConfirmationDialog(
+		linkToOpen = linkToOpen,
+		onDismissRequest = { linkToOpen = null }
+	)
 }

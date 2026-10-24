@@ -21,7 +21,7 @@ import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.ui.util.darkIosColorScheme
 import paige.navic.ui.util.lightIosColorScheme
 

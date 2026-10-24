@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,22 +45,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadEntity
-import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.database.entity.DownloadEntity
+import paige.navic.database.entity.DownloadStatus
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Check
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Lock
-import paige.navic.ui.icons.outlined.Offline
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.ui.icons.outlined.QueuePlayNext
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SegmentedListItem
@@ -68,7 +60,14 @@ import paige.navic.ui.component.common.SmallRatingRow
 import paige.navic.ui.component.common.SwipeToDismissBox
 import paige.navic.ui.component.common.Waveform
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
-import paige.navic.ui.navigation.Screen
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Star
+import paige.navic.ui.icons.outlined.Check
+import paige.navic.ui.icons.outlined.DownloadOff
+import paige.navic.ui.icons.outlined.Lock
+import paige.navic.ui.icons.outlined.Offline
+import paige.navic.ui.icons.outlined.Queue
+import paige.navic.ui.icons.outlined.QueuePlayNext
 import paige.navic.ui.util.InlineExplicitIcon
 import paige.navic.ui.util.buildSongInfoString
 import paige.navic.util.toHoursMinutesSeconds
@@ -85,11 +84,12 @@ fun CollectionDetailScreenSongRow(
 	onAddToQueue: (() -> Unit),
 	isStarred: Boolean,
 	download: DownloadEntity? = null,
-	isOffline: Boolean = false
+	isOffline: Boolean = false,
+	showArtist: Boolean = true
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val isDownloaded = download?.status == DownloadStatus.DOWNLOADED
@@ -103,22 +103,20 @@ fun CollectionDetailScreenSongRow(
 
 	var isPlayNextPending by rememberSaveable { mutableStateOf<Boolean?>(null) }
 
-	val backStack = LocalNavStack.current
-
 	SwipeToDismissBox(
 		modifier = Modifier.padding(horizontal = 16.dp, vertical = 1.5.dp),
 		state = dismissState,
 		gesturesEnabled = !isExplicit,
 		onDismiss = {
 			if (it == SwipeToDismissBoxValue.StartToEnd) {
-				if (playerState.queue.any { item -> item.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (!preferenceManager.shushQueueDuplicateDialog && playerState.queue.any { item -> item.id == song.id }) {
 					isPlayNextPending = false
 				} else {
 					onAddToQueue()
 				}
 			}
 			if (it == SwipeToDismissBoxValue.EndToStart) {
-				if (playerState.queue.any { item -> item.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (!preferenceManager.shushQueueDuplicateDialog && playerState.queue.any { item -> item.id == song.id }) {
 					isPlayNextPending = true
 				} else {
 					onPlayNext()
@@ -159,6 +157,7 @@ fun CollectionDetailScreenSongRow(
 		}
 	) {
 		SegmentedListItem(
+			modifier = Modifier.heightIn(69.dp), // navic gone sexual
 			enabled = !isExplicit,
 			contentPadding = PaddingValues(14.dp),
 			onClick = onClick,
@@ -199,15 +198,16 @@ fun CollectionDetailScreenSongRow(
 						},
 						inlineContent = InlineExplicitIcon
 					)
-					MarqueeText(
-						text = buildSongInfoString(
-							song = song,
-							onClickArtist = { backStack.add(Screen.ArtistDetail(it)) },
-							showYear = false,
-							showAlbum = false
-						),
-						style = MaterialTheme.typography.bodySmall
-					)
+					if (showArtist) {
+						MarqueeText(
+							text = buildSongInfoString(
+								song = song,
+								showYear = false,
+								showAlbum = false
+							),
+							style = MaterialTheme.typography.bodySmall
+						)
+					}
 					if (song.userRating != null && song.userRating != 0) {
 						SmallRatingRow(rating = song.userRating)
 					}
@@ -294,13 +294,12 @@ fun CollectionDetailScreenSongRow(
 		)
 	}
 
-	if (isPlayNextPending != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { isPlayNextPending = null },
-			onConfirm = {
-				if (isPlayNextPending == true) onPlayNext() else onAddToQueue()
-				isPlayNextPending = null
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		showDialog = isPlayNextPending != null,
+		onDismissRequest = { isPlayNextPending = null },
+		onConfirm = {
+			if (isPlayNextPending == true) onPlayNext() else onAddToQueue()
+			isPlayNextPending = null
+		}
+	)
 }

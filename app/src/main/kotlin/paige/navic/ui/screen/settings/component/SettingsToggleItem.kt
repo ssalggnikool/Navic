@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItem
 
 @Composable
@@ -50,7 +50,9 @@ fun SettingsToggleItem(
 				verticalAlignment = Alignment.CenterVertically
 			) {
 				if (preferenceManager.theme.isMaterialLike() && isDividerShown) {
-					VerticalDivider(Modifier.height(32.dp).padding(horizontal = 14.dp))
+					VerticalDivider(Modifier
+						.height(32.dp)
+						.padding(horizontal = 14.dp))
 				}
 				Switch(
 					modifier = Modifier.padding(start = 4.dp),

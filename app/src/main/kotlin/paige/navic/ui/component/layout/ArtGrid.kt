@@ -48,7 +48,7 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.ErrorBox
@@ -147,7 +147,9 @@ fun ArtGridItem(
 			Text(
 				text = title,
 				style = MaterialTheme.typography.titleSmallEmphasized,
-				modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(top = 6.dp),
 				maxLines = 2,
 				overflow = TextOverflow.Ellipsis
 			)

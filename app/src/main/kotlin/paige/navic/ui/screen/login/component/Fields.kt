@@ -17,15 +17,10 @@ import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
@@ -40,30 +35,20 @@ fun LoginScreenFields(
 	instanceState: TextFieldState,
 	instanceError: Boolean,
 	instanceFocusRequester: FocusRequester,
-	onInstanceFocusChanged: () -> Unit,
 	usernameState: TextFieldState,
 	usernameError: Boolean,
 	usernameFocusRequester: FocusRequester,
-	onUsernameFocusChanged: () -> Unit,
 	passwordState: TextFieldState,
 	passwordError: Boolean,
 	passwordFocusRequester: FocusRequester,
-	onPasswordFocusChanged: () -> Unit,
 	onLogin: () -> Unit
 ) {
-	var instanceWasFocused by remember { mutableStateOf(false) }
 	OutlinedTextField(
 		modifier = Modifier
 			.heightIn(min = 60.dp)
 			.padding(horizontal = 16.dp)
 			.fillMaxWidth()
-			.focusRequester(instanceFocusRequester)
-			.onFocusChanged { state ->
-				if (state.isFocused) {
-					instanceWasFocused = true
-				}
-				if (instanceWasFocused && !state.isFocused) onInstanceFocusChanged()
-			},
+			.focusRequester(instanceFocusRequester),
 		state = instanceState,
 		isError = instanceError,
 		label = { Text(stringResource(R.string.option_account_instance)) },
@@ -82,19 +67,12 @@ fun LoginScreenFields(
 
 	LoginScreenSuggestionChips(instanceState = instanceState)
 
-	var usernameWasFocused by remember { mutableStateOf(false) }
 	OutlinedTextField(
 		modifier = Modifier
 			.heightIn(min = 60.dp)
 			.padding(horizontal = 16.dp)
 			.fillMaxWidth()
 			.focusRequester(usernameFocusRequester)
-			.onFocusChanged { state ->
-				if (state.isFocused) {
-					usernameWasFocused = true
-				}
-				if (usernameWasFocused && !state.isFocused) onUsernameFocusChanged()
-			}
 			.semantics {
 				contentType = ContentType.Username
 			},
@@ -113,19 +91,12 @@ fun LoginScreenFields(
 		}
 	)
 
-	var passwordWasFocused by remember { mutableStateOf(false) }
 	OutlinedSecureTextField(
 		modifier = Modifier
 			.heightIn(min = 60.dp)
 			.padding(horizontal = 16.dp)
 			.fillMaxWidth()
 			.focusRequester(passwordFocusRequester)
-			.onFocusChanged { state ->
-				if (state.isFocused) {
-					passwordWasFocused = true
-				}
-				if (passwordWasFocused && !state.isFocused) onPasswordFocusChanged()
-			}
 			.semantics {
 				contentType = ContentType.Password
 			},

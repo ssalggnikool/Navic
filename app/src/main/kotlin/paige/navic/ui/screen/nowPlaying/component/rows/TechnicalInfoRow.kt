@@ -24,15 +24,12 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlaybackUtils
 
 @Composable
 fun NowPlayingTechnicalInfoRow() {
-	val preferenceManager = koinInject<PreferenceManager>()
-	val connectivityManager = koinInject<ConnectivityManager>()
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsState()
 	val song = playerState.currentSong
 
@@ -64,28 +61,25 @@ fun NowPlayingTechnicalInfoRow() {
 						if (it >= 1000) "${it / 1000.0} kHz" else "$it Hz"
 					} ?: "-- kHz"
 
-				val isCellular = connectivityManager.isCellular.value
-				val requestedBitrate = if (preferenceManager.isAdvancedTranscodingActive) {
-					if (isCellular) preferenceManager.customMaxBitrateCellular else preferenceManager.customMaxBitrateWifi
-				} else {
-					if (isCellular) preferenceManager.streamingQualityCellular.bitrate else preferenceManager.streamingQualityWifi.bitrate
-				}
+				val bitDepthFormatted = (playerState.playbackBitDepth ?: song?.bitDepth)
+					?.takeIf { it > 16 }
+					?.let { "$it bit" }
 
-				val bitrateFormatted = playerState.playbackBitrate?.let { "${it / 1000} kbps" }
-					?: if (requestedBitrate > 0) {
-						"$requestedBitrate kbps"
-					} else {
-						song?.bitRate?.let { "$it kbps" }
-					} ?: "-- kbps"
+				val bitrateFormatted =
+					(playerState.playbackBitrate?.let { it / 1000 }
+						?: song?.bitRate)?.let { "$it kbps" }
+						?: "-- kbps"
 
 				val format =
-					playerState.playbackMimeType?.split("/")?.lastOrNull()?.replace("mpeg", "mp3")
+					playerState.playbackMimeType
+						?.let { PlaybackUtils.getPrettyFormatName(it) }
 						?.uppercase()
 						?: song?.fileExtension?.uppercase()
 						?: "--"
 
 				Text(
-					text = "$format • $sampleRateFormatted • $bitrateFormatted",
+					text = bitDepthFormatted?.let { "$format • $it / $sampleRateFormatted • $bitrateFormatted" }
+						?: "$format • $sampleRateFormatted • $bitrateFormatted",
 					style = style,
 					color = color
 				)

@@ -17,15 +17,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.collections.immutable.ImmutableList
+import androidx.paging.compose.LazyPagingItems
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadEntity
+import paige.navic.database.entity.DownloadEntity
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSong
@@ -33,7 +32,6 @@ import paige.navic.domain.model.DomainSongListType
 import paige.navic.ui.component.common.SongRow
 import paige.navic.ui.component.layout.header
 import paige.navic.ui.component.layout.horizontalSection
-import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
 import paige.navic.ui.util.withoutTop
@@ -45,11 +43,10 @@ fun GenreDetailScreenContent(
 	onSetShareId: (String) -> Unit,
 	isOnline: Boolean,
 
-	songsState: UiState<ImmutableList<DomainSong>>,
+	songs: LazyPagingItems<DomainSong>,
 	selectedSong: DomainSong?,
-	selectedSongIsStarred: Boolean,
 	selectedSongRating: Int,
-	allDownloads: ImmutableList<DownloadEntity>,
+	allDownloads: List<DownloadEntity>,
 	onSelectSong: (DomainSong) -> Unit,
 	onClearSongSelection: () -> Unit,
 	onAddSongStar: () -> Unit,
@@ -63,7 +60,7 @@ fun GenreDetailScreenContent(
 	onDeleteDownloadSong: (DomainSong) -> Unit,
 
 	// albums
-	albumsState: UiState<ImmutableList<DomainAlbum>>,
+	albumsState: LazyPagingItems<DomainAlbum>,
 	selectedAlbum: DomainAlbum?,
 	selectedAlbumIsStarred: Boolean,
 	selectedAlbumRating: Int,
@@ -74,7 +71,7 @@ fun GenreDetailScreenContent(
 	onPlayAlbumNext: () -> Unit,
 	onAddAlbumToQueue: () -> Unit,
 ) {
-	val songs = songsState.data.orEmpty().take(12)
+	val downloadsMap = remember(allDownloads) { allDownloads.associateBy { it.songId } }
 
 	LazyVerticalGrid(
 		columns = GridCells.Fixed(2),
@@ -88,8 +85,8 @@ fun GenreDetailScreenContent(
 			active = true
 		)
 		item(span = { GridItemSpan(maxLineSpan) }) {
-			val rowCount = remember(songs.size) {
-				songs.size.coerceIn(1, 3)
+			val rowCount = remember(songs.itemCount) {
+				songs.itemCount.coerceIn(1, 3)
 			}
 			val gridHeight = remember(rowCount) {
 				when (rowCount) {
@@ -103,17 +100,23 @@ fun GenreDetailScreenContent(
 				rows = GridCells.Fixed(rowCount),
 				state = gridState,
 				flingBehavior = rememberSnapFlingBehavior(lazyGridState = gridState),
-				modifier = Modifier.fillMaxWidth().height(gridHeight)
+				modifier = Modifier
+					.fillMaxWidth()
+					.height(gridHeight)
 			) {
-				itemsIndexed(songs) { index, song ->
-					val download = allDownloads.find { it.songId == song.id }
+				items(
+					songs.itemCount
+				) { index ->
+					val song = songs[index] ?: return@items
+
+					val download = downloadsMap[song.id]
 					SongRow(
 						song = song,
 						selected = selectedSong == song,
 						onClick = { onPlaySong(index) },
 						onLongClick = { onSelectSong(song) },
 						onDismissRequest = { onClearSongSelection() },
-						starredState = if (selectedSong == song) selectedSongIsStarred else song.starredAt != null,
+						starredState = song.starredAt != null,
 						onAddStar = onAddSongStar,
 						onRemoveStar = onRemoveSongStar,
 						download = download,
@@ -135,11 +138,12 @@ fun GenreDetailScreenContent(
 			title = R.string.title_albums,
 			destination = Screen.AlbumList(true, DomainAlbumListType.ByGenre(genreName)),
 			state = albumsState,
-			key = { it.id },
 			seeAll = true
 		) { album ->
 			AlbumListScreenGridItem(
-				modifier = Modifier.animateItem().width(150.dp),
+				modifier = Modifier
+					.animateItem()
+					.width(150.dp),
 				tab = "genre",
 				album = album,
 				selected = album == selectedAlbum,

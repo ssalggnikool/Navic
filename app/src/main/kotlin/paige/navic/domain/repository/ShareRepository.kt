@@ -6,8 +6,8 @@
 
 package paige.navic.domain.repository
 
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.domain.manager.SessionManager
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.domain.manager.session.SessionManager
 
 class ShareRepository(
 	private val sessionManager: SessionManager

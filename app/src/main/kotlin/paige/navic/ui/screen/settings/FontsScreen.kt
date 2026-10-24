@@ -35,13 +35,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.FontOption
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Check
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Check
 import paige.navic.ui.theme.googleSans
 
 @Composable
@@ -75,9 +75,11 @@ private fun LazyListScope.heading(resource: Int) {
 		Text(
 			stringResource(resource),
 			style = MaterialTheme.typography.titleSmallEmphasized,
-			modifier = Modifier.padding(horizontal = 12.dp).semantics {
-				heading()
-			}
+			modifier = Modifier
+				.padding(horizontal = 12.dp)
+				.semantics {
+					heading()
+				}
 		)
 	}
 }

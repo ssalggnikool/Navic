@@ -39,7 +39,6 @@ import kotlinx.collections.immutable.ImmutableList
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
-import paige.navic.domain.model.DomainSong
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.icons.outlined.Refresh
@@ -54,13 +53,13 @@ import dev.zt64.subsonic.api.model.Playlist as ApiPlaylist
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlaylistUpdateDialog(
-	songs: ImmutableList<DomainSong>,
+	songIds: ImmutableList<String>,
 	playlistToExclude: String? = null,
 	onDismissRequest: () -> Unit
 ) {
 	val viewModel = koinViewModel<PlaylistUpdateDialogViewModel>(
-		key = songs.joinToString() + playlistToExclude,
-		parameters = { parametersOf(songs, playlistToExclude) }
+		key = songIds.joinToString() + playlistToExclude,
+		parameters = { parametersOf(songIds, playlistToExclude) }
 	)
 	val state by viewModel.playlistsState.collectAsState()
 	val confirmState by viewModel.confirmState.collectAsState()
@@ -194,6 +193,7 @@ fun PlaylistUpdateDialog(
 	if (createDialogShown) {
 		PlaylistCreateDialog(
 			navigateAfterwards = false,
+			songIds = songIds,
 			onDismissRequest = { createDialogShown = false },
 			onRefresh = { viewModel.refreshResults() }
 		)

@@ -38,9 +38,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.lyrics.LyricsResult
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.util.calculateWordProgress
 import kotlin.math.abs
 import kotlin.time.Duration
@@ -60,7 +60,7 @@ fun LyricsScreenContent(
 	contentPadding: PaddingValues
 ) {
 	val density = LocalDensity.current
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	val listState = rememberLazyListState()
@@ -74,9 +74,10 @@ fun LyricsScreenContent(
 
 	if (lyrics.isNullOrEmpty()) return LyricsScreenPlaceholder(onRefresh = onRefresh)
 
+	val anticipationOffset = 250.milliseconds
 	val activeIndex = if (isSynced) {
 		lyrics.indexOfLast { line ->
-			line.time != null && currentDuration >= line.time
+			line.time != null && (currentDuration + anticipationOffset) >= line.time
 		}
 	} else -1
 
@@ -128,7 +129,7 @@ fun LyricsScreenContent(
 		contentPadding = contentPadding + PaddingValues(top = 16.dp)
 	) {
 		itemsIndexed(lyrics) { index, line ->
-			val isActive = if (isSynced) index == activeIndex else true
+			val isActive = !isSynced || index == activeIndex
 			val isSelected = selectedIndices.contains(index)
 			val isEmphasised = (isActive && !isSelecting) || isSelected
 			val distance = abs(index - activeIndex)

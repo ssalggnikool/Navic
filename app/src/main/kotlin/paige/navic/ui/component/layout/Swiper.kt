@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.SkipNext
 import paige.navic.ui.icons.filled.SkipPrevious
@@ -107,7 +107,9 @@ fun Swiper(
 		background?.invoke(this@Box)
 
 		Row(
-			modifier = Modifier.matchParentSize().padding(horizontal = 16.dp),
+			modifier = Modifier
+				.matchParentSize()
+				.padding(horizontal = 16.dp),
 			verticalAlignment = Alignment.CenterVertically,
 			horizontalArrangement = Arrangement.SpaceBetween
 		) {
@@ -138,26 +140,27 @@ fun Swiper(
 						handleSwipeRelease()
 					}
 				)
-				.then(if (enabled) {
-					Modifier.semantics {
-						customActions = listOf(
-							CustomAccessibilityAction(
-								label = swipeLeftAccessibilityLabel,
-								action = {
-									onSwipeLeft()
-									true
-								}
-							),
-							CustomAccessibilityAction(
-								label = swipeRightAccessibilityLabel,
-								action = {
-									onSwipeRight()
-									true
-								}
+				.then(
+					if (enabled) {
+						Modifier.semantics {
+							customActions = listOf(
+								CustomAccessibilityAction(
+									label = swipeLeftAccessibilityLabel,
+									action = {
+										onSwipeLeft()
+										true
+									}
+								),
+								CustomAccessibilityAction(
+									label = swipeRightAccessibilityLabel,
+									action = {
+										onSwipeRight()
+										true
+									}
+								)
 							)
-						)
-					}
-				} else Modifier)
+						}
+					} else Modifier)
 		) {
 			content()
 		}

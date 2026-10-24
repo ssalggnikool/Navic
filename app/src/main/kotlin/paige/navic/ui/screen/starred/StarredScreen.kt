@@ -21,13 +21,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainFilter
@@ -35,8 +37,9 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
+import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
@@ -44,10 +47,8 @@ import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
 import paige.navic.ui.screen.artist.viewmodel.ArtistListViewModel
-import paige.navic.ui.screen.share.dialog.ShareDialog
 import paige.navic.ui.screen.song.viewmodel.SongListViewModel
 import paige.navic.ui.screen.starred.component.StarredScreenContent
-import kotlin.time.Duration
 
 @Composable
 fun StarredScreen() {
@@ -64,11 +65,12 @@ fun StarredScreen() {
 		},
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val songsState by songsViewModel.songsState.collectAsStateWithLifecycle()
-	val selectedSong by songsViewModel.selectedSong.collectAsStateWithLifecycle()
-	val selectedSongIsStarred by songsViewModel.starred.collectAsStateWithLifecycle()
-	val selectedSongRating by songsViewModel.selectedSongRating.collectAsStateWithLifecycle()
-	val allDownloads by songsViewModel.allDownloads.collectAsStateWithLifecycle()
+	val downloadManager = koinInject<DownloadManager>()
+	val songsState by songsViewModel.uiState.collectAsStateWithLifecycle()
+	val songsLazyItems = songsState.data?.items?.collectAsLazyPagingItems() ?: return
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
 
 	val albumsViewModel = koinViewModel<AlbumListViewModel>(
 		key = "starredAlbums",
@@ -80,10 +82,8 @@ fun StarredScreen() {
 		},
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val albumsState by albumsViewModel.albumsState.collectAsStateWithLifecycle()
-	val selectedAlbum by albumsViewModel.selectedAlbum.collectAsStateWithLifecycle()
-	val selectedAlbumIsStarred by albumsViewModel.starred.collectAsStateWithLifecycle()
-	val selectedAlbumRating by albumsViewModel.rating.collectAsStateWithLifecycle()
+	val albumsState by albumsViewModel.uiState.collectAsStateWithLifecycle()
+	val albumsLazyItems = albumsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	val artistsViewModel = koinViewModel<ArtistListViewModel>(
 		key = "starredArtists",
@@ -95,15 +95,12 @@ fun StarredScreen() {
 		},
 		viewModelStoreOwner = persistentViewModelStoreOwner
 	)
-	val artistsState by artistsViewModel.artistsState.collectAsStateWithLifecycle()
-	val selectedArtist by artistsViewModel.selectedArtist.collectAsStateWithLifecycle()
-	val selectedArtistAlbums by artistsViewModel.selectedArtistAlbums.collectAsStateWithLifecycle()
-	val selectedArtistIsStarred by artistsViewModel.starred.collectAsStateWithLifecycle()
+	val artistsState by artistsViewModel.uiState.collectAsStateWithLifecycle()
+	val artistsLazyItems = artistsState.data?.items?.collectAsLazyPagingItems() ?: return
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
 
@@ -121,14 +118,13 @@ fun StarredScreen() {
 			}
 		}
 	) { innerPadding ->
-		val isAnythingLoading = albumsState is UiState.Loading ||
-			artistsState is UiState.Loading ||
-			songsState is UiState.Loading
 		PullToRefreshBox(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = !isAnythingLoading,
+			finished = !(albumsState is UiState.Loading ||
+				artistsState is UiState.Loading ||
+				songsState is UiState.Loading),
 			onRefresh = {
 				albumsViewModel.refreshAlbums(true)
 				artistsViewModel.refreshArtists(true)
@@ -136,63 +132,73 @@ fun StarredScreen() {
 			},
 			key = listOf(albumsState, artistsState, songsState)
 		) {
+			val selectedAlbum = albumsState.data?.selected
+			val selectedArtist = artistsState.data?.selected
+
 			StarredScreenContent(
 				innerPadding = innerPadding,
 				onSetShareId = { shareId = it },
 				isOnline = isOnline,
 
-				songsState = songsState,
-				selectedSong = selectedSong,
+				songs = songsLazyItems,
+				selectedSong = songsState.data?.selected,
 				allDownloads = allDownloads,
 				onPlaySong = { index ->
-					player.playNow(songsState.data.orEmpty(), index)
+					songsLazyItems.itemSnapshotList.items.let {
+						player.playNow(it, index)
+					}
 				},
 				onSelectSong = {
-					songsViewModel.selectSong(it)
+					songsViewModel.selected = it
 				},
-				onClearSongSelection = { songsViewModel.clearSelection() },
-				selectedSongIsStarred = selectedSongIsStarred,
+				onClearSongSelection = { songsViewModel.clear() },
+				selectedSongIsStarred = songsState.data?.selected?.starredAt != null,
 				onAddSongStar = { songsViewModel.starSong(true) },
 				onRemoveSongStar = { songsViewModel.starSong(false) },
-				onDownloadSong = { songsViewModel.downloadSong(it) },
+				onDownloadSong = { downloadManager.downloadSong(it.id) },
 				onCancelDownloadSong = { song ->
-					songsViewModel.cancelDownload(song.id)
+					downloadManager.cancelDownload(song.id)
 				},
 				onDeleteDownloadSong = { song ->
-					songsViewModel.deleteDownload(song.id)
+					downloadManager.deleteDownload(song.id)
 				},
 				onPlaySongNext = { song ->
-					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+					if (player.checkDuplicate(song.id, preferenceManager)) {
 						songToQueue = song
 					} else {
 						player.playNextSingle(song)
 					}
 				},
 				onAddSongToQueue = { song ->
-					if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+					if (player.checkDuplicate(song.id, preferenceManager)) {
 						songToQueue = song
 					} else {
 						player.addToQueueSingle(song)
 					}
 				},
-				selectedSongRating = selectedSongRating,
+				selectedSongRating = songsState.data?.selected?.userRating ?: 0,
 				onSetSongRating = { songsViewModel.rateSelectedSong(it) },
 
-				albumsState = albumsState,
+				albums = albumsLazyItems,
 				selectedAlbum = selectedAlbum,
-				selectedAlbumIsStarred = selectedAlbumIsStarred,
-				selectedAlbumRating = selectedAlbumRating,
-				onSelectAlbum = { albumsViewModel.selectAlbum(it) },
-				onClearAlbumSelection = { albumsViewModel.clearSelection() },
+				selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
+				selectedAlbumRating = albumsState.data?.selected?.userRating ?: 0,
+				onSelectAlbum = {
+					albumsViewModel.selected = it
+				},
+				onClearAlbumSelection = {
+					albumsViewModel.selected = null
+				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
 				onPlayAlbumNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
 				onAddAlbumToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 
-				artistsState = artistsState,
-				selectedArtist = selectedArtist,
-				selectedArtistAlbums = selectedArtistAlbums,
-				selectedArtistIsStarred = selectedArtistIsStarred,
+				artists = artistsLazyItems,
+				selectedArtist = artistsState.data?.selected,
+				// TODO: artist albums
+				selectedArtistAlbums = emptyList(),
+				selectedArtistIsStarred = false,
 				onSelectArtist = { artistsViewModel.selectArtist(it) },
 				onClearArtistSelection = { artistsViewModel.clearSelection() },
 				onStarSelectedArtist = { artistsViewModel.starArtist(it) },
@@ -212,17 +218,11 @@ fun StarredScreen() {
 
 	ShareDialog(
 		id = shareId,
-		onIdClear = { shareId = null },
-		expiry = shareExpiry,
-		onExpiryChange = { shareExpiry = it }
+		onDismissRequest = { shareId = null }
 	)
 
-	if (songToQueue != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { songToQueue = null },
-			onConfirm = {
-				songToQueue?.let { player.addToQueueSingle(it) }
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		song = songToQueue,
+		onDismissRequest = { songToQueue = null }
+	)
 }

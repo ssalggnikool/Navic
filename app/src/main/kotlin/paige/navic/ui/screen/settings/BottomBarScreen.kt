@@ -28,7 +28,7 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
@@ -90,7 +90,10 @@ fun BottomBarScreen() {
 							onChoiceSelected = { preferenceManager.bottomBarVisibilityMode = it },
 							content = { Text(stringResource(R.string.option_bottom_bar_visibility_mode)) },
 							label = { stringResource(it.displayName) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = count)
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 1,
+								count = count
+							)
 						)
 					}
 				}

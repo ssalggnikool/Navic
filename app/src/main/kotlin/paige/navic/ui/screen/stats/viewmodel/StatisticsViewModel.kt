@@ -18,10 +18,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.ArtistDao
-import paige.navic.data.database.dao.SongDao
-import paige.navic.data.database.mapper.toDomainModel
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.ArtistDao
+import paige.navic.database.dao.SongDao
+import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainSong

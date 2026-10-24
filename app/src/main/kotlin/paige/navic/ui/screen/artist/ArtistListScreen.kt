@@ -27,7 +27,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import kotlinx.collections.immutable.ImmutableList
+import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.collections.immutable.toPersistentList
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -36,12 +36,12 @@ import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.layout.ArtGridItem
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -75,15 +75,17 @@ fun ArtistListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val artistsState by viewModel.artistsState.collectAsState()
-	val selectedArtist by viewModel.selectedArtist.collectAsState()
-	val selectedArtistAlbums by viewModel.selectedArtistAlbums.collectAsState()
+	val state by viewModel.uiState.collectAsState()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
+
+	val selectedArtist = state.data?.selected
+	val selectedArtistAlbums = null
 	val selectedSorting by viewModel.listType.collectAsState()
 	val selectedFilters by viewModel.selectedFilters.collectAsState()
-	val starred by viewModel.starred.collectAsState()
+	val letterCounts by viewModel.letterCounts.collectAsState()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 
 	val actions: @Composable RowScope.() -> Unit = {
 		ArtistListScreenSortButton(
@@ -124,7 +126,8 @@ fun ArtistListScreen(
 			val preferVisible =
 				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 			if (!nested
-				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+			) {
 				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
@@ -133,13 +136,16 @@ fun ArtistListScreen(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = artistsState !is UiState.Loading,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshArtists(true) },
-			key = artistsState
+			key = state
 		) {
+			if (lazyPagingItems == null) return@PullToRefreshBox
+
 			ArtistListScreenContent(
-				state = artistsState,
-				starred = starred,
+				artists = lazyPagingItems,
+				letterCounts = letterCounts,
+				starred = selectedArtist?.starredAt != null,
 				selectedSorting = selectedSorting,
 				selectedArtist = selectedArtist,
 				selectedArtistAlbums = selectedArtistAlbums,
@@ -158,7 +164,7 @@ fun ArtistListScreen(
 	}
 
 	ErrorSnackBar(
-		error = (artistsState as? UiState.Error)?.error,
+		error = (state as? UiState.Error)?.error,
 		onClearError = { viewModel.clearError() }
 	)
 }
@@ -169,7 +175,7 @@ fun ArtistListScreenGridItem(
 	tab: String,
 	artist: DomainArtist,
 	selected: Boolean,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	starred: Boolean,
 	onSelect: () -> Unit,
 	onDeselect: () -> Unit,
@@ -210,7 +216,8 @@ fun ArtistListScreenGridItem(
 		}
 		if (playlistDialogShown) {
 			PlaylistUpdateDialog(
-				songs = selectedArtistAlbums?.flatMap { it.songs }.orEmpty().toPersistentList(),
+				songIds = selectedArtistAlbums?.flatMap { album -> album.songs.map { it.id } }
+					.orEmpty().toPersistentList(),
 				onDismissRequest = { playlistDialogShown = false }
 			)
 		}

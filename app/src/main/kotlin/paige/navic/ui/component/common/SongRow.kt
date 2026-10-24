@@ -36,14 +36,14 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadEntity
-import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.database.entity.DownloadEntity
+import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.icons.Icons
@@ -80,7 +80,7 @@ fun SongRow(
 	onSetRating: (Int) -> Unit
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val backStack = LocalNavStack.current
@@ -219,7 +219,7 @@ fun SongRow(
 			},
 			onShare = onShare,
 			onPlayNext = {
-				if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (player.checkDuplicate(song.id, preferenceManager)) {
 					duplicateQueueDialogShown = true
 					duplicateQueueDialogShownPlayNext = true
 				} else {
@@ -227,7 +227,7 @@ fun SongRow(
 				}
 			},
 			onAddToQueue = {
-				if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+				if (player.checkDuplicate(song.id, preferenceManager)) {
 					duplicateQueueDialogShown = true
 					duplicateQueueDialogShownPlayNext = false
 				} else {
@@ -258,20 +258,19 @@ fun SongRow(
 
 	if (playlistDialogShown) {
 		PlaylistUpdateDialog(
-			songs = persistentListOf(song),
+			songIds = persistentListOf(song.id),
 			onDismissRequest = { playlistDialogShown = false }
 		)
 	}
 
-	if (duplicateQueueDialogShown) {
-		QueueDuplicateDialog(
-			onDismissRequest = {
-				duplicateQueueDialogShown = false
-				onDismissRequest()
-			},
-			onConfirm = {
-				if (duplicateQueueDialogShownPlayNext) onPlayNext() else onAddToQueue()
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		showDialog = duplicateQueueDialogShown,
+		onDismissRequest = {
+			duplicateQueueDialogShown = false
+			onDismissRequest()
+		},
+		onConfirm = {
+			if (duplicateQueueDialogShownPlayNext) onPlayNext() else onAddToQueue()
+		}
+	)
 }

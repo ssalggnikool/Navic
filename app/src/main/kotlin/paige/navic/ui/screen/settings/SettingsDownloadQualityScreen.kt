@@ -32,17 +32,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.StreamingQuality
 import paige.navic.domain.model.settings.description
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsRadioItem
@@ -51,9 +49,6 @@ import paige.navic.ui.screen.settings.component.SettingsToggleItem
 @Composable
 fun SettingsDownloadQualityScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val connectivityManager = koinInject<ConnectivityManager>()
-	val isOnline by connectivityManager.isOnline.collectAsStateWithLifecycle()
-	val isCellular by connectivityManager.isCellular.collectAsStateWithLifecycle()
 
 	Scaffold(
 		topBar = { NestedTopBar({ Text(stringResource(R.string.title_download_quality)) }) }
@@ -72,39 +67,10 @@ fun SettingsDownloadQualityScreen() {
 						modifier = Modifier
 							.selectableGroup()
 							.padding(bottom = SettingsGroupDefaults.GapBetweenGroups),
-						title = {
-							Text(buildString {
-								append(stringResource(R.string.title_wifi))
-								if (isOnline && !isCellular) {
-									append(' ' + stringResource(R.string.info_in_use))
-								}
-							})
-						}
 					) {
 						RadioButtons(
-							value = preferenceManager.downloadQualityWifi,
-							onChangeValue = { preferenceManager.downloadQualityWifi = it }
-						)
-					}
-				}
-
-				AnimatedVisibility(visible = !preferenceManager.isAdvancedDownloadTranscodingActive) {
-					SettingsGroup(
-						modifier = Modifier
-							.selectableGroup()
-							.padding(bottom = SettingsGroupDefaults.GapBetweenGroups),
-						title = {
-							Text(buildString {
-								append(stringResource(R.string.title_cellular))
-								if (isOnline && isCellular) {
-									append(' ' + stringResource(R.string.info_in_use))
-								}
-							})
-						}
-					) {
-						RadioButtons(
-							value = preferenceManager.downloadQualityCellular,
-							onChangeValue = { preferenceManager.downloadQualityCellular = it }
+							value = preferenceManager.downloadQuality,
+							onChangeValue = { preferenceManager.downloadQuality = it }
 						)
 					}
 				}
@@ -178,11 +144,7 @@ private fun RadioButtons(
 private fun CustomOptions() {
 	val preferenceManager = koinInject<PreferenceManager>()
 	var wifiInput by remember {
-		val current = preferenceManager.customDownloadMaxBitrateWifi
-		mutableStateOf(if (current > 0) current.toString() else "")
-	}
-	var cellularInput by remember {
-		val current = preferenceManager.customDownloadMaxBitrateCellular
+		val current = preferenceManager.customDownloadMaxBitrate
 		mutableStateOf(if (current > 0) current.toString() else "")
 	}
 
@@ -195,11 +157,11 @@ private fun CustomOptions() {
 			onValueChange = { newValue ->
 				if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
 					wifiInput = newValue
-					preferenceManager.customDownloadMaxBitrateWifi =
+					preferenceManager.customDownloadMaxBitrate =
 						newValue.toIntOrNull() ?: 0
 				}
 			},
-			label = { Text(stringResource(R.string.option_max_bitrate_wifi)) },
+			label = { Text(stringResource(R.string.option_max_bitrate)) },
 			placeholder = { Text("0") },
 			keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
 			modifier = Modifier.fillMaxWidth(),
@@ -207,34 +169,9 @@ private fun CustomOptions() {
 		)
 
 		OutlinedTextField(
-			value = cellularInput,
-			onValueChange = { newValue ->
-				if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-					cellularInput = newValue
-					preferenceManager.customDownloadMaxBitrateCellular =
-						newValue.toIntOrNull() ?: 0
-				}
-			},
-			label = { Text(stringResource(R.string.option_max_bitrate_cellular)) },
-			placeholder = { Text("0") },
-			keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-			modifier = Modifier.fillMaxWidth(),
-			singleLine = true
-		)
-
-		OutlinedTextField(
-			value = preferenceManager.customDownloadFormatWifi,
-			onValueChange = { preferenceManager.customDownloadFormatWifi = it },
-			label = { Text(stringResource(R.string.option_download_format_wifi)) },
-			modifier = Modifier.fillMaxWidth(),
-			singleLine = true
-		)
-
-		OutlinedTextField(
-			value = preferenceManager.customDownloadFormatCellular,
-			onValueChange = { preferenceManager.customDownloadFormatCellular = it },
-			label = { Text(stringResource(R.string.option_download_format_cellular)) },
-			supportingText = { Text(stringResource(R.string.info_transcoding_defaults)) },
+			value = preferenceManager.customDownloadFormat,
+			onValueChange = { preferenceManager.customDownloadFormat = it },
+			label = { Text(stringResource(R.string.option_download_format)) },
 			modifier = Modifier.fillMaxWidth(),
 			singleLine = true
 		)

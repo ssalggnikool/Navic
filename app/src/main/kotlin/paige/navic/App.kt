@@ -74,13 +74,13 @@ import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.di.LocalSizeClass
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.manager.BottomBarScrollManager
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.manager.SnackBarManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.ui.BottomBarScrollManager
+import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.generated.BuildInfo
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.layout.SideBar
 import paige.navic.ui.component.sheet.ChangelogSheet
 import paige.navic.ui.component.snackbar.NavicSnackBar
@@ -108,6 +108,7 @@ import paige.navic.ui.screen.settings.AudioEffectsScreen
 import paige.navic.ui.screen.settings.BottomBarScreen
 import paige.navic.ui.screen.settings.FontsScreen
 import paige.navic.ui.screen.settings.SettingsAboutScreen
+import paige.navic.ui.screen.settings.SettingsAlternativeAddressesScreen
 import paige.navic.ui.screen.settings.SettingsAppIconScreen
 import paige.navic.ui.screen.settings.SettingsAppearanceScreen
 import paige.navic.ui.screen.settings.SettingsConnectionOptionsScreen
@@ -196,7 +197,8 @@ fun App() {
 			NavicTheme {
 				Row(modifier = Modifier.fillMaxSize()) {
 					if (sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
-						&& Screen.Login !in backStack) {
+						&& Screen.Login !in backStack
+					) {
 						SideBar()
 					}
 					@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -343,7 +345,7 @@ private fun entryProvider(
 			NowPlayingScreen()
 		}
 		entry<Screen.Lyrics>(metadata = NowPlayingSceneStrategy.bottomSheet(isTransparent = true)) {
-			val player = koinInject<MediaPlayerViewModel>()
+			val player = koinInject<MediaPlayer>()
 			val playerState by player.uiState.collectAsState()
 			val song = playerState.currentSong
 			LyricsScreen(song)
@@ -423,6 +425,9 @@ private fun entryProvider(
 		}
 		entry<Screen.Settings.ConnectionOptions> {
 			SettingsConnectionOptionsScreen()
+		}
+		entry<Screen.Settings.AlternativeAddresses> {
+			SettingsAlternativeAddressesScreen()
 		}
 		entry<Screen.Settings.CustomHeaders> {
 			SettingsCustomHeadersScreen()

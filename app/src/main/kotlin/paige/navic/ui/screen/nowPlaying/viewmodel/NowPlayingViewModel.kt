@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import paige.navic.domain.repository.SongRepository
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 
 class NowPlayingViewModel(
-	private val player: MediaPlayerViewModel,
-	private val songRepository: SongRepository
+    private val player: MediaPlayer,
+    private val songRepository: SongRepository
 ) : ViewModel(), KoinComponent {
 	val songIsStarred: StateFlow<Boolean>
 		field = MutableStateFlow(false)
@@ -29,8 +29,8 @@ class NowPlayingViewModel(
 		viewModelScope.launch {
 			player.uiState.collect { state ->
 				state.currentSong?.let { song ->
-					songIsStarred.value = songRepository.isSongStarred(song)
-					songRating.value = songRepository.getSongRating(song)
+					songIsStarred.value = songRepository.isSongStarred(song.id)
+					songRating.value = songRepository.getSongRating(song.id)
 				}
 			}
 		}
@@ -42,9 +42,9 @@ class NowPlayingViewModel(
 				player.uiState.value.currentSong?.let { song ->
 					songIsStarred.value = starred
 					if (starred) {
-						songRepository.starSong(song)
+						songRepository.starSong(song.id)
 					} else {
-						songRepository.unstarSong(song)
+						songRepository.unstarSong(song.id)
 					}
 				}
 			}
@@ -56,7 +56,7 @@ class NowPlayingViewModel(
 			runCatching {
 				player.uiState.value.currentSong?.let { song ->
 					songRating.value = rating
-					songRepository.rateSong(song, rating)
+					songRepository.rateSong(song.id, rating)
 				}
 			}
 		}
