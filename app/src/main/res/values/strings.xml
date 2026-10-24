@@ -38,6 +38,10 @@
 	<string name="title_similar_artists">Similar artists</string>
 	<string name="title_discord_server">Discord server</string>
 	<string name="title_shares">Shares</string>
+	<string name="title_downloads">Downloads</string>
+	<string name="title_downloads_failed">Failed (%1$d)</string>
+	<string name="title_downloads_complete">Complete (%1$d)</string>
+	<string name="title_downloads_in_progress">In progress (%1$d)</string>
 	<string name="title_choose_font">Application font</string>
 	<string name="title_fonts_inbuilt">Built-in</string>
 	<string name="title_more_by_artist">More by %1$s</string>

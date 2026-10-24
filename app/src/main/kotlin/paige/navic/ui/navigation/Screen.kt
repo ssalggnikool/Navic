@@ -111,6 +111,10 @@ sealed interface Screen : NavKey {
 
 	@Immutable
 	@Serializable
+	data object DownloadList : Screen
+
+	@Immutable
+	@Serializable
 	data class CollectionDetail(
 		val collectionId: String,
 		val tab: String

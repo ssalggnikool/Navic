@@ -60,6 +60,7 @@ import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Bedtime
+import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.Edit
 import paige.navic.ui.icons.outlined.Forum
 import paige.navic.ui.icons.outlined.Logout
@@ -193,7 +194,7 @@ fun AccountSheet(
 			Spacer(Modifier.height(9.dp))
 
 			val isSharingAllowed = sessionManager.canUserShare()
-			val count = if (isSharingAllowed) 4 else 3
+			val count = if (isSharingAllowed) 5 else 4
 
 			if (isSharingAllowed) {
 				SegmentedListItem(
@@ -209,6 +210,19 @@ fun AccountSheet(
 					content = { Text(stringResource(R.string.action_view_shares)) }
 				)
 			}
+
+			SegmentedListItem(
+				shapes = SegmentedListItemDefaults.segmentedShapes(
+					index = count - 4,
+					count = count
+				),
+				onClick = {
+					animateToDismiss()
+					backStack.add(Screen.DownloadList)
+				},
+				leadingContent = { Icon(Icons.Outlined.Download, null) },
+				content = { Text(stringResource(R.string.title_downloads)) }
+			)
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(

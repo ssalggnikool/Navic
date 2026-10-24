@@ -92,6 +92,7 @@ import paige.navic.ui.screen.artist.ArtistDetailScreen
 import paige.navic.ui.screen.artist.ArtistListScreen
 import paige.navic.ui.screen.chat.ChatScreen
 import paige.navic.ui.screen.collection.CollectionDetailScreen
+import paige.navic.ui.screen.download.DownloadListScreen
 import paige.navic.ui.screen.genre.GenreDetailScreen
 import paige.navic.ui.screen.genre.GenreListScreen
 import paige.navic.ui.screen.imageView.ImageViewScreen
@@ -338,6 +339,9 @@ private fun entryProvider(
 		}
 		entry<Screen.Chat> {
 			ChatScreen()
+		}
+		entry<Screen.DownloadList> {
+			DownloadListScreen()
 		}
 		entry<Screen.NowPlaying>(
 			metadata = NowPlayingSceneStrategy.bottomSheet(maxWidth = Dp.Unspecified)
