@@ -84,7 +84,7 @@ class PreferenceManager(
 	var streamingQualityCellular by preference(StreamingQuality.Lossless)
 	var isAdvancedTranscodingActive by preference(false)
 	var customMaxBitrate by preference(0)
-	var customMaxBitrateCellular by preference(0)//is it normal that is unused???
+	var customMaxBitrateCellular by preference(0)
 	var customFormatWifi by preference("")
 	var customFormat by preference("")
 
@@ -93,17 +93,18 @@ class PreferenceManager(
 	var isAdvancedDownloadTranscodingActive by preference(false)
 	var customDownloadMaxBitrate by preference(0)
 	var customDownloadFormat by preference("")
-	var confirmDownloadDeletionTypes by jsonPreference(
+	var confirmDeleteTypes by jsonPreference(
 		null,
 		DownloadDeletionType.entries.toSet()
 	)
-	fun isDownloadDeletionConfirmationEnabled(type: DownloadDeletionType): Boolean {
-		return confirmDownloadDeletionTypes.contains(type)
+
+	fun isConfirmDeleteEnabled(type: DownloadDeletionType): Boolean {
+		return confirmDeleteTypes.contains(type)
 	}
 
-	fun toggleDownloadDeletionConfirmation(type: DownloadDeletionType) {
-		val current = confirmDownloadDeletionTypes
-		confirmDownloadDeletionTypes = if (current.contains(type)) {
+	fun toggleConfirmDelete(type: DownloadDeletionType) {
+		val current = confirmDeleteTypes
+		confirmDeleteTypes = if (current.contains(type)) {
 			current - type
 		} else {
 			current + type

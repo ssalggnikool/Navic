@@ -62,7 +62,6 @@ import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.settings.CoverArtQuality
-import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.OfflineMode
 import paige.navic.ui.component.common.SegmentedListButton
@@ -71,8 +70,8 @@ import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.BulkDownloadDialog
 import paige.navic.ui.component.dialog.BulkDownloadTarget
-import paige.navic.ui.component.dialog.DeleteDownloadDialog
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
@@ -110,7 +109,7 @@ fun SettingsDataStorageScreen() {
 
 	var showLibraryDownloadDialog by remember { mutableStateOf(false) }
 	var showConfirmDeletionDialog by rememberSaveable { mutableStateOf(false) }
-	var showClearDownloadsDialog by rememberSaveable { mutableStateOf(false) }
+	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 	val isDownloadingLibrary by viewModel.isDownloadingLibrary.collectAsStateWithLifecycle()
 	val libraryDownloadProgress by viewModel.libraryDownloadProgress.collectAsStateWithLifecycle()
 
@@ -513,11 +512,7 @@ fun SettingsDataStorageScreen() {
 					)
 					SegmentedListItem(
 						onClick = {
-							if (preferenceManager.isDownloadDeletionConfirmationEnabled(DownloadDeletionType.LIBRARY)) {
-								showClearDownloadsDialog = true
-							} else {
-								viewModel.clearAllDownloads()
-							}
+							downloadDeletionHandler.requestDelete(DeleteDownloadTarget.Library)
 						},
 						content = { Text(stringResource(R.string.action_clear_downloads)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5),
@@ -540,11 +535,5 @@ fun SettingsDataStorageScreen() {
 	ConfirmDownloadDeletionSheet(
 		presented = showConfirmDeletionDialog,
 		onDismissRequest = { showConfirmDeletionDialog = false }
-	)
-
-	DeleteDownloadDialog(
-		target = if (showClearDownloadsDialog) DeleteDownloadTarget.Library else null,
-		onDismissRequest = { showClearDownloadsDialog = false },
-		onConfirmDelete = viewModel::clearAllDownloads
 	)
 }

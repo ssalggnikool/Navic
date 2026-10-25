@@ -43,11 +43,10 @@ import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
-import paige.navic.ui.component.dialog.DeleteDownloadDialog
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.component.layout.NestedTopBar
@@ -91,7 +90,7 @@ fun SongListScreen(
 
 	var shareId by remember { mutableStateOf<String?>(null) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
-	var deleteDownloadTarget by remember { mutableStateOf<DeleteDownloadTarget?>(null) }
+	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
 	val actions: @Composable RowScope.() -> Unit = {
@@ -214,11 +213,7 @@ fun SongListScreen(
 								downloadManager.cancelDownload(song.id)
 							},
 							onDeleteDownload = {
-								if (preferenceManager.isDownloadDeletionConfirmationEnabled(DownloadDeletionType.SONG)) {
-									deleteDownloadTarget = DeleteDownloadTarget.Single(song.id, song.title)
-								} else {
-									downloadManager.deleteDownload(song.id)
-								}
+								downloadDeletionHandler.requestDelete(DeleteDownloadTarget.Single(song.id, song.title))
 							}
 						)
 					}
@@ -249,17 +244,5 @@ fun SongListScreen(
 	QueueDuplicateDialog(
 		song = songToQueue,
 		onDismissRequest = { songToQueue = null }
-	)
-
-	DeleteDownloadDialog(
-		target = deleteDownloadTarget,
-		onDismissRequest = { deleteDownloadTarget = null },
-		onConfirmDelete = {
-			deleteDownloadTarget?.let { target ->
-				if (target is DeleteDownloadTarget.Single) {
-					downloadManager.deleteDownload(target.id)
-				}
-			}
-		}
 	)
 }

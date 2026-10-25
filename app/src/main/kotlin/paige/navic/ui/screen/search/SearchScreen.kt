@@ -56,13 +56,12 @@ import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.common.ErrorBox
-import paige.navic.ui.component.dialog.DeleteDownloadDialog
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.component.layout.ArtGrid
@@ -132,7 +131,7 @@ fun SearchScreen(
 	var selectedCategory by remember { mutableStateOf(SearchCategory.ALL) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var deleteDownloadTarget by remember { mutableStateOf<DeleteDownloadTarget?>(null) }
+	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 
 	val rootViewModel = koinViewModel<RootViewModel>()
 	LaunchedEffect(Unit) {
@@ -264,11 +263,7 @@ fun SearchScreen(
 										onDownload = { downloadManager.downloadSong(song.id) },
 										onCancelDownload = { downloadManager.cancelDownload(song.id) },
 										onDeleteDownload = {
-											if (preferenceManager.isDownloadDeletionConfirmationEnabled(DownloadDeletionType.SONG)) {
-												deleteDownloadTarget = DeleteDownloadTarget.Single(song.id, song.title)
-											} else {
-												downloadManager.deleteDownload(song.id)
-											}
+											downloadDeletionHandler.requestDelete(DeleteDownloadTarget.Single(song.id, song.title))
 										}
 									)
 								}
@@ -390,18 +385,6 @@ fun SearchScreen(
 		onDismissRequest = {
 			shareId = null
 			viewModel.clearSelectedSong()
-		}
-	)
-
-	DeleteDownloadDialog(
-		target = deleteDownloadTarget,
-		onDismissRequest = { deleteDownloadTarget = null },
-		onConfirmDelete = {
-			deleteDownloadTarget?.let { target ->
-				if (target is DeleteDownloadTarget.Single) {
-					downloadManager.deleteDownload(target.id)
-				}
-			}
 		}
 	)
 }

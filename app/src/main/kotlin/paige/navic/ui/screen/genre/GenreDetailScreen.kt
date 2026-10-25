@@ -33,10 +33,9 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.playback.MediaPlayer
-import paige.navic.ui.component.dialog.DeleteDownloadDialog
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.dialog.ShareDialog
 import paige.navic.ui.component.layout.NestedTopBar
@@ -77,7 +76,7 @@ fun GenreDetailScreen(
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
-	var deleteDownloadTarget by remember { mutableStateOf<DeleteDownloadTarget?>(null) }
+	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 
 	Scaffold(
 		topBar = { NestedTopBar({ Text(genreName) }) },
@@ -142,11 +141,7 @@ fun GenreDetailScreen(
 					downloadManager.cancelDownload(song.id)
 				},
 				onDeleteDownloadSong = { song ->
-					if (preferenceManager.isDownloadDeletionConfirmationEnabled(DownloadDeletionType.SONG)) {
-						deleteDownloadTarget = DeleteDownloadTarget.Single(song.id, song.title)
-					} else {
-						downloadManager.deleteDownload(song.id)
-					}
+					downloadDeletionHandler.requestDelete(DeleteDownloadTarget.Single(song.id, song.title))
 				},
 
 				albumsState = albumsLazyItems,
@@ -188,17 +183,5 @@ fun GenreDetailScreen(
 	QueueDuplicateDialog(
 		song = songToQueue,
 		onDismissRequest = { songToQueue = null }
-	)
-
-	DeleteDownloadDialog(
-		target = deleteDownloadTarget,
-		onDismissRequest = { deleteDownloadTarget = null },
-		onConfirmDelete = {
-			deleteDownloadTarget?.let { target ->
-				if (target is DeleteDownloadTarget.Single) {
-					downloadManager.deleteDownload(target.id)
-				}
-			}
-		}
 	)
 }

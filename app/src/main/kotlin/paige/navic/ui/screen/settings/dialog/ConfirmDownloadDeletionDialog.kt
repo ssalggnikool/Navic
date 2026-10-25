@@ -107,11 +107,11 @@ private fun DeletionTypeRow(
 	preferenceManager: PreferenceManager
 ) {
 	var isChecked by remember(type) {
-		mutableStateOf(preferenceManager.isDownloadDeletionConfirmationEnabled(type))
+		mutableStateOf(preferenceManager.isConfirmDeleteEnabled(type))
 	}
 
 	val onToggle = {
-		preferenceManager.toggleDownloadDeletionConfirmation(type)
+		preferenceManager.toggleConfirmDelete(type)
 		isChecked = !isChecked
 	}
 
