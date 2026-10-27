@@ -335,7 +335,7 @@
     <string name="option_cover_art_quality">Cover qualität</string>
     <string name="info_no_starred">Keine Favoriten</string>
     <string name="title_download_quality">Downloadqualität</string>
-    <string name="title_logs">Logs</string>
+    <string name="title_logs">Protokolle</string>
     <string name="title_palette">Farbpalette</string>
     <string name="title_account">Konto</string>
     <string name="option_stream_format_cellular">Streaming-Format über Mobilfunk</string>
@@ -487,4 +487,15 @@
     <string name="option_enable_discord_integration">Discord-Integration aktivieren</string>
     <string name="action_copy">Kopieren</string>
     <string name="notice_deleted_radio">Radio gelöscht.</string>
+    <string name="option_equalizer_mode_external">Extern</string>
+    <string name="action_edit_discord_app_id">Discord app ID ändern</string>
+    <string name="info_equalizer_unsupported">Dein Gerät unterstützt diese Funktion nicht.</string>
+    <string name="title_update_radio">Radio aktualisieren</string>
+    <string name="subtitle_equalizer">Audio optimieren und verbessern</string>
+    <string name="subtitle_enable_discord_integration">Zeige auf Discord, welche Musik du gerade hörst</string>
+    <string name="option_disable_rpc_when_power_saving">Anwesenheitsanzeige im Energiesparmodus deaktivieren</string>
+    <string name="action_reset_to_default">Auf Werkeinstellungen zurücksetzen</string>
+    <string name="info_equalizer_mode_not_builtin">Bitte stellen Sie den externen Equalizer mithilfe der dazugehörigen App ein.</string>
+    <string name="info_content_unavailable">Hier gibts nichts</string>
+    <string name="option_equalizer_mode_builtin">Integriert</string>
 </resources>

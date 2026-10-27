@@ -475,4 +475,6 @@
     <string name="title_delete_radio">Slett radio?</string>
     <string name="title_update_radio">Oppdater radio</string>
     <string name="notice_deleted_radio">Radio slettet.</string>
+    <string name="action_reset_to_default">Gjenopprett fabrikkinnstillinger</string>
+    <string name="action_edit_discord_app_id">Rediger Discord app ID</string>
 </resources>

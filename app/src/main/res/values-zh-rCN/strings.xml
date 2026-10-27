@@ -322,7 +322,7 @@
     <string name="info_syncing_genres">正在同步流派...</string>
     <string name="info_syncing_artists">正在同步艺术家...</string>
     <string name="info_syncing_radios">正在同步电台...</string>
-    <string name="option_cover_art_quality">封面直连</string>
+    <string name="option_cover_art_quality">封面质量</string>
     <string name="info_no_starred">无收藏</string>
     <string name="title_starred">收藏</string>
     <string name="info_no_search_results">无搜索结果</string>
@@ -385,7 +385,7 @@
     <string name="subtitle_configure_lyric_providers">选择歌词来源</string>
     <string name="subtitle_audio_effects">音效</string>
     <string name="subtitle_enable_ratings">评分</string>
-    <string name="subtitle_ignore_ssl_certificates">忽略SSL证书</string>
+    <string name="subtitle_ignore_ssl_certificates">只有在你清楚自己在做什么时才启用此功能。如果你使用代理来检查请求，这会很有用。</string>
     <string name="option_hide_bottom_bar_if_idle">自动隐藏</string>
     <string name="subtitle_auto_fill_queue">队列里只剩一首歌时自动添加一首随机歌曲</string>
     <string name="option_auto_fill_queue">自动添加</string>
@@ -398,4 +398,24 @@
     <string name="option_preamp_with_rg">带回放增益标签</string>
     <string name="option_preamp_without_rg">不带回放增益标签</string>
     <string name="option_preamp_tip">把任一前置放大选项调得很高可能会导致音频失真。</string>
+    <string name="title_delete_radio">是否删除广播？</string>
+    <string name="title_update_radio">更新广播</string>
+    <string name="title_discord_server">Discord 服务器</string>
+    <string name="title_github">GitHub</string>
+    <string name="title_codeberg">Codeberg</string>
+    <string name="option_cover_art_action">封面点击行为</string>
+    <string name="option_equalizer">均衡器</string>
+    <string name="option_equalizer_mode">均衡器来源</string>
+    <string name="option_equalizer_mode_disabled">禁用</string>
+    <string name="option_equalizer_mode_builtin">内置</string>
+    <string name="option_equalizer_mode_external">外部</string>
+    <string name="option_enable_ratings">评分</string>
+    <string name="option_enable_predictive_back_animations">预测性返回动画</string>
+    <string name="option_enable_discord_integration">Discord 集成</string>
+    <string name="info_external_song">外部</string>
+    <string name="info_external_song_description">这首歌曲被您的服务器标记为外部内容，因此您可能无法收听。</string>
+    <string name="subtitle_custom_headers">附在每项请求中的额外信息</string>
+    <string name="subtitle_enable_discord_integration">在 Discord 上展示你正在听的音乐</string>
+    <string name="option_connection_options">连接选项</string>
+    <string name="option_list_view_mode_grid">网格</string>
 </resources>

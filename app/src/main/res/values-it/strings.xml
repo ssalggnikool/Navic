@@ -155,8 +155,8 @@
     <string name="option_gapless_playback">Riproduzione continua</string>
     <string name="option_audio_offload">Offload audio</string>
     <string name="option_now_playing_toolbar_position">Posizione toolbar</string>
-    <string name="option_position_top">Alta</string>
-    <string name="option_position_bottom">Bassa</string>
+    <string name="option_position_top">In alto</string>
+    <string name="option_position_bottom">In Basso</string>
     <string name="option_bottom_bar_collapse_mode">Modalità compatta</string>
     <string name="option_bottom_bar_collapse_mode_never">Mai</string>
     <string name="option_bottom_bar_collapse_mode_on_scroll">Quando si scorre</string>
@@ -320,7 +320,7 @@
     <string name="title_cellular">Connessione dati</string>
     <string name="subtitle_streaming_quality">Aggiusta la qualità della musica in stream</string>
     <string name="option_now_playing_song_info">Mostra info della canzone</string>
-    <string name="option_quality_low">Bassa</string>
+    <string name="option_quality_low">In basso</string>
     <string name="option_quality_medium">Media</string>
     <string name="option_quality_high">Alta</string>
     <string name="option_quality_lossless">Lossless •Transcoding disattivato)</string>
@@ -449,7 +449,7 @@
     <string name="title_top_artists">Top artisti</string>
     <string name="title_top_albums">Top album</string>
     <string name="subtitle_notifications_denied">Devi concedere a Navic l\'autorizzazione alle notifiche per ricevere le notifiche di download e sincronizzazione.</string>
-    <string name="subtitle_enable_ratings">Abilita valutazioni 5-dtelle per la musica</string>
+    <string name="subtitle_enable_ratings">Abilita valutazioni 5-stelle per la musica</string>
     <string name="option_account_instance">Url istanza</string>
     <string name="option_lyrics_fake_beat_by_beat">Effetto beat-by-beat finto</string>
     <string name="subtitle_lyrics_fake_beat_by_beat">Simula la temporizzazione a livello di parola quando non è disponibile</string>
@@ -489,7 +489,7 @@
     <string name="option_proxy_settings">Impostazioni proxy</string>
     <string name="option_proxy_url">URL proxy</string>
     <string name="option_ignore_ssl_certificates">Ignora certificati SSL</string>
-    <string name="action_edit">modifica</string>
+    <string name="action_edit">Modifica</string>
     <string name="info_proxy_url_placeholder">Es. http://127.0.0.1:8080</string>
     <string name="info_incorrect_proxy_url_format">Formato dell’URL proxy non valido. I protocolli supportati sono HTTP e SOCKS.</string>
     <string name="info_content_unavailable">Niente qui</string>
