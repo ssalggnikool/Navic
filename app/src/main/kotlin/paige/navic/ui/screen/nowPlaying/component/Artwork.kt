@@ -16,14 +16,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.domain.model.DomainSong
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Note
@@ -35,8 +35,8 @@ fun NowPlayingArtwork(
 	isLandscape: Boolean,
 	song: DomainSong
 ) {
-	val player = koinInject<MediaPlayerViewModel>()
-	val playerState by player.uiState.collectAsState()
+	val player = koinInject<MediaPlayer>()
+	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val padding by animateDpAsState(
 		targetValue = if (playerState.isPaused || playerState.currentSong?.id != song.id)

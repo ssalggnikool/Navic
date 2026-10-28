@@ -10,24 +10,14 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import paige.navic.R
-import paige.navic.data.database.dao.AlbumDao
-import paige.navic.data.database.dao.ArtistDao
-import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.data.database.mapper.toDomainModel
-import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.DownloadManager
-import paige.navic.domain.manager.SnackBarManager
+import paige.navic.database.dao.AlbumDao
+import paige.navic.database.dao.ArtistDao
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainSong
@@ -35,7 +25,7 @@ import paige.navic.domain.repository.AlbumRepository
 import paige.navic.domain.repository.ArtistRepository
 import paige.navic.domain.repository.DbRepository
 import paige.navic.domain.repository.SongRepository
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.core.UiState
 import paige.navic.util.Logger
 
@@ -55,9 +45,7 @@ class ArtistDetailViewModel(
 	private val albumRepository: AlbumRepository,
 	private val artistDao: ArtistDao,
 	private val albumDao: AlbumDao,
-	private val downloadManager: DownloadManager,
-	private val snackBarManager: SnackBarManager,
-	connectivityManager: ConnectivityManager
+	reachability: ReachabilityFlow
 ) : ViewModel() {
 	val artistState: StateFlow<UiState<ArtistState>>
 		field = MutableStateFlow<UiState<ArtistState>>(UiState.Loading())
@@ -83,14 +71,7 @@ class ArtistDetailViewModel(
 	val selectedAlbumRating: StateFlow<Int>
 		field = MutableStateFlow(0)
 
-	val isOnline = connectivityManager.isOnline
-
-	val allDownloads = downloadManager.allDownloads
-		.stateIn(
-			scope = viewModelScope,
-			started = SharingStarted.Lazily,
-			initialValue = emptyList()
-		)
+	val isReachable = reachability.isReachable
 
 	val scrollState = ScrollState(initial = 0)
 
@@ -125,7 +106,7 @@ class ArtistDetailViewModel(
 					artistDao.getArtistById(id)?.toDomainModel()
 				}
 
-				starred.value = artistRepository.isArtistStarred(domainArtist)
+				starred.value = artistRepository.isArtistStarred(domainArtist.id)
 
 				artistState.value = UiState.Success(
 					ArtistState(
@@ -166,8 +147,8 @@ class ArtistDetailViewModel(
 	fun selectSong(song: DomainSong) {
 		viewModelScope.launch {
 			selectedSong.value = song
-			selectedSongIsStarred.value = songRepository.isSongStarred(song)
-			selectedSongRating.value = songRepository.getSongRating(song)
+			selectedSongIsStarred.value = songRepository.isSongStarred(song.id)
+			selectedSongRating.value = songRepository.getSongRating(song.id)
 		}
 	}
 
@@ -178,8 +159,8 @@ class ArtistDetailViewModel(
 	fun selectAlbum(album: DomainAlbum) {
 		viewModelScope.launch {
 			selectedAlbum.value = album
-			selectedAlbumIsStarred.value = albumRepository.isAlbumStarred(album)
-			selectedAlbumRating.value = albumRepository.getAlbumRating(album)
+			selectedAlbumIsStarred.value = albumRepository.isAlbumStarred(album.id)
+			selectedAlbumRating.value = albumRepository.getAlbumRating(album.id)
 		}
 	}
 
@@ -188,7 +169,7 @@ class ArtistDetailViewModel(
 			val selection = selectedAlbum.value ?: return@launch
 			runCatching {
 				selectedAlbumRating.value = rating
-				albumRepository.rateAlbum(selection, rating)
+				albumRepository.rateAlbum(selection.id, rating)
 			}
 		}
 	}
@@ -202,7 +183,7 @@ class ArtistDetailViewModel(
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
 				selectedSongIsStarred.value = true
-				songRepository.starSong(selection)
+				songRepository.starSong(selection.id)
 				loadArtistData()
 			}
 		}
@@ -213,7 +194,7 @@ class ArtistDetailViewModel(
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
 				selectedSongIsStarred.value = false
-				songRepository.unstarSong(selection)
+				songRepository.unstarSong(selection.id)
 				loadArtistData()
 			}
 		}
@@ -224,7 +205,7 @@ class ArtistDetailViewModel(
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
 				selectedSongRating.value = rating
-				songRepository.rateSong(selection, rating)
+				songRepository.rateSong(selection.id, rating)
 			}
 		}
 	}
@@ -234,9 +215,9 @@ class ArtistDetailViewModel(
 		viewModelScope.launch {
 			runCatching {
 				if (isStarred) {
-					artistRepository.starArtist(artist)
+					artistRepository.starArtist(artist.id)
 				} else {
-					artistRepository.unstarArtist(artist)
+					artistRepository.unstarArtist(artist.id)
 				}
 				starred.value = isStarred
 			}
@@ -248,16 +229,16 @@ class ArtistDetailViewModel(
 			val selection = selectedAlbum.value ?: return@launch
 			runCatching {
 				if (starred) {
-					albumRepository.starAlbum(selection)
+					albumRepository.starAlbum(selection.id)
 				} else {
-					albumRepository.unstarAlbum(selection)
+					albumRepository.unstarAlbum(selection.id)
 				}
 				selectedAlbumIsStarred.value = starred
 			}
 		}
 	}
 
-	fun playArtistAlbums(player: MediaPlayerViewModel) {
+	fun playArtistAlbums(player: MediaPlayer) {
 		val songs = (artistState.value as? UiState.Success)?.data
 			?.albums?.flatMap { it.songs }
 			?: return
@@ -266,7 +247,7 @@ class ArtistDetailViewModel(
 		player.playNow(songs)
 	}
 
-	fun playArtistAlbumsShuffled(player: MediaPlayerViewModel) {
+	fun playArtistAlbumsShuffled(player: MediaPlayer) {
 		val songs = (artistState.value as? UiState.Success)?.data
 			?.albums?.flatMap { it.songs }
 			?: return
@@ -275,36 +256,4 @@ class ArtistDetailViewModel(
 		player.playNow(songs.shuffled())
 	}
 
-	fun downloadSong(song: DomainSong) {
-		downloadManager.downloadSong(song)
-		snackBarManager.notify(R.string.notice_download_started)
-	}
-
-	fun cancelDownload(songId: String) {
-		downloadManager.cancelDownload(songId)
-	}
-
-	fun deleteDownload(songId: String) {
-		downloadManager.deleteDownload(songId)
-		snackBarManager.notify(R.string.notice_deleted_download)
-	}
-
-	@OptIn(ExperimentalCoroutinesApi::class)
-	fun collectionDownloadStatus(): Flow<DownloadStatus> {
-		return artistState.flatMapLatest { state ->
-			if (state is UiState.Success) {
-				val allArtistSongIds = state.data.albums.flatMap { album ->
-					album.songs.map { it.id }
-				}
-
-				if (allArtistSongIds.isEmpty()) {
-					flowOf(DownloadStatus.NOT_DOWNLOADED)
-				} else {
-					downloadManager.getCollectionDownloadStatus(allArtistSongIds)
-				}
-			} else {
-				flowOf(DownloadStatus.NOT_DOWNLOADED)
-			}
-		}
-	}
 }

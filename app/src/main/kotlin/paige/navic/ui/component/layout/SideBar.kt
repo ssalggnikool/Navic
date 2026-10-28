@@ -18,12 +18,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRail
+import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.material3.rememberWideNavigationRailState
@@ -33,12 +35,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -46,9 +48,8 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.settings.NavbarConfig
 import paige.navic.domain.model.settings.NavbarTab
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
-import paige.navic.ui.component.common.WideNavigationRailItem
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Note
 import paige.navic.ui.icons.outlined.Menu
@@ -56,6 +57,7 @@ import paige.navic.ui.icons.outlined.MenuOpen
 import paige.navic.ui.navigation.NavigationTab
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
+import paige.navic.ui.util.appendArtists
 import paige.navic.ui.viewmodel.RootViewModel
 
 @Composable
@@ -127,7 +129,7 @@ private fun SideBarMiniPlayer(
 ) {
 	val backStack = LocalNavStack.current
 
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val song = playerState.currentSong
 
@@ -143,7 +145,7 @@ private fun SideBarMiniPlayer(
 	Surface(
 		modifier = Modifier.padding(start = 24.dp),
 		color = MaterialTheme.colorScheme.surfaceContainerHigh,
-		shape = ContinuousRoundedRectangle(containerRadius),
+		shape = RoundedCornerShape(containerRadius),
 		onClick = dropUnlessResumed {
 			backStack.add(Screen.NowPlaying)
 		}
@@ -157,7 +159,7 @@ private fun SideBarMiniPlayer(
 					modifier = Modifier.size(48.dp),
 					coverArtId = song?.coverArtId,
 					contentDescription = song?.title,
-					shape = ContinuousRoundedRectangle(12.dp)
+					shape = RoundedCornerShape(12.dp)
 				)
 				if (song?.coverArtId == null) {
 					Icon(
@@ -179,9 +181,11 @@ private fun SideBarMiniPlayer(
 						overflow = TextOverflow.Ellipsis,
 						style = MaterialTheme.typography.bodyMedium
 					)
-					song?.artistName?.let { artistName ->
+					song?.artists?.let { artists ->
 						Text(
-							text = artistName,
+							text = buildAnnotatedString {
+								appendArtists(artists)
+							},
 							maxLines = 1,
 							overflow = TextOverflow.Ellipsis,
 							color = MaterialTheme.colorScheme.onSurfaceVariant,

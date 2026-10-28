@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import kotlin.math.abs
 
 @Composable
@@ -78,9 +78,11 @@ fun AlphabeticalScroller(
 		headers.forEachIndexed { i, (letter, _) ->
 			Text(
 				text = letter,
-				modifier = Modifier.width(20.dp).onGloballyPositioned {
-					offsets[i] = it.positionInParent().y + (it.size.height / 2f)
-				},
+				modifier = Modifier
+					.width(20.dp)
+					.onGloballyPositioned {
+						offsets[i] = it.positionInParent().y + (it.size.height / 2f)
+					},
 				textAlign = TextAlign.Center,
 				color = MaterialTheme.colorScheme.secondary
 			)

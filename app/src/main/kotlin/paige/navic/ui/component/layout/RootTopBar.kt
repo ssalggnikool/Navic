@@ -16,25 +16,25 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.settings.NavbarConfig
 import paige.navic.domain.model.settings.NavbarTab
+import paige.navic.ui.component.common.TooltipBox
+import paige.navic.ui.component.sheet.AccountSheet
+import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Settings
 import paige.navic.ui.icons.outlined.AccountCircle
 import paige.navic.ui.icons.outlined.Search
-import paige.navic.ui.component.common.TooltipBox
-import paige.navic.ui.component.sheet.AccountSheet
-import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
 
@@ -45,7 +45,7 @@ fun RootTopBar(
 	actions: @Composable RowScope.() -> Unit = {},
 ) {
 	val navViewModel = koinViewModel<NavtabsViewModel>()
-	val navState by navViewModel.state.collectAsState()
+	val navState by navViewModel.state.collectAsStateWithLifecycle()
 	val navConfig = (navState as? UiState.Success)?.data
 
 	MediumFlexibleTopAppBar(

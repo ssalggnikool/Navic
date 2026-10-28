@@ -16,6 +16,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -35,8 +36,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.MarqueeSpeed
 import kotlin.time.Duration.Companion.seconds
 
@@ -89,23 +91,27 @@ private fun Marquee(
 	val scrollState = rememberScrollState()
 	val edgeWidthPx = with(LocalDensity.current) { edgeWidth.toPx() }
 
-	LaunchedEffect(scrollState.maxValue) {
-		if (scrollState.maxValue == 0) return@LaunchedEffect
+	LaunchedEffect(Unit) {
+		snapshotFlow {
+			scrollState.maxValue != 0
+		}.collectLatest { shouldScroll ->
+			if (shouldScroll) {
+				while (true) {
+					delay(3.seconds)
 
-		while (true) {
-			delay(1.seconds)
+					scrollState.animateScrollTo(
+						value = scrollState.maxValue,
+						animationSpec = tween(preferenceManager.marqueeSpeed.value)
+					)
 
-			scrollState.animateScrollTo(
-				value = scrollState.maxValue,
-				animationSpec = tween(preferenceManager.marqueeSpeed.value)
-			)
+					delay(1.seconds)
 
-			delay(1.seconds)
-
-			scrollState.animateScrollTo(
-				value = 0,
-				animationSpec = tween(preferenceManager.marqueeSpeed.value)
-			)
+					scrollState.animateScrollTo(
+						value = 0,
+						animationSpec = tween(preferenceManager.marqueeSpeed.value)
+					)
+				}
+			}
 		}
 	}
 

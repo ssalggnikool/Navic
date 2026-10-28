@@ -14,7 +14,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,12 +22,13 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.CoverArtTapAction
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.nowPlaying.component.NowPlayingArtwork
 
@@ -39,12 +39,22 @@ fun NowPlayingArtworkPager(
 ) {
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
-	val playerState by player.uiState.collectAsState()
+	val player = koinInject<MediaPlayer>()
+	val playerState by player.uiState.collectAsStateWithLifecycle()
+	val queue = remember(playerState.queue, playerState.shuffleOrder) {
+		playerState.activeQueue
+	}
+	val currentIndex = remember(
+		playerState.queue,
+		playerState.shuffleOrder,
+		playerState.currentIndex
+	) {
+		playerState.activeIndex
+	}
 
 	val pagerState = rememberPagerState(
-		initialPage = playerState.currentIndex.coerceAtLeast(0),
-		pageCount = { playerState.queue.size }
+		initialPage = currentIndex.coerceAtLeast(0),
+		pageCount = { queue.size }
 	)
 	val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
 	var userSwiped by remember { mutableStateOf(false) }
@@ -53,16 +63,17 @@ fun NowPlayingArtworkPager(
 		if (isDragged) userSwiped = true
 	}
 
-	LaunchedEffect(playerState.currentIndex) {
-		if (!isDragged && playerState.currentIndex != -1 && playerState.currentIndex != pagerState.currentPage) {
-			pagerState.animateScrollToPage(playerState.currentIndex)
+	LaunchedEffect(currentIndex) {
+		if (!isDragged && currentIndex != -1 && currentIndex != pagerState.currentPage) {
+			pagerState.animateScrollToPage(currentIndex)
 		}
 	}
 
 	LaunchedEffect(pagerState) {
 		snapshotFlow { pagerState.settledPage }.collect { page ->
-			if (userSwiped && page != playerState.currentIndex && page in playerState.queue.indices) {
-				val wasPaused = playerState.isPaused
+			val state = player.uiState.value
+			if (userSwiped && page != state.activeIndex && page in state.activeQueue.indices) {
+				val wasPaused = state.isPaused
 				player.playAt(page)
 				if (wasPaused) {
 					player.pause()
@@ -79,7 +90,7 @@ fun NowPlayingArtworkPager(
 		userScrollEnabled = preferenceManager.swipeToSkip,
 		overscrollEffect = null
 	) { page ->
-		val song = playerState.queue.getOrNull(page) ?: return@HorizontalPager
+		val song = queue.getOrNull(page) ?: return@HorizontalPager
 		val tapAction = preferenceManager.nowPlayingCoverArtAction
 		val enabled = pagerState.settledPage == page
 			&& tapAction != CoverArtTapAction.Disabled

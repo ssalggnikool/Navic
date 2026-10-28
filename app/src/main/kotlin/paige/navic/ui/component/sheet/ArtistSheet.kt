@@ -36,12 +36,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.database.entity.DownloadStatus
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainArtist
+import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.brand.LastFM
 import paige.navic.ui.icons.brand.MusicBrainz
@@ -71,6 +74,7 @@ fun ArtistSheet(
 	onDeleteDownloadAll: (() -> Unit)? = null,
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
+	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 	val contentPadding = PaddingValues(horizontal = 16.dp)
 	val colors = ListItemDefaults.colors(
 		containerColor = Color.Transparent,
@@ -215,7 +219,14 @@ fun ArtistSheet(
 							content = { Text(stringResource(R.string.action_delete_download)) },
 							leadingContent = { Icon(Icons.Outlined.Delete, null) },
 							onClick = {
-								onDeleteDownloadAll?.invoke()
+								downloadDeletionHandler.requestDelete(
+									target = DeleteDownloadTarget.Collection(
+										name = artist.name,
+										songIds = emptyList(),
+										type = DownloadDeletionType.ARTIST
+									),
+									onConfirmed = onDeleteDownloadAll
+								)
 								onDismissRequest()
 							},
 							colors = colors,
@@ -282,10 +293,8 @@ fun ArtistSheet(
 		}
 	}
 
-	if (linkToOpen != null) {
-		LinkConfirmationDialog(
-			linkToOpen = linkToOpen!!,
-			onDismissRequest = { linkToOpen = null }
-		)
-	}
+	LinkConfirmationDialog(
+		linkToOpen = linkToOpen,
+		onDismissRequest = { linkToOpen = null }
+	)
 }

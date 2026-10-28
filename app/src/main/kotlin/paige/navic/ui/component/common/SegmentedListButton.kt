@@ -55,6 +55,7 @@ fun SegmentedListButton(
 				.clickable(
 					onClick = onClick,
 					role = Role.Button,
+					enabled = enabled,
 					interactionSource = interactionSource
 				)
 		) {

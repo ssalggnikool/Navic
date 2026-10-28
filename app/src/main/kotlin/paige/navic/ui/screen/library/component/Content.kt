@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kotlinx.collections.immutable.ImmutableList
+import androidx.paging.compose.LazyPagingItems
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainAlbum
@@ -36,7 +36,6 @@ import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainGenre
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.ui.component.layout.horizontalSection
-import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.History
 import paige.navic.ui.icons.outlined.LibraryAdd
@@ -58,7 +57,7 @@ fun LibraryScreenContent(
 	onSetShareId: (String) -> Unit,
 
 	// albums
-	albumsState: UiState<ImmutableList<DomainAlbum>>,
+	albumsState: LazyPagingItems<DomainAlbum>,
 	selectedAlbum: DomainAlbum?,
 	selectedAlbumIsStarred: Boolean,
 	selectedAlbumRating: Int,
@@ -70,9 +69,9 @@ fun LibraryScreenContent(
 	onAddAlbumToQueue: () -> Unit,
 
 	// artists
-	artistsState: UiState<ImmutableList<DomainArtist>>,
+	artistsState: LazyPagingItems<DomainArtist>,
 	selectedArtist: DomainArtist?,
-	selectedArtistAlbums: ImmutableList<DomainAlbum>?,
+	selectedArtistAlbums: List<DomainAlbum>?,
 	selectedArtistIsStarred: Boolean,
 	onSelectArtist: (DomainArtist) -> Unit,
 	onClearArtistSelection: () -> Unit,
@@ -81,7 +80,7 @@ fun LibraryScreenContent(
 	onAddArtistToQueue: () -> Unit,
 
 	// playlists
-	playlistsState: UiState<ImmutableList<DomainPlaylist>>,
+	playlistsState: LazyPagingItems<DomainPlaylist>,
 	selectedPlaylist: DomainPlaylist?,
 	onSelectPlaylist: (DomainPlaylist) -> Unit,
 	onClearPlaylistSelection: () -> Unit,
@@ -90,7 +89,7 @@ fun LibraryScreenContent(
 	onAddPlaylistToQueue: () -> Unit,
 
 	// genres
-	genresState: UiState<ImmutableList<DomainGenre>>,
+	genresState: LazyPagingItems<DomainGenre>,
 
 	// stats
 	statsState: StatisticsState
@@ -132,7 +131,6 @@ fun LibraryScreenContent(
 			title = R.string.option_sort_recent,
 			destination = Screen.AlbumList(true, DomainAlbumListType.Recent),
 			state = albumsState,
-			key = { it.id },
 			seeAll = true
 		) { album ->
 			AlbumListScreenGridItem(
@@ -156,7 +154,6 @@ fun LibraryScreenContent(
 			title = R.string.title_playlists,
 			destination = Screen.PlaylistList(true),
 			state = playlistsState,
-			key = { it.id },
 			seeAll = true
 		) { playlist ->
 			PlaylistListScreenGridItem(
@@ -177,7 +174,6 @@ fun LibraryScreenContent(
 			title = R.string.title_artists,
 			destination = Screen.ArtistList(true),
 			state = artistsState,
-			key = { it.id },
 			seeAll = true
 		) { artist ->
 			ArtistListScreenGridItem(
@@ -199,7 +195,6 @@ fun LibraryScreenContent(
 			title = R.string.title_genres,
 			destination = Screen.GenreList(true),
 			state = genresState,
-			key = { it.name },
 			seeAll = true
 		) { genreWithAlbums ->
 			GenreListScreenCard(genre = genreWithAlbums)

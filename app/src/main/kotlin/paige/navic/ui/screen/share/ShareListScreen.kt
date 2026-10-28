@@ -34,12 +34,12 @@ import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.ShareManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.ui.ShareManager
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeletionDialog
-import paige.navic.ui.component.dialog.DeletionEndpoint
+import paige.navic.ui.component.dialog.DeletionTarget
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
@@ -54,9 +54,7 @@ import paige.navic.ui.util.withoutTop
 fun ShareListScreen() {
 	val viewModel = koinViewModel<ShareListViewModel>()
 
-	val sharesState by viewModel.sharesState.collectAsStateWithLifecycle()
-	val selectedShare by viewModel.selectedShare.collectAsStateWithLifecycle()
-	val isRefreshingFlow by viewModel.isRefreshing.collectAsStateWithLifecycle()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
 
 	val shareManager = koinInject<ShareManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -79,17 +77,17 @@ fun ShareListScreen() {
 			modifier = Modifier
 				.padding(top = contentPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = sharesState !is UiState.Loading && !isRefreshingFlow,
+			finished = state !is UiState.Loading,
 			onRefresh = { viewModel.refreshShares() },
-			key = listOf(sharesState, isRefreshingFlow)
+			key = state
 		) {
-			Crossfade(sharesState) { stateValue ->
+			Crossfade(state) { stateValue ->
 				LazyVerticalGrid(
 					modifier = Modifier.fillMaxSize(),
 					columns = GridCells.Fixed(1),
 					contentPadding = contentPadding.withoutTop(),
 					state = viewModel.gridState,
-					verticalArrangement = if ((stateValue as? UiState.Success)?.data?.isEmpty() == true)
+					verticalArrangement = if ((stateValue as? UiState.Success)?.data?.items?.isEmpty() == true)
 						Arrangement.Center
 					else Arrangement.Top
 				) {
@@ -100,15 +98,17 @@ fun ShareListScreen() {
 
 						is UiState.Error -> artGridError(stateValue)
 						is UiState.Success -> {
-							items(stateValue.data, { it.id }) { share ->
+							val items = stateValue.data.items ?: return@LazyVerticalGrid
+
+							items(items) { share ->
 								ShareListScreenItem(
 									modifier = Modifier.animateItem(fadeInSpec = null),
 									share = share,
-									onClick = { viewModel.updateSelection(share) },
+									onClick = { viewModel.selected = share },
 									onSwipeToDelete = { deletionId = share.id }
 								)
 							}
-							if (stateValue.data.isEmpty()) {
+							if (stateValue.data.items.isEmpty()) {
 								item(span = { GridItemSpan(maxLineSpan) }) {
 									ContentUnavailable(
 										label = stringResource(R.string.info_no_shares)
@@ -122,9 +122,11 @@ fun ShareListScreen() {
 		}
 	}
 
-	selectedShare?.let { selectedShare ->
+	viewModel.selected?.let { selectedShare ->
 		ShareSheet(
-			onDismissRequest = viewModel::clearSelection,
+			onDismissRequest = {
+				// TODO: fuck
+			},
 			onShare = {
 				scope.launch {
 					try {
@@ -140,9 +142,8 @@ fun ShareListScreen() {
 	}
 
 	DeletionDialog(
-		endpoint = DeletionEndpoint.SHARE,
-		id = deletionId,
-		onIdClear = { deletionId = null },
+		target = deletionId?.let { DeletionTarget.Share(it) },
+		onDismissRequest = { deletionId = null },
 		onRefresh = viewModel::refreshShares
 	)
 }

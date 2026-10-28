@@ -9,6 +9,7 @@ package paige.navic.ui.component.common
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemElevation
@@ -23,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.kyant.capsule.ContinuousRoundedRectangle
 
 @Composable
 fun SegmentedListItem(
@@ -123,7 +123,7 @@ fun SegmentedListItem(
 object SegmentedListItemDefaults {
 	val SegmentedGap = 3.dp
 	val ContentPadding = PaddingValues(horizontal = 14.dp, vertical = 14.dp)
-	val OverrideShape = ContinuousRoundedRectangle(18.dp)
+	val OverrideShape = RoundedCornerShape(18.dp)
 
 	@Composable
 	fun verticalAlignment() = Alignment.CenterVertically

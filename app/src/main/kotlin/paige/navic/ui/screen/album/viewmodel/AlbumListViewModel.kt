@@ -7,22 +7,23 @@
 package paige.navic.ui.screen.album.viewmodel
 
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
+import androidx.paging.cachedIn
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
+import paige.navic.database.dao.LetterCount
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.toBitmask
 import paige.navic.domain.model.toDomainFilters
 import paige.navic.domain.repository.AlbumRepository
-import paige.navic.ui.core.UiState
+import paige.navic.ui.viewmodel.SelectableViewModel
 
 class AlbumListViewModel(
 	initialListType: DomainAlbumListType? = null,
@@ -30,19 +31,7 @@ class AlbumListViewModel(
 	private val repository: AlbumRepository,
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager
-) : ViewModel() {
-	val albumsState: StateFlow<UiState<ImmutableList<DomainAlbum>>>
-		field = MutableStateFlow<UiState<ImmutableList<DomainAlbum>>>(UiState.Loading())
-
-	val selectedAlbum: StateFlow<DomainAlbum?>
-		field = MutableStateFlow(null)
-
-	val starred: StateFlow<Boolean>
-		field = MutableStateFlow(false)
-
-	val rating: StateFlow<Int>
-		field = MutableStateFlow(0)
-
+) : SelectableViewModel<DomainAlbum>() {
 	val listType: StateFlow<DomainAlbumListType>
 		field = MutableStateFlow(initialListType ?: preferenceManager.albumSortType)
 
@@ -54,60 +43,46 @@ class AlbumListViewModel(
 			initialFilters ?: preferenceManager.albumFilters.toDomainFilters()
 		)
 
+	val letterCounts: StateFlow<List<LetterCount>>
+		field = MutableStateFlow(emptyList())
+
 	val gridState = LazyGridState()
 
+	private var letterCountsJob: Job? = null
+
 	init {
-		viewModelScope.launch {
-			sessionManager.isLoggedIn.collect { if (it) refreshAlbums(false) }
+		launch {
+			sessionManager.sessionState.collect { if (it is SessionState.Authenticated) refreshAlbums(false) }
 		}
 	}
 
-	fun refreshAlbums(fullRefresh: Boolean) {
-		viewModelScope.launch {
-			repository.getAlbumsFlow(
-				fullRefresh,
-				listType.value,
-				selectedReversed.value,
-				selectedFilters.value
-			).collect {
-				albumsState.value = it
+	fun refreshAlbums(fullRefresh: Boolean) = launch {
+		items = repository.getAlbums(
+			fullRefresh, listType.value,
+			selectedReversed.value,
+			selectedFilters.value
+		).cachedIn(viewModelScope)
+		letterCountsJob?.cancel()
+		letterCountsJob = viewModelScope.launch {
+			repository.getAlbumLetterCounts(selectedReversed.value, selectedFilters.value).collect {
+				letterCounts.value = it
 			}
 		}
-	}
-
-	fun selectAlbum(album: DomainAlbum) {
-		viewModelScope.launch {
-			selectedAlbum.value = album
-			starred.value = repository.isAlbumStarred(album)
-			rating.value = repository.getAlbumRating(album)
-		}
-	}
-
-	fun clearSelection() {
-		selectedAlbum.value = null
 	}
 
 	fun starAlbum(isStarred: Boolean) {
-		viewModelScope.launch {
-			val selection = selectedAlbum.value ?: return@launch
-			runCatching {
-				if (isStarred) {
-					repository.starAlbum(selection)
-				} else {
-					repository.unstarAlbum(selection)
-				}
-				starred.value = isStarred
-			}
+		launch {
+			val selection = selected ?: return@launch
+			if (isStarred) repository.starAlbum(selection.id) else repository.unstarAlbum(selection.id)
+			refreshAlbums(false)
 		}
 	}
 
 	fun setRating(newRating: Int) {
-		viewModelScope.launch {
-			val selection = selectedAlbum.value ?: return@launch
-			runCatching {
-				rating.value = newRating
-				repository.rateAlbum(selection, newRating)
-			}
+		launch {
+			val selection = selected ?: return@launch
+			repository.rateAlbum(selection.id, newRating)
+			refreshAlbums(false)
 		}
 	}
 
@@ -133,9 +108,5 @@ class AlbumListViewModel(
 		selectedFilters.value = newFilters
 		preferenceManager.albumFilters = newFilters.toBitmask()
 		refreshAlbums(false)
-	}
-
-	fun clearError() {
-		albumsState.value = UiState.Success(albumsState.value.data ?: persistentListOf())
 	}
 }

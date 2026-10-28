@@ -37,10 +37,10 @@ import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSheetState
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingBackgroundStyle
 import paige.navic.domain.model.settings.ToolbarPosition
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.BlendBackground
 import paige.navic.ui.component.layout.SheetScaffold
 import paige.navic.ui.component.layout.TopBarButton
@@ -59,7 +59,7 @@ import paige.navic.ui.screen.nowPlaying.viewmodel.NowPlayingViewModel
 @Composable
 fun NowPlayingScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val backStack = LocalNavStack.current
 
 	val currentScreen = backStack.lastOrNull()
@@ -129,7 +129,7 @@ fun NowPlayingScreen() {
 			) {
 				BlendBackground(
 					coverArtId = song?.coverArtId,
-					isPaused = playerState.isPaused
+					isPaused = playerState.isPaused || currentScreen is Screen.Queue
 				)
 			}
 			if (!isPlayerCurrent) return@Box
@@ -159,16 +159,22 @@ fun NowPlayingScreen() {
 				// TODO: figure out why artwork pager unnecessarily resizes when you drag the sheet
 				if (isLandscape) {
 					Row(
-						modifier = Modifier.fillMaxSize().padding(padding),
+						modifier = Modifier
+							.fillMaxSize()
+							.padding(padding),
 						horizontalArrangement = Arrangement.SpaceEvenly,
 						verticalAlignment = Alignment.CenterVertically
 					) {
 						NowPlayingArtworkPager(
-							modifier = Modifier.weight(1f).fillMaxHeight(),
+							modifier = Modifier
+								.weight(1f)
+								.fillMaxHeight(),
 							isLandscape = true
 						)
 						NowPlayingControlsRow(
-							modifier = Modifier.weight(1f).fillMaxHeight(),
+							modifier = Modifier
+								.weight(1f)
+								.fillMaxHeight(),
 							isLandscape = true,
 							songIsStarred = songIsStarred,
 							onSetSongIsStarred = { viewModel.starSong(it) },
@@ -178,12 +184,16 @@ fun NowPlayingScreen() {
 					}
 				} else {
 					Column(
-						modifier = Modifier.fillMaxSize().padding(padding),
+						modifier = Modifier
+							.fillMaxSize()
+							.padding(padding),
 						horizontalAlignment = Alignment.CenterHorizontally,
 						verticalArrangement = Arrangement.Center
 					) {
 						NowPlayingArtworkPager(
-							modifier = Modifier.weight(1f).fillMaxWidth(),
+							modifier = Modifier
+								.weight(1f)
+								.fillMaxWidth(),
 							isLandscape = false
 						)
 						NowPlayingControlsRow(

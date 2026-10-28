@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="RootProjectOnly" pattern="file:*&amp;&amp;!file:*/vendor//*&amp;&amp;!file[subsonic-kotlin]:*&amp;&amp;!file[androidx-media3]:*" />
+</component>

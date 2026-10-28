@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="action_add_all_to_playlist">Aggiungi tutti alla playlist</string>
     <string name="action_add_to_another_playlist">Aggiungi ad un\'altra playlist</string>
     <string name="action_add_to_playlist">Aggiungi alla playlist</string>
     <string name="action_cancel">Annulla</string>
@@ -18,7 +17,6 @@
     <string name="action_refresh">Ricarica</string>
     <string name="action_remove_from_playlist">Rimuovi dalla playlist</string>
     <string name="action_remove_star">Rimuovi dai preferiti</string>
-    <string name="action_repeat">Ripeti</string>
     <string name="action_see_all">Vedi tutti</string>
     <string name="action_share">Condividi</string>
     <string name="action_share_lyrics">Condividi testo</string>
@@ -30,13 +28,11 @@
     <string name="action_view_artist">Vedi artista</string>
     <string name="action_view_on_lastfm">Vedi su last.fm</string>
     <string name="action_view_on_musicbrainz">Vedi su MusicBrainz</string>
-    <string name="action_view_playlist">Vedi playlist</string>
     <string name="action_view_shares">Condivisioni</string>
     <string name="app_name" translatable="false">Navic</string>
     <string name="info_action_is_permanent">Questa azione non può essere annullata</string>
     <string name="info_app_version">Navic %1$s</string>
     <string name="info_error">Qualcosa è andato storto.</string>
-    <string name="info_error_hide">Nascondi dettagli</string>
     <string name="info_error_show">Mostra dettagli</string>
     <string name="info_no_other_playlists">Non hai nessun\'altra playlist.</string>
     <string name="info_no_playlists">Non hai playlist.</string>
@@ -44,7 +40,6 @@
     <string name="info_not_playing">Non in riproduzione</string>
     <string name="info_share_expired">Scaduto</string>
     <string name="info_share_expires_in">Scade tra %1$s</string>
-    <string name="info_share_expires_never">Non scade</string>
     <string name="info_shared_by">Condiviso da %1$s</string>
     <string name="info_track_artist">Artista/i</string>
     <string name="info_track_bit_depth">Bit depth</string>
@@ -59,7 +54,6 @@
     <string name="info_track_path">Posizione</string>
     <string name="info_track_sampling_rate">Sampling rate</string>
     <string name="info_unknown">Sconosciuto</string>
-    <string name="info_unknown_album">Album sconosciuto</string>
     <string name="info_unknown_genre">Genere sconosciuto</string>
     <string name="info_unknown_year">Anno sconosciuto</string>
     <string name="notice_copied">Copiato negli appunti.</string>
@@ -80,7 +74,6 @@
     <string name="option_lyrics_beat_by_beat">Testo parola per parola</string>
     <string name="option_min_duration_to_scrobble">Durata min. per lo scrobble</string>
     <string name="option_playlist_name">Nome</string>
-    <string name="option_playlist_songs">Tracce</string>
     <string name="option_scrobble_percentage">Percentuale di scrobble</string>
     <string name="option_share_expires">Scadenza</string>
     <string name="option_sort_alphabetical_by_artist">Ordine alfabetico per artista</string>
@@ -128,7 +121,6 @@
     <string name="title_developer">Opzioni sviluppatore</string>
     <string name="title_choose_font">Font dell\'app</string>
     <string name="title_fonts_inbuilt">Integrato</string>
-    <string name="title_fonts_external">Esterno</string>
     <string name="title_more_by_artist">Altri da %1$s</string>
     <string name="title_genres">Generi</string>
     <string name="title_navigation_bar">Barra di navigazione</string>
@@ -151,12 +143,11 @@
     <string name="option_sort_playlist_duration">Durata</string>
     <string name="option_sort_ascending">Crescente</string>
     <string name="option_sort_descending">Decrescente</string>
-    <string name="option_replay_gain">ReplayGain</string>
     <string name="option_gapless_playback">Riproduzione continua</string>
     <string name="option_audio_offload">Offload audio</string>
     <string name="option_now_playing_toolbar_position">Posizione toolbar</string>
-    <string name="option_position_top">Alta</string>
-    <string name="option_position_bottom">Bassa</string>
+    <string name="option_position_top">In alto</string>
+    <string name="option_position_bottom">In Basso</string>
     <string name="option_bottom_bar_collapse_mode">Modalità compatta</string>
     <string name="option_bottom_bar_collapse_mode_never">Mai</string>
     <string name="option_bottom_bar_collapse_mode_on_scroll">Quando si scorre</string>
@@ -184,11 +175,6 @@
         <item quantity="many">%1$d album</item>
         <item quantity="other">%1$d album</item>
     </plurals>
-    <plurals name="count_playlists">
-        <item quantity="one">%1$d playlist</item>
-        <item quantity="many">%1$d playlist</item>
-        <item quantity="other">%1$d playlist</item>
-    </plurals>
     <plurals name="count_artists">
         <item quantity="one">%1$d artista</item>
         <item quantity="many">%1$d artisti</item>
@@ -211,7 +197,6 @@
     <string name="info_no_genres">Nessun genere</string>
     <string name="info_no_playlists_short">Niente playlist</string>
     <string name="info_lyrics_provider">Testo fornito da %1$s</string>
-    <string name="info_image_failed_to_load">Errore nel caricamento</string>
     <string name="title_data_storage">Dati &amp; Archiviazione</string>
     <string name="title_sync_control">Controllo sincronizzazione</string>
     <string name="title_cache_management">Gestione cache &amp; archiviazione</string>
@@ -254,7 +239,6 @@
     <string name="option_sort_downloaded">Scaricati</string>
     <string name="info_status_calculating">Calcolando...</string>
     <string name="info_syncing">Sincronizzazione...</string>
-    <string name="info_syncing_saving">Salvataggio...</string>
     <string name="info_syncing_saved">Salvato.</string>
     <string name="info_syncing_finished">Finito.</string>
     <string name="info_syncing_albums">Sincronizzazione album...</string>
@@ -262,7 +246,6 @@
     <string name="info_syncing_genres">Sincronizzazione generi...</string>
     <string name="info_syncing_artists">Sincronizzazione artisti...</string>
     <string name="title_update">Aggiornamento disponibile</string>
-    <string name="title_changelog">Note di rilascio</string>
     <string name="subtitle_check_for_updates">Controlla gli update su GitHub all\' apertura dell\' app</string>
     <string name="option_check_for_updates">Controlla aggiornamenti</string>
     <string name="action_test_exception_handler">Test del gestore delle exception</string>
@@ -320,7 +303,7 @@
     <string name="title_cellular">Connessione dati</string>
     <string name="subtitle_streaming_quality">Aggiusta la qualità della musica in stream</string>
     <string name="option_now_playing_song_info">Mostra info della canzone</string>
-    <string name="option_quality_low">Bassa</string>
+    <string name="option_quality_low">In basso</string>
     <string name="option_quality_medium">Media</string>
     <string name="option_quality_high">Alta</string>
     <string name="option_quality_lossless">Lossless •Transcoding disattivato)</string>
@@ -336,8 +319,6 @@
     <string name="option_playback_speed">Velocità di riproduzione</string>
     <string name="title_advanced">Transcoding avanzato</string>
     <string name="option_off">Off</string>
-    <string name="option_max_bitrate_wifi">Bitrate massimo Wi-Fi (kbps)</string>
-    <string name="option_max_bitrate_cellular">Bitrate massimo dati mobili (kbps)</string>
     <string name="action_clear_queue">Svuota coda</string>
     <string name="title_starred">Preferiti</string>
     <string name="option_cover_art_quality">Qualità copertine</string>
@@ -358,8 +339,6 @@
     <string name="title_account">Account</string>
     <string name="option_artist_image_shape">Forma della copertina degli artisti</string>
     <string name="option_stream_custom_quality">Usa una qualità per lo stream personalizzate</string>
-    <string name="option_stream_format_wifi">Formato stream Wi-Fi</string>
-    <string name="option_stream_format_cellular">Formato stream dati mobili</string>
     <string name="option_palette_style">Stile palette</string>
     <string name="option_palette_specification">Specifiche palette</string>
     <string name="option_explicit_playback">Playback del contenuto esplicito</string>
@@ -386,8 +365,6 @@
     <string name="option_auto_fill_queue">Riempi automaticamente la coda</string>
     <string name="subtitle_auto_fill_queue">Aggiunge automaticamente una canzone casuale quando una sola è rimanente nella coda</string>
     <string name="option_download_custom_quality">Qualità di download custom</string>
-    <string name="option_download_format_wifi">Formato download Wi-Fi</string>
-    <string name="option_download_format_cellular">Formato download dati mobili</string>
     <string name="option_cover_art_action">Azione tocco copertina</string>
     <string name="option_cover_art_action_disabled">Disattivato</string>
     <string name="option_cover_art_action_show_lyrics">Mostra testo</string>
@@ -425,10 +402,8 @@
     <string name="action_visit_site">Visita il sito</string>
     <string name="notice_link_confirmation">Questo link ti sta portando al seguente sito:</string>
     <string name="info_lyric_provider_disclaimer">Attivare LRCLIB e/o LyricsPlus farà richieste a servizi web terzi e non affiliati.</string>
-    <string name="action_start">Inizia</string>
     <string name="action_sleep_timer_songs_enabled">Sleep timer - %1$d brani rimanenti</string>
     <string name="action_sleep_timer_queue_enabled">Sleep timer - fine della coda</string>
-    <string name="action_sleep_timer_songs">Fermati dopo %1$d tracce</string>
     <string name="action_sleep_timer_queue">Fermati alla fine della coda</string>
     <string name="title_sleep_timer_time">Tempo</string>
     <string name="title_sleep_timer_songs">Tracce</string>
@@ -447,16 +422,15 @@
     <string name="title_statistics">Statistiche</string>
     <string name="title_top_songs">Top canzoni</string>
     <string name="title_top_artists">Top artisti</string>
-    <string name="title_top_albums">Tom album</string>
+    <string name="title_top_albums">Top album</string>
     <string name="subtitle_notifications_denied">Devi concedere a Navic l\'autorizzazione alle notifiche per ricevere le notifiche di download e sincronizzazione.</string>
-    <string name="subtitle_enable_ratings">Abilita valutazioni 5-dtelle per la musica</string>
+    <string name="subtitle_enable_ratings">Abilita valutazioni 5-stelle per la musica</string>
     <string name="option_account_instance">Url istanza</string>
     <string name="option_lyrics_fake_beat_by_beat">Effetto beat-by-beat finto</string>
     <string name="subtitle_lyrics_fake_beat_by_beat">Simula la temporizzazione a livello di parola quando non è disponibile</string>
     <string name="option_use_amoled_theme">Usa il tema AMOLED</string>
     <string name="option_enable_ratings">Abilita valutazioni</string>
     <string name="option_enable_predictive_back_animations">Abilita le animazioni di ritorno predittivo</string>
-    <string name="option_queue_info_type">Informazioni coda</string>
     <string name="option_queue_info_type_remining">Mostra canzoni/tempo rimanente</string>
     <string name="option_queue_info_type_full">Mostra il brani/durata totale della coda</string>
     <plurals name="count_remaining_songs">
@@ -470,7 +444,6 @@
         <item quantity="other">%1$d riproduzioni</item>
     </plurals>
     <string name="action_save">Salva</string>
-    <string name="action_view_statistics">Visualizza statistiche</string>
     <string name="notice_image_saved">Immagine salvata.</string>
     <string name="notice_notifications_denied">Autorizzazione non concessa</string>
     <string name="info_total_plays">Riproduzioni totali</string>
@@ -479,17 +452,15 @@
     <string name="info_login_description">Accedi a un server musicale compatibile con Subsonic.</string>
     <string name="info_starred_songs">Canzoni preferite</string>
     <string name="info_duration_left">%1$s rimanenti</string>
-    <string name="action_allow">Permetti</string>
     <string name="title_chat">Chat</string>
     <string name="action_send_message">Manda messaggio</string>
     <string name="info_chat_unsupported">Il tuo server non supporta questa funzione, o sei offline</string>
     <string name="subtitle_custom_headers">Informazioni aggiuntive allegate a ogni richiesta</string>
     <string name="subtitle_ignore_ssl_certificates">Abilita questa opzione solo se sai cosa stai facendo. Utile se utilizzi un proxy per analizzare le richieste.</string>
     <string name="option_connection_options">Opzioni di connessione</string>
-    <string name="option_proxy_settings">Impostazioni proxy</string>
     <string name="option_proxy_url">URL proxy</string>
     <string name="option_ignore_ssl_certificates">Ignora certificati SSL</string>
-    <string name="action_edit">modifica</string>
+    <string name="action_edit">Modifica</string>
     <string name="info_proxy_url_placeholder">Es. http://127.0.0.1:8080</string>
     <string name="info_incorrect_proxy_url_format">Formato dell’URL proxy non valido. I protocolli supportati sono HTTP e SOCKS.</string>
     <string name="info_content_unavailable">Niente qui</string>

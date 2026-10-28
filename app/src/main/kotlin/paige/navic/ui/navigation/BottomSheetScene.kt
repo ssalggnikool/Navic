@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheetProperties
@@ -37,7 +38,6 @@ import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
-import com.kyant.capsule.ContinuousCapsule
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSheetState
 import paige.navic.ui.component.sheet.ModalBottomSheet
@@ -62,7 +62,10 @@ class BottomSheetScene<T : Any>(
 
 
 	override val content = @Composable {
-		sheetState = rememberBottomSheetState(SheetValue.Hidden)
+		sheetState = rememberBottomSheetState(
+			initialValue = SheetValue.Hidden,
+			enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
+		)
 		val lifecycleOwner = rememberLifecycleOwner()
 		val backStack = LocalNavStack.current
 		val coverArtId = entry.metadata[CoverArtIdKey]
@@ -85,7 +88,7 @@ class BottomSheetScene<T : Any>(
 					Surface(
 						modifier = Modifier.padding(vertical = 5.dp),
 						color = currentColorScheme.primary,
-						shape = ContinuousCapsule,
+						shape = CircleShape,
 					) {
 						Box(Modifier.size(width = 32.dp, height = 4.dp))
 					}

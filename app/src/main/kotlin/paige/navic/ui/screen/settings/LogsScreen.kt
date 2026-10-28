@@ -6,15 +6,6 @@
 
 package paige.navic.ui.screen.settings
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -32,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -43,12 +35,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -57,13 +47,13 @@ import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.LogManager
+import paige.navic.domain.manager.ui.LogManager
 import paige.navic.domain.parser.LogLine
+import paige.navic.ui.component.layout.NestedTopBar
+import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.ArrowDown
 import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.component.layout.NestedTopBar
-import paige.navic.ui.component.layout.TopBarButton
 
 @Composable
 fun SettingsLogsScreen() {
@@ -79,9 +69,6 @@ fun SettingsLogsScreen() {
 		}
 	}
 	val scope = rememberCoroutineScope()
-
-	val slideSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
-	val scaleInSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>()
 
 	LaunchedEffect(Unit) {
 		logManager.logFlow().cancellable().collect {
@@ -111,36 +98,23 @@ fun SettingsLogsScreen() {
 			)
 		},
 		floatingActionButton = {
-			AnimatedContent(
-				targetState = isAtBottom,
-				transitionSpec = {
-					val transformOrigin = TransformOrigin(0f, 1f)
-					(slideInHorizontally(slideSpec) { it / 2 }
-						+ scaleIn(scaleInSpec, transformOrigin = transformOrigin)
-						+ slideInVertically(slideSpec) { it / 2 })
-						.togetherWith(slideOutHorizontally(slideSpec) { it / 2 }
-							+ scaleOut(transformOrigin = transformOrigin)
-							+ slideOutVertically(slideSpec) { it / 2 })
-						.using(SizeTransform(clip = false))
-				}
-			) { isAtBottom ->
-				if (!isAtBottom) {
-					FloatingActionButton(
-						shape = MaterialTheme.shapes.large,
-						containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-						onClick = dropUnlessResumed {
-							scope.launch {
-								listState.animateScrollToItem(lines.lastIndex)
-							}
-						}
-					) {
-						Icon(
-							imageVector = Icons.Outlined.ArrowDown,
-							contentDescription = stringResource(R.string.action_scroll_down),
-							modifier = Modifier.size(26.dp)
-						)
+			FloatingActionButton(
+				modifier = Modifier.animateFloatingActionButton(
+					visible = !isAtBottom,
+					alignment = Alignment.BottomEnd
+				),
+				containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+				onClick = dropUnlessResumed {
+					scope.launch {
+						listState.animateScrollToItem(lines.lastIndex)
 					}
 				}
+			) {
+				Icon(
+					imageVector = Icons.Outlined.ArrowDown,
+					contentDescription = stringResource(R.string.action_scroll_down),
+					modifier = Modifier.size(26.dp)
+				)
 			}
 		}
 	) { innerPadding ->

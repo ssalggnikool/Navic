@@ -29,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import com.kyant.capsule.ContinuousCapsule
 
 @Composable
 fun SlimSlider(
@@ -69,7 +68,7 @@ fun SlimSlider(
 			modifier = Modifier
 				.height(16.dp)
 				.fillMaxWidth()
-				.clip(ContinuousCapsule)
+				.clip(CircleShape)
 				.background(MaterialTheme.colorScheme.secondaryContainer)
 		) {
 			Box(
@@ -82,7 +81,7 @@ fun SlimSlider(
 			)
 			Box(
 				modifier = Modifier
-					.clip(ContinuousCapsule)
+					.clip(CircleShape)
 					.fillMaxWidth(state.coercedValueAsFraction)
 					.fillMaxHeight()
 					.background(MaterialTheme.colorScheme.primary)

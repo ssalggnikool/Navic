@@ -24,11 +24,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.detailPane
@@ -40,7 +40,6 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,16 +73,18 @@ import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.di.LocalSizeClass
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.manager.BottomBarScrollManager
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.manager.SnackBarManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.SessionState
+import paige.navic.domain.manager.ui.BottomBarScrollManager
+import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.generated.BuildInfo
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.layout.SideBar
 import paige.navic.ui.component.sheet.ChangelogSheet
 import paige.navic.ui.component.snackbar.NavicSnackBar
+import paige.navic.ui.component.snackbar.SwipeableSnackBarHost
 import paige.navic.ui.navigation.BottomSheetSceneStrategy
 import paige.navic.ui.navigation.NowPlayingSceneStrategy
 import paige.navic.ui.navigation.Screen
@@ -108,6 +109,7 @@ import paige.navic.ui.screen.settings.AudioEffectsScreen
 import paige.navic.ui.screen.settings.BottomBarScreen
 import paige.navic.ui.screen.settings.FontsScreen
 import paige.navic.ui.screen.settings.SettingsAboutScreen
+import paige.navic.ui.screen.settings.SettingsAlternativeAddressesScreen
 import paige.navic.ui.screen.settings.SettingsAppIconScreen
 import paige.navic.ui.screen.settings.SettingsAppearanceScreen
 import paige.navic.ui.screen.settings.SettingsConnectionOptionsScreen
@@ -151,14 +153,35 @@ fun App() {
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	val isLoggedIn by sessionManager.isLoggedIn.collectAsStateWithLifecycle()
+	val sessionState by sessionManager.sessionState.collectAsStateWithLifecycle()
 	val backStack = rememberNavBackStack(
-		config, if (isLoggedIn) {
-			Screen.Library()
-		} else {
+		config, if (sessionState is SessionState.Unauthenticated) {
 			Screen.Login
+		} else {
+			Screen.Library()
 		}
 	)
+
+	LaunchedEffect(sessionState) {
+		when (sessionState) {
+			is SessionState.Unauthenticated if backStack.lastOrNull() != Screen.Login -> {
+				backStack.clear()
+				backStack.add(Screen.Login)
+			}
+
+			is SessionState.Authenticated if backStack.lastOrNull() == Screen.Login -> {
+				backStack.clear()
+				backStack.add(Screen.Library())
+			}
+
+			is SessionState.Restoring if backStack.lastOrNull() == Screen.Login -> {
+				backStack.clear()
+				backStack.add(Screen.Library())
+			}
+			else -> {}
+		}
+	}
+
 	val snackBarState = remember { SnackbarHostState() }
 	val snackBarManager = koinInject<SnackBarManager>()
 
@@ -196,15 +219,19 @@ fun App() {
 			NavicTheme {
 				Row(modifier = Modifier.fillMaxSize()) {
 					if (sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
-						&& Screen.Login !in backStack) {
+						&& Screen.Login !in backStack
+					) {
 						SideBar()
 					}
 					@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 					Scaffold(
 						modifier = Modifier.nestedScroll(scrollManager.connection),
 						snackbarHost = {
-							SnackbarHost(hostState = snackBarState) { snackBarData ->
-								NavicSnackBar(snackBarData = snackBarData)
+							SwipeableSnackBarHost(hostState = snackBarState) { snackBarData, offset ->
+								NavicSnackBar(
+									snackBarData = snackBarData,
+									modifier = Modifier.offset(x = offset)
+								)
 							}
 						}
 					) { _ ->
@@ -343,8 +370,8 @@ private fun entryProvider(
 			NowPlayingScreen()
 		}
 		entry<Screen.Lyrics>(metadata = NowPlayingSceneStrategy.bottomSheet(isTransparent = true)) {
-			val player = koinInject<MediaPlayerViewModel>()
-			val playerState by player.uiState.collectAsState()
+			val player = koinInject<MediaPlayer>()
+			val playerState by player.uiState.collectAsStateWithLifecycle()
 			val song = playerState.currentSong
 			LyricsScreen(song)
 		}
@@ -423,6 +450,9 @@ private fun entryProvider(
 		}
 		entry<Screen.Settings.ConnectionOptions> {
 			SettingsConnectionOptionsScreen()
+		}
+		entry<Screen.Settings.AlternativeAddresses> {
+			SettingsAlternativeAddressesScreen()
 		}
 		entry<Screen.Settings.CustomHeaders> {
 			SettingsCustomHeadersScreen()

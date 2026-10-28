@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="action_add_all_to_playlist">Alle zur Playlist hinzufügen</string>
     <string name="action_add_to_another_playlist">Zu einer anderen Playlist hinzufügen</string>
     <string name="action_add_to_playlist">Zur Playlist hinzufügen</string>
     <string name="action_cancel">Abbrechen</string>
@@ -17,7 +16,6 @@
     <string name="action_refresh">Aktualisieren</string>
     <string name="action_remove_from_playlist">Aus Playlist entfernen</string>
     <string name="action_remove_star">Als Favorit entfernen</string>
-    <string name="action_repeat">Wiederholen</string>
     <string name="action_see_all">Alle anzeigen</string>
     <string name="action_share">Teilen</string>
     <string name="action_shuffle">Zufallswiedergabe</string>
@@ -27,12 +25,10 @@
     <string name="action_view_artist">Künstler anzeigen</string>
     <string name="action_view_on_lastfm">Auf last.fm anzeigen</string>
     <string name="action_view_on_musicbrainz">Auf MusicBrainz anzeigen</string>
-    <string name="action_view_playlist">Playlist anzeigen</string>
     <string name="app_name" translatable="false">Navic</string>
     <string name="info_action_is_permanent">Diese Aktion ist unwiderruflich</string>
     <string name="info_app_version">Navic %1$s</string>
     <string name="info_error">Etwas ist schiefgelaufen.</string>
-    <string name="info_error_hide">Details ausblenden</string>
     <string name="info_error_show">Details anzeigen</string>
     <string name="info_no_other_playlists">Du hast außer dieser keine weiteren Playlists.</string>
     <string name="info_no_playlists">Du hast keine Playlists.</string>
@@ -50,7 +46,6 @@
     <string name="info_track_path">Pfad</string>
     <string name="info_track_sampling_rate">Samplingrate</string>
     <string name="info_unknown">Unbekannt</string>
-    <string name="info_unknown_album">Unbekanntes Album</string>
     <string name="info_unknown_genre">Unbekanntes Genre</string>
     <string name="info_unknown_year">Unbekanntes Jahr</string>
     <string name="notice_copied">In die Zwischenablage kopiert.</string>
@@ -70,7 +65,6 @@
     <string name="option_lyrics_beat_by_beat">Beat-by-beat Lyrics</string>
     <string name="option_min_duration_to_scrobble">Min. Wiedergabedauer zum Scrobbeln</string>
     <string name="option_playlist_name">Name</string>
-    <string name="option_playlist_songs">Lieder</string>
     <string name="option_scrobble_percentage">Scrobble Prozent</string>
     <string name="option_share_expires">Läuft ab</string>
     <string name="option_sort_alphabetical_by_artist">Alphabetisch nach Künstler</string>
@@ -112,7 +106,6 @@
     <string name="title_all">Alle</string>
     <string name="title_choose_font">Schriftart</string>
     <string name="title_fonts_inbuilt">Intern</string>
-    <string name="title_fonts_external">Extern</string>
     <string name="title_shares">Geteilte Inhalte</string>
     <string name="title_more_by_artist">Mehr von %1$s</string>
     <string name="title_genres">Genres</string>
@@ -129,7 +122,6 @@
     <string name="title_bulk_download">Alle Alben herunterladen</string>
     <string name="title_confirm">Bestätigen</string>
     <string name="title_update">Update verfügbar</string>
-    <string name="title_changelog">Änderungsprotokoll</string>
     <string name="subtitle_playback">Audio Effekte &amp; Verhalten, scrobbling</string>
     <string name="subtitle_data_storage">Synchronisation, Datennutzung und Cache</string>
     <string name="subtitle_trigger_sync">Erzwingt ein sofortiges Laden der Audiothek</string>
@@ -154,9 +146,8 @@
     <string name="option_sort_ascending">Aufsteigend</string>
     <string name="option_sort_descending">Absteigend</string>
     <string name="option_choose_theme">App Theme</string>
-    <string name="option_replay_gain">Lautstärke-Normalisierung</string>
     <string name="option_gapless_playback">Nahtlose Wiedergabe</string>
-    <string name="option_audio_offload">Audio-Auslagerung</string>
+	<string name="option_audio_offload">Audio-Auslagerung</string>
     <string name="option_live_status">Status</string>
     <string name="option_image_cache_size">Bild Cache Größe</string>
     <string name="option_last_sync">Letzte volle Synchronisation</string>
@@ -202,10 +193,6 @@
         <item quantity="one">%1$d Album</item>
         <item quantity="other">%1$d Albums</item>
     </plurals>
-    <plurals name="count_playlists">
-        <item quantity="one">%1$d Playlist</item>
-        <item quantity="other">%1$d Playlisten</item>
-    </plurals>
     <plurals name="count_artists">
         <item quantity="one">%1$d Interpret</item>
         <item quantity="other">%1$d Interpreten</item>
@@ -241,7 +228,6 @@
     <string name="info_update">Version %1$s wurde veröffentlicht</string>
     <string name="info_shared_by">Geteilt von %1$s</string>
     <string name="info_share_expires_in">Läuft ab in %1$s</string>
-    <string name="info_share_expires_never">Läuft nie ab</string>
     <string name="info_share_expired">Abgelaufen</string>
     <string name="info_no_shares">Keine Teilungen</string>
     <string name="info_no_lyrics">Keine Lyrics</string>
@@ -253,12 +239,10 @@
     <string name="info_no_genres">Keine Genres</string>
     <string name="info_no_playlists_short">Keine Playlisten</string>
     <string name="info_lyrics_provider">Lyrics bereitgestellt von %1$s</string>
-    <string name="info_image_failed_to_load">Fehler beim Laden</string>
     <string name="info_download_failed">Fehler beim Download</string>
     <string name="info_click_to_retry">Drücke zum Neustarten</string>
     <string name="info_downloaded">Heruntergeladen</string>
     <string name="info_syncing">Synchronisiere...</string>
-    <string name="info_syncing_saving">Speichere...</string>
     <string name="info_syncing_saved">Gespeichert.</string>
     <string name="info_syncing_finished">Fertiggestellt.</string>
     <string name="info_syncing_albums">Synchronisiere Alben...</string>
@@ -271,7 +255,7 @@
     <string name="title_disc_number">Disc %1$s</string>
     <string name="title_library_download">Gesamte Bibliothek herunterladen</string>
     <string name="title_network">Netzwerk</string>
-    <string name="title_streaming_quality">Streaming Qualität</string>
+    <string name="title_streaming_quality">Streamingqualität</string>
     <string name="title_wifi">WLAN</string>
     <string name="title_cellular">Mobile Daten</string>
     <string name="title_select_lyrics">Liedtexte auswählen</string>
@@ -301,8 +285,6 @@
     <string name="option_radio_stream_url">Stream-URL</string>
     <string name="option_radio_homepage_url">Startseiten URL</string>
     <string name="option_animation_style_expressive">Expressiv</string>
-    <string name="option_max_bitrate_wifi">Maximale Bitrate WLAN (kbps)</string>
-    <string name="option_max_bitrate_cellular">Max. Bitrate über Mobilfunk (kbps)</string>
     <string name="info_library_download_warning">Bist du dir sicher dass du deine gesamte Bibliothek herunterladen willst? \nBereits heruntergeladene Lieder werden übersprungen, trotzdem wird eine große Menge an Platz benötigt.</string>
     <string name="info_progress">Fortschritt</string>
     <string name="info_in_use">(in Benutzung)</string>
@@ -323,10 +305,10 @@
         <item quantity="one">%1$d Zeile ausgewählt</item>
         <item quantity="other">%1$d Zeilen ausgewählt</item>
     </plurals>
-    <string name="action_sleep_timer">Schlaf Timer</string>
+    <string name="action_sleep_timer">Schlaftimer</string>
     <string name="action_sleep_timer_enabled">Sleep timer - %1$s übrig</string>
     <string name="action_disable_sleep_timer">Timer ausschalten</string>
-    <string name="option_playback_speed">Wiedergabe Geschwindigkeit</string>
+    <string name="option_playback_speed">Wiedergabegeschwindigkeit</string>
     <string name="action_play_next">Als nächstes spielen</string>
     <string name="action_clear_queue">Wiedergabeliste leeren</string>
     <string name="info_no_radios">Keine Radios</string>
@@ -334,11 +316,8 @@
     <string name="title_starred">Favorit</string>
     <string name="option_cover_art_quality">Cover qualität</string>
     <string name="info_no_starred">Keine Favoriten</string>
-    <string name="title_download_quality">Download Qualität</string>
-    <string name="title_logs">Logs</string>
     <string name="title_palette">Farbpalette</string>
-    <string name="title_account">Konto</string>
-    <string name="option_stream_format_cellular">Streaming-Format über Mobilfunk</string>
+	<string name="title_account">Konto</string>
     <string name="notice_added_to_queue">Zur Warteschlange hinzufügen.</string>
     <string name="notice_play_next">Nächster Titel.</string>
     <string name="notice_added_to_playlist">Hinzugefügt zu %1$s.</string>
@@ -367,9 +346,6 @@
     <string name="option_choose_app_icon">App-Symbol</string>
     <string name="option_stream_custom_quality">Benutzerdefinierte Streaming-Qualität verwenden</string>
     <string name="option_download_custom_quality">Benutzerdefinierte Downloadqualität</string>
-    <string name="option_stream_format_wifi">Streaming-Format WLAN</string>
-    <string name="option_download_format_wifi">Download-Format WLAN</string>
-    <string name="option_download_format_cellular">Download-Format Mobilfunk</string>
     <string name="option_palette_style">Farbstil</string>
     <string name="option_palette_specification">Farbspezifikation</string>
     <string name="option_explicit_playback">Wiedergabe von nicht jugendfreien Inhalten</string>
@@ -409,9 +385,7 @@
         <item quantity="one">Vor %1$d Tag</item>
         <item quantity="other">Vor %1$d Tagen</item>
     </plurals>
-    <string name="action_start">Start</string>
     <string name="action_sleep_timer_songs_enabled">Schlaftimer - noch %1$d Songs</string>
-    <string name="action_sleep_timer_songs">Stop nach %1$d Songs</string>
     <string name="title_sleep_timer_time">Zeit</string>
     <string name="title_sleep_timer_songs">Songs</string>
     <string name="action_reset">Zurücksetzen</string>
@@ -438,7 +412,6 @@
     <string name="option_use_amoled_theme">AMOLED-Design verwenden</string>
     <string name="option_enable_ratings">Bewertungen aktivieren</string>
     <string name="option_enable_predictive_back_animations">Vorausschauende Zurückanimationen aktivieren</string>
-    <string name="option_queue_info_type">Warteschlangen-Informationen</string>
     <string name="option_queue_info_type_remining">Songs anzeigen/verbleibende Zeit</string>
     <string name="option_queue_info_type_full">Lieder anzeigen/Wartezeit der gesamten Warteschlange</string>
     <plurals name="count_remaining_songs">
@@ -450,7 +423,6 @@
         <item quantity="other">%1$d Wiedergaben</item>
     </plurals>
     <string name="action_save">Speichern</string>
-    <string name="action_view_statistics">Statistiken anzeigen</string>
     <string name="action_scroll_down">Nach unten scrollen</string>
     <string name="notice_image_saved">Bild gespeichert.</string>
     <string name="notice_notifications_denied">Zugriff verweigert</string>
@@ -460,7 +432,6 @@
     <string name="info_login_description">Melden Sie sich bei einem Subsonic-kompatiblen Musikserver an.</string>
     <string name="info_starred_songs">Markierte Lieder</string>
     <string name="info_duration_left">%1$s verbleibend</string>
-    <string name="action_allow">Erlauben</string>
     <string name="subtitle_audio_effects">Passe an, wie die Musik klingt</string>
     <string name="title_chat">Chat</string>
     <string name="option_account_instance">Instanz-URL</string>
@@ -471,7 +442,6 @@
     <string name="option_dynamic_replaygain_tip">Wenn ReplayGain auf „Dynamisch“ eingestellt ist, wird die Albumverstärkung verwendet, falls ein Album abgespielt wird. Andernfalls wird die Titelverstärkung verwendet.</string>
     <string name="subtitle_custom_headers">Weitere Informationen, die der Anfrage hinzugefügt werden sollen</string>
     <string name="option_connection_options">Verbindungsoptionen</string>
-    <string name="option_proxy_settings">Proxy Einstellungen</string>
     <string name="option_proxy_url">Proxy URL</string>
     <string name="option_ignore_ssl_certificates">SSL Zertifikate ignorieren</string>
     <string name="action_edit">Bearbeiten</string>
@@ -479,4 +449,23 @@
     <string name="info_proxy_url_placeholder">z.B. http://127.0.0.1:8080</string>
     <string name="info_incorrect_proxy_url_format">Falsches Proxy-URL-Format. Unterstützte Protokolle sind HTTP und SOCKS.</string>
     <string name="info_chat_unsupported">Dein Server unterstützt dieses Feature nicht oder du bist offline</string>
+    <string name="title_delete_radio">Radio löschen?</string>
+    <string name="subtitle_equalizer_disabled">Nicht verfügbar, wenn Audio-Offload aktiviert ist</string>
+    <string name="option_equalizer">Equalizer</string>
+    <string name="option_equalizer_mode">Equalizer Quelle</string>
+    <string name="option_equalizer_mode_disabled">Deaktiviert</string>
+    <string name="option_enable_discord_integration">Discord-Integration aktivieren</string>
+    <string name="action_copy">Kopieren</string>
+    <string name="notice_deleted_radio">Radio gelöscht.</string>
+    <string name="option_equalizer_mode_external">Extern</string>
+    <string name="action_edit_discord_app_id">Discord app ID ändern</string>
+    <string name="info_equalizer_unsupported">Dein Gerät unterstützt diese Funktion nicht.</string>
+    <string name="title_update_radio">Radio aktualisieren</string>
+    <string name="subtitle_equalizer">Audio optimieren und verbessern</string>
+    <string name="subtitle_enable_discord_integration">Zeige auf Discord, welche Musik du gerade hörst</string>
+    <string name="option_disable_rpc_when_power_saving">Anwesenheitsanzeige im Energiesparmodus deaktivieren</string>
+    <string name="action_reset_to_default">Auf Werkeinstellungen zurücksetzen</string>
+    <string name="info_equalizer_mode_not_builtin">Bitte stellen Sie den externen Equalizer mithilfe der dazugehörigen App ein.</string>
+    <string name="info_content_unavailable">Hier gibts nichts</string>
+    <string name="option_equalizer_mode_builtin">Integriert</string>
 </resources>

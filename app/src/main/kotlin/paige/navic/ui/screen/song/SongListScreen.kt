@@ -30,31 +30,39 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
+import paige.navic.R.string.info_no_songs
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.domain.model.settings.ListViewMode
+import paige.navic.playback.MediaPlayer
+import paige.navic.ui.component.common.ContentUnavailable
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
+import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
+import paige.navic.ui.component.layout.ArtGridPlaceholder
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
-import paige.navic.ui.screen.share.dialog.ShareDialog
+import paige.navic.ui.screen.song.component.SongListScreenItem
 import paige.navic.ui.screen.song.component.SongListScreenSortButton
-import paige.navic.ui.screen.song.component.songListScreenContent
 import paige.navic.ui.screen.song.viewmodel.SongListViewModel
 import paige.navic.ui.util.withoutTop
 import paige.navic.ui.viewmodel.RootViewModel
-import kotlin.time.Duration
 
 @Composable
 fun SongListScreen(
@@ -71,19 +79,21 @@ fun SongListScreen(
 		}
 	)
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayerViewModel>()
-	val songsState by viewModel.songsState.collectAsStateWithLifecycle()
-	val selectedSong by viewModel.selectedSong.collectAsStateWithLifecycle()
+	val player = koinInject<MediaPlayer>()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
+	val downloadManager = koinInject<DownloadManager>()
+
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
-	val starred by viewModel.starred.collectAsStateWithLifecycle()
-	val selectedSongRating by viewModel.selectedSongRating.collectAsStateWithLifecycle()
-	val allDownloads by viewModel.allDownloads.collectAsStateWithLifecycle()
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
 
 	var shareId by remember { mutableStateOf<String?>(null) }
-	var shareExpiry by remember { mutableStateOf<Duration?>(null) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
+	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
 	val actions: @Composable RowScope.() -> Unit = {
@@ -108,6 +118,8 @@ fun SongListScreen(
 		}
 	}
 
+	val downloadsMap = remember(allDownloads) { allDownloads.associateBy { it.songId } }
+
 	Scaffold(
 		topBar = {
 			if (!nested) {
@@ -129,80 +141,110 @@ fun SongListScreen(
 			val preferVisible =
 				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 			if (!nested
-				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+			) {
 				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
 	) { innerPadding ->
+		val isLoading = state is UiState.Loading || lazyPagingItems?.loadState?.refresh is LoadState.Loading
+		val itemCount = lazyPagingItems?.itemCount ?: 0
+
 		PullToRefreshBox(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = songsState !is UiState.Loading,
+			finished = !isLoading,
 			onRefresh = { viewModel.refreshSongs(true) },
-			key = songsState
+			key = state
 		) {
 			LazyColumn(
 				modifier = if (!nested)
-					Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection)
+					Modifier
+						.fillMaxSize()
+						.nestedScroll(scrollBehavior.nestedScrollConnection)
 				else Modifier.fillMaxSize(),
 				contentPadding = innerPadding.withoutTop(),
-				verticalArrangement = if ((songsState as? UiState.Success)?.data?.isEmpty() == true)
+				verticalArrangement = if (itemCount == 0 && !isLoading)
 					Arrangement.Center
 				else Arrangement.spacedBy(12.dp),
 				state = listState
 			) {
-				songListScreenContent(
-					state = songsState,
-					selectedSongIsStarred = starred,
-					selectedSongRating = selectedSongRating,
-					selectedSong = selectedSong,
-					onUpdateSelection = { viewModel.selectSong(it) },
-					onClearSelection = { viewModel.clearSelection() },
-					onSetShareId = { newShareId ->
-						shareId = newShareId
-					},
-					onSetStarred = { viewModel.starSong(it) },
-					onPlayNext = { song ->
-						if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
-							songToQueue = song
-						} else {
-							player.playNextSingle(song)
-						}
-					},
-					onAddToQueue = { song ->
-						if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
-							songToQueue = song
-						} else {
-							player.addToQueueSingle(song)
-						}
-					},
-					onPlaySong = { song ->
-						player.playNow(song)
-					},
-					onSetRating = { viewModel.rateSelectedSong(it) },
-					onDownload = { viewModel.downloadSong(it) },
-					allDownloads = allDownloads,
-					onCancelDownload = { viewModel.cancelDownload(it.id) },
-					onDeleteDownload = { viewModel.deleteDownload(it.id) }
-				)
+				if (itemCount > 0 && lazyPagingItems != null) {
+					items(itemCount) { index ->
+						val song = lazyPagingItems[index] ?: return@items
+
+						val download = downloadsMap[song.id]
+						SongListScreenItem(
+							modifier = Modifier.animateItem(),
+							song = song,
+							selected = song == state.data?.selected,
+							starred = song.starredAt != null,
+							rating = song.userRating ?: 0,
+							onSelect = {
+								viewModel.selected = song
+							},
+							onDeselect = {
+								viewModel.clear()
+							},
+							onSetStarred = {
+								viewModel.starSong(it)
+							},
+							onSetShareId = {
+								shareId = it
+							},
+							onPlayNext = {
+								if (player.checkDuplicate(song.id, preferenceManager)) {
+									songToQueue = song
+								} else {
+									player.playNextSingle(song)
+								}
+							},
+							onAddToQueue = {
+								if (player.checkDuplicate(song.id, preferenceManager)) {
+									songToQueue = song
+								} else {
+									player.addToQueueSingle(song)
+								}
+							},
+							onClick = {
+								player.playNow(song)
+							},
+							onSetRating = { it: Int -> viewModel.rateSelectedSong(it) },
+							download = download,
+							onDownload = {
+								downloadManager.downloadSong(song.id)
+							},
+							onCancelDownload = {
+								downloadManager.cancelDownload(song.id)
+							},
+							onDeleteDownload = {
+								downloadDeletionHandler.requestDelete(DeleteDownloadTarget.Single(song.id, song.title))
+							}
+						)
+					}
+				} else if (isLoading) {
+					items(10) {
+						ArtGridPlaceholder(viewMode = ListViewMode.List)
+					}
+				} else {
+					item {
+						ContentUnavailable(
+							label = stringResource(info_no_songs)
+						)
+					}
+				}
 			}
 		}
 	}
 
 	ShareDialog(
 		id = shareId,
-		onIdClear = { shareId = null },
-		expiry = shareExpiry,
-		onExpiryChange = { shareExpiry = it }
+		onDismissRequest = { shareId = null }
 	)
 
-	if (songToQueue != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { songToQueue = null },
-			onConfirm = {
-				songToQueue?.let { player.addToQueueSingle(it) }
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		song = songToQueue,
+		onDismissRequest = { songToQueue = null }
+	)
 }

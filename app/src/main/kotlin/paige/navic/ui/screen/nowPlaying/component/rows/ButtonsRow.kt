@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,8 +44,10 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.RepeatOn
 import paige.navic.ui.icons.filled.RepeatOneOn
@@ -55,13 +56,12 @@ import paige.navic.ui.icons.filled.SkipNext
 import paige.navic.ui.icons.filled.SkipPrevious
 import paige.navic.ui.icons.outlined.Repeat
 import paige.navic.ui.icons.outlined.Shuffle
-import paige.navic.shared.MediaPlayerViewModel
 import paige.navic.ui.util.playPauseIconPainter
 
 @Composable
 fun NowPlayingButtonsRow() {
-	val player = koinInject<MediaPlayerViewModel>()
-	val playerState by player.uiState.collectAsState()
+	val player = koinInject<MediaPlayer>()
+	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val interactionSource = remember { MutableInteractionSource() }
 	val isPressed by interactionSource.collectIsPressedAsState()
 	val scale = remember { Animatable(1f) }

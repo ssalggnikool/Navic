@@ -18,6 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -27,8 +31,9 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.discord.ExoDiscordIntegration
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.model.settings.DiscordStatusType
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
@@ -41,6 +46,7 @@ import paige.navic.ui.screen.settings.component.SettingsInputItem
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.component.SettingsSliderItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
+import paige.navic.ui.screen.settings.dialog.CoverArtProvidersSheet
 import kotlin.math.roundToInt
 
 @Composable
@@ -49,6 +55,7 @@ fun SettingsPlaybackScreen() {
 	val sizeClass = LocalSizeClass.current
 	val hideBack = sizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
 	val preferenceManager = koinInject<PreferenceManager>()
+	var coverArtProvidersSheetOpen by rememberSaveable { mutableStateOf(false) }
 
 	Scaffold(
 		topBar = {
@@ -108,20 +115,31 @@ fun SettingsPlaybackScreen() {
 					)
 				}
 
-				SettingsGroup(title = { Text(stringResource(R.string.title_behaviour)) }) {
+				SettingsGroup(title = { Text(stringResource(R.string.title_integrations)) }) {
 					val enableDiscordIntegration = preferenceManager.enableDiscordIntegration
-					val enableScrobbling = preferenceManager.enableScrobbling
-					var count = 2
-					if (enableDiscordIntegration) count += 2
-					if (enableScrobbling) count += 2
+					val count = if (enableDiscordIntegration) 5 else 1
 
 					SettingsToggleItem(
-						checked = enableDiscordIntegration,
+						checked = preferenceManager.enableDiscordIntegration,
 						onCheckedChange = { preferenceManager.enableDiscordIntegration = it },
 						content = { Text(stringResource(R.string.option_enable_discord_integration)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_enable_discord_integration)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
 					)
+
+					AnimatedVisibility(visible = enableDiscordIntegration) {
+						SettingsChoiceItem(
+							choices = DiscordStatusType.entries.toImmutableList(),
+							selectedChoice = preferenceManager.discordStatusType,
+							onChoiceSelected = { preferenceManager.discordStatusType = it },
+							label = { stringResource(it.displayName) },
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 1,
+								count = count
+							),
+							content = { Text(stringResource(R.string.option_discord_rpc_status_type)) }
+						)
+					}
 
 					AnimatedVisibility(visible = enableDiscordIntegration) {
 						SettingsInputItem(
@@ -131,7 +149,7 @@ fun SettingsPlaybackScreen() {
 							onValidate = { it.isNotBlank() && it.toLongOrNull() != null },
 							content = { Text(stringResource(R.string.action_edit_discord_app_id)) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 1,
+								index = 2,
 								count = count
 							)
 						)
@@ -143,11 +161,29 @@ fun SettingsPlaybackScreen() {
 							onCheckedChange = { preferenceManager.disableRpcWhenPowerSaving = it },
 							content = { Text(stringResource(R.string.option_disable_rpc_when_power_saving)) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 2,
+								index = 3,
 								count = count
 							)
 						)
 					}
+
+					AnimatedVisibility(visible = enableDiscordIntegration) {
+						SettingsNavItem(
+							onClick = { coverArtProvidersSheetOpen = true },
+							content = { Text(stringResource(R.string.title_cover_art_providers)) },
+							supportingContent = { Text(stringResource(R.string.subtitle_cover_art_providers)) },
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 4,
+								count = count
+							)
+						)
+					}
+				}
+
+				SettingsGroup(title = { Text(stringResource(R.string.title_behaviour)) }) {
+					val enableScrobbling = preferenceManager.enableScrobbling
+					var count = 1
+					if (enableScrobbling) count += 2
 
 					SettingsToggleItem(
 						checked = enableScrobbling,
@@ -155,7 +191,7 @@ fun SettingsPlaybackScreen() {
 						content = { Text(stringResource(R.string.option_enable_scrobbling)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_enable_scrobbling)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = if (enableDiscordIntegration) 3 else 1,
+							index = 0,
 							count = count
 						)
 					)
@@ -168,14 +204,13 @@ fun SettingsPlaybackScreen() {
 							trailingContent = { Text("${(preferenceManager.scrobblePercentage * 100).roundToInt()}%") },
 							content = { Text(stringResource(R.string.option_scrobble_percentage)) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = if (enableDiscordIntegration) 4 else 2,
+								index = 1,
 								count = count
 							)
 						)
 					}
 
 					AnimatedVisibility(visible = enableScrobbling) {
-
 						SettingsSliderItem(
 							value = preferenceManager.minDurationToScrobble,
 							valueRange = 0f..60f,
@@ -183,7 +218,7 @@ fun SettingsPlaybackScreen() {
 							trailingContent = { Text("${preferenceManager.minDurationToScrobble.toInt()}s") },
 							content = { Text(stringResource(R.string.option_min_duration_to_scrobble)) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = if (enableDiscordIntegration) 5 else 3,
+								index = 2,
 								count = count
 							)
 						)
@@ -192,4 +227,9 @@ fun SettingsPlaybackScreen() {
 			}
 		}
 	}
+
+	CoverArtProvidersSheet(
+		presented = coverArtProvidersSheetOpen,
+		onDismissRequest = { coverArtProvidersSheetOpen = false }
+	)
 }

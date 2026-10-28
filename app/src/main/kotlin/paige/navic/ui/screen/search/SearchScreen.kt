@@ -8,16 +8,13 @@ package paige.navic.ui.screen.search
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -29,65 +26,51 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
 import paige.navic.di.LocalBottomBarScrollManager
-import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType
-import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.icons.outlined.History
-import paige.navic.ui.icons.outlined.Lock
-import paige.navic.ui.icons.outlined.Offline
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
-import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.ErrorBox
-import paige.navic.ui.component.common.MarqueeText
-import paige.navic.ui.component.common.SmallRatingRow
-import paige.navic.ui.component.common.SwipeToDismissBox
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
+import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.artGridPlaceholder
 import paige.navic.ui.component.layout.horizontalSection
-import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Close
+import paige.navic.ui.icons.outlined.History
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
@@ -97,7 +80,7 @@ import paige.navic.ui.screen.artist.viewmodel.ArtistListViewModel
 import paige.navic.ui.screen.search.component.SearchScreenChips
 import paige.navic.ui.screen.search.component.SearchScreenTopBar
 import paige.navic.ui.screen.search.viewmodel.SearchViewModel
-import paige.navic.ui.util.buildSongInfoString
+import paige.navic.ui.screen.song.component.SongListScreenItem
 import paige.navic.ui.viewmodel.RootViewModel
 
 enum class SearchCategory(@StringRes val res: Int) {
@@ -113,6 +96,9 @@ fun SearchScreen(
 	nested: Boolean
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
+	val downloadManager = koinInject<DownloadManager>()
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(initialValue = emptyList())
+	val downloadsMap = remember(allDownloads) { allDownloads.associateBy { it.songId } }
 
 	val viewModel = koinViewModel<SearchViewModel>(
 		viewModelStoreOwner = if (nested) {
@@ -128,28 +114,23 @@ fun SearchScreen(
 	val artistListViewModel = koinViewModel<ArtistListViewModel> {
 		parametersOf(DomainArtistListType.AlphabeticalByName)
 	}
-	val artistListSelection by artistListViewModel.selectedArtist.collectAsState()
-	val artistListSelectionAlbums by artistListViewModel.selectedArtistAlbums.collectAsState()
-	val artistListStarred by artistListViewModel.starred.collectAsState()
+	val artistListSelection by artistListViewModel.uiState.collectAsStateWithLifecycle()
 
 	val albumListViewModel = koinViewModel<AlbumListViewModel> {
 		parametersOf(DomainAlbumListType.AlphabeticalByName)
 	}
-	val albumListSelection by albumListViewModel.selectedAlbum.collectAsState()
-	val albumListStarred by albumListViewModel.starred.collectAsState()
-	val selectedAlbumRating by albumListViewModel.rating.collectAsStateWithLifecycle()
+	val albumListSelection by albumListViewModel.uiState.collectAsStateWithLifecycle()
 
 	val query = viewModel.searchQuery
-	val state by viewModel.searchState.collectAsState()
-	val searchHistory by viewModel.searchHistory.collectAsState(initial = emptyList())
-	val isOnline by viewModel.isOnline.collectAsState()
-	val downloadedSongs by viewModel.downloadedSongs.collectAsState()
+	val state by viewModel.searchState.collectAsStateWithLifecycle()
+	val searchHistory by viewModel.searchHistory.collectAsStateWithLifecycle()
 
-	val player = koinInject<MediaPlayerViewModel>()
-	val backStack = LocalNavStack.current
+	val player = koinInject<MediaPlayer>()
 
 	var selectedCategory by remember { mutableStateOf(SearchCategory.ALL) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
+	var shareId by remember { mutableStateOf<String?>(null) }
+	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 
 	val rootViewModel = koinViewModel<RootViewModel>()
 	LaunchedEffect(Unit) {
@@ -188,7 +169,8 @@ fun SearchScreen(
 			val preferVisible =
 				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 			if (!nested
-				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+			) {
 				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
@@ -204,6 +186,7 @@ fun SearchScreen(
 				) {
 					artGridPlaceholder(viewMode = ListViewMode.List)
 				}
+
 				is UiState.Error -> ErrorBox(uiState, padding = contentPadding)
 				is UiState.Success -> {
 					val results = uiState.data
@@ -240,181 +223,76 @@ fun SearchScreen(
 										)
 									)
 								}
+								val displaySongs = if (showAll) songs.take(10) else songs
 								items(
-									songs.take(10).size,
+									displaySongs.size,
 									span = { GridItemSpan(maxLineSpan) }
 								) { index ->
-									val song = songs[index]
-									val isDownloaded = downloadedSongs.containsKey(song.id)
+									val song = displaySongs[index]
+									val download = downloadsMap[song.id]
 
-									val isExplicit = song.explicitStatus == DomainExplicitStatus.Explicit
-										&& preferenceManager.explicitContentPlayback != ExplicitContentPlayback.Allowed
-									val maybeUnavailable = !isOnline && !isDownloaded
-
-									val dismissState = rememberSwipeToDismissBoxState()
-
-									LaunchedEffect(dismissState.currentValue) {
-										if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-											if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
+									SongListScreenItem(
+										modifier = Modifier.animateItem(),
+										song = song,
+										selected = selectedSong == song,
+										starred = if (selectedSong == song) selectedSongIsStarred else song.starredAt != null,
+										rating = if (selectedSong == song) selectedSongRating else (song.userRating
+											?: 0),
+										onSelect = { viewModel.selectSong(song) },
+										onDeselect = { viewModel.clearSelectedSong() },
+										onSetStarred = { viewModel.starSelectedSong(it) },
+										onSetShareId = { shareId = it },
+										onPlayNext = {
+											if (player.checkDuplicate(song.id, preferenceManager)) {
+												songToQueue = song
+											} else {
+												player.playNextSingle(song)
+											}
+										},
+										onAddToQueue = {
+											if (player.checkDuplicate(song.id, preferenceManager)) {
 												songToQueue = song
 											} else {
 												player.addToQueueSingle(song)
 											}
-											dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+										},
+										onClick = { player.playNow(song) },
+										onSetRating = { viewModel.rateSelectedSong(it) },
+										download = download,
+										onDownload = { downloadManager.downloadSong(song.id) },
+										onCancelDownload = { downloadManager.cancelDownload(song.id) },
+										onDeleteDownload = {
+											downloadDeletionHandler.requestDelete(DeleteDownloadTarget.Single(song.id, song.title))
 										}
-									}
-
-									SwipeToDismissBox(
-										state = dismissState,
-										enableDismissFromStartToEnd = false,
-										enableDismissFromEndToStart = true,
-										backgroundContent = {
-											val backgroundColor by animateColorAsState(
-												targetValue = when (dismissState.targetValue) {
-													SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.primaryContainer
-													else -> Color.Transparent
-												}
-											)
-											val iconColor by animateColorAsState(
-												targetValue = when (dismissState.targetValue) {
-													SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.onPrimaryContainer
-													else -> MaterialTheme.colorScheme.onSurfaceVariant
-												}
-											)
-
-											Box(
-												modifier = Modifier
-													.fillMaxSize()
-													.background(color = backgroundColor)
-													.padding(horizontal = 20.dp),
-												contentAlignment = Alignment.CenterEnd
-											) {
-												Icon(
-													imageVector = Icons.Outlined.Queue,
-													contentDescription = stringResource(R.string.action_add_to_queue),
-													tint = iconColor
-												)
-											}
-										}
-									) {
-										ListItem(
-											modifier = Modifier
-												.background(MaterialTheme.colorScheme.surface),
-											onClick = {
-												player.playNow(song)
-											},
-											onLongClick = { viewModel.selectSong(song) },
-											verticalAlignment = Alignment.CenterVertically,
-											content = { Text(song.title) },
-											supportingContent = {
-												Column {
-													MarqueeText(
-														buildSongInfoString(
-															song = song,
-															onClickArtist = {
-																backStack.add(
-																	Screen.ArtistDetail(
-																		it
-																	)
-																)
-															}
-														)
-													)
-													if (song.userRating != null && song.userRating != 0) {
-														SmallRatingRow(rating = song.userRating)
-													}
-												}
-											},
-											leadingContent = {
-												CoverArt(
-													coverArtId = song.coverArtId,
-													modifier = Modifier.size(50.dp),
-													shape = preferenceManager.coverArtShape.decreasedShape
-												)
-											},
-											trailingContent = {
-												if (isExplicit) {
-													Icon(
-														Icons.Outlined.Lock,
-														stringResource(R.string.info_explicit),
-														modifier = Modifier.size(20.dp)
-													)
-												}
-												if (maybeUnavailable) {
-													Icon(
-														Icons.Outlined.Offline,
-														stringResource(R.string.info_not_available_offline),
-														modifier = Modifier.size(20.dp)
-													)
-												}
-											}
-										)
-										if (selectedSong == song) {
-											SongSheet(
-												onDismissRequest = { viewModel.clearSelectedSong() },
-												song = song,
-												onPlayNext = {
-													if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
-														songToQueue = song
-													} else {
-														player.playNextSingle(song)
-													}
-												},
-												onAddToQueue = {
-													if (player.uiState.value.queue.any { it.id == song.id } && !preferenceManager.shushQueueDuplicateDialog) {
-														songToQueue = song
-													} else {
-														player.addToQueueSingle(song)
-													}
-												},
-												downloadStatus = if (downloadedSongs.containsKey(
-														song.id
-													)
-												) DownloadStatus.DOWNLOADED else null,
-												onTrackInfo = dropUnlessResumed {
-													backStack.add(Screen.SongDetailScreen(song.id, song.coverArtId))
-												},
-												onViewAlbum = song.albumId?.let { albumId ->
-													dropUnlessResumed {
-														backStack.add(
-															Screen.CollectionDetail(
-																collectionId = albumId,
-																tab = "search"
-															)
-														)
-													}
-												},
-												starred = selectedSongIsStarred,
-												onSetStarred = { viewModel.starSelectedSong(it) },
-												rating = selectedSongRating,
-												onSetRating = { viewModel.rateSelectedSong(it) }
-											)
-										}
-									}
+									)
 								}
 							}
 
 							horizontalSection(
 								title = R.string.title_albums,
 								destination = Screen.AlbumList(true),
-								state = UiState.Success(albums),
-								key = { it.id },
+								state = albums,
 								seeAll = false
 							) { album ->
 								AlbumListScreenGridItem(
-									modifier = Modifier.animateItem(fadeInSpec = null)
+									modifier = Modifier
+										.animateItem(fadeInSpec = null)
 										.width(150.dp),
 									tab = "search",
 									album = album,
-									selected = album == albumListSelection,
-									starred = albumListStarred,
-									onSelect = { albumListViewModel.selectAlbum(album) },
-									onDeselect = { albumListViewModel.clearSelection() },
+									selected = album == albumListSelection.data?.selected,
+									starred = albumListSelection.data?.selected?.starredAt != null,
+									onSelect = {
+										albumListViewModel.selected = album
+									},
+									onDeselect = {
+										albumListViewModel.selected = null
+									},
 									onSetStarred = { albumListViewModel.starAlbum(it) },
 									onSetShareId = { },
 									onPlayNext = { player.playNext(album as DomainSongCollection) },
 									onAddToQueue = { player.addToQueue(album as DomainSongCollection) },
-									rating = selectedAlbumRating,
+									rating = albumListSelection.data?.selected?.userRating ?: 0,
 									onSetRating = { albumListViewModel.setRating(it) }
 								)
 							}
@@ -422,18 +300,18 @@ fun SearchScreen(
 							horizontalSection(
 								title = R.string.title_artists,
 								destination = Screen.ArtistList(true),
-								state = UiState.Success(artists),
-								key = { it.id },
+								state = artists,
 								seeAll = false
 							) { artist ->
 								ArtistListScreenGridItem(
-									modifier = Modifier.animateItem(fadeInSpec = null)
+									modifier = Modifier
+										.animateItem(fadeInSpec = null)
 										.width(150.dp),
 									tab = "search",
 									artist = artist,
-									selected = artist == artistListSelection,
-									selectedArtistAlbums = artistListSelectionAlbums,
-									starred = artistListStarred,
+									selected = artist == artistListSelection.data?.selected,
+									selectedArtistAlbums = emptyList(),
+									starred = artistListSelection.data?.selected?.starredAt != null,
 									onSelect = { artistListViewModel.selectArtist(artist) },
 									onDeselect = { artistListViewModel.clearSelection() },
 									onSetStarred = { artistListViewModel.starArtist(it) },
@@ -496,12 +374,16 @@ fun SearchScreen(
 		}
 	}
 
-	if (songToQueue != null) {
-		QueueDuplicateDialog(
-			onDismissRequest = { songToQueue = null },
-			onConfirm = {
-				songToQueue?.let { player.addToQueueSingle(it) }
-			}
-		)
-	}
+	QueueDuplicateDialog(
+		song = songToQueue,
+		onDismissRequest = { songToQueue = null }
+	)
+
+	ShareDialog(
+		id = shareId,
+		onDismissRequest = {
+			shareId = null
+			viewModel.clearSelectedSong()
+		}
+	)
 }

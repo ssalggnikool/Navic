@@ -29,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
@@ -56,14 +57,13 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.kyant.capsule.ContinuousRoundedRectangle
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import dev.zt64.compose.pipette.HsvColor
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.Theme
 import paige.navic.domain.model.settings.ThemeMode
 import paige.navic.ui.component.common.SegmentedListItem
@@ -78,6 +78,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
 import paige.navic.ui.util.label
+import paige.navic.util.PlatformSupport
 
 @Composable
 fun SettingsThemesScreen() {
@@ -98,7 +99,9 @@ fun SettingsThemesScreen() {
 			) {
 				SettingsGroup {
 					SettingsChoiceItem(
-						choices = ThemeMode.entries.toImmutableList(),
+						choices = ThemeMode.entries
+							.filterNot { it == ThemeMode.System && !PlatformSupport.SUPPORTS_DARK_THEME }
+							.toImmutableList(),
 						selectedChoice = preferenceManager.themeMode,
 						onChoiceSelected = { preferenceManager.themeMode = it },
 						content = { Text(stringResource(R.string.title_theme_mode)) },
@@ -120,7 +123,11 @@ fun SettingsThemesScreen() {
 									.selectableGroup(),
 								horizontalArrangement = Arrangement.SpaceBetween
 							) {
-								items(Theme.entries) { theme ->
+								items(
+									Theme.entries.filterNot {
+										it == Theme.Dynamic && !PlatformSupport.SUPPORTS_DYNAMIC_THEME
+									}
+								) { theme ->
 									ThemeCard(
 										theme = theme,
 										isSelected = preferenceManager.theme == theme,
@@ -213,7 +220,7 @@ private fun BaseCard(
 			MaterialTheme.colorScheme.primary
 		else Color.Transparent
 	)
-	val shape = ContinuousRoundedRectangle(radius)
+	val shape = RoundedCornerShape(radius)
 
 	Box(
 		modifier = modifier
@@ -236,7 +243,7 @@ private fun BaseCard(
 		Column(
 			modifier = Modifier
 				.size(50.dp)
-				.clip(ContinuousRoundedRectangle(radius - 7.dp))
+				.clip(RoundedCornerShape(radius - 7.dp))
 		) {
 			content()
 		}

@@ -31,6 +31,32 @@ val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
 		.map { it.toBoolean() }
 		.getOrElse(false)
 
+	fun String?.wrapString(): String = this?.let {
+		val escaped = it
+			.removeSuffix("\n")
+			.replace("\\", "\\\\")
+			.replace("\n", "\\n")
+			.replace("\"", "\\\"")
+		"\"$escaped\""
+	} ?: "null"
+
+	fun executeCommand(vararg args: String): String? {
+		val command = Runtime.getRuntime().exec(args)
+		val result = command.waitFor()
+		return if (result == 0) {
+			command.inputStream.readBytes()
+				.toString(Charsets.UTF_8)
+				.takeIf { it.isNotBlank() }
+		} else {
+			null
+		}
+	}
+
+	val commitHash = executeCommand("git", "rev-parse", "HEAD")
+	val commitMessage = executeCommand("git", "log", "-1", "--pretty=%B")
+	val commitAuthor = executeCommand("git", "log", "-1", "--pretty=%an")
+	val commitBranchName = executeCommand("git", "branch", "--show-current")
+
 	from(
 		resources.text.fromString(
 			"""
@@ -38,6 +64,10 @@ val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
 			|
 			|object BuildInfo {
 			|	const val FDROID = $fdroid
+			|	val GIT_COMMIT_HASH: String? = ${commitHash?.wrapString()}
+			|	val GIT_COMMIT_MESSAGE: String? = ${commitMessage?.wrapString()}
+			|	val GIT_COMMIT_AUTHOR: String? = ${commitAuthor?.wrapString()}
+			|	val GIT_BRANCH_NAME: String? = ${commitBranchName?.wrapString()}
 			|}
 			|
 			""".trimMargin()
@@ -67,7 +97,8 @@ kotlin {
 	jvmToolchain(21)
 }
 
-val isTaskRelease = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
+val isTaskRelease =
+	gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
 
 val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdroid")
 	.map { it.toBoolean() }
@@ -202,12 +233,14 @@ dependencies {
 	implementation(libs.androidx.navigation3.ui)
 	implementation(libs.androidx.media3.exoplayer)
 	implementation(libs.androidx.media3.session)
-	//implementation(libs.androidx.media3.ktor)
+	implementation(libs.androidx.media3.datasource.okhttp)
 	implementation(libs.androidx.media3.decoder.ffmpeg)
 	implementation(libs.androidx.annotation)
+	implementation(libs.androidx.recyclerview)
 	implementation(libs.androidx.glance.appwidget)
 	implementation(libs.androidx.glance.material3)
 	implementation(libs.androidx.browser)
+	implementation(libs.androidx.work.runtime.ktx)
 
 	// Kotlinx
 	implementation(libs.kotlinx.datetime)
@@ -224,20 +257,27 @@ dependencies {
 	implementation(libs.coil.gif)
 
 	// Compose 3rd party
-	implementation(libs.capsule)
 	implementation(libs.kmpalette.core)
 	implementation(libs.kmpalette.network)
 	implementation(libs.materialKolor)
 	implementation(libs.composePipette)
 	implementation(libs.multiplatformSettings)
 
+	// Paging
+	implementation(libs.androidx.paging.common)
+	implementation(libs.androidx.paging.compose)
+	implementation(libs.androidx.room3.paging)
+
 	// Misc
 	implementation(libs.koin.core)
 	implementation(libs.koin.android)
 	implementation(libs.koin.compose)
 	implementation(libs.koin.compose.viewmodel)
+	implementation(libs.koin.androidx.workmanager)
 	implementation(libs.subsonicKotlin)
 	implementation(libs.antisocialcord)
 	ksp(libs.androidx.room3.compiler)
+	implementation(libs.cryptohash)
+	implementation(libs.mimetypes)
 	coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

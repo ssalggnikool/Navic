@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
@@ -94,15 +96,20 @@ fun CollectionDetailScreenHeadingRow(
 				Text(
 					text = subtitle,
 					color = MaterialTheme.colorScheme.primary,
-					modifier = Modifier.clickable(
-						collection is DomainAlbum,
-						onClick = dropUnlessResumed {
-							(collection as? DomainAlbum)?.artistId?.let { id ->
-								backStack.add(Screen.ArtistDetail(id))
+					modifier = Modifier
+						.clickable(
+							enabled = collection is DomainAlbum,
+							onClick = dropUnlessResumed {
+								(collection as? DomainAlbum)?.artistId?.let { id ->
+									backStack.add(Screen.ArtistDetail(id))
+								}
 							}
-						}),
+						)
+						.sizeIn(maxWidth = 300.dp),
 					style = MaterialTheme.typography.bodyMedium,
-					fontFamily = defaultFont(grade = 100, round = 100f)
+					fontFamily = defaultFont(grade = 100, round = 100f),
+					overflow = TextOverflow.Ellipsis,
+					maxLines = 1
 				)
 			}
 			Text(
@@ -115,7 +122,9 @@ fun CollectionDetailScreenHeadingRow(
 				else stringResource(R.string.subtitle_playlist),
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
 				style = MaterialTheme.typography.bodySmall,
-				fontFamily = defaultFont(grade = 100, round = 100f)
+				fontFamily = defaultFont(grade = 100, round = 100f),
+				overflow = TextOverflow.Ellipsis,
+				maxLines = 1
 			)
 		}
 	}

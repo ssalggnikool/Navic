@@ -6,16 +6,14 @@
 
 package paige.navic.ui.screen.queue.viewmodel
 
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
-import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.DownloadManager
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
+import paige.navic.domain.manager.session.DownloadManager
 
 class QueueViewModel(
-	connectivityManager: ConnectivityManager,
+	reachability: ReachabilityFlow,
 	downloadManager: DownloadManager
 ) : ViewModel() {
-	val listState = LazyListState()
-	val isOnline = connectivityManager.isOnline
+	val isReachable = reachability.isReachable
 	val downloadedSongs = downloadManager.downloadedSongs
 }

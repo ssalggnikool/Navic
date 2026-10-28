@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -22,7 +23,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.kyant.capsule.ContinuousCapsule
 import paige.navic.ui.theme.defaultFont
 
 @Composable
@@ -37,7 +37,7 @@ fun ChatInputBar(
 		enabled = enabled,
 		modifier = modifier
 			.height(56.dp)
-			.background(MaterialTheme.colorScheme.surfaceContainer, ContinuousCapsule),
+			.background(MaterialTheme.colorScheme.surfaceContainer, CircleShape),
 		lineLimits = TextFieldLineLimits.SingleLine,
 		keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
 		onKeyboardAction = { onSendAction() },

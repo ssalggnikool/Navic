@@ -14,12 +14,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
-import android.os.Build
 import android.renderscript.Allocation
+import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
-import android.renderscript.Element
-import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -38,7 +36,7 @@ import coil3.request.allowHardware
 
 @SuppressLint("UnnecessaryComposedModifier")
 fun Modifier.backwardsCompatibleBlur(radius: Dp): Modifier  {
-	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+	if (PlatformSupport.SUPPORTS_COMPOSE_BLUR) {
 		return this.then(Modifier.blur(radius))
 	}
 
@@ -69,7 +67,7 @@ fun Modifier.backwardsCompatibleBlur(radius: Dp): Modifier  {
 				contentBitmap,
 				finalOutput,
 				radius.value,
-				0.1f
+				0.3f
 			)
 
 			drawIntoCanvas { canvas ->
@@ -135,10 +133,6 @@ fun blurBitmapWithRenderShit(
 	return output
 }
 
-fun isHardwareRenderingCucked(): Boolean {
-	return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < Build.VERSION_CODES.S
-}
-
 /*
  * if we're running android < 12, this basically fixes the issue where
  * blend rotation doesn't update in real time (it only did if you interacted with the now playing screen)
@@ -166,5 +160,5 @@ fun PlatformLayerComposable(
  * ...how many people are on the island again, beatoriche?
  */
 fun ImageRequest.Builder.disableHardwareIfCucked(): ImageRequest.Builder {
-	return this.allowHardware(!isHardwareRenderingCucked())
+	return this.allowHardware(!PlatformSupport.IS_BITMAP_HARDWARE_RENDERING_BROKEN)
 }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.kyant.capsule.ContinuousCapsule
 import com.materialkolor.ktx.toHex
 import dev.zt64.compose.pipette.HsvColor
 import dev.zt64.compose.pipette.SquareColorPicker
@@ -117,10 +117,16 @@ fun ColorPickerSheet(
 					}
 				)
 				Row(
-					modifier = Modifier.fillMaxWidth().height(150.dp),
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(150.dp),
 					horizontalArrangement = Arrangement.spacedBy(8.dp)
 				) {
-					Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+					Box(
+						modifier = Modifier
+							.weight(1f)
+							.fillMaxHeight()
+					) {
 						SquareColorPicker(
 							color = { color },
 							onColorChange = onColorChange,
@@ -216,8 +222,8 @@ private fun HueSlider(
 					}
 					.fillMaxWidth()
 					.height(thumbHeight * 2)
-					.background(Color.White, ContinuousCapsule)
-					.border(2.dp, Color.LightGray, ContinuousCapsule)
+					.background(Color.White, CircleShape)
+					.border(2.dp, Color.LightGray, CircleShape)
 			)
 		}
 	}

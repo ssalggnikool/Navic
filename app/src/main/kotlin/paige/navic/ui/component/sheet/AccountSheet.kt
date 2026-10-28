@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,35 +31,39 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kyant.capsule.ContinuousCapsule
-import com.russhwolf.settings.Settings
+import coil3.compose.SubcomposeAsyncImage
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.LoginManager
-import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.manager.SleepTimerManager
-import paige.navic.domain.manager.SleepTimerMode
-import paige.navic.domain.manager.canUserShare
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Bedtime
-import paige.navic.ui.icons.outlined.Forum
-import paige.navic.ui.icons.outlined.Logout
-import paige.navic.ui.icons.outlined.Share
+import paige.navic.domain.manager.playback.SleepTimerManager
+import paige.navic.domain.manager.playback.SleepTimerMode
+import paige.navic.domain.manager.session.LoginManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.SessionState
+import paige.navic.domain.manager.session.canShare
 import paige.navic.ui.component.common.Monogram
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Bedtime
+import paige.navic.ui.icons.outlined.Edit
+import paige.navic.ui.icons.outlined.Forum
+import paige.navic.ui.icons.outlined.Logout
+import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.positive
 import paige.navic.ui.util.label
@@ -70,8 +76,8 @@ fun AccountSheet(
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
 	val sessionManager = koinInject<SessionManager>()
-
-	val settings = koinInject<Settings>()
+	val sessionState =
+		sessionManager.sessionState.collectAsStateWithLifecycle()
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
 	val sleepTimerManager = koinInject<SleepTimerManager>()
@@ -81,6 +87,20 @@ fun AccountSheet(
 		initialValue = SheetValue.Hidden,
 		enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
 	)
+	var profilePictureUrl by remember { mutableStateOf<String?>(null) }
+
+	LaunchedEffect(Unit) {
+		try {
+			sessionManager.username
+				.takeIf { it.isNotBlank() }
+				?.let { username ->
+					profilePictureUrl = sessionManager.api.getAvatarUrl(username)
+				}
+		} catch (_: Exception) {
+			profilePictureUrl = null
+		}
+	}
+
 
 	val scope = rememberCoroutineScope()
 	val animateToDismiss = {
@@ -108,7 +128,7 @@ fun AccountSheet(
 			Surface(
 				modifier = Modifier.padding(vertical = 6.dp),
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
-				shape = ContinuousCapsule,
+				shape = CircleShape,
 			) {
 				Box(Modifier.size(width = 32.dp, height = 4.dp))
 			}
@@ -120,35 +140,62 @@ fun AccountSheet(
 		) {
 			Surface(
 				color = MaterialTheme.colorScheme.surfaceContainer,
-				shape = MaterialTheme.shapes.large
+				shape = MaterialTheme.shapes.large,
+				onClick = {
+					animateToDismiss()
+					backStack.add(Screen.Settings.ConnectionOptions)
+				}
 			) {
 				Row(
-					modifier = Modifier.padding(12.dp).fillMaxWidth(),
+					modifier = Modifier
+						.padding(12.dp)
+						.fillMaxWidth(),
 					verticalAlignment = Alignment.CenterVertically,
 					horizontalArrangement = Arrangement.spacedBy(12.dp)
 				) {
-					Monogram(text = settings.getString("username", ""))
-
+					if (profilePictureUrl != null) {
+						SubcomposeAsyncImage(
+							model = profilePictureUrl,
+							contentDescription = null,
+							modifier = Modifier
+								.size(56.dp)
+								.clip(CircleShape),
+							loading = {
+								Surface(color = MaterialTheme.colorScheme.secondary) {
+									Box(modifier = Modifier.fillMaxSize())
+								}
+							},
+							error = { Monogram(text = sessionManager.username) }
+						)
+					} else {
+						Monogram(text = sessionManager.username)
+					}
 					Column(
 						modifier = Modifier.weight(1f)
 					) {
 						Text(
-							text = settings.getString("username", ""),
+							text = sessionManager.username,
 							style = MaterialTheme.typography.headlineSmall
 						)
 
 						Text(
-							text = settings.getString("instanceUrl", ""),
+							text = sessionManager.instanceUrl,
 							style = MaterialTheme.typography.labelSmall,
 							color = MaterialTheme.colorScheme.onSurfaceVariant
 						)
 					}
+					Icon(
+						imageVector = Icons.Outlined.Edit,
+						contentDescription = stringResource(R.string.action_edit),
+						tint = MaterialTheme.colorScheme.onSurfaceVariant
+					)
 				}
 			}
 
 			Spacer(Modifier.height(9.dp))
 
-			val isSharingAllowed = sessionManager.canUserShare()
+			val isSharingAllowed =
+				(sessionState as? SessionState.Authenticated)?.currentUser?.canShare() == true
 			val count = if (isSharingAllowed) 4 else 3
 
 			if (isSharingAllowed) {

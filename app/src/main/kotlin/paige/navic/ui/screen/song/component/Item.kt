@@ -36,23 +36,23 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadEntity
-import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.database.entity.DownloadEntity
+import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
+import paige.navic.ui.component.common.CoverArt
+import paige.navic.ui.component.common.MarqueeText
+import paige.navic.ui.component.common.SmallRatingRow
+import paige.navic.ui.component.common.SwipeToDismissBox
+import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Star
 import paige.navic.ui.icons.outlined.Check
 import paige.navic.ui.icons.outlined.DownloadOff
 import paige.navic.ui.icons.outlined.Queue
 import paige.navic.ui.icons.outlined.QueuePlayNext
-import paige.navic.ui.component.common.CoverArt
-import paige.navic.ui.component.common.MarqueeText
-import paige.navic.ui.component.common.SmallRatingRow
-import paige.navic.ui.component.common.SwipeToDismissBox
-import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 import paige.navic.ui.util.InlineExplicitIcon
@@ -145,10 +145,7 @@ fun SongListScreenItem(
 				supportingContent = {
 					Column {
 						MarqueeText(
-							buildSongInfoString(
-								song = song,
-								onClickArtist = { backStack.add(Screen.ArtistDetail(it)) }
-							)
+							buildSongInfoString(song)
 						)
 						if (song.userRating != null && song.userRating != 0) {
 							SmallRatingRow(rating = song.userRating)
@@ -241,7 +238,7 @@ fun SongListScreenItem(
 
 	if (playlistDialogShown) {
 		PlaylistUpdateDialog(
-			songs = persistentListOf(song),
+			songIds = persistentListOf(song.id),
 			onDismissRequest = { playlistDialogShown = false }
 		)
 	}

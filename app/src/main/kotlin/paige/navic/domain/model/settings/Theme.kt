@@ -6,13 +6,10 @@
 
 package paige.navic.domain.model.settings
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -21,9 +18,10 @@ import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.ui.util.darkIosColorScheme
 import paige.navic.ui.util.lightIosColorScheme
+import paige.navic.util.PlatformSupport
 
 /**
  * Theme choices that the user can choose from
@@ -40,7 +38,7 @@ enum class Theme(val title: Int) {
 
 	/**
 	 * The app will be themed based on whatever the user
-	 * chose in system settings. Android only.
+	 * chose in system settings. Only avaliable on Android S (API 31) and up.
 	 */
 	Dynamic(R.string.theme_dynamic),
 
@@ -60,6 +58,17 @@ enum class Theme(val title: Int) {
 	 */
 	Spotify(R.string.theme_spotify);
 
+	companion object {
+		fun getDefaultTheme(): Theme {
+			return if (PlatformSupport.SUPPORTS_DYNAMIC_THEME) {
+				Dynamic
+			} else {
+				Seeded
+			}
+		}
+	}
+
+
 	@Composable
 	fun colorScheme(): ColorScheme {
 		val context = LocalContext.current
@@ -72,10 +81,22 @@ enum class Theme(val title: Int) {
 				ThemeMode.Light -> false
 			}
 		}
+		val seededColorScheme = rememberDynamicColorScheme(
+			seedColor = Color.hsv(
+				hue = preferenceManager.paletteAccentH,
+				saturation = preferenceManager.paletteAccentS,
+				value = preferenceManager.paletteAccentV
+			),
+			isDark = isDark,
+			specVersion = ColorSpec.SpecVersion.SPEC_2025,
+			style = preferenceManager.paletteStyle,
+			isAmoled = preferenceManager.amoled
+		)
+
 		return when (this) {
 			Dynamic ->
 				when {
-					Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> if (isDark) {
+					PlatformSupport.SUPPORTS_DYNAMIC_THEME -> if (isDark) {
 						if (preferenceManager.amoled)
 							dynamicDarkColorScheme(context).copy(
 								surface = Color.Black,
@@ -83,23 +104,17 @@ enum class Theme(val title: Int) {
 								background = Color.Black,
 								onBackground = Color.White
 							)
-						else dynamicDarkColorScheme(context)
-					} else dynamicLightColorScheme(context)
+						else {
+							dynamicDarkColorScheme(context)
+						}
+					} else {
+						dynamicLightColorScheme(context)
+					}
 
-					else -> if (isDark) darkColorScheme() else lightColorScheme()
+					else -> seededColorScheme
 				}
 
-			Seeded -> rememberDynamicColorScheme(
-				seedColor = Color.hsv(
-					hue = preferenceManager.paletteAccentH,
-					saturation = preferenceManager.paletteAccentS,
-					value = preferenceManager.paletteAccentV
-				),
-				isDark = isDark,
-				specVersion = ColorSpec.SpecVersion.SPEC_2025,
-				style = preferenceManager.paletteStyle,
-				isAmoled = preferenceManager.amoled
-			)
+			Seeded -> seededColorScheme
 
 			iOS -> if (isDark)
 				darkIosColorScheme(Color(0, 145, 255))

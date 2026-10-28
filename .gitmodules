@@ -1,3 +1,6 @@
 [submodule "media3"]
-	path = androidx-media
+	path = vendor/androidx-media
 	url = https://github.com/Nightdavisao/android-media3
+[submodule "vendor/subsonic-kotlin"]
+	path = vendor/subsonic-kotlin
+	url = https://github.com/Nightdavisao/subsonic-kotlin

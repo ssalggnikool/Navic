@@ -25,8 +25,10 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -34,12 +36,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.manager.canUserShare
+import paige.navic.database.entity.DownloadStatus
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.DownloadManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.canUserShare
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
 import paige.navic.domain.model.DomainPlaylist
@@ -47,6 +51,8 @@ import paige.navic.domain.model.DomainSongCollection
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.RatingRow
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.brand.LastFM
@@ -68,12 +74,8 @@ import paige.navic.ui.icons.outlined.Star
 @Composable
 fun CollectionSheet(
 	onDismissRequest: () -> Unit,
-	collection: DomainSongCollection?,
+	collection: DomainSongCollection,
 	albumInfo: DomainAlbumInfo? = null,
-	onDownloadAll: (() -> Unit)? = null,
-	onCancelDownloadAll: (() -> Unit)? = null,
-	onDeleteDownloadAll: (() -> Unit)? = null,
-	downloadStatus: DownloadStatus? = null,
 	onShare: (() -> Unit)? = null,
 	onPlayNext: (() -> Unit)? = null,
 	onAddToQueue: (() -> Unit)? = null,
@@ -85,8 +87,13 @@ fun CollectionSheet(
 	rating: Int? = null,
 	onSetRating: ((Int) -> Unit)? = null
 ) {
+	val downloadManager = koinInject<DownloadManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
 	val sessionManager = koinInject<SessionManager>()
+	val scope = rememberCoroutineScope()
+	val downloadStatus by downloadManager
+		.getCollectionDownloadStatus(collection.songs.map { it.id })
+		.collectAsState(initial = DownloadStatus.NOT_DOWNLOADED)
 
 	val contentPadding = PaddingValues(horizontal = 16.dp)
 	val colors = ListItemDefaults.colors(
@@ -95,6 +102,7 @@ fun CollectionSheet(
 		headlineColor = MaterialTheme.colorScheme.onSurface
 	)
 	var linkToOpen by rememberSaveable { mutableStateOf<String?>(null) }
+	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 
 	ModalBottomSheet(
 		onDismissRequest = onDismissRequest,
@@ -113,12 +121,12 @@ fun CollectionSheet(
 		ListItem(
 			leadingContent = {
 				CoverArt(
-					coverArtId = collection?.coverArtId,
+					coverArtId = collection.coverArtId,
 					modifier = Modifier.size(50.dp),
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
 			},
-			content = { MarqueeText(collection?.name.orEmpty()) },
+			content = { MarqueeText(collection.name.orEmpty()) },
 			supportingContent = {
 				MarqueeText(
 					listOfNotNull(
@@ -126,7 +134,7 @@ fun CollectionSheet(
 						(collection as? DomainPlaylist)?.comment,
 						(collection as? DomainAlbum)?.genre,
 						(collection as? DomainAlbum)?.year,
-						collection?.songCount?.let {
+						collection.songCount.let {
 							pluralStringResource(R.plurals.count_songs, it, it)
 						}
 					).joinToString(" • ")
@@ -192,7 +200,7 @@ fun CollectionSheet(
 					},
 					colors = colors,
 					contentPadding = contentPadding,
-					enabled = !collection?.songs.isNullOrEmpty()
+					enabled = collection.songs.isNotEmpty()
 				)
 			}
 
@@ -206,7 +214,7 @@ fun CollectionSheet(
 					},
 					colors = colors,
 					contentPadding = contentPadding,
-					enabled = !collection?.songs.isNullOrEmpty()
+					enabled = collection.songs.isNotEmpty()
 				)
 			}
 
@@ -220,7 +228,7 @@ fun CollectionSheet(
 					},
 					colors = colors,
 					contentPadding = contentPadding,
-					enabled = !collection?.songs.isNullOrEmpty()
+					enabled = collection.songs.isNotEmpty()
 				)
 			}
 
@@ -255,90 +263,80 @@ fun CollectionSheet(
 				)
 			}
 
-			if (downloadStatus != null) {
-				when (downloadStatus) {
-					DownloadStatus.DOWNLOADING -> {
-						ListItem(
-							content = { Text(stringResource(R.string.action_cancel_download)) },
-							leadingContent = { Icon(Icons.Outlined.Close, null) },
-							onClick = {
-								onCancelDownloadAll?.invoke()
-								onDismissRequest()
-							},
-							colors = colors,
-							contentPadding = contentPadding
-						)
-					}
-
-					DownloadStatus.DOWNLOADED -> {
-						ListItem(
-							content = { Text(stringResource(R.string.action_delete_download)) },
-							leadingContent = { Icon(Icons.Outlined.Delete, null) },
-							onClick = {
-								onDeleteDownloadAll?.invoke()
-								onDismissRequest()
-							},
-							colors = colors,
-							contentPadding = contentPadding
-						)
-					}
-
-					DownloadStatus.FAILED -> {
-						ListItem(
-							content = {
-								Text(
-									text = stringResource(R.string.info_download_failed),
-									color = MaterialTheme.colorScheme.error
-								)
-							},
-							supportingContent = {
-								Text(
-									text = stringResource(R.string.info_click_to_retry),
-									color = MaterialTheme.colorScheme.error,
-									style = MaterialTheme.typography.labelSmall
-								)
-							},
-							leadingContent = {
-								Icon(
-									Icons.Outlined.DownloadOff,
-									null,
-									tint = MaterialTheme.colorScheme.error
-								)
-							},
-							onClick = {
-								onDownloadAll?.invoke()
-								onDismissRequest()
-							},
-							colors = colors,
-							contentPadding = contentPadding
-						)
-					}
-
-					else -> {
-						ListItem(
-							content = { Text(stringResource(R.string.action_download)) },
-							leadingContent = { Icon(Icons.Outlined.Download, null) },
-							onClick = {
-								onDownloadAll?.invoke()
-								onDismissRequest()
-							},
-							colors = colors,
-							contentPadding = contentPadding
-						)
-					}
+			when (downloadStatus) {
+				DownloadStatus.DOWNLOADING -> {
+					ListItem(
+						content = { Text(stringResource(R.string.action_cancel_download)) },
+						leadingContent = { Icon(Icons.Outlined.Close, null) },
+						onClick = {
+							downloadManager.cancelCollectionDownload(collection.songs.map { it.id })
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding
+					)
 				}
-			} else if (onDownloadAll != null) {
-				ListItem(
-					content = { Text(stringResource(R.string.action_download)) },
-					leadingContent = { Icon(Icons.Outlined.Download, null) },
-					onClick = {
-						onDownloadAll()
-						onDismissRequest()
-					},
-					colors = colors,
-					contentPadding = contentPadding,
-					enabled = !collection?.songs.isNullOrEmpty()
-				)
+
+				DownloadStatus.DOWNLOADED -> {
+					ListItem(
+						content = { Text(stringResource(R.string.action_delete_download)) },
+						leadingContent = { Icon(Icons.Outlined.Delete, null) },
+						onClick = {
+							downloadDeletionHandler.requestDelete(DeleteDownloadTarget.Collection.of(collection))
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding
+					)
+				}
+
+				DownloadStatus.FAILED -> {
+					ListItem(
+						content = {
+							Text(
+								text = stringResource(R.string.info_download_failed),
+								color = MaterialTheme.colorScheme.error
+							)
+						},
+						supportingContent = {
+							Text(
+								text = stringResource(R.string.info_click_to_retry),
+								color = MaterialTheme.colorScheme.error,
+								style = MaterialTheme.typography.labelSmall
+							)
+						},
+						leadingContent = {
+							Icon(
+								Icons.Outlined.DownloadOff,
+								null,
+								tint = MaterialTheme.colorScheme.error
+							)
+						},
+						onClick = {
+							scope.launch {
+								downloadManager.downloadCollection(collection.songs.map { it.id })
+							}
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding
+					)
+				}
+
+				else -> {
+					ListItem(
+						content = { Text(stringResource(R.string.action_download)) },
+						leadingContent = { Icon(Icons.Outlined.Download, null) },
+						onClick = {
+							scope.launch {
+								downloadManager.downloadCollection(collection.songs.map { it.id })
+							}
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding
+					)
+				}
 			}
 
 			if (onDelete != null) {
@@ -356,10 +354,8 @@ fun CollectionSheet(
 		}
 	}
 
-	if (linkToOpen != null) {
-		LinkConfirmationDialog(
-			linkToOpen = linkToOpen!!,
-			onDismissRequest = { linkToOpen = null }
-		)
-	}
+	LinkConfirmationDialog(
+		linkToOpen = linkToOpen,
+		onDismissRequest = { linkToOpen = null }
+	)
 }

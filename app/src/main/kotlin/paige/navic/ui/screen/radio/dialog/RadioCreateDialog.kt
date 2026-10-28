@@ -19,19 +19,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Radio
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Radio
 import paige.navic.ui.screen.radio.viewmodel.RadioCreateDialogViewModel
 
 @Composable
@@ -40,7 +40,7 @@ fun RadioCreateDialog(
 	onRefresh: () -> Unit
 ) {
 	val viewModel = koinViewModel<RadioCreateDialogViewModel>()
-	val state by viewModel.creationState.collectAsState()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
 
 	LaunchedEffect(Unit) {
 		viewModel.events.collect { event ->

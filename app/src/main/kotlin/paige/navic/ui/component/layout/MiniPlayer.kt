@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +40,6 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,24 +55,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
-import com.kyant.capsule.ContinuousRoundedRectangle
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
 import paige.navic.domain.model.settings.MiniPlayerStyle
 import paige.navic.domain.model.settings.NavbarConfig
-import paige.navic.shared.MediaPlayerViewModel
+import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
@@ -80,6 +81,7 @@ import paige.navic.ui.icons.filled.Note
 import paige.navic.ui.icons.filled.SkipNext
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
+import paige.navic.ui.util.appendArtists
 import paige.navic.ui.util.playPauseIconPainter
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
@@ -89,10 +91,10 @@ fun MiniPlayer(
 	windowInsets: WindowInsets,
 	enabled: Boolean = true
 ) {
-	val player = koinInject<MediaPlayerViewModel>()
+	val player = koinInject<MediaPlayer>()
 	val preferenceManager = koinInject<PreferenceManager>()
 	val navtabsViewModel = koinViewModel<NavtabsViewModel>()
-	val navtabsState by navtabsViewModel.state.collectAsState()
+	val navtabsState by navtabsViewModel.state.collectAsStateWithLifecycle()
 	val tabs = ((navtabsState as? UiState.Success)?.data ?: NavbarConfig.default)
 		.tabs.filter { tab -> tab.visible }
 	val backStack = LocalNavStack.current
@@ -101,7 +103,7 @@ fun MiniPlayer(
 		with(LocalDensity.current) { WindowInsets.navigationBars.getBottom(this).toDp() }
 	else 0.dp
 
-	val playerState by player.uiState.collectAsState()
+	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val song = playerState.currentSong
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
@@ -127,7 +129,7 @@ fun MiniPlayer(
 	)
 	val iconSize = if (detached) 24.dp else 32.dp
 
-	val shape = ContinuousRoundedRectangle(
+	val shape = RoundedCornerShape(
 		if (detached) 16.dp else 0.dp
 	)
 
@@ -232,7 +234,7 @@ fun MiniPlayer(
 									.size(if (detached) 48.dp else 50.dp)
 									.padding(if (playerState.isLoading) 8.dp else 0.dp)
 									.clip(
-										ContinuousRoundedRectangle(coverRounding)
+										RoundedCornerShape(coverRounding)
 									)
 									.background(MaterialTheme.colorScheme.surfaceVariant)
 							)
@@ -309,11 +311,14 @@ fun MiniPlayer(
 						}
 					},
 					supportingContent = {
-						if (song != null) {
-							MarqueeText(song.artistName ?: "[unknown artist]")
-						} else {
-							MarqueeText(stringResource(R.string.info_not_playing))
-						}
+						val notPlayingString = stringResource(R.string.info_not_playing)
+						MarqueeText(buildAnnotatedString {
+							if (song != null) {
+								appendArtists(song.artists)
+							} else {
+								append(notPlayingString)
+							}
+						})
 					},
 					enabled = enabled
 				)

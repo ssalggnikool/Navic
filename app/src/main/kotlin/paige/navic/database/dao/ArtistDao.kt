@@ -1,0 +1,80 @@
+/*
+ * Navic, a Subsonic music streaming app for Android
+ * Copyright (c) 2026 paige
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+package paige.navic.database.dao
+
+import androidx.paging.PagingSource
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.RawQuery
+import androidx.room3.RoomRawQuery
+import androidx.room3.Transaction
+import kotlinx.coroutines.flow.Flow
+import paige.navic.database.entity.ArtistEntity
+import paige.navic.util.Logger
+import kotlin.time.Instant
+
+data class LetterCount(
+	val letter: String,
+	val count: Int
+)
+
+@Dao
+interface ArtistDao {
+	@RawQuery
+	fun getArtistsByQuery(query: RoomRawQuery): PagingSource<Int, ArtistEntity>
+
+	@RawQuery
+	suspend fun getArtistIdsByQuery(query: RoomRawQuery): List<String>
+
+	@RawQuery(observedEntities = [ArtistEntity::class])
+	fun getArtistLetterCounts(query: RoomRawQuery): Flow<List<LetterCount>>
+
+	@Query("SELECT * FROM ArtistEntity WHERE artistId = :artistId LIMIT 1")
+	suspend fun getArtistById(artistId: String): ArtistEntity?
+
+	@Query("SELECT EXISTS(SELECT 1 FROM ArtistEntity WHERE artistId = :artistId AND starredAt IS NOT NULL)")
+	suspend fun isArtistStarred(artistId: String): Boolean
+
+	@Query("UPDATE ArtistEntity SET starredAt = :starredAt WHERE artistId = :artistId")
+	suspend fun updateArtistStarredAt(artistId: String, starredAt: Instant?)
+
+	@Query("SELECT * FROM ArtistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
+	suspend fun searchArtistsList(query: String): List<ArtistEntity>
+
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	suspend fun insertArtist(artist: ArtistEntity)
+
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	suspend fun insertArtists(artists: List<ArtistEntity>)
+
+	@Insert(onConflict = OnConflictStrategy.IGNORE)
+	suspend fun insertArtistsIgnoringConflicts(artists: List<ArtistEntity>)
+
+	@Query("DELETE FROM ArtistEntity WHERE artistId = :artistId")
+	suspend fun deleteArtist(artistId: String)
+
+	@Query("DELETE FROM ArtistEntity")
+	suspend fun clearAllArtists()
+
+	@Query("SELECT artistId FROM ArtistEntity")
+	suspend fun getAllArtistIds(): List<String>
+
+	@Query("SELECT * FROM ArtistEntity WHERE artistId IN (:ids)")
+	suspend fun getArtistsByIds(ids: List<String>): List<ArtistEntity>
+
+	@Transaction
+	suspend fun deleteObsoleteArtists(remoteIds: Set<String>) {
+		getAllArtistIds().forEach { localId ->
+			if (localId !in remoteIds) {
+				Logger.w("ArtistDao", "artist $localId no longer exists remotely")
+				deleteArtist(localId)
+			}
+		}
+	}
+}

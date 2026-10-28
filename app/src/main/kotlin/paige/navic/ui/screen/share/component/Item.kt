@@ -33,12 +33,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainShare
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.SwipeToDismissBox
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Delete
 import paige.navic.util.toHoursMinutesSeconds
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds

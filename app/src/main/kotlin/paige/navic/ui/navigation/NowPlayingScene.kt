@@ -12,6 +12,7 @@ package paige.navic.ui.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +36,6 @@ import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
-import com.kyant.capsule.ContinuousRoundedRectangle
 import paige.navic.di.LocalSheetState
 import paige.navic.ui.component.sheet.ModalBottomSheet
 import paige.navic.ui.theme.NavicTheme
@@ -57,7 +57,10 @@ class NowPlayingScene<T : Any>(
 	lateinit var sheetState: SheetState
 
 	override val content = @Composable {
-		sheetState = rememberBottomSheetState(SheetValue.Hidden, setOf(SheetValue.Hidden, SheetValue.Expanded))
+		sheetState = rememberBottomSheetState(
+			SheetValue.Hidden,
+			setOf(SheetValue.Hidden, SheetValue.Expanded)
+		)
 		val lifecycleOwner = rememberLifecycleOwner()
 		val screenCornerRadius = rememberScreenCornerRadius()
 
@@ -71,7 +74,7 @@ class NowPlayingScene<T : Any>(
 			if (expandProgress == 1f) {
 				RectangleShape
 			} else {
-				ContinuousRoundedRectangle(
+				RoundedCornerShape(
 					topStart = screenCornerRadius,
 					topEnd = screenCornerRadius
 				)

@@ -16,30 +16,3 @@ import paige.navic.domain.model.DomainGenre
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.core.UiState
 
-fun LazyGridScope.genreListScreenContent(
-	state: UiState<List<DomainGenre>>
-) {
-	val data = state.data.orEmpty()
-	if (data.isNotEmpty()) {
-		items(data, { it.name }) { genre ->
-			GenreListScreenCard(
-				modifier = Modifier.animateItem(),
-				genre = genre
-			)
-		}
-	} else {
-		when (state) {
-			is UiState.Loading -> items(10) {
-				GenreListScreenCardPlaceholder()
-			}
-
-			else -> {
-				item(span = { GridItemSpan(maxLineSpan) }) {
-					ContentUnavailable(
-						label = stringResource(R.string.info_no_genres)
-					)
-				}
-			}
-		}
-	}
-}

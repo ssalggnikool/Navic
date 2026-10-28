@@ -24,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,36 +34,35 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.ImmutableList
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
-import paige.navic.domain.model.DomainSong
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.PlaylistAdd
-import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.PlaylistAdd
+import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistUpdateDialogViewModel
 import dev.zt64.subsonic.api.model.Playlist as ApiPlaylist
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlaylistUpdateDialog(
-	songs: ImmutableList<DomainSong>,
+	songIds: ImmutableList<String>,
 	playlistToExclude: String? = null,
 	onDismissRequest: () -> Unit
 ) {
 	val viewModel = koinViewModel<PlaylistUpdateDialogViewModel>(
-		key = songs.joinToString() + playlistToExclude,
-		parameters = { parametersOf(songs, playlistToExclude) }
+		key = songIds.joinToString() + playlistToExclude,
+		parameters = { parametersOf(songIds, playlistToExclude) }
 	)
-	val state by viewModel.playlistsState.collectAsState()
-	val confirmState by viewModel.confirmState.collectAsState()
-	val selectedPlaylists by viewModel.selectedPlaylists.collectAsState()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
+	val data = state.data ?: return
 
 	var createDialogShown by rememberSaveable { mutableStateOf(false) }
 
@@ -75,7 +73,7 @@ fun PlaylistUpdateDialog(
 				.heightIn(max = 300.dp)
 		) {
 			items(playlists) { playlist ->
-				val isSelected = playlist in selectedPlaylists
+				val isSelected = playlist in data.selectedPlaylists
 				ListItem(
 					modifier = Modifier
 						.toggleable(
@@ -126,15 +124,15 @@ fun PlaylistUpdateDialog(
 			)
 		},
 		buttons = {
-			if (state.data?.isNotEmpty() == true || state is UiState.Loading) {
+			if (data.playlists.isNotEmpty() || state is UiState.Loading) {
 				SegmentedListButton(
 					modifier = Modifier.fillMaxWidth(),
 					onClick = viewModel::confirm,
-					enabled = confirmState !is UiState.Loading && selectedPlaylists.isNotEmpty(),
+					enabled = state !is UiState.Loading && data.selectedPlaylists.isNotEmpty(),
 					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2),
 					colors = SegmentedListButtonDefaults.primaryColors()
 				) {
-					if (confirmState is UiState.Loading) {
+					if (state is UiState.Loading) {
 						CircularProgressIndicator(Modifier.size(20.dp))
 					}
 					Text(stringResource(R.string.action_ok))
@@ -174,9 +172,8 @@ fun PlaylistUpdateDialog(
 				}
 
 				is UiState.Success -> {
-					val playlists = state.data
-					if (playlists.isNotEmpty()) {
-						list(playlists)
+					if (data.playlists.isNotEmpty()) {
+						list(data.playlists)
 					} else {
 						Text(
 							stringResource(
@@ -194,6 +191,7 @@ fun PlaylistUpdateDialog(
 	if (createDialogShown) {
 		PlaylistCreateDialog(
 			navigateAfterwards = false,
+			songIds = songIds,
 			onDismissRequest = { createDialogShown = false },
 			onRefresh = { viewModel.refreshResults() }
 		)

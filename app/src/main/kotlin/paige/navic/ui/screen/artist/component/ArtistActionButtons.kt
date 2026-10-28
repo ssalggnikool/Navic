@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,9 +33,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kyant.capsule.ContinuousCapsule
 import paige.navic.R
-import paige.navic.data.database.entity.DownloadStatus
+import paige.navic.database.entity.DownloadStatus
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Play
 import paige.navic.ui.icons.outlined.Close
@@ -65,7 +65,7 @@ fun ArtistActionButtons(
 		OutlinedButton(
 			modifier = Modifier.size(width = 52.dp, height = 44.dp),
 			onClick = onPlayShuffled,
-			shape = ContinuousCapsule,
+			shape = CircleShape,
 			enabled = playEnabled,
 			contentPadding = PaddingValues(0.dp)
 		) {
@@ -80,7 +80,7 @@ fun ArtistActionButtons(
 			modifier = Modifier
 				.weight(1f)
 				.height(56.dp)
-				.clip(ContinuousCapsule)
+				.clip(CircleShape)
 				.background(
 					if (playEnabled) MaterialTheme.colorScheme.primary
 					else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
@@ -121,11 +121,12 @@ fun ArtistActionButtons(
 					DownloadStatus.DOWNLOADED -> onDeleteDownload()
 				}
 			},
-			shape = ContinuousCapsule,
+			shape = CircleShape,
 			enabled = when (downloadStatus) {
 				DownloadStatus.DOWNLOADING,
 				DownloadStatus.DOWNLOADED,
 				DownloadStatus.FAILED -> true
+
 				DownloadStatus.NOT_DOWNLOADED -> playEnabled
 			},
 			contentPadding = PaddingValues(0.dp)

@@ -31,7 +31,7 @@ import dev.zt64.compose.pipette.HsvColor
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainGenre
 import paige.navic.domain.model.settings.ThemeMode
 import paige.navic.ui.component.common.CoverArt
@@ -105,12 +105,15 @@ fun GenreListScreenCard(
 				}
 			}
 			Column(
-				modifier = Modifier.fillMaxWidth().padding(
-					start = 8.dp,
-					end = 85.dp,
-					top = 10.dp,
-					bottom = 10.dp
-				).align(Alignment.TopStart)
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(
+						start = 8.dp,
+						end = 85.dp,
+						top = 10.dp,
+						bottom = 10.dp
+					)
+					.align(Alignment.TopStart)
 			) {
 				Text(
 					genre.name,

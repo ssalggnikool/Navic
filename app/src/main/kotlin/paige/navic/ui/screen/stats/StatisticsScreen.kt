@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
@@ -51,21 +50,21 @@ import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Headphones
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Note
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.sheet.ArtistSheet
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Headphones
+import paige.navic.ui.icons.filled.Star
+import paige.navic.ui.icons.outlined.Note
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.stats.component.StatSummaryCard
 import paige.navic.ui.screen.stats.component.TopArtistItem
@@ -73,7 +72,7 @@ import paige.navic.ui.screen.stats.viewmodel.StatisticsViewModel
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.util.toSummaryString
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun StatisticsScreen(
 	nested: Boolean = false
@@ -105,7 +104,8 @@ fun StatisticsScreen(
 				val preferVisible =
 					preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 				if (!nested
-					|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+					|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+				) {
 					RootBottomBar(scrolled = scrollManager.isTriggered)
 				}
 			}
@@ -143,7 +143,9 @@ fun StatisticsScreen(
 									Icon(
 										imageVector = Icons.Filled.Headphones,
 										contentDescription = null,
-										modifier = Modifier.padding(16.dp).size(32.dp)
+										modifier = Modifier
+											.padding(16.dp)
+											.size(32.dp)
 									)
 								}
 							},
@@ -220,10 +222,13 @@ fun StatisticsScreen(
 						key = { it.artist.id },
 						span = { GridItemSpan(maxLineSpan) }
 					) { stats ->
-						val maxPlays = state.topArtists.first().playCount.toFloat()
+						val maxDuration = state.topArtists.firstOrNull()?.listeningTime?.inWholeMilliseconds?.toFloat() ?: 1f
+						val ratio = if (maxDuration > 0f) {
+							(stats.listeningTime.inWholeMilliseconds.toFloat() / maxDuration).coerceIn(0f, 1f)
+						} else 0f
 						TopArtistItem(
 							stats = stats,
-							ratio = stats.playCount / maxPlays,
+							ratio = ratio,
 							onClick = { backStack.add(Screen.ArtistDetail(stats.artist.id)) },
 							onLongClick = { selectedArtist = stats.artist }
 						)

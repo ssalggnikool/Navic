@@ -14,18 +14,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.repository.CollectionRepository
 import paige.navic.ui.core.UiState
-import paige.navic.util.effectiveGain
 import paige.navic.util.toFileSize
 import paige.navic.util.toHoursMinutesSeconds
 
 class SongDetailViewModel(
 	songId: String,
 	private val repository: CollectionRepository,
-	private val preferenceManager: PreferenceManager
 ) : ViewModel() {
 	val songState: StateFlow<UiState<DomainSong>>
 		field = MutableStateFlow<UiState<DomainSong>>(UiState.Loading())
@@ -68,9 +65,6 @@ class SongDetailViewModel(
 
 			R.string.info_track_replay_gain to song.replayGain?.trackGain?.let { "$it dB" },
 			R.string.info_album_replay_gain to song.replayGain?.albumGain?.let { "$it dB" },
-			R.string.info_track_replay_gain_effective to song.replayGain?.effectiveGain(
-				preferenceManager.replayGainMode
-			)?.let { "$it dB" },
 			R.string.title_statistics to song.playCount.toString()
 		)
 }

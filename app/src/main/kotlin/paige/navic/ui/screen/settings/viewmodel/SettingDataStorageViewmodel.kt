@@ -14,20 +14,20 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import paige.navic.data.database.dao.SyncActionDao
-import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.DownloadManager
-import paige.navic.domain.manager.SyncManager
+import paige.navic.database.dao.SyncActionDao
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
+import paige.navic.domain.manager.session.DownloadManager
+import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.repository.DbRepository
-import paige.navic.domain.repository.SongRepository
+import paige.navic.domain.sync.SyncCoordinator
 
 class SettingsDataStorageViewModel(
 	private val syncManager: SyncManager,
+	private val syncCoordinator: SyncCoordinator,
 	private val dbRepository: DbRepository,
 	private val syncDao: SyncActionDao,
 	private val downloadManager: DownloadManager,
-	private val songRepository: SongRepository,
-	connectivityManager: ConnectivityManager
+	reachability: ReachabilityFlow
 ) : ViewModel() {
 
 	val syncState = syncManager.syncState
@@ -49,7 +49,7 @@ class SettingsDataStorageViewModel(
 
 	val isDownloadingLibrary = downloadManager.isDownloadingLibrary
 	val libraryDownloadProgress = downloadManager.libraryDownloadProgress
-	val isOnline = connectivityManager.isOnline
+	val isReachable = reachability.isReachable
 
 	init {
 		loadPendingActions()
@@ -67,11 +67,12 @@ class SettingsDataStorageViewModel(
 
 	fun rebuildDatabase() {
 		viewModelScope.launch(Dispatchers.IO) {
+			syncManager.stopPeriodicSyncAndWait()
+			syncCoordinator.awaitIdle()
 			dbRepository.removeEverything()
-			syncManager.stopPeriodicSync()
 			pendingActionCount.value = 0
+			syncManager.triggerManualSync()
 		}
-		triggerManualSync()
 	}
 
 	fun removeAllActions() {
@@ -83,13 +84,6 @@ class SettingsDataStorageViewModel(
 
 	fun clearAllDownloads() {
 		downloadManager.clearAllDownloads()
-	}
-
-	fun downloadEntireLibrary() {
-		viewModelScope.launch(Dispatchers.IO) {
-			val allSongs = songRepository.getAllSongs()
-			downloadManager.downloadEntireLibrary(allSongs)
-		}
 	}
 
 	fun cancelLibraryDownload() {

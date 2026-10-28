@@ -12,6 +12,7 @@ import android.os.Build
 import android.util.Log
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.component.KoinComponent
 import org.koin.dsl.module
@@ -46,6 +47,7 @@ class Application : android.app.Application(), KoinComponent {
 				singleOf(::ActivityProvider)
 			})
 			androidContext(this@Application)
+			workManagerFactory()
 			androidLogger()
 		}
 	}

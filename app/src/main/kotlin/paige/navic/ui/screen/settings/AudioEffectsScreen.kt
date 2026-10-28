@@ -30,14 +30,14 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.AudioGainManager
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.playback.AudioGainManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.ReplayGainMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Info
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
@@ -87,18 +87,25 @@ fun AudioEffectsScreen() {
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 					SettingsToggleItem(
+						checked = preferenceManager.floatOutputEnabled,
+						onCheckedChange = { preferenceManager.floatOutputEnabled = it },
+						content = { Text(stringResource(R.string.option_float_output)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_float_output)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+					)
+					SettingsToggleItem(
 						checked = preferenceManager.gaplessPlayback,
 						onCheckedChange = { preferenceManager.gaplessPlayback = it },
 						content = { Text(stringResource(R.string.option_gapless_playback)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_gapless_playback)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.audioOffload,
 						onCheckedChange = { preferenceManager.audioOffload = it },
 						content = { Text(stringResource(R.string.option_audio_offload)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_audio_offload)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
 					)
 				}
 

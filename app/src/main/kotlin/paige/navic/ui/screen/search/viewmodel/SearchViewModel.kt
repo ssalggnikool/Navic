@@ -18,8 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
-import paige.navic.domain.manager.ConnectivityManager
-import paige.navic.domain.manager.DownloadManager
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
+import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.repository.SearchRepository
 import paige.navic.domain.repository.SongRepository
@@ -30,7 +30,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class SearchViewModel(
 	private val repository: SearchRepository,
 	private val songRepository: SongRepository,
-	connectivityManager: ConnectivityManager,
+	reachability: ReachabilityFlow,
 	downloadManager: DownloadManager
 ) : ViewModel() {
 	val searchState: StateFlow<UiState<List<Any>>>
@@ -50,7 +50,7 @@ class SearchViewModel(
 
 	val searchQuery = TextFieldState()
 
-	val isOnline = connectivityManager.isOnline
+	val isReachable = reachability.isReachable
 	val downloadedSongs = downloadManager.downloadedSongs
 
 	val gridState = LazyGridState()
@@ -96,8 +96,8 @@ class SearchViewModel(
 	fun selectSong(song: DomainSong) {
 		viewModelScope.launch {
 			selectedSong.value = song
-			selectedSongIsStarred.value = songRepository.isSongStarred(song)
-			selectedSongRating.value = songRepository.getSongRating(song)
+			selectedSongIsStarred.value = songRepository.isSongStarred(song.id)
+			selectedSongRating.value = songRepository.getSongRating(song.id)
 		}
 	}
 
@@ -106,9 +106,9 @@ class SearchViewModel(
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
 				if (starred) {
-					songRepository.starSong(selection)
+					songRepository.starSong(selection.id)
 				} else {
-					songRepository.unstarSong(selection)
+					songRepository.unstarSong(selection.id)
 				}
 				selectedSongIsStarred.value = starred
 			}
@@ -119,7 +119,7 @@ class SearchViewModel(
 		viewModelScope.launch {
 			val selection = selectedSong.value ?: return@launch
 			runCatching {
-				songRepository.rateSong(selection, rating)
+				songRepository.rateSong(selection.id, rating)
 				selectedSongRating.value = rating
 			}
 		}

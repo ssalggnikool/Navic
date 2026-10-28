@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -17,20 +18,24 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
+import paige.navic.R.string.info_no_genres
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -39,7 +44,8 @@ import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
-import paige.navic.ui.screen.genre.component.genreListScreenContent
+import paige.navic.ui.screen.genre.component.GenreListScreenCard
+import paige.navic.ui.screen.genre.component.GenreListScreenCardPlaceholder
 import paige.navic.ui.screen.genre.viewmodel.GenreListViewModel
 import paige.navic.ui.util.withoutTop
 import paige.navic.ui.viewmodel.RootViewModel
@@ -56,7 +62,8 @@ fun GenreListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val genresState by viewModel.genresState.collectAsState()
+	val genresState by viewModel.uiState.collectAsStateWithLifecycle()
+	val genresLazyItems = genresState.data?.collectAsLazyPagingItems()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
 	val rootViewModel = koinViewModel<RootViewModel>()
@@ -85,16 +92,20 @@ fun GenreListScreen(
 			val preferVisible =
 				preferenceManager.bottomBarVisibilityMode == BottomBarVisibilityMode.AllScreens
 			if (!nested
-				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)) {
+				|| (sizeClass.widthSizeClass < WindowWidthSizeClass.Medium && preferVisible)
+			) {
 				RootBottomBar(scrolled = scrollManager.isTriggered)
 			}
 		}
 	) { innerPadding ->
+		val isLoading = genresState is UiState.Loading || genresLazyItems?.loadState?.refresh is LoadState.Loading
+		val itemCount = genresLazyItems?.itemCount ?: 0
+
 		PullToRefreshBox(
 			modifier = Modifier
 				.padding(top = innerPadding.calculateTopPadding())
 				.background(MaterialTheme.colorScheme.surface),
-			finished = genresState !is UiState.Loading,
+			finished = !isLoading,
 			onRefresh = { viewModel.refreshGenres(true) },
 			key = genresState
 		) {
@@ -104,12 +115,29 @@ fun GenreListScreen(
 				else Modifier,
 				contentPadding = innerPadding.withoutTop(),
 				state = viewModel.gridState,
-				verticalArrangement = if ((genresState as? UiState.Success)?.data?.isEmpty() == true)
+				verticalArrangement = if (itemCount == 0 && !isLoading)
 					Arrangement.Center
 				else Arrangement.spacedBy(12.dp),
 				columns = GridCells.Fixed(2)
 			) {
-				genreListScreenContent(state = genresState)
+				if (itemCount > 0 && genresLazyItems != null) {
+					items(itemCount) { index ->
+						GenreListScreenCard(
+							modifier = Modifier.animateItem(),
+							genre = genresLazyItems[index] ?: return@items
+						)
+					}
+				} else if (isLoading) {
+					items(10) {
+						GenreListScreenCardPlaceholder()
+					}
+				} else {
+					item(span = { GridItemSpan(maxLineSpan) }) {
+						ContentUnavailable(
+							label = stringResource(info_no_genres)
+						)
+					}
+				}
 			}
 		}
 	}

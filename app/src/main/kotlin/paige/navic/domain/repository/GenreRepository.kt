@@ -6,48 +6,46 @@
 
 package paige.navic.domain.repository
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import paige.navic.data.database.dao.GenreDao
-import paige.navic.data.database.mapper.toDomainModel
+import kotlinx.coroutines.flow.map
+import paige.navic.database.dao.GenreDao
+import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.query.toGenreSqlQuery
 import paige.navic.domain.model.DomainGenre
-import paige.navic.ui.core.UiState
 
 class GenreRepository(
 	private val genreDao: GenreDao,
 	private val dbRepository: DbRepository
 ) {
-	private suspend fun getLocalData(): ImmutableList<DomainGenre> {
-		return genreDao
-			.getGenresWithAlbums()
-			.map { it.toDomainModel() }
-			.sortedByDescending { it.albums.count() }
-			.filter { it.albums.isNotEmpty() }
-			.toImmutableList()
+	private fun getLocalData(): Flow<PagingData<DomainGenre>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 20,
+				maxSize = 100
+			),
+			pagingSourceFactory = {
+				genreDao.getGenresByQuery(toGenreSqlQuery())
+			}
+		).flow.map { data -> data.map { it.toDomainModel() } }
 	}
 
-	private suspend fun refreshLocalData(): ImmutableList<DomainGenre> {
+	private suspend fun refreshLocalData(): Flow<PagingData<DomainGenre>> {
 		dbRepository.syncGenres().getOrThrow()
 		return getLocalData()
 	}
 
-	fun getGenresFlow(
+	suspend fun getGenres(
 		fullRefresh: Boolean
-	): Flow<UiState<ImmutableList<DomainGenre>>> = flow {
+	): Flow<PagingData<DomainGenre>> {
 		val localData = getLocalData()
-		if (fullRefresh) {
-			emit(UiState.Loading(data = localData))
-			try {
-				emit(UiState.Success(data = refreshLocalData()))
-			} catch (error: Exception) {
-				emit(UiState.Error(error = error, data = localData))
-			}
+		return if (fullRefresh) {
+			refreshLocalData()
 		} else {
-			emit(UiState.Success(data = localData))
+			localData
 		}
-	}.flowOn(Dispatchers.IO)
+	}
 }

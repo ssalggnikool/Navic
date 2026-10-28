@@ -36,7 +36,7 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.PreferenceManager
+import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.AnimationStyle
 import paige.navic.domain.model.settings.MarqueeSpeed
 import paige.navic.ui.component.common.SegmentedListItem

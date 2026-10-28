@@ -75,8 +75,8 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.manager.SessionManager
-import paige.navic.domain.manager.ShareManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.ui.ShareManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.ui.component.sheet.ColorPickerSheet
 import paige.navic.ui.component.sheet.ModalBottomSheet
@@ -183,7 +183,9 @@ fun LyricsShareSheet(
 				contentColor = colorScheme.onPrimary
 			) {
 				Column(
-					modifier = Modifier.fillMaxSize().padding(24.dp)
+					modifier = Modifier
+						.fillMaxSize()
+						.padding(24.dp)
 				) {
 					Row(
 						modifier = Modifier.fillMaxWidth(),

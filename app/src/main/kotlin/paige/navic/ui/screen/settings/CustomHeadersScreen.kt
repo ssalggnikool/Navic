@@ -44,14 +44,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.PreferenceManager
-import paige.navic.domain.manager.SessionManager
+import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.ui.component.common.ContentUnavailable
+import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Add
 import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.Edit
-import paige.navic.ui.component.common.ContentUnavailable
-import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 
@@ -64,6 +65,7 @@ private data class Header(
 fun SettingsCustomHeadersScreen() {
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
+	val exoStateHolder = koinInject<ExoStateHolder>()
 
 	val headers = remember {
 		preferenceManager.customHeaders.lines()
@@ -80,6 +82,7 @@ fun SettingsCustomHeadersScreen() {
 			.filter { it.key.isNotBlank() && it.value.isNotBlank() }
 			.joinToString("\n") { "${it.key}:${it.value}" }
 		sessionManager.refreshClient()
+		exoStateHolder.reloadNetworkDataSource()
 	}
 
 	Scaffold(

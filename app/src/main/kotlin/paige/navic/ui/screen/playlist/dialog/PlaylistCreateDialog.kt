@@ -27,13 +27,12 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.model.DomainSong
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistCreateDialogViewModel
 
@@ -41,15 +40,15 @@ import paige.navic.ui.screen.playlist.viewmodel.PlaylistCreateDialogViewModel
 fun PlaylistCreateDialog(
 	onDismissRequest: () -> Unit,
 	onRefresh: () -> Unit,
-	songs: ImmutableList<DomainSong> = persistentListOf(),
+	songIds: ImmutableList<String> = persistentListOf(),
 	navigateAfterwards: Boolean = true
 ) {
 	val viewModel = koinViewModel<PlaylistCreateDialogViewModel>(
-		key = songs.joinToString { it.id },
-		parameters = { parametersOf(songs) }
+		key = songIds.joinToString(),
+		parameters = { parametersOf(songIds) }
 	)
 	val backStack = LocalNavStack.current
-	val state by viewModel.creationState.collectAsStateWithLifecycle()
+	val state by viewModel.uiState.collectAsStateWithLifecycle()
 
 	LaunchedEffect(Unit) {
 		viewModel.events.collect { event ->

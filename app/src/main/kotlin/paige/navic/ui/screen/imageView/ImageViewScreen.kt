@@ -16,11 +16,10 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ContainedLoadingIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -37,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSharedTransitionScope
-import paige.navic.domain.manager.SessionManager
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.screen.imageView.component.ImageViewScreenTopBar
 import paige.navic.ui.util.EmphasizedDecelerateEasing
@@ -59,7 +59,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ImageViewScreen(
 	coverArtId: String,
@@ -130,7 +130,8 @@ fun ImageViewScreen(
 			contentColor = contentColor
 		) {
 			Box(
-				modifier = Modifier.fillMaxSize()
+				modifier = Modifier
+					.fillMaxSize()
 					.draggable(
 						orientation = Orientation.Vertical,
 						state = rememberDraggableState { delta ->
@@ -146,9 +147,10 @@ fun ImageViewScreen(
 					CoverArt(
 						coverArtId = coverArtId,
 						contentDescription = null,
+						contentScale = ContentScale.Fit,
+						square = true,
 						modifier = Modifier
-							.fillMaxSize()
-							.requiredSizeIn(maxWidth = 420.dp, maxHeight = 420.dp)
+							.fillMaxWidth()
 							.aspectRatio(1f)
 							.offset { IntOffset(x = 0, y = offsetY.value.roundToInt()) }
 							.sharedElement(
@@ -168,7 +170,9 @@ fun ImageViewScreen(
 					)
 				}
 				if (loading) {
-					Box(Modifier.matchParentSize().background(Color.Black.copy(alpha = 0.5f)))
+					Box(Modifier
+						.matchParentSize()
+						.background(Color.Black.copy(alpha = 0.5f)))
 					ContainedLoadingIndicator(Modifier.size(48.dp))
 					NavigationBackHandler(
 						state = rememberNavigationEventState(NavigationEventInfo.None),
