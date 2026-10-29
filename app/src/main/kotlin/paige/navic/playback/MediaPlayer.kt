@@ -449,7 +449,6 @@ class MediaPlayer(
 
 		if (state.queue.isEmpty() || player.mediaItemCount > 0) {
 			updatePlaybackState()
-			ensureShuffleOrder()
 			return@launch
 		}
 

@@ -11,7 +11,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Process
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -89,30 +88,16 @@ class ExoStateHolder : KoinComponent {
 			session: MediaSession,
 			controller: MediaSession.ControllerInfo
 		): MediaSession.ConnectionResult {
-			// only the app may edit the playlist or push a shuffle order, otherwise
-			// external controllers desync the app queue from the player timeline
-			val isOwnApp = controller.uid == Process.myUid()
-
 			val sessionCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
 				.buildUpon()
 				.add(SessionCommand(COMMAND_SHUFFLE, Bundle.EMPTY))
 				.add(SessionCommand(COMMAND_REPEAT, Bundle.EMPTY))
 				.build()
 
-			val playerCommands =
-				if (isOwnApp) {
-					MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
-				} else {
-					// shortcut: blocks playlist edits from every external controller, so Android
-					// Auto browse-and-play needs an exception here once real Auto support lands
-					MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
-						.buildUpon()
-						.remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
-						.remove(Player.COMMAND_SET_MEDIA_ITEM)
-						.build()
-				}
-
-			return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands)
+			return MediaSession.ConnectionResult.accept(
+				sessionCommands,
+				MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
+			)
 		}
 
 		override fun onCustomCommand(
