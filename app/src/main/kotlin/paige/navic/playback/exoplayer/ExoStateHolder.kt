@@ -32,7 +32,6 @@ import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
-import androidx.media3.exoplayer.source.ShuffleOrder
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.flac.FlacExtractor
 import androidx.media3.extractor.mkv.MatroskaExtractor
@@ -98,9 +97,6 @@ class ExoStateHolder : KoinComponent {
 				.buildUpon()
 				.add(SessionCommand(COMMAND_SHUFFLE, Bundle.EMPTY))
 				.add(SessionCommand(COMMAND_REPEAT, Bundle.EMPTY))
-				.apply {
-					if (isOwnApp) add(SessionCommand(COMMAND_SET_SHUFFLE_ORDER, Bundle.EMPTY))
-				}
 				.build()
 
 			val playerCommands =
@@ -135,15 +131,6 @@ class ExoStateHolder : KoinComponent {
 						Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
 						Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
 						else -> Player.REPEAT_MODE_OFF
-					}
-				}
-
-				COMMAND_SET_SHUFFLE_ORDER -> {
-					val order = args.getIntArray(KEY_SHUFFLE_ORDER)
-					if (order != null && order.size == player.mediaItemCount) {
-						player.setShuffleOrder(
-							ShuffleOrder.DefaultShuffleOrder(order, System.nanoTime())
-						)
 					}
 				}
 			}
@@ -391,8 +378,6 @@ class ExoStateHolder : KoinComponent {
 	companion object {
 		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
 		const val COMMAND_REPEAT = "COMMAND_REPEAT"
-		const val COMMAND_SET_SHUFFLE_ORDER = "COMMAND_SET_SHUFFLE_ORDER"
-		const val KEY_SHUFFLE_ORDER = "KEY_SHUFFLE_ORDER"
 
 		fun newSessionToken(context: Context): SessionToken {
 			return SessionToken(context, ComponentName(context, ExoPlaybackService::class.java))
