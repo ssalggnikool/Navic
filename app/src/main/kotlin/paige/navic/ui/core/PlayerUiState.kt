@@ -18,7 +18,6 @@ data class PlayerUiState(
 	val currentIndex: Int = -1,
 	val isPaused: Boolean = false,
 	val isShuffleEnabled: Boolean = false,
-	val shuffleOrder: List<Int> = emptyList(),
 	val repeatMode: Int = 0,
 	val progress: Float = 0f,
 	val isLoading: Boolean = false,
@@ -28,19 +27,4 @@ data class PlayerUiState(
 	val playbackBitDepth: Int? = null,
 	val playbackSampleRate: Int? = null,
 	val playbackMimeType: String? = null
-) {
-	val isShuffled: Boolean
-		get() = isShuffleEnabled && shuffleOrder.size == queue.size &&
-			shuffleOrder.isNotEmpty() && shuffleOrder.toSet().size == queue.size &&
-			shuffleOrder.all { it in queue.indices }
-
-	val activeQueue: List<DomainSong>
-		get() = if (isShuffled) shuffleOrder.map(queue::get) else queue
-
-	val activeIndex: Int
-		get() = if (!isShuffled) currentIndex
-		else shuffleOrder.indexOf(currentIndex).takeIf { it >= 0 } ?: currentIndex
-
-	fun normalIndex(index: Int): Int =
-		if (isShuffled) shuffleOrder.getOrElse(index) { index } else index
-}
+)

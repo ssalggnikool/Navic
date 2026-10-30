@@ -79,11 +79,54 @@ fun QueueScreen() {
 
 	val isReachable by viewModel.isReachable.collectAsStateWithLifecycle()
 	val downloadedSongs by viewModel.downloadedSongs.collectAsStateWithLifecycle()
-	val queue = playerState.activeQueue
-	val currentIndex = playerState.activeIndex
+	val queue = playerState.queue
 	val haptic = LocalHapticFeedback.current
 	val preferenceManager = koinInject<PreferenceManager>()
 	val backStack = LocalNavStack.current
+
+	val songCountText = when (preferenceManager.queueInfoType) {
+		QueueInfoType.Full -> pluralStringResource(R.plurals.count_songs, queue.size, queue.size)
+		QueueInfoType.Remaining -> pluralStringResource(
+			R.plurals.count_remaining_songs,
+			queue.size - playerState.currentIndex,
+			queue.size - playerState.currentIndex
+		)
+	}
+	val durationText = remember(queue, playerState.progress, playerState.currentIndex) {
+		var totalMillis = queue.sumOf { it.duration.inWholeMilliseconds } // ms because precision
+
+		if (preferenceManager.queueInfoType == QueueInfoType.Remaining) {
+			// duration of all songs that are before the current index
+			val pastMillis =
+				queue.take(playerState.currentIndex).sumOf { it.duration.inWholeMilliseconds }
+
+			// elapsed duration of the current index
+			val currentTrack = queue.getOrNull(playerState.currentIndex)
+			val elapsedCurrentSeconds =
+				(currentTrack?.duration?.inWholeMilliseconds ?: 0L) * playerState.progress
+
+			// deduct previous durations plus current elapsed duration
+			totalMillis -= pastMillis + elapsedCurrentSeconds.toLong()
+
+			// wow, that's confusing as shit for some reason
+		}
+
+		// then we format manually because Duration.toString() doesn't let u disable decimals
+		val totalSeconds = totalMillis.milliseconds.inWholeSeconds
+		val hours = totalSeconds / 3600
+		val minutes = (totalSeconds % 3600) / 60
+		val seconds = totalSeconds % 60
+
+		buildString {
+			if (hours > 0) append("${hours}h ")
+			if (minutes > 0 || hours > 0) append("${minutes}m ")
+			append("${seconds}s")
+		}
+	}
+	val formattedDurationText = when (preferenceManager.queueInfoType) {
+		QueueInfoType.Full -> durationText
+		QueueInfoType.Remaining -> stringResource(R.string.info_duration_left, durationText)
+	}
 
 	Column(modifier = Modifier.fillMaxSize()) {
 		if (queue.isNotEmpty()) {
@@ -167,25 +210,25 @@ fun QueueScreen() {
 				val adapter = recyclerView.adapter as QueueRecyclerAdapter
 				adapter.update(
 					queue = queue,
-					currentIndex = currentIndex,
+					currentIndex = playerState.currentIndex,
 					isPaused = playerState.isPaused,
 					isOnline = isReachable,
 					downloadedSongs = downloadedSongs,
 					onPlay = { index ->
-						if (currentIndex != index) {
-							player.playAt(playerState.normalIndex(index))
+						if (playerState.currentIndex != index) {
+							player.playAt(index)
 						}
 					},
 					onRemove = { index ->
 						haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-						player.removeFromQueue(playerState.normalIndex(index))
+						player.removeFromQueue(index)
 					},
 					onMove = { from, to ->
 						haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 						player.moveQueueItem(from, to)
 					})
 				if (adapter.shouldScrollToCurrentIndex) {
-					recyclerView.scrollToPosition(currentIndex.coerceAtLeast(0))
+					recyclerView.scrollToPosition(playerState.currentIndex.coerceAtLeast(0))
 					adapter.shouldScrollToCurrentIndex = false
 				}
 			})
