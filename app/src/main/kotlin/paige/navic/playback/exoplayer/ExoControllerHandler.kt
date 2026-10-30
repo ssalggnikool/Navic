@@ -8,6 +8,7 @@ package paige.navic.playback.exoplayer
 
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.media3.common.C
 import androidx.media3.common.Format
@@ -19,6 +20,7 @@ import androidx.media3.common.Timeline
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
+import androidx.media3.session.SessionCommand
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,6 +42,7 @@ import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.ReplayGainMode
+import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildCoverUri
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildSongUri
@@ -142,11 +145,16 @@ class ExoControllerHandler(
 	 * just try to play the song anyway
 	 */
 	private fun skipUnavailableSong() {
-		val currentSong = state.value.currentSong ?: return
+		val state = state.value
+		val queue = state.activeQueue
+
+		val currentIdx = state.activeIndex
+		if (currentIdx !in queue.indices) return
+
+		val currentSong = queue[currentIdx]
 		if (!currentSong.isExplicit()) return
+
 		Logger.i("MediaPlayer", "trying to skip unavailable song")
-		val queue = state.value.queue
-		val currentIdx = queue.indexOf(currentSong)
 
 		// look for the next available song, wrapping around, but stop before
 		// we loop back past our own starting point
@@ -163,16 +171,19 @@ class ExoControllerHandler(
 			return
 		}
 
+		val nextNormalIdx =
+			if (state.isShuffled) state.shuffleOrder[nextAvailableIdx] else nextAvailableIdx
+
 		if (nextAvailableIdx <= currentIdx) {
 			Logger.i(
 				"MediaPlayer",
 				"skipping and pausing because the last song in the queue was unavailable"
 			)
-			controller.seekTo(nextAvailableIdx, 0L)
+			controller.seekTo(nextNormalIdx, 0L)
 			controller.pause()
 		} else {
 			// just skip to the next song
-			controller.seekTo(nextAvailableIdx, 0L)
+			controller.seekTo(nextNormalIdx, 0L)
 		}
 	}
 
@@ -207,6 +218,128 @@ class ExoControllerHandler(
 		}
 		applyAudioGain()
 		updateProgress()
+	}
+
+	private fun shuffledOrder(size: Int, startIndex: Int): List<Int> {
+		if (size <= 0) return emptyList()
+
+		return BetterShuffleOrder
+			.createShuffledList(size, startIndex.coerceIn(0, size - 1))
+			.toList()
+	}
+
+	private fun isValidOrder(order: List<Int>, size: Int): Boolean {
+		if (size <= 0 || order.size != size) return false
+		val seen = BooleanArray(size)
+		for (index in order) {
+			if (index !in 0 until size || seen[index]) return false
+			seen[index] = true
+		}
+		return true
+	}
+
+	private fun baseOrder(current: PlayerUiState): List<Int> =
+		current.shuffleOrder
+			.takeIf { isValidOrder(it, current.queue.size) }
+			?: shuffledOrder(
+				current.queue.size,
+				current.currentIndex.coerceAtLeast(0)
+			)
+
+	fun startOrder(size: Int, startIndex: Int) {
+		val order = if (state.value.isShuffleEnabled) shuffledOrder(size, startIndex) else emptyList()
+
+		state.update { it.copy(shuffleOrder = order) }
+		pushOrder()
+	}
+
+	fun appendOrder(count: Int) {
+		val current = state.value
+		if (!current.isShuffleEnabled || count <= 0) return
+
+		val order = if (current.queue.isEmpty()) {
+			shuffledOrder(count, 0)
+		} else {
+			baseOrder(current) + (current.queue.size until current.queue.size + count).toList()
+		}
+		state.update { it.copy(shuffleOrder = order) }
+		pushOrder()
+	}
+
+	fun insertOrder(insertAt: Int, count: Int) {
+		val current = state.value
+		if (!current.isShuffleEnabled || count <= 0) return
+
+		if (current.queue.isEmpty()) {
+			state.update { it.copy(shuffleOrder = shuffledOrder(count, 0)) }
+			return
+		}
+		val base = baseOrder(current)
+		val shifted = base.map { if (it >= insertAt) it + count else it }
+		val currentDisplay = base.indexOf(current.currentIndex)
+		val displayInsert =
+			(if (currentDisplay >= 0) currentDisplay + 1 else shifted.size)
+				.coerceIn(0, shifted.size)
+		val order = shifted.toMutableList().apply {
+			addAll(displayInsert, (insertAt until insertAt + count).toList())
+		}
+		state.update { it.copy(shuffleOrder = order) }
+		pushOrder()
+	}
+
+	fun moveOrder(fromIndex: Int, toIndex: Int) {
+		val current = state.value
+		if (!current.isShuffled) return
+		val order = current.shuffleOrder.toMutableList().apply {
+			add(toIndex, removeAt(fromIndex))
+		}
+		state.update { it.copy(shuffleOrder = order) }
+		pushOrder()
+	}
+
+	fun removeOrder(displayIndex: Int) {
+		val current = state.value
+		if (!current.isShuffleEnabled) return
+		val normalIndex = current.normalIndex(displayIndex)
+		if (normalIndex !in current.queue.indices) return
+		val newSize = current.queue.size - 1
+		val order = if (current.isShuffled) {
+			current.shuffleOrder.filter { it != normalIndex }
+				.map { if (it > normalIndex) it - 1 else it }
+		} else {
+			emptyList()
+		}
+		state.update { it.copy(shuffleOrder = if (order.size == newSize) order else emptyList()) }
+		pushOrder()
+	}
+
+	fun clearOrder() {
+		state.update { it.copy(shuffleOrder = emptyList()) }
+		pushOrder()
+	}
+
+	fun pushOrder() {
+		val order = state.value.shuffleOrder
+		if (order.isEmpty()) {
+			return
+		}
+
+		if (order.size != controller.mediaItemCount) {
+			return
+		}
+
+		sendOrder(order)
+	}
+
+
+	private fun sendOrder(order: List<Int>) {
+		controller.sendCustomCommand(
+			SessionCommand(ExoStateHolder.COMMAND_SHUFFLE, Bundle.EMPTY),
+			Bundle().apply {
+				putBoolean(ExoStateHolder.SHUFFLE_ENABLED_KEY, true)
+				putIntArray(ExoStateHolder.SHUFFLE_ORDER_KEY, order.toIntArray())
+			}
+		)
 	}
 
 	private fun refreshCollection(albumId: String) {
@@ -274,7 +407,16 @@ class ExoControllerHandler(
 	}
 
 	override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-		state.update { it.copy(isShuffleEnabled = shuffleModeEnabled) }
+		if (!shuffleModeEnabled) {
+			state.update { it.copy(isShuffleEnabled = false, shuffleOrder = emptyList()) }
+			return
+		}
+
+		val size = controller.mediaItemCount
+		val order = state.value.shuffleOrder.takeIf { isValidOrder(it, size) }
+			?: shuffledOrder(size, controller.currentMediaItemIndex)
+		state.update { it.copy(isShuffleEnabled = true, shuffleOrder = order) }
+		pushOrder()
 	}
 
 	override fun onRepeatModeChanged(repeatMode: Int) {

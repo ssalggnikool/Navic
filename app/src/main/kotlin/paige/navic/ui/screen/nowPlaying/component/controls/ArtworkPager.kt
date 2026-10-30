@@ -43,8 +43,8 @@ fun NowPlayingArtworkPager(
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val pagerState = rememberPagerState(
-		initialPage = playerState.currentIndex.coerceAtLeast(0),
-		pageCount = { playerState.queue.size }
+		initialPage = playerState.activeIndex.coerceAtLeast(0),
+		pageCount = { playerState.activeQueue.size }
 	)
 	val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
 	var userSwiped by remember { mutableStateOf(false) }
@@ -53,17 +53,17 @@ fun NowPlayingArtworkPager(
 		if (isDragged) userSwiped = true
 	}
 
-	LaunchedEffect(playerState.currentIndex) {
-		if (!isDragged && playerState.currentIndex != -1 && playerState.currentIndex != pagerState.currentPage) {
-			pagerState.animateScrollToPage(playerState.currentIndex)
+	LaunchedEffect(playerState.activeIndex) {
+		if (!isDragged && playerState.activeIndex != -1 && playerState.activeIndex != pagerState.currentPage) {
+			pagerState.animateScrollToPage(playerState.activeIndex)
 		}
 	}
 
 	LaunchedEffect(pagerState) {
 		snapshotFlow { pagerState.settledPage }.collect { page ->
-			if (userSwiped && page != playerState.currentIndex && page in playerState.queue.indices) {
+			if (userSwiped && page != playerState.activeIndex && page in playerState.activeQueue.indices) {
 				val wasPaused = playerState.isPaused
-				player.playAt(page)
+				player.playAt(playerState.normalIndex(page))
 				if (wasPaused) {
 					player.pause()
 				}
@@ -79,7 +79,7 @@ fun NowPlayingArtworkPager(
 		userScrollEnabled = preferenceManager.swipeToSkip,
 		overscrollEffect = null
 	) { page ->
-		val song = playerState.queue.getOrNull(page) ?: return@HorizontalPager
+		val song = playerState.activeQueue.getOrNull(page) ?: return@HorizontalPager
 		val tapAction = preferenceManager.nowPlayingCoverArtAction
 		val enabled = pagerState.settledPage == page
 			&& tapAction != CoverArtTapAction.Disabled

@@ -55,6 +55,7 @@ import kotlinx.coroutines.sync.withLock
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
@@ -107,7 +108,17 @@ class ExoStateHolder(
 		): ListenableFuture<SessionResult> {
 			when (customCommand.customAction) {
 				COMMAND_SHUFFLE -> {
-					player.shuffleModeEnabled = !player.shuffleModeEnabled
+					val enabled = if (args.containsKey(SHUFFLE_ENABLED_KEY)) {
+						args.getBoolean(SHUFFLE_ENABLED_KEY)
+					} else {
+						!player.shuffleModeEnabled
+					}
+					player.shuffleModeEnabled = enabled
+					if (enabled) {
+						args.getIntArray(SHUFFLE_ORDER_KEY)
+							?.takeIf { it.size == player.mediaItemCount }
+							?.let { player.shuffleOrder = BetterShuffleOrder(it) }
+					}
 				}
 
 				COMMAND_REPEAT -> {
@@ -357,6 +368,8 @@ class ExoStateHolder(
 	}
 
 	companion object {
+		const val SHUFFLE_ENABLED_KEY = "shuffle_enabled"
+		const val SHUFFLE_ORDER_KEY = "shuffle_order"
 		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
 		const val COMMAND_REPEAT = "COMMAND_REPEAT"
 

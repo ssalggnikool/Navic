@@ -68,8 +68,8 @@ class SleepTimerManager(
 	fun startEndOfQueueTimer() {
 		stopTimer()
 		val state = player.uiState.value
-		remainingSongs = if (state.currentIndex != -1) {
-			state.queue.size - state.currentIndex
+		remainingSongs = if (state.activeIndex != -1) {
+			state.activeQueue.size - state.activeIndex
 		} else {
 			0
 		}
