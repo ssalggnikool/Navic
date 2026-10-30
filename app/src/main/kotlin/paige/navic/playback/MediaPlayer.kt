@@ -8,6 +8,7 @@ package paige.navic.playback
 
 import android.app.Application
 import android.content.Intent
+import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.media3.common.C
 import androidx.media3.common.Format
@@ -19,6 +20,7 @@ import androidx.media3.common.Timeline
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
+import androidx.media3.session.SessionCommand
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
@@ -51,6 +53,8 @@ import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.domain.repository.SongRepository
 import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.ExoStateHolder.Companion.COMMAND_SHUFFLE
+import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildCoverUri
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildSongUri
@@ -93,6 +97,56 @@ class MediaPlayer(
 			restoreState()
 		}
 		observeAndSaveState()
+	}
+
+	val currentIndex: Int
+		get() = controller?.currentMediaItemIndex ?: -1
+
+	val currentSong: DomainSong?
+		get() = _uiState.value.queue.getOrNull(currentIndex)
+
+	private fun newShuffleOrder(size: Int, start: Int): List<Int> =
+		if (size <= 0) emptyList()
+		else BetterShuffleOrder.createShuffledList(
+			size,
+			start.coerceIn(0, size - 1)
+		).toList()
+
+	private fun isValidOrder(order: List<Int>, size: Int): Boolean =
+		size > 0 && order.size == size && order.toSet().size == size &&
+			order.all { it in 0 until size }
+
+	private fun appendedOrder(state: PlayerUiState, count: Int): List<Int> {
+		if (!state.isShuffleEnabled || count <= 0) return emptyList()
+		if (state.queue.isEmpty()) return newShuffleOrder(count, 0)
+		val base = state.shuffleOrder.takeIf { isValidOrder(it, state.queue.size) }
+			?: newShuffleOrder(state.queue.size, state.currentIndex)
+		return base + (state.queue.size until state.queue.size + count)
+	}
+
+	private fun insertedOrder(state: PlayerUiState, insertAt: Int, count: Int): List<Int> {
+		if (!state.isShuffleEnabled || count <= 0) return emptyList()
+		if (state.queue.isEmpty()) return newShuffleOrder(count, 0)
+		val base = state.shuffleOrder.takeIf { isValidOrder(it, state.queue.size) }
+			?: newShuffleOrder(state.queue.size, state.currentIndex)
+		val shifted = base.map { if (it >= insertAt) it + count else it }
+		val currentDisplay = base.indexOf(state.currentIndex)
+		val displayInsert =
+			if (currentDisplay >= 0) currentDisplay + 1 else shifted.size
+		return shifted.toMutableList().apply {
+			addAll(displayInsert.coerceIn(0, size), (insertAt until insertAt + count).toList())
+		}
+	}
+
+	private fun pushShuffleOrder(order: List<Int>) {
+		if (order.isEmpty()) return
+		controller?.sendCustomCommand(
+			SessionCommand(COMMAND_SHUFFLE, Bundle()),
+			Bundle().apply {
+				putBoolean(ExoStateHolder.SHUFFLE_ENABLED_KEY, true)
+				putIntArray(ExoStateHolder.SHUFFLE_ORDER_KEY, order.toIntArray())
+			}
+		)
 	}
 
 	fun playNow(song: DomainSong) {
@@ -164,6 +218,7 @@ class MediaPlayer(
 			.distinctUntilChanged { old, new ->
 				old.currentIndex == new.currentIndex &&
 					old.queue == new.queue &&
+					old.shuffleOrder == new.shuffleOrder &&
 					old.isPaused == new.isPaused &&
 					old.repeatMode == new.repeatMode &&
 					old.isShuffleEnabled == new.isShuffleEnabled
@@ -208,8 +263,9 @@ class MediaPlayer(
 						startProgressLoop()
 					}
 
-					val currentSong = _uiState.value.currentSong
-					val displayArtist = currentSong?.artists?.joinToString { it.name }
+					val currentSong = currentSong ?: return
+
+					val displayArtist = currentSong.artists.joinToString { it.name }
 						?.ifBlank { currentSong.artistName }
 
 					val intent =
@@ -218,7 +274,7 @@ class MediaPlayer(
 							putExtra("isPlaying", isPlaying)
 							putExtra(
 								"title",
-								currentSong?.title ?: "Unknown song"
+								currentSong.title ?: "Unknown song"
 							)
 							putExtra(
 								"artist",
@@ -226,7 +282,7 @@ class MediaPlayer(
 							)
 							putExtra(
 								"artUrl",
-								currentSong?.coverArtId?.let { id ->
+								currentSong.coverArtId?.let { id ->
 									downloadManager.getCoverArtFile(id)
 										?.toUri()
 										?.toString()
@@ -244,7 +300,21 @@ class MediaPlayer(
 				}
 
 				override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-					_uiState.update { it.copy(isShuffleEnabled = shuffleModeEnabled) }
+					if (!shuffleModeEnabled) {
+						_uiState.update {
+							it.copy(isShuffleEnabled = false, shuffleOrder = emptyList())
+						}
+						return
+					}
+
+					val state = _uiState.value
+					val order = state.shuffleOrder.takeIf {
+						isValidOrder(it, state.queue.size)
+					} ?: newShuffleOrder(state.queue.size, state.currentIndex)
+					_uiState.update {
+						it.copy(isShuffleEnabled = true, shuffleOrder = order)
+					}
+					pushShuffleOrder(order)
 				}
 
 				override fun onRepeatModeChanged(repeatMode: Int) {
@@ -260,7 +330,8 @@ class MediaPlayer(
 				}
 
 				override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-					val currentSong = _uiState.value.currentSong ?: return
+					val currentSong = currentSong ?: return
+
 					if (currentSong.id.startsWith("radio_")) {
 						val rawTitle = mediaMetadata.title?.toString()?.takeIf { it.isNotBlank() }
 						val rawArtist = mediaMetadata.artist?.toString()
@@ -329,11 +400,12 @@ class MediaPlayer(
 	 * just try to play the song anyway
 	 */
 	private fun skipUnavailableSong() {
-		val currentSong = _uiState.value.currentSong ?: return
+		val queue = _uiState.value.queue
+		val currentIdx = currentIndex
+		if (currentIdx !in queue.indices) return
+		val currentSong = queue[currentIdx]
 		if (!isExplicit(currentSong)) return
 		Logger.i("MediaPlayer", "trying to skip unavailable song")
-		val queue = _uiState.value.queue
-		val currentIdx = queue.indexOf(currentSong)
 
 		// look for the next available song, wrapping around, but stop before
 		// we loop back past our own starting point
@@ -383,8 +455,6 @@ class MediaPlayer(
 		val index = controller.currentMediaItemIndex
 		if (index == C.INDEX_UNSET) return
 
-		val currentSong = _uiState.value.queue.getOrNull(index)
-
 		val derivedCollection = currentSong?.let { song ->
 			val stateCollection = _uiState.value.currentCollection
 
@@ -399,7 +469,7 @@ class MediaPlayer(
 		_uiState.update { state ->
 			state.copy(
 				currentIndex = index,
-				currentSong = currentSong,
+				currentSong = this.currentSong,
 				currentCollection = derivedCollection ?: state.currentCollection,
 				isPaused = (!controller.playWhenReady || controller.playbackState == Player.STATE_ENDED),
 				isShuffleEnabled = controller.shuffleModeEnabled,
@@ -414,8 +484,8 @@ class MediaPlayer(
 		setAmplifierValues(preferenceManager.rgAmpGain, preferenceManager.ampGain)
 
 		if (preferenceManager.replayGainMode != ReplayGainMode.Off) {
-			val currentSong = _uiState.value.currentSong
-			val replayGain = currentSong?.replayGain
+			val currentSong = currentSong ?: return@apply
+			val replayGain = currentSong.replayGain
 
 			if (replayGain != null) {
 				setReplayGainMetadata(replayGain)
@@ -456,6 +526,16 @@ class MediaPlayer(
 			state.queue.map { it.toMediaItem() }
 		}
 
+		val index = if (state.currentIndex in mediaItems.indices) state.currentIndex else 0
+		val order = when {
+			!state.isShuffleEnabled || mediaItems.isEmpty() -> emptyList()
+			isValidOrder(state.shuffleOrder, mediaItems.size) -> state.shuffleOrder
+			else -> newShuffleOrder(mediaItems.size, index)
+		}
+		if (order != state.shuffleOrder) {
+			_uiState.update { it.copy(shuffleOrder = order) }
+		}
+
 		player.apply {
 			setMediaItems(mediaItems)
 
@@ -463,8 +543,7 @@ class MediaPlayer(
 			repeatMode = state.repeatMode
 			playbackParameters = PlaybackParameters(state.playbackSpeed)
 		}
-
-		val index = if (state.currentIndex in mediaItems.indices) state.currentIndex else 0
+		pushShuffleOrder(order)
 
 		val songDurationMs = state.queue.getOrNull(index)?.duration?.inWholeMilliseconds ?: 0L
 
@@ -580,15 +659,17 @@ class MediaPlayer(
 	}
 
 	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) = this@MediaPlayer.launch {
+		val order = appendedOrder(_uiState.value, 1)
 		controller?.addMediaItem(song.toMediaItem())
 		_uiState.update { state ->
-			val newQueue = state.queue + song
 			state.copy(
-				queue = newQueue,
+				queue = state.queue + song,
+				shuffleOrder = order,
 				currentIndex = if (state.currentIndex == -1) 0 else state.currentIndex,
 				currentSong = if (state.currentIndex == -1) song else state.currentSong
 			)
 		}
+		pushShuffleOrder(order)
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
@@ -605,64 +686,102 @@ class MediaPlayer(
 	}
 
 	fun addToQueue(songs: List<DomainSong>, notify: Boolean = true) = this@MediaPlayer.launch {
-		val items = songs.map { it.toMediaItem() }
+		if (songs.isEmpty()) return@launch
+		val order = appendedOrder(_uiState.value, songs.size)
+		val items = withContext(Dispatchers.Default) { songs.map { it.toMediaItem() } }
 		controller?.addMediaItems(items)
 		_uiState.update { state ->
-			val newQueue = state.queue + songs
 			state.copy(
-				queue = newQueue,
+				queue = state.queue + songs,
+				shuffleOrder = order,
 				currentIndex = if (state.currentIndex == -1) 0 else state.currentIndex,
-				currentSong = if (state.currentIndex == -1) songs.firstOrNull() else state.currentSong
+				currentSong = if (state.currentIndex == -1) songs.first() else state.currentSong
 			)
 		}
+		pushShuffleOrder(order)
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
 	fun removeFromQueue(index: Int) = this@MediaPlayer.launch {
-		controller?.removeMediaItem(index)
-		_uiState.update { state ->
-			val newQueue = state.queue.toMutableList().apply { removeAt(index) }
-			val newIndex = when {
-				index < state.currentIndex -> state.currentIndex - 1
-				index == state.currentIndex -> if (newQueue.isEmpty()) -1 else state.currentIndex.coerceAtMost(
-					newQueue.size - 1
-				)
+		val state = _uiState.value
+		if (index !in state.queue.indices) return@launch
 
-				else -> state.currentIndex
-			}
-			state.copy(
+		val newQueue = state.queue.toMutableList().apply { removeAt(index) }
+		val newIndex = when {
+			index < state.currentIndex -> state.currentIndex - 1
+			index == state.currentIndex -> if (newQueue.isEmpty()) -1 else state.currentIndex.coerceAtMost(
+				newQueue.size - 1
+			)
+
+			else -> state.currentIndex
+		}
+		val newOrder = when {
+			!state.isShuffleEnabled -> emptyList()
+			state.isShuffled -> state.shuffleOrder
+				.filter { it != index }
+				.map { if (it > index) it - 1 else it }
+
+			else -> newShuffleOrder(newQueue.size, newIndex)
+		}
+
+		controller?.removeMediaItem(index)
+		_uiState.update {
+			it.copy(
 				queue = newQueue,
+				shuffleOrder = newOrder,
 				currentIndex = newIndex,
 				currentSong = if (newIndex == -1) null else newQueue[newIndex]
 			)
 		}
+		pushShuffleOrder(newOrder)
 	}
 
 	fun moveQueueItem(fromIndex: Int, toIndex: Int) = this@MediaPlayer.launch {
+		val state = _uiState.value
+		if (fromIndex !in state.activeQueue.indices ||
+			toIndex !in state.activeQueue.indices ||
+			fromIndex == toIndex
+		) return@launch
+
+		if (state.isShuffled) {
+			val newOrder = state.shuffleOrder.toMutableList().apply {
+				add(toIndex, removeAt(fromIndex))
+			}
+			_uiState.update { it.copy(shuffleOrder = newOrder) }
+			pushShuffleOrder(newOrder)
+			return@launch
+		}
+
+		val newQueue = state.queue.toMutableList().apply {
+			val item = removeAt(fromIndex)
+			add(toIndex, item)
+		}
+		val newIndex = when (state.currentIndex) {
+			fromIndex -> toIndex
+			in (fromIndex + 1)..toIndex -> state.currentIndex - 1
+			in toIndex until fromIndex -> state.currentIndex + 1
+			else -> state.currentIndex
+		}
+		val newOrder =
+			if (state.isShuffleEnabled) newShuffleOrder(newQueue.size, newIndex) else emptyList()
+
 		controller?.moveMediaItem(fromIndex, toIndex)
-		_uiState.update { state ->
-			val newQueue = state.queue.toMutableList().apply {
-				val item = removeAt(fromIndex)
-				add(toIndex, item)
-			}
-			val newIndex = when (state.currentIndex) {
-				fromIndex -> toIndex
-				in (fromIndex + 1)..toIndex -> state.currentIndex - 1
-				in toIndex until fromIndex -> state.currentIndex + 1
-				else -> state.currentIndex
-			}
-			state.copy(
+		_uiState.update {
+			it.copy(
 				queue = newQueue,
+				shuffleOrder = newOrder,
 				currentIndex = newIndex,
 				currentSong = if (newIndex == -1) null else newQueue[newIndex]
 			)
 		}
+		pushShuffleOrder(newOrder)
 	}
 
 	fun clearQueue() = this@MediaPlayer.launch {
 		_uiState.update {
 			it.copy(
 				queue = emptyList(),
+				shuffleOrder = emptyList(),
 				currentSong = null,
 				currentIndex = -1,
 				progress = 0f
@@ -681,22 +800,24 @@ class MediaPlayer(
 	}
 
 	fun playNextSingle(song: DomainSong) = this@MediaPlayer.launch {
+		val state = _uiState.value
+		val insertAt = (state.currentIndex + 1).coerceIn(0, state.queue.size)
+		val order = insertedOrder(state, insertAt, 1)
+		val newQueue = state.queue.toMutableList().apply { add(insertAt, song) }
+
 		controller?.addMediaItem(
-			_uiState.value.currentIndex + 1,
+			insertAt,
 			withContext(Dispatchers.Default) { song.toMediaItem() }
 		)
-		_uiState.update { state ->
-			val newQueue =
-				if (state.queue.isEmpty())
-					state.queue + song
-				else
-					state.queue.slice(0..state.currentIndex) + song + state.queue.slice(state.currentIndex + 1..<state.queue.size)
-			state.copy(
+		_uiState.update {
+			it.copy(
 				queue = newQueue,
-				currentIndex = if (state.currentIndex == -1) 0 else state.currentIndex,
-				currentSong = if (state.currentIndex == -1) song else state.currentSong
+				shuffleOrder = order,
+				currentIndex = if (it.currentIndex == -1) 0 else it.currentIndex,
+				currentSong = if (it.currentIndex == -1) song else it.currentSong
 			)
 		}
+		pushShuffleOrder(order)
 		snackBarManager.notifyPlayNext()
 	}
 
@@ -710,21 +831,23 @@ class MediaPlayer(
 					)) else collection.songs
 			newCollection.map { it.toMediaItem() } to newCollection
 		}
-		controller?.addMediaItems(_uiState.value.currentIndex + 1, items)
-		_uiState.update { state ->
-			val newQueue =
-				if (state.queue.isEmpty())
-					state.queue + newCollection
-				else
-					state.queue.slice(0..state.currentIndex) + newCollection + state.queue.slice(
-						state.currentIndex + 1..<state.queue.size
-					)
-			state.copy(
+		if (newCollection.isEmpty()) return@launch
+
+		val state = _uiState.value
+		val insertAt = (state.currentIndex + 1).coerceIn(0, state.queue.size)
+		val order = insertedOrder(state, insertAt, newCollection.size)
+		val newQueue = state.queue.toMutableList().apply { addAll(insertAt, newCollection) }
+
+		controller?.addMediaItems(insertAt, items)
+		_uiState.update {
+			it.copy(
 				queue = newQueue,
-				currentIndex = if (state.currentIndex == -1) 0 else state.currentIndex,
-				currentSong = if (state.currentIndex == -1) newCollection.firstOrNull() else state.currentSong
+				shuffleOrder = order,
+				currentIndex = if (it.currentIndex == -1) 0 else it.currentIndex,
+				currentSong = if (it.currentIndex == -1) newCollection.first() else it.currentSong
 			)
 		}
+		pushShuffleOrder(order)
 		snackBarManager.notifyPlayNext()
 	}
 
@@ -795,6 +918,7 @@ class MediaPlayer(
 		_uiState.update { state ->
 			state.copy(
 				queue = listOf(dummyRadioSong),
+				shuffleOrder = if (state.isShuffleEnabled) listOf(0) else emptyList(),
 				currentIndex = 0,
 				currentSong = dummyRadioSong,
 				isLoading = true
@@ -818,6 +942,8 @@ class MediaPlayer(
 		_uiState.update { state ->
 			state.copy(
 				queue = shuffledSongs,
+				shuffleOrder = emptyList(),
+				isShuffleEnabled = false,
 				currentIndex = 0,
 				currentSong = shuffledSongs.firstOrNull()
 			)
@@ -853,7 +979,24 @@ class MediaPlayer(
 	fun toggleShuffle() {
 		scope.launch {
 			controller?.let { player ->
-				player.shuffleModeEnabled = !player.shuffleModeEnabled
+				val enabled = !player.shuffleModeEnabled
+				val order = if (enabled) {
+					newShuffleOrder(player.mediaItemCount, player.currentMediaItemIndex)
+				} else {
+					emptyList()
+				}
+
+				_uiState.update { state ->
+					state.copy(isShuffleEnabled = enabled, shuffleOrder = order)
+				}
+
+				player.sendCustomCommand(
+					SessionCommand(COMMAND_SHUFFLE, Bundle()),
+					Bundle().apply {
+						putBoolean(ExoStateHolder.SHUFFLE_ENABLED_KEY, enabled)
+						putIntArray(ExoStateHolder.SHUFFLE_ORDER_KEY, order.toIntArray())
+					}
+				)
 			}
 		}
 	}
