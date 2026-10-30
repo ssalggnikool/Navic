@@ -150,7 +150,7 @@ fun QueueScreen() {
 					QueueInfoText(
 						player = player,
 						queue = queue,
-						currentIndex = currentIndex
+						currentIndex = playerState.currentIndex
 					)
 				}
 				FilledTonalButton(

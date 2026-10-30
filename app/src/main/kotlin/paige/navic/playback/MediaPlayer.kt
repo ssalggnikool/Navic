@@ -7,33 +7,24 @@
 package paige.navic.playback
 
 import android.app.Application
-import android.content.Intent
-import androidx.core.net.toUri
-import androidx.media3.common.C
-import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
-import androidx.media3.common.Timeline
-import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import paige.navic.database.dao.AlbumDao
-import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.playback.AudioGainManager
 import paige.navic.domain.manager.playback.StreamCacheManager
 import paige.navic.domain.manager.runtime.PreferenceManager
@@ -46,20 +37,14 @@ import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainRadio
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.domain.repository.SongRepository
+import paige.navic.playback.exoplayer.ExoControllerHandler
 import paige.navic.playback.exoplayer.ExoStateHolder
-import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
-import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildCoverUri
-import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildSongUri
+import paige.navic.playback.exoplayer.toMediaItem
 import paige.navic.ui.core.PlayerUiState
-import paige.navic.util.Logger
-import java.io.File
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -80,12 +65,28 @@ class MediaPlayer(
 	val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 	private val scope = CoroutineScope(Dispatchers.Main)
 
-	private var controller: MediaController? = null
 	private var controllerFuture: ListenableFuture<MediaController>? = null
+	private var controller: MediaController? = null
+	private var controllerHandler: ExoControllerHandler? = null
 
-	private var loadingCollectionId: String? = null
+	private val songsById = mutableMapOf<String, DomainSong>()
+
+	private fun rememberSongs(songs: List<DomainSong>) {
+		songs.forEach { songsById[it.id] = it }
+	}
 
 	private var pendingSyncState: PlayerUiState? = null
+
+	// just because I hate writing boilerplate every single line
+	private fun launch(
+		context: CoroutineContext = Dispatchers.Main,
+		block: suspend CoroutineScope.() -> Unit
+	) {
+		scope.launch(
+			context = context,
+			block = block
+		)
+	}
 
 	init {
 		connectService()
@@ -104,14 +105,14 @@ class MediaPlayer(
 
 	fun playNow(collection: DomainSongCollection, startIndex: Int = 0) {
 		clearQueue()
-		addToQueue(collection, notify = false)
+		appendQueue(collection, notify = false)
 		playAt(startIndex)
 		checkAndAutoFillQueue()
 	}
 
 	fun playNow(songs: List<DomainSong>, startIndex: Int = 0) {
 		clearQueue()
-		addToQueue(songs, notify = false)
+		appendQueue(songs, notify = false)
 		playAt(startIndex)
 		checkAndAutoFillQueue()
 	}
@@ -124,12 +125,7 @@ class MediaPlayer(
 		}
 	}
 
-	private fun isExplicit(song: DomainSong): Boolean {
-		return song.explicitStatus == DomainExplicitStatus.Explicit
-			&& preferenceManager.explicitContentPlayback != ExplicitContentPlayback.Allowed
-	}
-
-	private fun checkAndAutoFillQueue() {
+	fun checkAndAutoFillQueue() {
 		if (!preferenceManager.autoFillQueue) return
 
 		val state = uiState.value
@@ -140,7 +136,7 @@ class MediaPlayer(
 		if (remainingCount <= 1) {
 			scope.launch {
 				val randomSongs = songRepository.getRandomSongsList(1)
-				addToQueue(randomSongs, notify = false)
+				appendQueue(randomSongs, notify = false)
 			}
 		}
 	}
@@ -154,6 +150,7 @@ class MediaPlayer(
 
 	private suspend fun restoreState() {
 		val savedState = stateRepository.state.first().copy(isPaused = true, isLoading = false)
+		rememberSongs(savedState.queue)
 		_uiState.value = savedState
 		syncPlayerWithState(savedState)
 		checkAndAutoFillQueue()
@@ -174,17 +171,6 @@ class MediaPlayer(
 
 	}
 
-	// just because I hate writing boilerplate every single line
-	private fun launch(
-		context: CoroutineContext = Dispatchers.Main,
-		block: suspend CoroutineScope.() -> Unit
-	) {
-		scope.launch(
-			context = context,
-			block = block
-		)
-	}
-
 	private fun connectService() = launch {
 		val sessionToken = ExoStateHolder.newSessionToken(application)
 		controllerFuture = MediaController.Builder(application, sessionToken).buildAsync()
@@ -195,248 +181,31 @@ class MediaPlayer(
 	}
 
 	private fun setupController() = launch {
-		controller?.apply {
-			addListener(object : Player.Listener {
-				override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-					updatePlaybackState()
-					skipUnavailableSong()
-					checkAndAutoFillQueue()
-				}
-
-				override fun onIsPlayingChanged(isPlaying: Boolean) {
-					if (isPlaying) {
-						startProgressLoop()
-					}
-
-					val currentSong = _uiState.value.currentSong
-					val displayArtist = currentSong?.artists?.joinToString { it.name }
-						?.ifBlank { currentSong.artistName }
-
-					val intent =
-						Intent("${application.packageName}.NOW_PLAYING_UPDATED").apply {
-							setPackage(application.packageName)
-							putExtra("isPlaying", isPlaying)
-							putExtra(
-								"title",
-								currentSong?.title ?: "Unknown song"
-							)
-							putExtra(
-								"artist",
-								displayArtist ?: "Unknown artist"
-							)
-							putExtra(
-								"artUrl",
-								currentSong?.coverArtId?.let { id ->
-									downloadManager.getCoverArtFile(id)
-										?.toUri()
-										?.toString()
-										?: sessionManager.getCoverArtUrl(id)
-								})
-						}
-
-					application.sendBroadcast(intent)
-					updatePlaybackState()
-				}
-
-				override fun onPlaybackStateChanged(playbackState: Int) {
-					_uiState.update { it.copy(isLoading = playbackState == Player.STATE_BUFFERING) }
-					updatePlaybackState()
-				}
-
-				override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-					_uiState.update { it.copy(isShuffleEnabled = shuffleModeEnabled) }
-				}
-
-				override fun onRepeatModeChanged(repeatMode: Int) {
-					_uiState.update { it.copy(repeatMode = repeatMode) }
-				}
-
-				override fun onTracksChanged(tracks: Tracks) {
-					updatePlaybackProperties(tracks)
-				}
-
-				override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-					updatePlaybackState()
-				}
-
-				override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-					val currentSong = _uiState.value.currentSong ?: return
-					if (currentSong.id.startsWith("radio_")) {
-						val rawTitle = mediaMetadata.title?.toString()?.takeIf { it.isNotBlank() }
-						val rawArtist = mediaMetadata.artist?.toString()
-							?.takeIf { it.isNotBlank() && it != "Live Radio" }
-							?: mediaMetadata.subtitle?.toString()
-								?.takeIf { it.isNotBlank() && it != "Live Radio" }
-
-						val updatedSong = if (rawTitle != null) {
-							val parts = rawTitle.split(" - ", limit = 2)
-							if (parts.size == 2) {
-								currentSong.copy(
-									artistName = parts[0].trim(),
-									title = parts[1].trim()
-								)
-							} else if (rawArtist != null) {
-								currentSong.copy(
-									title = rawTitle,
-									artistName = rawArtist
-								)
-							} else {
-								currentSong.copy(
-									title = rawTitle,
-									artistName = "Live Radio"
-								)
-							}
-						} else {
-							currentSong
-						}
-
-						if (updatedSong != currentSong) {
-							_uiState.update { state ->
-								val updatedQueue = state.queue.map { song ->
-									if (song.id == currentSong.id) updatedSong else song
-								}
-								state.copy(
-									currentSong = updatedSong,
-									queue = updatedQueue
-								)
-							}
-							updatePlaybackState()
-						}
-					}
-				}
-			})
-
-			downloadManager.allDownloads.first()
-			pendingSyncState?.let { state ->
-				syncPlayerWithState(state)
-				pendingSyncState = null
-			}
-			checkAndAutoFillQueue()
-		}
-	}
-
-	/**
-	 * strategically skip around in the queue until the
-	 * current song is available while avoiding infinite
-	 * loops
-	 *
-	 * this **INTENTIONALLY** does not check for if the song
-	 * is not downloaded and if the device is offline
-	 *
-	 * this used to check for that but because there have
-	 * been cases where the device is falsely identified
-	 * as being offline that's no longer the case, so we
-	 * just try to play the song anyway
-	 */
-	private fun skipUnavailableSong() {
-		val currentSong = _uiState.value.currentSong ?: return
-		if (!isExplicit(currentSong)) return
-		Logger.i("MediaPlayer", "trying to skip unavailable song")
-		val queue = _uiState.value.queue
-		val currentIdx = queue.indexOf(currentSong)
-
-		// look for the next available song, wrapping around, but stop before
-		// we loop back past our own starting point
-		val nextAvailableIdx = (1..queue.size)
-			.map { offset -> (currentIdx + offset) % queue.size }
-			.firstOrNull { index -> !isExplicit(queue[index]) }
-
-		if (nextAvailableIdx == null) {
-			Logger.i(
-				"MediaPlayer",
-				"pausing because this song is unavailable and there isn't anything to skip to"
-			)
-			controller?.pause()
-			return
-		}
-
-		if (nextAvailableIdx <= currentIdx) {
-			Logger.i(
-				"MediaPlayer",
-				"skipping and pausing because the last song in the queue was unavailable"
-			)
-			controller?.seekTo(nextAvailableIdx, 0L)
-			controller?.pause()
-		} else {
-			// just skip to the next song
-			controller?.seekTo(nextAvailableIdx, 0L)
-		}
-	}
-
-	private fun refreshCurrentCollection(albumId: String) {
-		if (loadingCollectionId == albumId) return
-		loadingCollectionId = albumId
-
-		scope.launch {
-			runCatching {
-				val album = albumDao.getAlbumById(albumId)
-
-				_uiState.update { it.copy(currentCollection = album?.toDomainModel()) }
-			}.onFailure {
-				loadingCollectionId = null
-			}
-		}
-	}
-
-	private fun updatePlaybackState() {
-		val controller = controller ?: return
-		val index = controller.currentMediaItemIndex
-		if (index == C.INDEX_UNSET) return
-
-		val currentSong = _uiState.value.queue.getOrNull(index)
-
-		val derivedCollection = currentSong?.let { song ->
-			val stateCollection = _uiState.value.currentCollection
-
-			if (stateCollection?.id == song.albumId.toString()) {
-				stateCollection
-			} else {
-				refreshCurrentCollection(song.albumId.toString())
-				null
-			}
-		}
-
-		_uiState.update { state ->
-			state.copy(
-				currentIndex = index,
-				currentSong = currentSong,
-				currentCollection = derivedCollection ?: state.currentCollection,
-				isPaused = (!controller.playWhenReady || controller.playbackState == Player.STATE_ENDED),
-				isShuffleEnabled = controller.shuffleModeEnabled,
-				repeatMode = controller.repeatMode
+		controller?.let { controller ->
+			controller.addListener(
+				ExoControllerHandler(
+					context = application,
+					controller = controller,
+					state = _uiState,
+					preferenceManager = preferenceManager,
+					downloadManager = downloadManager,
+					sessionManager = sessionManager,
+					audioGainManager = audioGainManager,
+					streamCacheManager = streamCacheManager,
+					connectivityManager = connectivityManager,
+					songForId = songsById::get,
+					rememberSong = { songsById[it.id] = it },
+					albumDao = albumDao,
+					requestAutoFill = ::checkAndAutoFillQueue
+				).also { handler -> controllerHandler = handler }
 			)
 		}
-		applyAudioGain()
-		updateProgress()
-	}
-
-	private fun applyAudioGain() = audioGainManager.apply {
-		setAmplifierValues(preferenceManager.rgAmpGain, preferenceManager.ampGain)
-
-		if (preferenceManager.replayGainMode != ReplayGainMode.Off) {
-			val currentSong = _uiState.value.currentSong
-			val replayGain = currentSong?.replayGain
-
-			if (replayGain != null) {
-				setReplayGainMetadata(replayGain)
-
-				if (preferenceManager.replayGainMode != ReplayGainMode.Dynamic) {
-					applyGainMode(preferenceManager.replayGainMode)
-				} else {
-					if (_uiState.value.queue.all { it.albumId == currentSong.albumId }) {
-						applyGainMode(ReplayGainMode.Album)
-					} else {
-						applyGainMode(ReplayGainMode.Track)
-					}
-				}
-
-				return@apply
-			}
-
-			setReplayGainMetadata(null)
-			return@apply
+		downloadManager.allDownloads.first()
+		pendingSyncState?.let { state ->
+			syncPlayerWithState(state)
+			pendingSyncState = null
 		}
-		resetGain()
+		checkAndAutoFillQueue()
 	}
 
 	fun syncPlayerWithState(state: PlayerUiState) = launch {
@@ -448,7 +217,7 @@ class MediaPlayer(
 		}
 
 		if (state.queue.isEmpty() || player.mediaItemCount > 0) {
-			updatePlaybackState()
+			controllerHandler?.updatePlaybackState()
 			return@launch
 		}
 
@@ -481,119 +250,14 @@ class MediaPlayer(
 		}
 	}
 
-	private fun Player.effectiveDurationMs(): Long {
-		return duration.takeIf { it > 0 }
-			?: currentMediaItem?.mediaMetadata?.durationMs
-			?: 0L
-	}
-
-	private fun startProgressLoop() = this@MediaPlayer.launch {
-		while (controller?.isPlaying == true) {
-			val player = controller ?: break
-			val duration = player.effectiveDurationMs()
-			if (duration > 0) {
-				val progress =
-					(player.currentPosition.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
-				_uiState.update { it.copy(progress = progress) }
-			}
-			delay(200.milliseconds)
-		}
-	}
-
-	private fun updateProgress() = controller?.also { player ->
-		val duration = player.effectiveDurationMs()
-		if (duration > 0) {
-			val pos = player.currentPosition
-			val progress = (pos.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
-			_uiState.update { it.copy(progress = progress) }
-		}
-	}
-
-	private suspend fun getEstimateBitrate(): Int? {
-		val controller = controller ?: return null
-		val duration =
-			(controller.currentMediaItem?.mediaMetadata?.durationMs?.div(1000)) ?: return null
-
-		_uiState.value.currentSong?.let { song ->
-			val fileSize = runCatching {
-				downloadManager.getDownloadedFilePath(song.id)?.toFile()
-					?.length()
-					?.takeIf { it > 0L }
-			}.getOrNull()
-				?: streamCacheManager.getSongFileSize(song.id)
-				?: return NavicDataSource.getCurrentQuality(
-					preferenceManager,
-					connectivityManager
-				).first.takeIf { it > 0 }?.times(1000)
-
-			if (duration <= 0 || fileSize <= 0) return null
-			return ((fileSize * 8) / duration).toInt()
-		}
-		return null
-	}
-
-	private fun String.toFile() = File(this)
-
-	private fun updatePlaybackProperties(tracks: Tracks) {
-		val audioGroups =
-			tracks.groups.firstOrNull { it.type == C.TRACK_TYPE_AUDIO && it.isSelected }
-		if (audioGroups != null) {
-			for (i in 0 until audioGroups.length) {
-				if (audioGroups.isTrackSelected(i)) {
-					val format = audioGroups.getTrackFormat(i)
-					Logger.i("MediaPlayer", "active track format: $format")
-
-					scope.launch(Dispatchers.IO) {
-						// i don't like this but oh well
-						val currentSong = _uiState.value.currentSong ?: return@launch
-						val songMimeType = currentSong.mimeType
-						val isOriginalFile =
-							format.sampleMimeType == songMimeType || format.containerMimeType == songMimeType
-						val fallbackBitrate = if (isOriginalFile) {
-							currentSong.bitRate?.times(1000)
-						} else {
-							withContext(Dispatchers.Main) {
-								getEstimateBitrate()
-							}
-						}
-
-						_uiState.update { state ->
-							state.copy(
-								playbackBitrate = format.bitrate.takeIf { it != Format.NO_VALUE }
-									?: fallbackBitrate,
-								playbackSampleRate = format.sampleRate.takeIf { it != Format.NO_VALUE },
-								playbackMimeType = format.sampleMimeType,
-								playbackBitDepth = when (format.pcmEncoding) {
-									C.ENCODING_PCM_8BIT -> 8
-									C.ENCODING_PCM_16BIT -> 16
-									C.ENCODING_PCM_24BIT -> 24
-									C.ENCODING_PCM_32BIT, C.ENCODING_PCM_FLOAT -> 32
-									else -> -1
-								}
-							)
-						}
-					}
-					break
-				}
-			}
-		}
-	}
-
 	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) = this@MediaPlayer.launch {
+		rememberSongs(listOf(song))
 		controller?.addMediaItem(song.toMediaItem())
-		_uiState.update { state ->
-			val newQueue = state.queue + song
-			state.copy(
-				queue = newQueue,
-				currentIndex = if (state.currentIndex == -1) 0 else state.currentIndex,
-				currentSong = if (state.currentIndex == -1) song else state.currentSong
-			)
-		}
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
-	fun addToQueue(collection: DomainSongCollection, notify: Boolean = true) {
-		addToQueue(
+	fun appendQueue(collection: DomainSongCollection, notify: Boolean = true) {
+		appendQueue(
 			if (collection is DomainAlbum) collection.songs.sortedWith(
 				compareBy(
 					{ it.discNumber },
@@ -604,70 +268,22 @@ class MediaPlayer(
 		)
 	}
 
-	fun addToQueue(songs: List<DomainSong>, notify: Boolean = true) = this@MediaPlayer.launch {
+	fun appendQueue(songs: List<DomainSong>, notify: Boolean = true) = this@MediaPlayer.launch {
 		val items = songs.map { it.toMediaItem() }
+		rememberSongs(songs)
 		controller?.addMediaItems(items)
-		_uiState.update { state ->
-			val newQueue = state.queue + songs
-			state.copy(
-				queue = newQueue,
-				currentIndex = if (state.currentIndex == -1) 0 else state.currentIndex,
-				currentSong = if (state.currentIndex == -1) songs.firstOrNull() else state.currentSong
-			)
-		}
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
 	fun removeFromQueue(index: Int) = this@MediaPlayer.launch {
 		controller?.removeMediaItem(index)
-		_uiState.update { state ->
-			val newQueue = state.queue.toMutableList().apply { removeAt(index) }
-			val newIndex = when {
-				index < state.currentIndex -> state.currentIndex - 1
-				index == state.currentIndex -> if (newQueue.isEmpty()) -1 else state.currentIndex.coerceAtMost(
-					newQueue.size - 1
-				)
-
-				else -> state.currentIndex
-			}
-			state.copy(
-				queue = newQueue,
-				currentIndex = newIndex,
-				currentSong = if (newIndex == -1) null else newQueue[newIndex]
-			)
-		}
 	}
 
 	fun moveQueueItem(fromIndex: Int, toIndex: Int) = this@MediaPlayer.launch {
 		controller?.moveMediaItem(fromIndex, toIndex)
-		_uiState.update { state ->
-			val newQueue = state.queue.toMutableList().apply {
-				val item = removeAt(fromIndex)
-				add(toIndex, item)
-			}
-			val newIndex = when (state.currentIndex) {
-				fromIndex -> toIndex
-				in (fromIndex + 1)..toIndex -> state.currentIndex - 1
-				in toIndex until fromIndex -> state.currentIndex + 1
-				else -> state.currentIndex
-			}
-			state.copy(
-				queue = newQueue,
-				currentIndex = newIndex,
-				currentSong = if (newIndex == -1) null else newQueue[newIndex]
-			)
-		}
 	}
 
 	fun clearQueue() = this@MediaPlayer.launch {
-		_uiState.update {
-			it.copy(
-				queue = emptyList(),
-				currentSong = null,
-				currentIndex = -1,
-				progress = 0f
-			)
-		}
 		controller?.clearMediaItems()
 	}
 
@@ -681,22 +297,12 @@ class MediaPlayer(
 	}
 
 	fun playNextSingle(song: DomainSong) = this@MediaPlayer.launch {
-		controller?.addMediaItem(
-			_uiState.value.currentIndex + 1,
+		val player = controller ?: return@launch
+		rememberSongs(listOf(song))
+		player.addMediaItem(
+			player.currentMediaItemIndex + 1,
 			withContext(Dispatchers.Default) { song.toMediaItem() }
 		)
-		_uiState.update { state ->
-			val newQueue =
-				if (state.queue.isEmpty())
-					state.queue + song
-				else
-					state.queue.slice(0..state.currentIndex) + song + state.queue.slice(state.currentIndex + 1..<state.queue.size)
-			state.copy(
-				queue = newQueue,
-				currentIndex = if (state.currentIndex == -1) 0 else state.currentIndex,
-				currentSong = if (state.currentIndex == -1) song else state.currentSong
-			)
-		}
 		snackBarManager.notifyPlayNext()
 	}
 
@@ -710,21 +316,9 @@ class MediaPlayer(
 					)) else collection.songs
 			newCollection.map { it.toMediaItem() } to newCollection
 		}
-		controller?.addMediaItems(_uiState.value.currentIndex + 1, items)
-		_uiState.update { state ->
-			val newQueue =
-				if (state.queue.isEmpty())
-					state.queue + newCollection
-				else
-					state.queue.slice(0..state.currentIndex) + newCollection + state.queue.slice(
-						state.currentIndex + 1..<state.queue.size
-					)
-			state.copy(
-				queue = newQueue,
-				currentIndex = if (state.currentIndex == -1) 0 else state.currentIndex,
-				currentSong = if (state.currentIndex == -1) newCollection.firstOrNull() else state.currentSong
-			)
-		}
+		val player = controller ?: return@launch
+		rememberSongs(newCollection)
+		player.addMediaItems((player.currentMediaItemIndex + 1).coerceAtLeast(0), items)
 		snackBarManager.notifyPlayNext()
 	}
 
@@ -784,21 +378,14 @@ class MediaPlayer(
 			.setLiveConfiguration(MediaItem.LiveConfiguration.Builder().build())
 			.build()
 
+		rememberSongs(listOf(dummyRadioSong))
+
 		controller?.let { player ->
 			player.stop()
 			player.clearMediaItems()
 			player.setMediaItem(mediaItem)
 			player.prepare()
 			player.play()
-		}
-
-		_uiState.update { state ->
-			state.copy(
-				queue = listOf(dummyRadioSong),
-				currentIndex = 0,
-				currentSong = dummyRadioSong,
-				isLoading = true
-			)
 		}
 	}
 
@@ -808,19 +395,13 @@ class MediaPlayer(
 			songs to songs.map { it.toMediaItem() }
 		}
 
+		rememberSongs(shuffledSongs)
+
 		controller?.let { player ->
 			player.shuffleModeEnabled = false
 			player.setMediaItems(mediaItems, 0, 0L)
 			player.prepare()
 			player.play()
-		}
-
-		_uiState.update { state ->
-			state.copy(
-				queue = shuffledSongs,
-				currentIndex = 0,
-				currentSong = shuffledSongs.firstOrNull()
-			)
 		}
 	}
 
@@ -869,63 +450,14 @@ class MediaPlayer(
 	}
 
 	fun seek(normalized: Float) = launch(Dispatchers.Main.immediate) {
-		controller?.let {
-			val target = (it.effectiveDurationMs() * normalized).toLong()
-			it.seekTo(target)
-			_uiState.update { state ->
-				state.copy(progress = normalized)
-			}
-		}
+		controllerHandler?.seek(normalized)
 	}
 
 	fun setPlaybackSpeed(value: Float) = this@MediaPlayer.launch {
-		controller?.playbackParameters = PlaybackParameters(
-			value,
-			if (uiState.value.preservePitch) 1f else value
-		)
-		_uiState.update { it.copy(playbackSpeed = value) }
+		controllerHandler?.setPlaybackSpeed(value)
 	}
 
 	fun setPreservePitch(value: Boolean) = this@MediaPlayer.launch {
-		controller?.playbackParameters = PlaybackParameters(
-			uiState.value.playbackSpeed,
-			if (value) 1f else uiState.value.playbackSpeed
-		)
-		_uiState.update { it.copy(preservePitch = value) }
-	}
-
-	private fun DomainSong.toMediaItem(): MediaItem {
-		val displayArtist = artists.joinToString { it.name }.ifBlank { artistName }
-		val albumArtistName = albumArtists.joinToString { it.name }.ifBlank { artistName }
-
-		val metadataBuilder = MediaMetadata.Builder()
-			.apply {
-				setTitle(title)
-				setSubtitle(displayArtist)
-				setArtist(displayArtist)
-				setAlbumArtist(albumArtistName)
-				setAlbumTitle(albumTitle)
-				setDurationMs(duration.inWholeMilliseconds)
-				setArtworkUri(coverArtId?.buildCoverUri())
-				setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
-			}
-
-		val metadata = metadataBuilder.build()
-
-		val uri = when {
-			id.startsWith("radio_") && !filePath.isNullOrEmpty() -> filePath.toUri()
-			else -> id.buildSongUri()
-		}
-
-		val builder = MediaItem.Builder()
-			.setUri(uri)
-			.setMediaId(id)
-			.setMediaMetadata(metadata)
-
-		if (id.startsWith("radio_")) {
-			builder.setLiveConfiguration(MediaItem.LiveConfiguration.Builder().build())
-		}
-
-		return builder.build()
+		controllerHandler?.setPreservePitch(value)
 	}
 }

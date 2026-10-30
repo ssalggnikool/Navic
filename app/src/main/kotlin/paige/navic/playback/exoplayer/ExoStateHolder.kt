@@ -52,8 +52,6 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
@@ -65,19 +63,20 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
 @OptIn(UnstableApi::class)
-class ExoStateHolder : KoinComponent {
-	private val context: Context by inject()
-	private val preferenceManager: PreferenceManager by inject()
-	private val dataSource: NavicDataSource.NavicDataSourceFactory by inject()
-	private val sessionManager: SessionManager by inject()
-	private val imageLoader: ImageLoader by inject()
-	private val storageManager: StorageManager by inject()
+class ExoStateHolder(
+	private val context: Context,
+	private val preferenceManager: PreferenceManager,
+	private val dataSource: NavicDataSource.NavicDataSourceFactory,
+	private val sessionManager: SessionManager,
+	private val imageLoader: ImageLoader,
+	private val storageManager: StorageManager
+) {
 	private val mutex = Mutex()
 
 	private var isInitialized = false
 
 	// ExoPlaybackService and AudioGainManager depends on these fields below
-	lateinit var playerInstance: ExoPlayer
+	lateinit var player: ExoPlayer
 	lateinit var mediaSession: MediaSession
 
 	val gainProcessor = ExoAudioGainProcessor()
@@ -235,7 +234,7 @@ class ExoStateHolder : KoinComponent {
 	private suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
 		val mediaSourceFactory = DefaultMediaSourceFactory(dataSource, extractorsFactory)
 
-		playerInstance = ExoPlayer.Builder(
+		player = ExoPlayer.Builder(
 			context,
 			createRenderers(context)
 		).apply {
@@ -286,7 +285,7 @@ class ExoStateHolder : KoinComponent {
 				player.addListener(ExoDiscordIntegrationImpl(player))
 			}
 
-		return playerInstance
+		return player
 	}
 
 	private suspend fun createMediaSession(): MediaSession = mutex.withLock {
@@ -311,7 +310,7 @@ class ExoStateHolder : KoinComponent {
 			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 		)
 
-		this.playerInstance.let {
+		this.player.let {
 			mediaSession = MediaSession.Builder(context, it)
 				.setSessionActivity(sessionPendingIntent)
 				.setBitmapLoader(bitmapLoader)
@@ -323,9 +322,6 @@ class ExoStateHolder : KoinComponent {
 		return mediaSession
 	}
 
-	/**
-	 * initializes instances for the player and the media session, should be called ASAP on PlaybackService (onCreate)
-	 */
 	fun initState() = runBlocking {
 		if (isInitialized) return@runBlocking
 
@@ -348,7 +344,7 @@ class ExoStateHolder : KoinComponent {
 	fun reloadNetworkDataSource() {
 		if (!isInitialized) return
 
-		val player = playerInstance
+		val player = player
 		val mediaItemIndex = player.currentMediaItemIndex
 		val mediaItem = player.currentMediaItem ?: return
 		if (mediaItemIndex == C.INDEX_UNSET) return

@@ -148,7 +148,7 @@ fun CollectionDetailScreen(
 					titleAlpha = titleAlpha,
 					onSetShareId = { shareId = it },
 					onPlayNext = { if (collection != null) player.playNext(collection) },
-					onAddToQueue = { if (collection != null) player.addToQueue(collection) },
+					onAddToQueue = { if (collection != null) player.appendQueue(collection) },
 					rating = state.data?.rating,
 					onSetRating = if (collection !is DomainPlaylist) {
 						{ viewModel.rateAlbum(it) }
@@ -410,7 +410,7 @@ fun CollectionDetailScreen(
 											shareId = album.id
 										},
 										onPlayNext = { player.playNext(selectedAlbum as DomainSongCollection) },
-										onAddToQueue = { player.addToQueue(selectedAlbum as DomainSongCollection) },
+										onAddToQueue = { player.appendQueue(selectedAlbum as DomainSongCollection) },
 										onAddAllToPlaylist = { albumToAddToPlaylist = album },
 										onViewArtist = dropUnlessResumed {
 											backStack.add(
