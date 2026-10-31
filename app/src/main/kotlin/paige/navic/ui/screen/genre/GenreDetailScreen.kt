@@ -156,7 +156,7 @@ fun GenreDetailScreen(
 				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
 				onPlayAlbumNext = { albumsState.data?.selected.let { player.playNext(it as DomainSongCollection) } },
-				onAddAlbumToQueue = { albumsState.data?.selected.let { player.addToQueue(it as DomainSongCollection) } },
+				onAddAlbumToQueue = { albumsState.data?.selected.let { player.appendQueue(it as DomainSongCollection) } },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 			)
 		}
