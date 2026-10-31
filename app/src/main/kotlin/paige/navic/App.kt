@@ -294,7 +294,7 @@ fun App() {
 						)
 					}
 				}
-				if (preferenceManager.checkForUpdates && !BuildConfig.FOSS) {
+				if (preferenceManager.checkForUpdates && !BuildConfig.FDROID) {
 					ChangelogSheet()
 				}
 			}

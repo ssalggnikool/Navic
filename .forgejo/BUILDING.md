@@ -33,10 +33,10 @@ A more in depth example of building can be seen in the [CI build workflow][Build
 
 | Task                         | Description                                                                              |
 |------------------------------|------------------------------------------------------------------------------------------|
-| `:app:packageFossRelease`    | Package a release APK with foss flavour. For signing, see the env vars below             |
-| `:app:packageNonfreeRelease` | Package a release APK with nonfree flavour. For signing, see the env vars below          |
-| `:app:assembleFossDebug`     | Package a debug APK with foss flavour.                                                   |
-| `:app:assembleNonfreeDebug`  | Package a debug APK with nonfree flavour. Equivalent to the run button in Android Studio |
+| `:app:packageDefaultRelease` | Package a release APK with default flavour. For signing, see the env vars below          |
+| `:app:packageFdroidRelease`  | Package a release APK with fdroid flavour. For signing, see the env vars below           |
+| `:app:assembleDefaultDebug`  | Package a debug APK with default flavour. Equivalent to the run button in Android Studio |
+| `:app:assembleFdroidDebug`   | Package a debug APK with fdroid flavour.                                                 |
 
 #### Environment variables overview
 

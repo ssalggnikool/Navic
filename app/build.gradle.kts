@@ -116,16 +116,15 @@ android {
 
 	flavorDimensions += "version"
 	productFlavors {
-		create("foss") {
-			dimension = "version"
-			description = "disables Discord RPC and update check, for IzzyOnDroid"
-			buildConfigField("boolean", "FOSS", "true")
-		}
-		create("nonfree") {
+		create("default") {
 			dimension = "version"
 			isDefault = true
-			description = "enables Discord RPC and update check"
-			buildConfigField("boolean", "FOSS", "false")
+			buildConfigField("boolean", "FDROID", "false")
+		}
+		create("fdroid") {
+			dimension = "version"
+			description = "removes Discord RPC and update checker features"
+			buildConfigField("boolean", "FDROID", "true")
 		}
 	}
 
@@ -162,8 +161,8 @@ android {
 androidComponents {
 	onVariants { variant ->
 		variant.outputs.forEach { output ->
-			output.outputFileName = if (variant.flavorName == "foss") {
-				"Navic.foss.apk"
+			output.outputFileName = if (variant.flavorName == "fdroid") {
+				"Navic.fdroid.apk"
 			} else {
 				"Navic.apk"
 			}
@@ -245,7 +244,7 @@ dependencies {
 	implementation(libs.koin.compose.viewmodel)
 	implementation(libs.koin.androidx.workmanager)
 	implementation(libs.subsonicKotlin)
-	"nonfreeImplementation"(libs.antisocialcord)
+	"defaultImplementation"(libs.antisocialcord)
 	ksp(libs.androidx.room3.compiler)
 	implementation(libs.cryptohash)
 	implementation(libs.mimetypes)

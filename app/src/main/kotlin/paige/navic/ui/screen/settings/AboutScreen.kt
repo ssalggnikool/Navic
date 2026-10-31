@@ -157,7 +157,7 @@ fun SettingsAboutScreen() {
 				)
 			}
 
-			if (!BuildConfig.FOSS) {
+			if (!BuildConfig.FDROID) {
 				SettingsGroup {
 					SettingsToggleItem(
 						content = { Text(stringResource(R.string.option_check_for_updates)) },

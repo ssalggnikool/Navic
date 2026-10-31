@@ -116,7 +116,7 @@ fun SettingsPlaybackScreen() {
 					)
 				}
 
-				if (!BuildConfig.FOSS) {
+				if (!BuildConfig.FDROID) {
 					SettingsGroup(title = { Text(stringResource(R.string.title_integrations)) }) {
 						val enableDiscordIntegration = preferenceManager.enableDiscordIntegration
 						val count = if (enableDiscordIntegration) 5 else 1
