@@ -426,7 +426,7 @@ fun ArtistDetailScreen(
 														onSetStarred = { viewModel.starAlbum(!selectedAlbumIsStarred) },
 														onSetShareId = { shareId = it },
 														onPlayNext = { player.playNext(album) },
-														onAddToQueue = { player.addToQueue(album) },
+														onAddToQueue = { player.appendQueue(album) },
 														onSetRating = {
 															viewModel.rateSelectedAlbum(
 																it
@@ -479,7 +479,7 @@ fun ArtistDetailScreen(
 																		)
 																	},
 																	onAddToQueue = {
-																		player.addToQueue(
+																		player.appendQueue(
 																			album
 																		)
 																	},

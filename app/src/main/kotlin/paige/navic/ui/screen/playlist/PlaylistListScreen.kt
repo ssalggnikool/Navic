@@ -224,7 +224,7 @@ fun PlaylistListScreen(
 									)
 								},
 								onAddToQueue = {
-									if (state.data?.selected != null) player.addToQueue(
+									if (state.data?.selected != null) player.appendQueue(
 										state.data?.selected as DomainSongCollection
 									)
 								},
@@ -252,7 +252,7 @@ fun PlaylistListScreen(
 									)
 								},
 								onAddToQueue = {
-									if (state.data?.selected != null) player.addToQueue(
+									if (state.data?.selected != null) player.appendQueue(
 										state.data?.selected as DomainSongCollection
 									)
 								},

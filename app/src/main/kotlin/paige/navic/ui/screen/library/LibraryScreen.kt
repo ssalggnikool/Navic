@@ -162,7 +162,7 @@ fun LibraryScreen() {
 				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
 				onPlayAlbumNext = { selectedAlbum?.let { player.playNext(it as DomainSongCollection) } },
-				onAddAlbumToQueue = { selectedAlbum?.let { player.addToQueue(selectedAlbum as DomainSongCollection) } },
+				onAddAlbumToQueue = { selectedAlbum?.let { player.appendQueue(selectedAlbum as DomainSongCollection) } },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 
 				artistsState = artistsLazyItems,
@@ -196,7 +196,7 @@ fun LibraryScreen() {
 					)
 				},
 				onAddPlaylistToQueue = {
-					if (selectedPlaylist != null) player.addToQueue(
+					if (selectedPlaylist != null) player.appendQueue(
 						selectedPlaylist as DomainSongCollection
 					)
 				},

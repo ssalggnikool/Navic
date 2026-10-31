@@ -87,7 +87,7 @@ fun ArtistDetailScreenTopBar(
 							},
 							onAddToQueue = {
 								state.albums.forEach { album ->
-									player.addToQueue(album)
+									player.appendQueue(album)
 								}
 							},
 							onAddAllToPlaylist = {

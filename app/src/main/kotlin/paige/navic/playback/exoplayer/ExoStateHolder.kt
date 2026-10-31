@@ -11,7 +11,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Process
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -32,7 +31,6 @@ import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
-import androidx.media3.exoplayer.source.ShuffleOrder
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.flac.FlacExtractor
 import androidx.media3.extractor.mkv.MatroskaExtractor
@@ -54,11 +52,10 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
@@ -67,19 +64,20 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
 @OptIn(UnstableApi::class)
-class ExoStateHolder : KoinComponent {
-	private val context: Context by inject()
-	private val preferenceManager: PreferenceManager by inject()
-	private val dataSource: NavicDataSource.NavicDataSourceFactory by inject()
-	private val sessionManager: SessionManager by inject()
-	private val imageLoader: ImageLoader by inject()
-	private val storageManager: StorageManager by inject()
+class ExoStateHolder(
+	private val context: Context,
+	private val preferenceManager: PreferenceManager,
+	private val dataSource: NavicDataSource.NavicDataSourceFactory,
+	private val sessionManager: SessionManager,
+	private val imageLoader: ImageLoader,
+	private val storageManager: StorageManager
+) {
 	private val mutex = Mutex()
 
 	private var isInitialized = false
 
 	// ExoPlaybackService and AudioGainManager depends on these fields below
-	lateinit var playerInstance: ExoPlayer
+	lateinit var player: ExoPlayer
 	lateinit var mediaSession: MediaSession
 
 	val gainProcessor = ExoAudioGainProcessor()
@@ -90,33 +88,16 @@ class ExoStateHolder : KoinComponent {
 			session: MediaSession,
 			controller: MediaSession.ControllerInfo
 		): MediaSession.ConnectionResult {
-			// only the app may edit the playlist or push a shuffle order, otherwise
-			// external controllers desync the app queue from the player timeline
-			val isOwnApp = controller.uid == Process.myUid()
-
 			val sessionCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
 				.buildUpon()
 				.add(SessionCommand(COMMAND_SHUFFLE, Bundle.EMPTY))
 				.add(SessionCommand(COMMAND_REPEAT, Bundle.EMPTY))
-				.apply {
-					if (isOwnApp) add(SessionCommand(COMMAND_SET_SHUFFLE_ORDER, Bundle.EMPTY))
-				}
 				.build()
 
-			val playerCommands =
-				if (isOwnApp) {
-					MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
-				} else {
-					// shortcut: blocks playlist edits from every external controller, so Android
-					// Auto browse-and-play needs an exception here once real Auto support lands
-					MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
-						.buildUpon()
-						.remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
-						.remove(Player.COMMAND_SET_MEDIA_ITEM)
-						.build()
-				}
-
-			return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands)
+			return MediaSession.ConnectionResult.accept(
+				sessionCommands,
+				MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
+			)
 		}
 
 		override fun onCustomCommand(
@@ -127,7 +108,17 @@ class ExoStateHolder : KoinComponent {
 		): ListenableFuture<SessionResult> {
 			when (customCommand.customAction) {
 				COMMAND_SHUFFLE -> {
-					player.shuffleModeEnabled = !player.shuffleModeEnabled
+					val enabled = if (args.containsKey(SHUFFLE_ENABLED_KEY)) {
+						args.getBoolean(SHUFFLE_ENABLED_KEY)
+					} else {
+						!player.shuffleModeEnabled
+					}
+					player.shuffleModeEnabled = enabled
+					if (enabled) {
+						args.getIntArray(SHUFFLE_ORDER_KEY)
+							?.takeIf { it.size == player.mediaItemCount }
+							?.let { player.shuffleOrder = BetterShuffleOrder(it) }
+					}
 				}
 
 				COMMAND_REPEAT -> {
@@ -135,15 +126,6 @@ class ExoStateHolder : KoinComponent {
 						Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
 						Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
 						else -> Player.REPEAT_MODE_OFF
-					}
-				}
-
-				COMMAND_SET_SHUFFLE_ORDER -> {
-					val order = args.getIntArray(KEY_SHUFFLE_ORDER)
-					if (order != null && order.size == player.mediaItemCount) {
-						player.setShuffleOrder(
-							ShuffleOrder.DefaultShuffleOrder(order, System.nanoTime())
-						)
 					}
 				}
 			}
@@ -263,7 +245,7 @@ class ExoStateHolder : KoinComponent {
 	private suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
 		val mediaSourceFactory = DefaultMediaSourceFactory(dataSource, extractorsFactory)
 
-		playerInstance = ExoPlayer.Builder(
+		player = ExoPlayer.Builder(
 			context,
 			createRenderers(context)
 		).apply {
@@ -314,7 +296,7 @@ class ExoStateHolder : KoinComponent {
 				player.addListener(ExoDiscordIntegrationImpl(player))
 			}
 
-		return playerInstance
+		return player
 	}
 
 	private suspend fun createMediaSession(): MediaSession = mutex.withLock {
@@ -339,7 +321,7 @@ class ExoStateHolder : KoinComponent {
 			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 		)
 
-		this.playerInstance.let {
+		this.player.let {
 			mediaSession = MediaSession.Builder(context, it)
 				.setSessionActivity(sessionPendingIntent)
 				.setBitmapLoader(bitmapLoader)
@@ -351,9 +333,6 @@ class ExoStateHolder : KoinComponent {
 		return mediaSession
 	}
 
-	/**
-	 * initializes instances for the player and the media session, should be called ASAP on PlaybackService (onCreate)
-	 */
 	fun initState() = runBlocking {
 		if (isInitialized) return@runBlocking
 
@@ -376,7 +355,7 @@ class ExoStateHolder : KoinComponent {
 	fun reloadNetworkDataSource() {
 		if (!isInitialized) return
 
-		val player = playerInstance
+		val player = player
 		val mediaItemIndex = player.currentMediaItemIndex
 		val mediaItem = player.currentMediaItem ?: return
 		if (mediaItemIndex == C.INDEX_UNSET) return
@@ -389,10 +368,10 @@ class ExoStateHolder : KoinComponent {
 	}
 
 	companion object {
+		const val SHUFFLE_ENABLED_KEY = "shuffle_enabled"
+		const val SHUFFLE_ORDER_KEY = "shuffle_order"
 		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
 		const val COMMAND_REPEAT = "COMMAND_REPEAT"
-		const val COMMAND_SET_SHUFFLE_ORDER = "COMMAND_SET_SHUFFLE_ORDER"
-		const val KEY_SHUFFLE_ORDER = "KEY_SHUFFLE_ORDER"
 
 		fun newSessionToken(context: Context): SessionToken {
 			return SessionToken(context, ComponentName(context, ExoPlaybackService::class.java))
