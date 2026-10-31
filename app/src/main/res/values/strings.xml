@@ -72,7 +72,7 @@
 	<string name="title_top_artists">Top artists</string>
 	<string name="title_top_albums">Top albums</string>
 	<string name="title_lyric_providers">Lyric providers</string>
-	<string name="title_codeberg">Codeberg</string>
+	<string name="title_codeberg" translatable="false">Codeberg</string>
 	<string name="title_link_confirmation">Leaving Navic</string>
 	<string name="title_audio_effects">Audio effects</string>
 	<string name="title_chat">Chat</string>
@@ -142,8 +142,8 @@
 	<string name="option_account_instance">Instance URL</string>
 	<string name="option_account_username">Username</string>
 	<string name="option_account_password">Password</string>
-	<string name="option_lyrics_autoscroll">Lyrics auto-scrolling</string>
-	<string name="option_lyrics_beat_by_beat">Beat-by-beat lyrics</string>
+	<string name="option_lyrics_autoscroll">Auto-scrolling view</string>
+	<string name="option_lyrics_beat_by_beat">Beat-by-beat sync mode</string>
 	<string name="option_lyrics_fake_beat_by_beat">Fake beat-by-beat effect</string>
 	<string name="subtitle_lyrics_fake_beat_by_beat">Simulate word-level timing when it is missing</string>
 	<string name="option_sort_random">Random</string>
@@ -237,9 +237,9 @@
 	<string name="option_discord_rpc_status_type_artist_name">Artist name</string>
 	<string name="option_discord_rpc_status_type_song_name">Song name</string>
 	<string name="option_discord_rpc_status_type_app_name">App name</string>
-	<string name="option_disable_rpc_when_power_saving">Disable presence on power saving mode</string>
-	<string name="title_cover_art_providers">Cover art providers</string>
-	<string name="subtitle_cover_art_providers">Upload cover art so Discord can display it</string>
+	<string name="option_disable_rpc_when_power_saving">Disable on power saving mode</string>
+	<string name="title_cover_art_providers">Cover art hosting providers</string>
+	<string name="subtitle_cover_art_providers">Upload cover arts so Discord can display them</string>
 	<string name="subtitle_cover_art_key_required">API key required</string>
 
 	<string name="info_status_idle">Idle</string>
@@ -251,7 +251,7 @@
 	<string name="action_keep_downloads">Leave in place</string>
 	<string name="info_sync_never">Never</string>
 	<string name="info_sync_just_now">Just now</string>
-	<string name="info_bulk_download_warning">Are you sure you want to download every album by %1$s?\nThis may require a significant amount of storage and data.</string>
+	<string name="info_bulk_download_warning">Are you sure you want to download every album from %1$s?\nThis may require a significant amount of storage and data.</string>
 	<string name="info_library_download_warning">Are you sure you want to download your entire library? \nThis will skip items you\'ve already downloaded, but it may still consume a significant amount of storage space and data.</string>
 	<string name="info_library_download">Save all synced music for offline playback</string>
 	<string name="info_progress">Progress</string>
@@ -289,11 +289,11 @@
 	<string name="option_proxy_url">Proxy URL</string>
 	<string name="option_ignore_ssl_certificates">Ignore SSL certificates</string>
 
-	<string name="theme_dynamic">Dynamic</string>
-	<string name="theme_seeded">Tinted</string>
-	<string name="theme_ios">Cupertino</string>
-	<string name="theme_apple_music">Music.app</string>
-	<string name="theme_spotify">Spotlight</string>
+	<string name="theme_dynamic" translatable="false">Dynamic</string>
+	<string name="theme_seeded" translatable="false">Tinted</string>
+	<string name="theme_ios" translatable="false">Cupertino</string>
+	<string name="theme_apple_music" translatable="false">Music.app</string>
+	<string name="theme_spotify" translatable="false">Spotlight</string>
 
 	<string name="theme_mode_system">System</string>
 	<string name="theme_mode_dark">Dark</string>
@@ -439,7 +439,7 @@
 	<string name="notice_deleted_radio">Radio deleted.</string>
 	<string name="notice_created_playlist">Playlist %1$s created.</string>
 	<string name="notice_deleted_download">Download deleted.</string>
-	<string name="notice_deleted_downloads">Deleted downloads.</string>
+	<string name="notice_deleted_downloads">Downloads deleted.</string>
 	<string name="notice_removed_from_playlist">Removed from playlist.</string>
 	<string name="notice_created_radio">Radio %1$s added.</string>
 	<string name="notice_added_to_queue">Added to queue.</string>
@@ -458,7 +458,7 @@
 	<string name="notice_link_confirmation">This link is taking you to the following website:</string>
 	<string name="notice_app_icon_changed">App icon changed, closing app!</string>
 
-	<string name="info_app_version">Navic %1$s</string>
+	<string name="info_app_version" translatable="false">Navic %1$s</string>
 	<string name="info_action_is_permanent">This action cannot be undone</string>
 	<string name="info_error">Something went wrong.</string>
 	<string name="info_error_show">Show details</string>
