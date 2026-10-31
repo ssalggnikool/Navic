@@ -118,8 +118,7 @@ class MediaPlayer(
 	}
 
 	private fun playNowInternal(songs: List<DomainSong>, startIndex: Int) =
-		this@MediaPlayer.launch {
-			val shuffle = uiState.value.isShuffleEnabled
+		launch {
 			val index = startIndex.coerceIn(0, (songs.size - 1).coerceAtLeast(0))
 			val items = withContext(Dispatchers.Default) { songs.map { it.toMediaItem() } }
 			rememberSongs(songs)
@@ -131,7 +130,6 @@ class MediaPlayer(
 					player.clearMediaItems()
 				} else {
 					player.setMediaItems(items, index, 0L)
-					player.shuffleModeEnabled = shuffle
 					controllerHandler?.pushOrder()
 					player.prepare()
 					player.play()
@@ -458,22 +456,6 @@ class MediaPlayer(
 		}
 	}
 
-	fun shufflePlay(collection: DomainSongCollection) = launch {
-		val (shuffledSongs, mediaItems) = withContext(Dispatchers.Default) {
-			val songs = collection.songs.shuffled()
-			songs to songs.map { it.toMediaItem() }
-		}
-
-		rememberSongs(shuffledSongs)
-
-		controller?.let { player ->
-			player.shuffleModeEnabled = false
-			player.setMediaItems(mediaItems, 0, 0L)
-			player.prepare()
-			player.play()
-		}
-	}
-
 	fun pause() = launch(Dispatchers.Main.immediate) {
 		controller?.pause()
 	}
@@ -500,11 +482,15 @@ class MediaPlayer(
 		}
 	}
 
-	fun toggleShuffle() {
-		scope.launch {
-			controller?.let { player ->
-				player.shuffleModeEnabled = !player.shuffleModeEnabled
-			}
+	fun toggleShuffle() = launch {
+		controller?.let { player ->
+			player.shuffleModeEnabled = !player.shuffleModeEnabled
+		}
+	}
+
+	fun setShuffle(mode: Boolean) = launch {
+		controller?.let { player ->
+			player.shuffleModeEnabled = mode
 		}
 	}
 

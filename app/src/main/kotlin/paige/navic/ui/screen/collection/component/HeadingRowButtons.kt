@@ -77,7 +77,8 @@ fun CollectionDetailScreenHeadingRowButtons(
 		OutlinedButton(
 			modifier = Modifier.size(width = 52.dp, height = buttonHeight),
 			onClick = {
-				player.shufflePlay(collection)
+				player.setShuffle(true)
+				player.playNow(collection, collection.songs.indices.random())
 			},
 			shape = buttonShape,
 			contentPadding = PaddingValues(0.dp),
@@ -94,6 +95,7 @@ fun CollectionDetailScreenHeadingRowButtons(
 				.weight(1f)
 				.height(buttonHeight),
 			onClick = {
+				player.setShuffle(false)
 				player.playNow(collection)
 			},
 			shape = buttonShape,
