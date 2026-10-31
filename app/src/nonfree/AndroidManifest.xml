@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<queries>
+		<intent>
+			<action android:name="com.discord.socialsdk.rpc.IDiscordRpcService" />
+		</intent>
+		<package android:name="com.discord" />
+	</queries>
+</manifest>

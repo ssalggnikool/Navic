@@ -211,7 +211,7 @@
     <string name="title_data_storage">Data og lagring</string>
     <string name="title_bottom_app_bar">Bunnlinje</string>
     <string name="title_behaviour">Oppførsel</string>
-    <string name="title_cache_management">Lagring</string>
+    <string name="title_cache_management">Mellomlagring</string>
     <string name="title_danger_zone">Faresone</string>
     <string name="title_genres">Sjangere</string>
     <string name="title_navigation_bar">Navigasjonslinje</string>
@@ -419,7 +419,7 @@
     <string name="action_send_message">Send melling</string>
     <string name="action_copy">Kopier</string>
     <string name="info_equalizer_unsupported">Din enhet støtter ikke denne funksjonen.</string>
-	<string name="info_listening_stats_ratio">%1$s av total lyttetid</string>
+    <string name="info_listening_stats_ratio">%1$s av total lyttetid</string>
     <string name="option_enable_ratings">Slå på vurderinger</string>
     <string name="option_equalizer_mode_external">Ekstern</string>
     <string name="option_equalizer_mode_builtin">Innebygd</string>
@@ -450,4 +450,14 @@
     <string name="notice_deleted_radio">Radio slettet.</string>
     <string name="action_reset_to_default">Gjenopprett fabrikkinnstillinger</string>
     <string name="action_edit_discord_app_id">Rediger Discord app ID</string>
+    <string name="title_change_download_location">Flytt nedlastinger?</string>
+    <string name="title_delete_download">Slett nedlastinger?</string>
+    <string name="action_edit_api_key">Rediger %1$s API nøkkel</string>
+    <string name="media_session_channel_name">Medieavspilling</string>
+    <string name="title_storage_management">Lagring</string>
+    <string name="option_streaming_cache">Mellomlager for strømming</string>
+    <string name="action_clear_stream_cache">Tøm mellomlager for strømming</string>
+    <string name="alt_addresses_edit_address">Rediger adresse</string>
+    <string name="notice_deleted_downloads">Slett nedlastinger.</string>
+    <string name="action_move_downloads">Flytt nedlastinger</string>
 </resources>

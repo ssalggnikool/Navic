@@ -79,7 +79,6 @@ import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.manager.ui.BottomBarScrollManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.generated.BuildInfo
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.layout.SideBar
 import paige.navic.ui.component.sheet.ChangelogSheet
@@ -295,7 +294,7 @@ fun App() {
 						)
 					}
 				}
-				if (preferenceManager.checkForUpdates && !BuildInfo.FDROID) {
+				if (preferenceManager.checkForUpdates && !BuildConfig.FOSS) {
 					ChangelogSheet()
 				}
 			}

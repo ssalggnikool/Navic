@@ -113,7 +113,7 @@ fun BottomBarScreen() {
 						onChoiceSelected = { preferenceManager.miniPlayerStyle = it },
 						content = { Text(stringResource(R.string.option_mini_player_style)) },
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 5)
 					)
 					SettingsChoiceItem(
 						choices = MiniPlayerProgressStyle.entries.toImmutableList(),
@@ -121,19 +121,31 @@ fun BottomBarScreen() {
 						onChoiceSelected = { preferenceManager.miniPlayerProgressStyle = it },
 						content = { Text(stringResource(R.string.option_mini_player_progress_style)) },
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5)
 					)
 					SettingsToggleItem(
 						content = { Text(stringResource(R.string.option_swipe_to_skip)) },
 						checked = preferenceManager.swipeToSkip,
 						onCheckedChange = { preferenceManager.swipeToSkip = it },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
+					)
+					SettingsToggleItem(
+						content = { Text(stringResource(R.string.option_swipe_to_dismiss)) },
+						supportingContent = if (!preferenceManager.hideIfIdle) {
+							{ Text(stringResource(R.string.subtitle_swipe_to_dismiss)) }
+						} else null,
+						enabled = preferenceManager.hideIfIdle,
+						checked = if (preferenceManager.hideIfIdle)
+							preferenceManager.miniPlayerSwipeToDismiss
+						else false,
+						onCheckedChange = { preferenceManager.miniPlayerSwipeToDismiss = it },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5)
 					)
 					SettingsToggleItem(
 						content = { Text(stringResource(R.string.option_hide_bottom_bar_if_idle)) },
 						checked = preferenceManager.hideIfIdle,
 						onCheckedChange = { preferenceManager.hideIfIdle = it },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 5)
 					)
 				}
 			}

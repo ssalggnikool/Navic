@@ -110,6 +110,7 @@
 	<string name="subtitle_download_location">Where new downloads are saved</string>
 	<string name="subtitle_sd_card_unavailable">No SD card detected; downloads will use internal storage</string>
 	<string name="subtitle_confirm_download_deletion">Choose when to ask for confirmation before deleting downloads</string>
+	<string name="subtitle_swipe_to_dismiss">\"Hide if idle\" needs to be enabled</string>
 
 	<string name="option_off">Off</string>
 	<string name="option_now_playing_background_style">Background style</string>
@@ -123,6 +124,7 @@
 	<string name="option_now_playing_slider_style_slim">Slim</string>
 	<string name="option_now_playing_slider_style_yoyo">Yoyo</string>
 	<string name="option_swipe_to_skip">Swipe to change songs</string>
+	<string name="option_swipe_to_dismiss">Swipe to dismiss</string>
 	<string name="option_hide_bottom_bar_if_idle">Hide if idle</string>
 	<string name="option_artwork_shape">Album/song artwork shapes</string>
 	<string name="option_artist_image_shape">Artist image shape</string>

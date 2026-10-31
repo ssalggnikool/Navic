@@ -1,7 +1,7 @@
 name: "💡 Feature Request"
 description: Suggest a new feature for Navic
 title: "[Feature Request]: "
-labels: [ "enhancement" ]
+labels: [ "🏷️ Kind/Enhancement" ]
 body:
   - type: textarea
     id: feature-explanation

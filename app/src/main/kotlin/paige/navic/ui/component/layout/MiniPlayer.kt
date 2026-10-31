@@ -15,7 +15,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -153,6 +152,12 @@ fun MiniPlayer(
 			onSwipeRight = {
 				if (isInteractive) player.previous()
 			},
+			onSwipeDown = {
+				if (isInteractive) {
+					player.pause()
+					player.clearQueue()
+				}
+			},
 			swipeLeftAccessibilityLabel = stringResource(R.string.action_previous_song),
 			swipeRightAccessibilityLabel = stringResource(R.string.action_next_song),
 			modifier = modifier.then(
@@ -180,22 +185,7 @@ fun MiniPlayer(
 								radius = if (detached) 10.dp else 8.dp,
 								alpha = 0.25f
 							)
-						)
-						.pointerInput(isInteractive) {
-							if (!isInteractive) return@pointerInput
-							var totalDrag = 0f
-							detectVerticalDragGestures(
-								onVerticalDrag = { _, dragAmount ->
-									totalDrag += dragAmount
-								},
-								onDragEnd = {
-									if (totalDrag < -150f) {
-										onClick()
-									}
-									totalDrag = 0f
-								}
-							)
-						},
+						),
 					contentPadding = PaddingValues(
 						start = if (detached) 10.dp else 16.dp,
 						end = if (detached) 10.dp else 16.dp,

@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-import com.android.build.api.variant.impl.VariantOutputImpl
-import com.google.devtools.ksp.gradle.KspAATask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 plugins {
 	alias(libs.plugins.android.application)
@@ -24,85 +22,12 @@ configurations.all {
 	resolutionStrategy.cacheChangingModulesFor(1, "hours")
 }
 
-val generateBuildInfo = tasks.register("generateBuildInfo", Sync::class) {
-	description = "generate BuildInfo.kt"
-
-	val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdroid")
-		.map { it.toBoolean() }
-		.getOrElse(false)
-
-	fun String?.wrapString(): String = this?.let {
-		val escaped = it
-			.removeSuffix("\n")
-			.replace("\\", "\\\\")
-			.replace("\n", "\\n")
-			.replace("\"", "\\\"")
-		"\"$escaped\""
-	} ?: "null"
-
-	fun executeCommand(vararg args: String): String? {
-		val command = Runtime.getRuntime().exec(args)
-		val result = command.waitFor()
-		return if (result == 0) {
-			command.inputStream.readBytes()
-				.toString(Charsets.UTF_8)
-				.takeIf { it.isNotBlank() }
-		} else {
-			null
-		}
-	}
-
-	val commitHash = executeCommand("git", "rev-parse", "HEAD")
-	val commitMessage = executeCommand("git", "log", "-1", "--pretty=%B")
-	val commitAuthor = executeCommand("git", "log", "-1", "--pretty=%an")
-	val commitBranchName = executeCommand("git", "branch", "--show-current")
-
-	from(
-		resources.text.fromString(
-			"""
-			|package paige.navic.generated
-			|
-			|object BuildInfo {
-			|	const val FDROID = $fdroid
-			|	val GIT_COMMIT_HASH: String? = ${commitHash?.wrapString()}
-			|	val GIT_COMMIT_MESSAGE: String? = ${commitMessage?.wrapString()}
-			|	val GIT_COMMIT_AUTHOR: String? = ${commitAuthor?.wrapString()}
-			|	val GIT_BRANCH_NAME: String? = ${commitBranchName?.wrapString()}
-			|}
-			|
-			""".trimMargin()
-		)
-	) {
-		rename { "BuildInfo.kt" }
-		into("paige/navic/generated")
-	}
-
-	into(layout.buildDirectory.dir("generated/buildInfo/commonMain/kotlin"))
-}
-
-tasks.withType<KotlinCompilationTask<*>>().configureEach {
-	dependsOn(generateBuildInfo)
-}
-
-// no idea why ksp tasks depend on this
-tasks.withType<KspAATask>().configureEach {
-	dependsOn(generateBuildInfo)
-}
-
-android.sourceSets.named("main") {
-	kotlin.directories.add(generateBuildInfo.map { it.destinationDir }.get().absolutePath)
-}
-
 kotlin {
 	jvmToolchain(21)
 }
 
 val isTaskRelease =
 	gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
-
-val fdroid = System.getenv("FDROID") == "true" || providers.gradleProperty("fdroid")
-	.map { it.toBoolean() }
-	.getOrElse(false)
 
 android {
 	namespace = "paige.navic"
@@ -111,14 +36,15 @@ android {
 
 	buildFeatures {
 		resValues = true
+		buildConfig = true
 	}
 
 	defaultConfig {
 		applicationId = "paige.navic"
 		minSdk = libs.versions.android.minSdk.get().toInt()
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
-		versionCode = 59
-		versionName = "v1.0.0-alpha59"
+		versionCode = 60
+		versionName = "v1.0.0-beta01"
 		multiDexEnabled = true
 
 		ndk {
@@ -157,6 +83,54 @@ android {
 		}
 	}
 
+	defaultConfig {
+		fun String?.wrapString(): String = this?.let {
+			val escaped = it
+				.removeSuffix("\n")
+				.replace("\\", "\\\\")
+				.replace("\n", "\\n")
+				.replace("\"", "\\\"")
+			"\"$escaped\""
+		} ?: "null"
+
+		fun executeCommand(vararg args: String): String? {
+			val command = Runtime.getRuntime().exec(args)
+			val result = command.waitFor()
+			return if (result == 0) {
+				command.inputStream.readBytes()
+					.toString(Charsets.UTF_8)
+					.takeIf { it.isNotBlank() }
+			} else {
+				null
+			}
+		}
+
+		val commitHash = executeCommand("git", "rev-parse", "HEAD")
+		val commitMessage = executeCommand("git", "log", "-1", "--pretty=%B")
+		val commitAuthor = executeCommand("git", "log", "-1", "--pretty=%an")
+		val commitBranchName = executeCommand("git", "branch", "--show-current")
+
+		buildConfigField("String", "GIT_COMMIT_HASH", commitHash?.wrapString() ?: "")
+		buildConfigField("String", "GIT_COMMIT_MESSAGE", commitMessage?.wrapString() ?: "")
+		buildConfigField("String", "GIT_COMMIT_AUTHOR", commitAuthor?.wrapString() ?: "")
+		buildConfigField("String", "GIT_BRANCH_NAME", commitBranchName?.wrapString() ?: "")
+	}
+
+	flavorDimensions += "version"
+	productFlavors {
+		create("foss") {
+			dimension = "version"
+			description = "disables Discord RPC and update check, for IzzyOnDroid"
+			buildConfigField("boolean", "FOSS", "true")
+		}
+		create("nonfree") {
+			dimension = "version"
+			isDefault = true
+			description = "enables Discord RPC and update check"
+			buildConfigField("boolean", "FOSS", "false")
+		}
+	}
+
 	packaging {
 		resources {
 			excludes += "/okhttp3/**"
@@ -190,9 +164,9 @@ android {
 androidComponents {
 	onVariants { variant ->
 		variant.outputs.forEach { output ->
-			if (output is VariantOutputImpl) {
-				output.outputFileName = if (fdroid) {
-					"Navic.fdroid.apk"
+			if (output is BaseVariantOutputImpl) {
+				output.outputFileName = if (variant.flavorName == "foss") {
+					"Navic.foss.apk"
 				} else {
 					"Navic.apk"
 				}
@@ -275,7 +249,7 @@ dependencies {
 	implementation(libs.koin.compose.viewmodel)
 	implementation(libs.koin.androidx.workmanager)
 	implementation(libs.subsonicKotlin)
-	implementation(libs.antisocialcord)
+	"nonfreeImplementation"(libs.antisocialcord)
 	ksp(libs.androidx.room3.compiler)
 	implementation(libs.cryptohash)
 	implementation(libs.mimetypes)

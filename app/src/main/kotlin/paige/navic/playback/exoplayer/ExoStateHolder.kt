@@ -60,7 +60,7 @@ import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
-import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
+import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
 import paige.navic.playback.exoplayer.impl.util.ExoArtworkLoader
 import kotlin.time.Duration.Companion.seconds
@@ -311,7 +311,7 @@ class ExoStateHolder : KoinComponent {
 					}
 				})
 
-				player.addListener(ExoDiscordIntegration(player))
+				player.addListener(ExoDiscordIntegrationImpl(player))
 			}
 
 		return playerInstance

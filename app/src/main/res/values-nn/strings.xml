@@ -33,7 +33,6 @@
     <string name="title_shares">Delingar</string>
     <string name="title_choose_font">Applikasjonsfont</string>
     <string name="title_fonts_inbuilt">Innebygd</string>
-    <string name="title_fonts_external">Ekstern</string>
     <string name="title_more_by_artist">Meir frå %1$s</string>
     <string name="title_disc_number">Plate %1$s</string>
     <string name="title_genres">Sjangrar</string>
@@ -47,7 +46,6 @@
     <string name="title_library_download">Last ned heile biblioteket</string>
     <string name="title_confirm">Stadfest</string>
     <string name="title_update">Oppdatering tilgjengeleg</string>
-    <string name="title_changelog">Utgjevingsmerknadar</string>
     <string name="title_network">Nettverk</string>
     <string name="title_streaming_quality">Strøymekvalitet</string>
     <string name="title_download_quality">Nedlastingskvalitet</string>

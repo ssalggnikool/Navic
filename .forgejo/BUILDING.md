@@ -31,22 +31,22 @@ A more in depth example of building can be seen in the [CI build workflow][Build
 
 #### Gradle tasks overview
 
-| Task                     | Description                                                         |
-|--------------------------|---------------------------------------------------------------------|
-| `:app:packageRelease`    | Package a release APK. For signing, see the env vars below          |
-| `:app:assembleDebug`     | Package a debug APK. Equivalent to the run button in Android Studio |
-| `:app:generateBuildInfo` | Generates a `BuildInfo` class, mainly used to read `FDROID` var     |
+| Task                         | Description                                                                              |
+|------------------------------|------------------------------------------------------------------------------------------|
+| `:app:packageFossRelease`    | Package a release APK with foss flavour. For signing, see the env vars below             |
+| `:app:packageNonfreeRelease` | Package a release APK with nonfree flavour. For signing, see the env vars below          |
+| `:app:assembleFossDebug`     | Package a debug APK with foss flavour.                                                   |
+| `:app:assembleNonfreeDebug`  | Package a debug APK with nonfree flavour. Equivalent to the run button in Android Studio |
 
 #### Environment variables overview
 
-| Variable                 | Description                                              |
-|--------------------------|----------------------------------------------------------|
-| `FDROID`                 | Currently just dictates if app updates should be enabled |
-| `SIGNING_STORE_FILE`     | Path to a keystore, used for signing the APK             |
-| `SIGNING_STORE_PASSWORD` | Keystore's password                                      |
-| `SIGNING_KEY_ALIAS`      | Which key in the keystore to sign with                   |
-| `SIGNING_KEY_PASSWORD`   | Password for that key                                    |
+| Variable                 | Description                                  |
+|--------------------------|----------------------------------------------|
+| `SIGNING_STORE_FILE`     | Path to a keystore, used for signing the APK |
+| `SIGNING_STORE_PASSWORD` | Keystore's password                          |
+| `SIGNING_KEY_ALIAS`      | Which key in the keystore to sign with       |
+| `SIGNING_KEY_PASSWORD`   | Password for that key                        |
 
 [AndroidStudio]: https://developer.android.com/studio
 
-[BuildWorkflow]: https://codeberg.org/paige/Navic/src/branch/master/.github/workflows/build.yml
+[BuildWorkflow]: https://codeberg.org/paige/Navic/src/branch/master/.forgejo/workflows/build.yml

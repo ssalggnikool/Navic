@@ -31,7 +31,6 @@
     <string name="title_shares">공유</string>
     <string name="title_choose_font">어플리케이션 폰트</string>
     <string name="title_fonts_inbuilt">빌트인</string>
-    <string name="title_fonts_external">외부</string>
     <string name="title_more_by_artist">%1$s의 다른 노래</string>
     <string name="title_disc_number">디스크 %1$s</string>
     <string name="title_genres">장르</string>
@@ -43,7 +42,6 @@
     <string name="title_library_download">전체 라이브러리 다운로드</string>
     <string name="title_confirm">확인</string>
     <string name="title_update">업데이트 가능</string>
-    <string name="title_changelog">릴리즈 노트</string>
     <string name="title_network">네트워크</string>
     <string name="title_streaming_quality">스트리밍 품질</string>
     <string name="title_download_quality">다운로드 품질</string>
@@ -127,12 +125,10 @@
     <string name="info_no_starred">즐겨찾기 없음</string>
     <string name="info_no_playlists_short">플레이리스트 없음</string>
     <string name="info_lyrics_provider">%1$s 가사 제공</string>
-    <string name="info_image_failed_to_load">로딩 실패</string>
     <string name="info_download_failed">다운로드 실패</string>
     <string name="info_click_to_retry">탭하여 재시도</string>
     <string name="info_downloaded">다운로드됨</string>
     <string name="info_syncing">동기화 중...</string>
-    <string name="info_syncing_saving">저장 중...</string>
     <string name="info_syncing_saved">저장됨.</string>
     <string name="info_syncing_finished">완료됨.</string>
     <string name="info_syncing_albums">앨범 동기화 중...</string>

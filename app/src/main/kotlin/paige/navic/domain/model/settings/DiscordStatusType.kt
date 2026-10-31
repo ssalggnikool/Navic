@@ -6,14 +6,12 @@
 
 package paige.navic.domain.model.settings
 
-import night.milkyway.antisocialcord.model.StatusDisplayType
 import paige.navic.R
 
 enum class DiscordStatusType(
-	val displayName: Int,
-	val wrappedType: StatusDisplayType
+	val displayName: Int
 ) {
-	ArtistName(R.string.option_discord_rpc_status_type_artist_name, StatusDisplayType.STATE),
-	SongName(R.string.option_discord_rpc_status_type_song_name, StatusDisplayType.DETAILS),
-	AppName(R.string.option_discord_rpc_status_type_app_name, StatusDisplayType.NAME)
+	ArtistName(R.string.option_discord_rpc_status_type_artist_name),
+	SongName(R.string.option_discord_rpc_status_type_song_name),
+	AppName(R.string.option_discord_rpc_status_type_app_name)
 }

@@ -27,10 +27,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
+import paige.navic.BuildConfig
 import paige.navic.R
 import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.runtime.PreferenceManager
-import paige.navic.generated.BuildInfo
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
@@ -95,17 +95,17 @@ fun SettingsAboutScreen() {
 			}
 
 			// TODO: make this less ass
-			if (BuildInfo.GIT_COMMIT_HASH != null) {
-				val commitLink = "${GITHUB_BASE_URL}commit/${BuildInfo.GIT_COMMIT_HASH}"
-				val branchName = BuildInfo.GIT_BRANCH_NAME ?: "master"
-				val commitAuthor = BuildInfo.GIT_COMMIT_AUTHOR ?: "unknown"
+			if (BuildConfig.GIT_COMMIT_HASH.isNotBlank()) {
+				val commitLink = "${GITHUB_BASE_URL}commit/${BuildConfig.GIT_COMMIT_HASH}"
+				val branchName = BuildConfig.GIT_BRANCH_NAME
+				val commitAuthor = BuildConfig.GIT_COMMIT_AUTHOR
 
 				SettingsGroup {
 					SettingsNavItem(
 						onClick = { linkToOpen = commitLink },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4),
 						content = { Text(stringResource(R.string.title_commit_hash)) },
-						supportingContent = { Text(BuildInfo.GIT_COMMIT_HASH.slice(0..6)) }
+						supportingContent = { Text(BuildConfig.GIT_COMMIT_HASH.slice(0..6)) }
 					)
 					SettingsNavItem(
 						onClick = { linkToOpen = commitLink },
@@ -113,7 +113,7 @@ fun SettingsAboutScreen() {
 						content = { Text(stringResource(R.string.title_commit_message)) },
 						supportingContent = {
 							Text(
-								BuildInfo.GIT_COMMIT_MESSAGE?.split("\n")?.firstOrNull()
+								BuildConfig.GIT_COMMIT_MESSAGE?.split("\n")?.firstOrNull()
 									?: "unknown"
 							)
 						}
@@ -122,7 +122,7 @@ fun SettingsAboutScreen() {
 						onClick = { linkToOpen = "${GITHUB_BASE_URL}tree/${branchName}" },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4),
 						content = { Text(stringResource(R.string.title_branch_name)) },
-						supportingContent = { Text(BuildInfo.GIT_BRANCH_NAME ?: "unknown") }
+						supportingContent = { Text(BuildConfig.GIT_BRANCH_NAME) }
 					)
 					SettingsNavItem(
 						onClick = {
@@ -154,7 +154,7 @@ fun SettingsAboutScreen() {
 				)
 			}
 
-			if (!BuildInfo.FDROID) {
+			if (!BuildConfig.FOSS) {
 				SettingsGroup {
 					SettingsToggleItem(
 						content = { Text(stringResource(R.string.option_check_for_updates)) },

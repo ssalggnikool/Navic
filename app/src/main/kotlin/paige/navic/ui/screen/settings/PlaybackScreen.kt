@@ -28,13 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
+import paige.navic.BuildConfig
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.DiscordStatusType
 import paige.navic.domain.model.settings.ExplicitContentPlayback
+import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
@@ -115,68 +116,75 @@ fun SettingsPlaybackScreen() {
 					)
 				}
 
-				SettingsGroup(title = { Text(stringResource(R.string.title_integrations)) }) {
-					val enableDiscordIntegration = preferenceManager.enableDiscordIntegration
-					val count = if (enableDiscordIntegration) 5 else 1
+				if (!BuildConfig.FOSS) {
+					SettingsGroup(title = { Text(stringResource(R.string.title_integrations)) }) {
+						val enableDiscordIntegration = preferenceManager.enableDiscordIntegration
+						val count = if (enableDiscordIntegration) 5 else 1
 
-					SettingsToggleItem(
-						checked = preferenceManager.enableDiscordIntegration,
-						onCheckedChange = { preferenceManager.enableDiscordIntegration = it },
-						content = { Text(stringResource(R.string.option_enable_discord_integration)) },
-						supportingContent = { Text(stringResource(R.string.subtitle_enable_discord_integration)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
-					)
-
-					AnimatedVisibility(visible = enableDiscordIntegration) {
-						SettingsChoiceItem(
-							choices = DiscordStatusType.entries.toImmutableList(),
-							selectedChoice = preferenceManager.discordStatusType,
-							onChoiceSelected = { preferenceManager.discordStatusType = it },
-							label = { stringResource(it.displayName) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 1,
-								count = count
-							),
-							content = { Text(stringResource(R.string.option_discord_rpc_status_type)) }
-						)
-					}
-
-					AnimatedVisibility(visible = enableDiscordIntegration) {
-						SettingsInputItem(
-							value = preferenceManager.discordAppId,
-							onValueChanged = { preferenceManager.discordAppId = it.trim() },
-							defaultValue = ExoDiscordIntegration.DISCORD_APPLICATION_ID,
-							onValidate = { it.isNotBlank() && it.toLongOrNull() != null },
-							content = { Text(stringResource(R.string.action_edit_discord_app_id)) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 2,
-								count = count
-							)
-						)
-					}
-
-					AnimatedVisibility(visible = enableDiscordIntegration) {
 						SettingsToggleItem(
-							checked = preferenceManager.disableRpcWhenPowerSaving,
-							onCheckedChange = { preferenceManager.disableRpcWhenPowerSaving = it },
-							content = { Text(stringResource(R.string.option_disable_rpc_when_power_saving)) },
+							checked = preferenceManager.enableDiscordIntegration,
+							onCheckedChange = { preferenceManager.enableDiscordIntegration = it },
+							content = { Text(stringResource(R.string.option_enable_discord_integration)) },
+							supportingContent = { Text(stringResource(R.string.subtitle_enable_discord_integration)) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 3,
+								index = 0,
 								count = count
 							)
 						)
-					}
 
-					AnimatedVisibility(visible = enableDiscordIntegration) {
-						SettingsNavItem(
-							onClick = { coverArtProvidersSheetOpen = true },
-							content = { Text(stringResource(R.string.title_cover_art_providers)) },
-							supportingContent = { Text(stringResource(R.string.subtitle_cover_art_providers)) },
-							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 4,
-								count = count
+						AnimatedVisibility(visible = enableDiscordIntegration) {
+							SettingsChoiceItem(
+								choices = DiscordStatusType.entries.toImmutableList(),
+								selectedChoice = preferenceManager.discordStatusType,
+								onChoiceSelected = { preferenceManager.discordStatusType = it },
+								label = { stringResource(it.displayName) },
+								shapes = SegmentedListItemDefaults.segmentedShapes(
+									index = 1,
+									count = count
+								),
+								content = { Text(stringResource(R.string.option_discord_rpc_status_type)) }
 							)
-						)
+						}
+
+						AnimatedVisibility(visible = enableDiscordIntegration) {
+							SettingsInputItem(
+								value = preferenceManager.discordAppId,
+								onValueChanged = { preferenceManager.discordAppId = it.trim() },
+								defaultValue = ExoDiscordIntegration.DISCORD_APPLICATION_ID,
+								onValidate = { it.isNotBlank() && it.toLongOrNull() != null },
+								content = { Text(stringResource(R.string.action_edit_discord_app_id)) },
+								shapes = SegmentedListItemDefaults.segmentedShapes(
+									index = 2,
+									count = count
+								)
+							)
+						}
+
+						AnimatedVisibility(visible = enableDiscordIntegration) {
+							SettingsToggleItem(
+								checked = preferenceManager.disableRpcWhenPowerSaving,
+								onCheckedChange = {
+									preferenceManager.disableRpcWhenPowerSaving = it
+								},
+								content = { Text(stringResource(R.string.option_disable_rpc_when_power_saving)) },
+								shapes = SegmentedListItemDefaults.segmentedShapes(
+									index = 3,
+									count = count
+								)
+							)
+						}
+
+						AnimatedVisibility(visible = enableDiscordIntegration) {
+							SettingsNavItem(
+								onClick = { coverArtProvidersSheetOpen = true },
+								content = { Text(stringResource(R.string.title_cover_art_providers)) },
+								supportingContent = { Text(stringResource(R.string.subtitle_cover_art_providers)) },
+								shapes = SegmentedListItemDefaults.segmentedShapes(
+									index = 4,
+									count = count
+								)
+							)
+						}
 					}
 				}
 

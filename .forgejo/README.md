@@ -4,10 +4,11 @@
 
 A modern (Open)Subsonic music streaming app for Android.
 
-[![Add to Obtainium](https://codeberg.org/Navic/Branding/raw/branch/main/assets/obtainium.svg)][ADD_TO_OBTAINIUM]
-[![Link to the latest release where you can download the APK or IPA directly](https://codeberg.org/Navic/Branding/raw/branch/main/assets/direct_download.svg)][LATEST_RELEASE]
-[![Discord](https://codeberg.org/Navic/Branding/raw/branch/main/assets/discord.svg)](https://discord.gg/TBcnNX66PH)
+[![APK download](https://codeberg.org/Navic/Branding/raw/branch/main/assets/direct_download.svg)][LATEST_RELEASE]
 [![IzzyOnDroid](https://codeberg.org/Navic/Branding/raw/branch/main/assets/izzyondroid.svg)](https://apt.izzysoft.de/fdroid/index/apk/paige.navic)
+[![Add to Obtainium](https://codeberg.org/Navic/Branding/raw/branch/main/assets/obtainium.svg)][ADD_TO_OBTAINIUM]
+[![Discord](https://codeberg.org/Navic/Branding/raw/branch/main/assets/discord.svg)](https://discord.gg/TBcnNX66PH)
+[![Matrix](https://codeberg.org/Navic/Branding/raw/branch/main/assets/matrix.svg)](https://matrix.to/#/#navic:suicide.diy)
 [![Translate](https://codeberg.org/Navic/Branding/raw/branch/main/assets/translate.svg)](#translating)
 [![Codeberg](https://codeberg.org/Navic/Branding/raw/branch/main/assets/codeberg.svg)](https://codeberg.org/paige/Navic)
 

@@ -8,7 +8,6 @@ package paige.navic.domain.manager.runtime
 
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
-import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
 import paige.navic.domain.manager.runtime.base.BasePreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
@@ -42,6 +41,7 @@ import paige.navic.domain.model.settings.StreamingQuality
 import paige.navic.domain.model.settings.Theme
 import paige.navic.domain.model.settings.ThemeMode
 import paige.navic.domain.model.settings.ToolbarPosition
+import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
 import com.russhwolf.settings.Settings as KmpSettings
 
 class PreferenceManager(
@@ -54,7 +54,8 @@ class PreferenceManager(
 	var animationStyle by preference(AnimationStyle.Expressive)
 	var nowPlayingBackgroundStyle by preference(NowPlayingBackgroundStyle.Dynamic)
 	var swipeToSkip by preference(true)
-	var hideIfIdle by preference(false)
+	var miniPlayerSwipeToDismiss by preference(true)
+	var hideIfIdle by preference(true)
 	var enablePredictiveBackAnimations by preference(true)
 	var gridSize by preference(GridSize.TwoByTwo)
 	var coverArtShape by preference(CoverArtShape.Soft)
