@@ -44,6 +44,9 @@ import paige.navic.playback.exoplayer.ExoControllerHandler
 import paige.navic.playback.exoplayer.ExoStateHolder
 import paige.navic.playback.exoplayer.toMediaItem
 import paige.navic.ui.core.PlayerUiState
+import paige.navic.ui.core.QueueSong
+import paige.navic.ui.core.toQueueSong
+import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
@@ -70,10 +73,21 @@ class MediaPlayer(
 	private var controller: MediaController? = null
 	private var controllerHandler: ExoControllerHandler? = null
 
-	private val songsById = mutableMapOf<String, DomainSong>()
+	private val queueSongsById = WeakHashMap<String, QueueSong>()
+	private val currentSongsById = WeakHashMap<String, DomainSong>()
 
 	private fun rememberSongs(songs: List<DomainSong>) {
-		songs.forEach { songsById[it.id] = it }
+		songs.forEach { queueSongsById[it.id] = it.toQueueSong() }
+	}
+
+	private fun rememberCurrentSong(song: DomainSong) {
+		currentSongsById.clear()
+		currentSongsById[song.id] = song
+		queueSongsById[song.id] = song.toQueueSong()
+	}
+
+	private fun retainQueueSongs(ids: Collection<String>) {
+		queueSongsById.keys.retainAll(ids.toSet())
 	}
 
 	private var pendingSyncState: PlayerUiState? = null
@@ -122,6 +136,11 @@ class MediaPlayer(
 			val index = startIndex.coerceIn(0, (songs.size - 1).coerceAtLeast(0))
 			val items = withContext(Dispatchers.Default) { songs.map { it.toMediaItem() } }
 			rememberSongs(songs)
+			songs.getOrNull(index)?.let(::rememberCurrentSong)
+			if (songs.isEmpty()) {
+				queueSongsById.clear()
+				currentSongsById.clear()
+			}
 
 			controllerHandler?.startOrder(songs.size, index)
 
@@ -171,7 +190,8 @@ class MediaPlayer(
 
 	private suspend fun restoreState() {
 		val savedState = stateRepository.state.first().copy(isPaused = true, isLoading = false)
-		rememberSongs(savedState.queue)
+		savedState.queue.forEach { queueSongsById[it.id] = it }
+		savedState.currentSong?.let(::rememberCurrentSong)
 		_uiState.value = savedState
 		syncPlayerWithState(savedState)
 		checkAndAutoFillQueue()
@@ -215,9 +235,13 @@ class MediaPlayer(
 					audioGainManager = audioGainManager,
 					streamCacheManager = streamCacheManager,
 					connectivityManager = connectivityManager,
-					songForId = songsById::get,
-					rememberSong = { songsById[it.id] = it },
+					songForId = currentSongsById::get,
+					queueSongForId = queueSongsById::get,
+					rememberSong = { rememberCurrentSong(it) },
+					rememberQueueSongs = ::rememberSongs,
+					retainQueueSongs = ::retainQueueSongs,
 					albumDao = albumDao,
+					songRepository = songRepository,
 					requestAutoFill = ::checkAndAutoFillQueue
 				).also { handler -> controllerHandler = handler }
 			)
@@ -277,6 +301,7 @@ class MediaPlayer(
 
 	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) {
 		rememberSongs(listOf(song))
+		if (uiState.value.queue.isEmpty()) rememberCurrentSong(song)
 		controllerHandler?.appendOrder(1)
 		controller?.addMediaItem(song.toMediaItem())
 		controllerHandler?.pushOrder()
@@ -298,6 +323,7 @@ class MediaPlayer(
 	fun appendQueue(songs: List<DomainSong>, notify: Boolean = true) {
 		val items = songs.map { it.toMediaItem() }
 		rememberSongs(songs)
+		if (uiState.value.queue.isEmpty()) songs.firstOrNull()?.let(::rememberCurrentSong)
 		controllerHandler?.appendOrder(songs.size)
 		controller?.addMediaItems(items)
 		controllerHandler?.pushOrder()
@@ -330,6 +356,8 @@ class MediaPlayer(
 	fun clearQueue() {
 		controllerHandler?.clearOrder()
 		controller?.clearMediaItems()
+		queueSongsById.clear()
+		currentSongsById.clear()
 	}
 
 	fun playAt(index: Int) {
@@ -444,6 +472,7 @@ class MediaPlayer(
 			.build()
 
 		rememberSongs(listOf(dummyRadioSong))
+		rememberCurrentSong(dummyRadioSong)
 
 		controllerHandler?.startOrder(1, 0)
 

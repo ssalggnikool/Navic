@@ -11,8 +11,8 @@ import androidx.annotation.OptIn
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.DefaultMediaNotificationProvider
+import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import androidx.media3.session.MediaSessionService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -33,7 +33,7 @@ import paige.navic.domain.manager.session.SyncManager
 import paige.navic.playback.exoplayer.impl.playback.ExoEqualizerManager
 
 @OptIn(UnstableApi::class)
-class ExoPlaybackService : MediaSessionService(), KoinComponent {
+class ExoPlaybackService : MediaLibraryService(), KoinComponent {
 	private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
 	private val serviceScope = MainScope()
@@ -93,7 +93,9 @@ class ExoPlaybackService : MediaSessionService(), KoinComponent {
 		}
 	}
 
-	override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession {
+	override fun onGetSession(
+		controllerInfo: MediaSession.ControllerInfo
+	): MediaLibrarySession {
 		return stateHolder.mediaSession
 	}
 

@@ -124,6 +124,10 @@ class BetterShuffleOrder(private val shuffled: IntArray) : ShuffleOrder {
 		return BetterShuffleOrder(0, -1)
 	}
 
+	override fun cloneAndSet(insertionCount: Int, startIndex: Int): ShuffleOrder {
+		return BetterShuffleOrder(createShuffledList(insertionCount, startIndex))
+	}
+
 	companion object {
 		fun createShuffledList(length: Int, startIndex: Int): IntArray {
 			val shuffled = IntArray(length)
@@ -132,7 +136,7 @@ class BetterShuffleOrder(private val shuffled: IntArray) : ShuffleOrder {
 				shuffled[i] = shuffled[swapIndex]
 				shuffled[swapIndex] = i
 			}
-			if (startIndex != -1) {
+			if (startIndex in 0 until length) {
 				val startIndexInShuffled = shuffled.indexOf(startIndex)
 				val temp = shuffled[0]
 				shuffled[0] = shuffled[startIndexInShuffled]

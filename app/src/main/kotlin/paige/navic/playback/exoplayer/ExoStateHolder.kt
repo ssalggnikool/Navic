@@ -42,24 +42,24 @@ import androidx.media3.extractor.text.DefaultSubtitleParserFactory
 import androidx.media3.extractor.ts.AdtsExtractor
 import androidx.media3.extractor.wav.WavExtractor
 import androidx.media3.session.CommandButton
-import androidx.media3.session.MediaSession
+import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.SessionCommand
-import androidx.media3.session.SessionResult
 import androidx.media3.session.SessionToken
-import coil3.ImageLoader
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import paige.navic.R
 import paige.navic.domain.manager.runtime.PreferenceManager
-import paige.navic.domain.manager.runtime.StorageManager
-import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
+import paige.navic.playback.exoplayer.impl.library.AndroidAutoLibrary
+import paige.navic.playback.exoplayer.impl.library.MediaSessionCallback
 import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
-import paige.navic.playback.exoplayer.impl.util.ExoArtworkLoader
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
@@ -68,95 +68,19 @@ class ExoStateHolder(
 	private val context: Context,
 	private val preferenceManager: PreferenceManager,
 	private val dataSource: NavicDataSource.NavicDataSourceFactory,
-	private val sessionManager: SessionManager,
-	private val imageLoader: ImageLoader,
-	private val storageManager: StorageManager
+	private val androidAutoLibrary: AndroidAutoLibrary,
+	private val stateRepository: PlayerStateRepository
 ) {
 	private val mutex = Mutex()
+	private val libraryExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
 	private var isInitialized = false
 
 	// ExoPlaybackService and AudioGainManager depends on these fields below
 	lateinit var player: ExoPlayer
-	lateinit var mediaSession: MediaSession
+	lateinit var mediaSession: MediaLibraryService.MediaLibrarySession
 
 	val gainProcessor = ExoAudioGainProcessor()
-
-
-	private class MediaSessionCallback(private val player: ExoPlayer) : MediaSession.Callback {
-		override fun onConnect(
-			session: MediaSession,
-			controller: MediaSession.ControllerInfo
-		): MediaSession.ConnectionResult {
-			val sessionCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
-				.buildUpon()
-				.add(SessionCommand(COMMAND_SHUFFLE, Bundle.EMPTY))
-				.add(SessionCommand(COMMAND_SHUFFLE_STATE, Bundle.EMPTY))
-				.add(SessionCommand(COMMAND_REPEAT, Bundle.EMPTY))
-				.build()
-
-			return MediaSession.ConnectionResult.accept(
-				sessionCommands,
-				MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
-			)
-		}
-
-		override fun onCustomCommand(
-			session: MediaSession,
-			controller: MediaSession.ControllerInfo,
-			customCommand: SessionCommand,
-			args: Bundle
-		): ListenableFuture<SessionResult> {
-			val resultExtras = Bundle()
-
-			when (customCommand.customAction) {
-				COMMAND_SHUFFLE -> {
-					val enabled = args.getBoolean(
-						SHUFFLE_ENABLED_KEY, !player.shuffleModeEnabled
-					)
-
-					args.getIntArray(SHUFFLE_ORDER_KEY)
-						?.takeIf { it.size == player.mediaItemCount }
-						?.let { player.shuffleOrder = BetterShuffleOrder(it) }
-
-					player.shuffleModeEnabled = enabled
-
-					session.broadcastCustomCommand(
-						SessionCommand(COMMAND_SHUFFLE_STATE, Bundle.EMPTY),
-						Bundle().apply {
-							putBoolean(SHUFFLE_ENABLED_KEY, enabled)
-							putIntArray(SHUFFLE_ORDER_KEY, player.shuffleOrder.toIntArray())
-						}
-					)
-				}
-
-				COMMAND_REPEAT -> {
-					player.repeatMode = when (player.repeatMode) {
-						Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
-						Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
-						else -> Player.REPEAT_MODE_OFF
-					}
-				}
-			}
-
-			return Futures.immediateFuture(
-				SessionResult(
-					SessionResult.RESULT_SUCCESS,
-					resultExtras
-				)
-			)
-		}
-
-		private fun androidx.media3.exoplayer.source.ShuffleOrder.toIntArray(): IntArray {
-			val order = IntArray(length)
-			var index = firstIndex
-			for (position in order.indices) {
-				order[position] = index
-				index = getNextIndex(index)
-			}
-			return order
-		}
-	}
 
 	private val extractorsFactory = ExtractorsFactory {
 		arrayOf(
@@ -237,7 +161,7 @@ class ExoStateHolder(
 					CommandButton.ICON_SHUFFLE_OFF
 				}
 			)
-				.setDisplayName("Shuffle")
+				.setDisplayName(context.getString(R.string.action_shuffle))
 				.setSessionCommand(SessionCommand(COMMAND_SHUFFLE, Bundle.EMPTY))
 				.build()
 		)
@@ -250,7 +174,7 @@ class ExoStateHolder(
 					else -> CommandButton.ICON_REPEAT_ONE
 				}
 			)
-				.setDisplayName("Repeat")
+				.setDisplayName(context.getString(R.string.action_repeat))
 				.setSessionCommand(SessionCommand(COMMAND_REPEAT, Bundle.EMPTY))
 				.build()
 		)
@@ -323,45 +247,53 @@ class ExoStateHolder(
 		return player
 	}
 
-	private suspend fun createMediaSession(): MediaSession = mutex.withLock {
-		val bitmapLoader = ExoArtworkLoader(
-			context,
-			dataSourceFactory = dataSource,
-			imageLoader,
-			sessionManager,
-			storageManager
-		)
-		val sessionIntent = context.packageManager
-			.getLaunchIntentForPackage(context.packageName)
-			?.apply {
-				flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or
-					Intent.FLAG_ACTIVITY_CLEAR_TOP
+	private suspend fun createMediaSession(): MediaLibraryService.MediaLibrarySession =
+		mutex.withLock {
+			val sessionIntent = context.packageManager
+				.getLaunchIntentForPackage(context.packageName)
+				?.apply {
+					flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or
+						Intent.FLAG_ACTIVITY_CLEAR_TOP
+				}
+
+			val sessionPendingIntent = PendingIntent.getActivity(
+				context,
+				0,
+				sessionIntent,
+				PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+			)
+
+			this.player.let {
+				mediaSession = MediaLibraryService.MediaLibrarySession.Builder(
+					context,
+					it,
+					MediaSessionCallback(it, androidAutoLibrary)
+				)
+					.setPeriodicPositionUpdateEnabled(false) // fix android auto queue randomly jumping to the top
+					.setSessionActivity(sessionPendingIntent)
+					.setCustomLayout(makeButtons(it))
+					.build()
 			}
 
-		val sessionPendingIntent = PendingIntent.getActivity(
-			context,
-			0,
-			sessionIntent,
-			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-		)
-
-		this.player.let {
-			mediaSession = MediaSession.Builder(context, it)
-				.setSessionActivity(sessionPendingIntent)
-				.setBitmapLoader(bitmapLoader)
-				.setCallback(MediaSessionCallback(it))
-				.setCustomLayout(makeButtons(it))
-				.build()
+			return mediaSession
 		}
-
-		return mediaSession
-	}
 
 	fun initState() = runBlocking {
 		if (isInitialized) return@runBlocking
 
 		createPlayerInstance()
 		createMediaSession()
+
+		// the service can start without the UI, so restore the last mode here too
+		val savedState = stateRepository.state.first()
+		player.shuffleModeEnabled = savedState.isShuffleEnabled
+		player.repeatMode = savedState.repeatMode
+		// auto builds the queue before any order is pushed, so seed ours to keep the chosen song first
+		player.shuffleOrder = BetterShuffleOrder(
+			player.mediaItemCount,
+			player.currentMediaItemIndex
+		)
+
 		isInitialized = !isInitialized
 	}
 
@@ -373,6 +305,7 @@ class ExoStateHolder(
 			it.player.release()
 			it.release()
 		}
+		libraryExecutor.shutdownNow()
 		isInitialized = !isInitialized
 	}
 
@@ -392,11 +325,9 @@ class ExoStateHolder(
 	}
 
 	companion object {
-		const val SHUFFLE_ORDER_KEY = "shuffle_order"
-		const val SHUFFLE_ENABLED_KEY = "shuffle_enabled"
-		const val COMMAND_SHUFFLE_STATE = "COMMAND_SHUFFLE_STATE"
 		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
 		const val COMMAND_REPEAT = "COMMAND_REPEAT"
+
 
 		fun newSessionToken(context: Context): SessionToken {
 			return SessionToken(context, ComponentName(context, ExoPlaybackService::class.java))

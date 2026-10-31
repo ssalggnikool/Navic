@@ -556,4 +556,5 @@
 	<string name="info_incorrect_credentials">Incorrect credentials. Please double-check and try again.</string>
 	<string name="title_integrations">Integrations</string>
 	<string name="action_edit_api_key">Edit %1$s API key</string>
+	<string name="action_repeat">Repeat</string>
 </resources>

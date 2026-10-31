@@ -39,6 +39,42 @@ interface AlbumDao {
 	@Query("SELECT * FROM AlbumEntity WHERE albumId = :albumId LIMIT 1")
 	suspend fun getAlbumById(albumId: String): AlbumWithSongs?
 
+	@Query("SELECT * FROM AlbumEntity WHERE albumId = :albumId LIMIT 1")
+	suspend fun getAlbumEntityById(albumId: String): AlbumEntity?
+
+	@Query("SELECT * FROM AlbumEntity ORDER BY name COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getAlbumsPage(limit: Int, offset: Int): List<AlbumEntity>
+
+	@Query("SELECT * FROM AlbumEntity ORDER BY createdAt DESC, name COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getNewestAlbumsPage(limit: Int, offset: Int): List<AlbumEntity>
+
+	@Query("""
+		SELECT * FROM AlbumEntity
+		ORDER BY (
+			(
+				COALESCE(unicode(substr(albumId, 1, 1)), 0) * 31 +
+				COALESCE(unicode(substr(albumId, 2, 1)), 0) * 131 +
+				COALESCE(unicode(substr(albumId, 3, 1)), 0) * 137 +
+				COALESCE(unicode(substr(albumId, 4, 1)), 0) * 149 +
+				COALESCE(unicode(substr(albumId, 5, 1)), 0) * 151 +
+				COALESCE(unicode(substr(albumId, 6, 1)), 0) * 157 +
+				COALESCE(unicode(substr(albumId, 7, 1)), 0) * 163 +
+				COALESCE(unicode(substr(albumId, 8, 1)), 0) * 167
+			) * :seed
+		) % 2147483647, albumId
+		LIMIT :limit OFFSET :offset
+	""")
+	suspend fun getRandomAlbumsPage(seed: Int, limit: Int, offset: Int): List<AlbumEntity>
+
+	@Query("SELECT * FROM AlbumEntity WHERE playCount != 0 ORDER BY playCount DESC, name COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getFrequentAlbumsPage(limit: Int, offset: Int): List<AlbumEntity>
+
+	@Query("SELECT * FROM AlbumEntity WHERE starredAt IS NOT NULL ORDER BY starredAt DESC, name COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getStarredAlbumsPage(limit: Int, offset: Int): List<AlbumEntity>
+
+	@Query("SELECT * FROM AlbumEntity WHERE artistId = :artistId ORDER BY year DESC, name COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getAlbumsByArtistId(artistId: String, limit: Int, offset: Int): List<AlbumEntity>
+
 	@Query("SELECT EXISTS(SELECT 1 FROM AlbumEntity WHERE albumId = :albumId AND starredAt IS NOT NULL)")
 	suspend fun isAlbumStarred(albumId: String): Boolean
 
@@ -63,9 +99,15 @@ interface AlbumDao {
 	@Query("SELECT * FROM AlbumEntity WHERE artistId = :artistId AND albumId != :albumId ORDER BY year DESC")
 	fun getAlbumsByArtistExcluding(artistId: String, albumId: String): Flow<List<AlbumWithSongs>>
 
+	@Query("SELECT * FROM AlbumEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun searchAlbumsPage(query: String, limit: Int, offset: Int): List<AlbumEntity>
+
 	@Transaction
 	@Query("SELECT * FROM AlbumEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchAlbumsList(query: String): List<AlbumWithSongs>
+
+	@Query("SELECT COUNT(*) FROM AlbumEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
+	suspend fun searchAlbumCount(query: String): Int
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertAlbum(album: AlbumEntity)

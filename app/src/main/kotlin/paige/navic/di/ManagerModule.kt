@@ -37,6 +37,7 @@ import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.sync.SyncActionProcessor
 import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.impl.library.AndroidAutoLibrary
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.NavicDataSourceFactory
 import paige.navic.util.network.NavicDnsResolver
 import paige.navic.util.network.createOkHttpClient
@@ -101,5 +102,6 @@ val managerModule = module {
 			upstreamFactoryProvider = get()
 		)
 	}
+	singleOf(::AndroidAutoLibrary)
 	singleOf(::ExoStateHolder)
 }

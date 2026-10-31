@@ -26,6 +26,10 @@ class SongRepository(
 ) {
 	suspend fun getSongById(id: String) = songDao.getSongById(id)?.toDomainModel()
 
+	suspend fun getSongsByIds(ids: List<String>) = ids.chunked(500)
+		.flatMap { songDao.getSongsByIds(it) }
+		.map { it.toDomainModel() }
+
 	suspend fun getRandomSongsList(count: Int): List<DomainSong> {
 		return songDao.getRandomSongsList(count).map { it.toDomainModel() }
 	}

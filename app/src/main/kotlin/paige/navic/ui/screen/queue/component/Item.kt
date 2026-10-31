@@ -37,7 +37,6 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
-import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
@@ -45,6 +44,7 @@ import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.SwipeToDismissBox
 import paige.navic.ui.component.common.Waveform
+import paige.navic.ui.core.QueueSong
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.DragHandle
@@ -56,7 +56,7 @@ import paige.navic.ui.util.buildSongInfoString
 fun QueueScreenItem(
 	index: Int,
 	count: Int,
-	song: DomainSong,
+	song: QueueSong,
 	isPlaying: Boolean,
 	isSelected: Boolean,
 	isDragging: Boolean,

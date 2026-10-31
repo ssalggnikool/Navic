@@ -109,7 +109,7 @@
 			<!--			android:permission="${applicationId}.permission.PLAYBACK_SERVICE">   : Blocks android auto from seeing the app at all? -->
 			<intent-filter>
 
-				<action android:name="androidx.media3.session.MediaSessionService" />
+				<action android:name="androidx.media3.session.MediaLibraryService" />
 				<action android:name="android.media.browse.MediaBrowserService" />
 			</intent-filter>
 		</service>
@@ -176,6 +176,11 @@
 				android:name="android.support.FILE_PROVIDER_PATHS"
 				android:resource="@xml/file_paths" />
 		</provider>
+		<provider
+			android:name=".media.CoverArtProvider"
+			android:authorities="${applicationId}.cover-art"
+			android:exported="true"
+			android:grantUriPermissions="true" />
 
 		<!-- Android Auto -->
 		<meta-data

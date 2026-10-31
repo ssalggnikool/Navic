@@ -53,10 +53,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.runtime.PreferenceManager
-import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.QueueInfoType
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
+import paige.navic.ui.core.QueueSong
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.queue.component.QueueScreenItem
 import paige.navic.ui.screen.queue.viewmodel.QueueViewModel
@@ -238,7 +238,7 @@ fun QueueScreen() {
 @Composable
 private fun QueueInfoText(
 	player: MediaPlayer,
-	queue: List<DomainSong>,
+	queue: List<QueueSong>,
 	currentIndex: Int
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -331,8 +331,8 @@ private class QueueRecyclerView(context: Context) : RecyclerView(context) {
 }
 
 private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.ViewHolder>() {
-	private var queue = emptyList<DomainSong>()
-	private var requestedQueue = emptyList<DomainSong>()
+	private var queue = emptyList<QueueSong>()
+	private var requestedQueue = emptyList<QueueSong>()
 	private var currentIndex = 0
 	private var isPaused = true
 	private var isOnline = true
@@ -399,7 +399,7 @@ private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.V
 
 	@SuppressLint("NotifyDataSetChanged")
 	fun update(
-		queue: List<DomainSong>,
+		queue: List<QueueSong>,
 		currentIndex: Int,
 		isPaused: Boolean,
 		isOnline: Boolean,

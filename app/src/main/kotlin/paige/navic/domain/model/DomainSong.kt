@@ -11,28 +11,37 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Instant
 
+interface SongInfo {
+	val id: String
+	val albumTitle: String?
+	val year: Int?
+	val playCount: Int
+	val isExternal: Boolean
+	val artists: List<DomainSongArtist>
+}
+
 @Immutable
 @Serializable
 data class DomainSong(
-	val id: String,
+	override val id: String,
 	val title: String,
 	val artistName: String?,
 	val artistId: String,
-	val albumTitle: String?,
+	override val albumTitle: String?,
 	val albumId: String?,
 	val parentId: String?,
 	val comment: String?,
 	val trackNumber: Int?,
 	val discNumber: Int?,
 	val isrc: List<String>,
-	val year: Int?,
+	override val year: Int?,
 	val genre: String?,
 	val genres: List<String>,
 	val moods: List<String>,
 	val duration: Duration,
 	val bpm: Int?,
 	val contributors: List<DomainContributor>,
-	val playCount: Int = 0,
+	override val playCount: Int = 0,
 	val userRating: Int?,
 	val averageRating: Float?,
 	val bitRate: Int?,
@@ -48,7 +57,7 @@ data class DomainSong(
 	val coverArtId: String?,
 	val musicBrainzId: String?,
 	val explicitStatus: DomainExplicitStatus,
-	val artists: List<DomainSongArtist>,
+	override val artists: List<DomainSongArtist>,
 	val albumArtists: List<DomainSongArtist>,
-	val isExternal: Boolean = false
-)
+	override val isExternal: Boolean = false
+) : SongInfo
