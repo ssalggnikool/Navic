@@ -41,20 +41,10 @@ fun NowPlayingArtworkPager(
 	val preferenceManager = koinInject<PreferenceManager>()
 	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
-	val queue = remember(playerState.queue, playerState.shuffleOrder) {
-		playerState.activeQueue
-	}
-	val currentIndex = remember(
-		playerState.queue,
-		playerState.shuffleOrder,
-		playerState.currentIndex
-	) {
-		playerState.activeIndex
-	}
 
 	val pagerState = rememberPagerState(
-		initialPage = currentIndex.coerceAtLeast(0),
-		pageCount = { queue.size }
+		initialPage = playerState.activeIndex.coerceAtLeast(0),
+		pageCount = { playerState.activeQueue.size }
 	)
 	val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
 	var userSwiped by remember { mutableStateOf(false) }
@@ -63,18 +53,17 @@ fun NowPlayingArtworkPager(
 		if (isDragged) userSwiped = true
 	}
 
-	LaunchedEffect(currentIndex) {
-		if (!isDragged && currentIndex != -1 && currentIndex != pagerState.currentPage) {
-			pagerState.animateScrollToPage(currentIndex)
+	LaunchedEffect(playerState.activeIndex) {
+		if (!isDragged && playerState.activeIndex != -1 && playerState.activeIndex != pagerState.currentPage) {
+			pagerState.animateScrollToPage(playerState.activeIndex)
 		}
 	}
 
 	LaunchedEffect(pagerState) {
 		snapshotFlow { pagerState.settledPage }.collect { page ->
-			val state = player.uiState.value
-			if (userSwiped && page != state.activeIndex && page in state.activeQueue.indices) {
-				val wasPaused = state.isPaused
-				player.playAt(page)
+			if (userSwiped && page != playerState.activeIndex && page in playerState.activeQueue.indices) {
+				val wasPaused = playerState.isPaused
+				player.playAt(playerState.normalIndex(page))
 				if (wasPaused) {
 					player.pause()
 				}
@@ -90,7 +79,7 @@ fun NowPlayingArtworkPager(
 		userScrollEnabled = preferenceManager.swipeToSkip,
 		overscrollEffect = null
 	) { page ->
-		val song = queue.getOrNull(page) ?: return@HorizontalPager
+		val song = playerState.activeQueue.getOrNull(page) ?: return@HorizontalPager
 		val tapAction = preferenceManager.nowPlayingCoverArtAction
 		val enabled = pagerState.settledPage == page
 			&& tapAction != CoverArtTapAction.Disabled
