@@ -275,7 +275,7 @@ class MediaPlayer(
 		}
 	}
 
-	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) = this@MediaPlayer.launch {
+	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) {
 		rememberSongs(listOf(song))
 		controllerHandler?.appendOrder(1)
 		controller?.addMediaItem(song.toMediaItem())
@@ -295,7 +295,7 @@ class MediaPlayer(
 		)
 	}
 
-	fun appendQueue(songs: List<DomainSong>, notify: Boolean = true) = launch {
+	fun appendQueue(songs: List<DomainSong>, notify: Boolean = true) {
 		val items = songs.map { it.toMediaItem() }
 		rememberSongs(songs)
 		controllerHandler?.appendOrder(songs.size)
@@ -304,19 +304,19 @@ class MediaPlayer(
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
-	fun removeFromQueue(index: Int) = launch {
+	fun removeFromQueue(index: Int) {
 		val normalIndex = uiState.value.normalIndex(index)
 		controllerHandler?.removeOrder(index)
 		controller?.removeMediaItem(normalIndex)
 		controllerHandler?.pushOrder()
 	}
 
-	fun moveQueueItem(fromIndex: Int, toIndex: Int) = launch {
+	fun moveQueueItem(fromIndex: Int, toIndex: Int) {
 		val state = uiState.value
 		if (fromIndex == toIndex ||
 			fromIndex !in state.activeQueue.indices ||
 			toIndex !in state.activeQueue.indices
-		) return@launch
+		) return
 
 		if (state.isShuffled) {
 			controllerHandler?.moveOrder(fromIndex, toIndex)
@@ -327,22 +327,23 @@ class MediaPlayer(
 		}
 	}
 
-	fun clearQueue() = this@MediaPlayer.launch {
+	fun clearQueue() {
 		controllerHandler?.clearOrder()
 		controller?.clearMediaItems()
 	}
 
-	fun playAt(index: Int) = launch {
-		controller?.let { player ->
-			if (index in 0 until player.mediaItemCount) {
-				player.seekTo(index, 0L)
-				player.play()
-			}
+	fun playAt(index: Int) {
+		val controller = controller ?: return
+
+		if (index in 0 until controller.mediaItemCount) {
+			controller.seekTo(index, 0L)
+			controller.play()
 		}
 	}
 
 	fun playNextSingle(song: DomainSong) = launch {
 		val player = controller ?: return@launch
+
 		val insertAt = player.nextInsertIndex()
 		rememberSongs(listOf(song))
 
@@ -461,12 +462,12 @@ class MediaPlayer(
 	}
 
 	fun resume() = launch(Dispatchers.Main.immediate) {
-		controller?.let { player ->
-			if (player.playbackState == Player.STATE_ENDED) {
-				player.seekTo(0, 0L)
-			}
-			player.play()
+		val controller = controller ?: return@launch
+
+		if (controller.playbackState == Player.STATE_ENDED) {
+			controller.seekTo(0, 0L)
 		}
+		controller.play()
 	}
 
 	fun next() = launch(Dispatchers.Main.immediate) {
