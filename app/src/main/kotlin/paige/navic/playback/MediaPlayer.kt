@@ -304,7 +304,7 @@ class MediaPlayer(
 		if (notify) snackBarManager.notifyAddedToQueue()
 	}
 
-	fun removeFromQueue(index: Int) = this@MediaPlayer.launch {
+	fun removeFromQueue(index: Int) = launch {
 		val normalIndex = uiState.value.normalIndex(index)
 		controllerHandler?.removeOrder(index)
 		controller?.removeMediaItem(normalIndex)
@@ -482,25 +482,25 @@ class MediaPlayer(
 		}
 	}
 
-	fun toggleShuffle() = launch {
-		controller?.let { player ->
-			player.shuffleModeEnabled = !player.shuffleModeEnabled
-		}
+	fun toggleShuffle() {
+		val controller = controller ?: return
+		controllerHandler?.startOrder(controller.mediaItemCount, controller.currentMediaItemIndex)
+		controller.shuffleModeEnabled = !controller.shuffleModeEnabled
 	}
 
-	fun setShuffle(mode: Boolean) = launch {
-		controller?.let { player ->
-			player.shuffleModeEnabled = mode
-		}
+	fun setShuffle(mode: Boolean) {
+		val controller = controller ?: return
+		controllerHandler?.startOrder(controller.mediaItemCount, controller.currentMediaItemIndex)
+		controller.shuffleModeEnabled = mode
 	}
 
-	fun toggleRepeat() = launch {
-		controller?.let { player ->
-			player.repeatMode = when (player.repeatMode) {
-				Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
-				Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
-				else -> Player.REPEAT_MODE_OFF
-			}
+	fun toggleRepeat() {
+		val controller = controller ?: return
+
+		controller.repeatMode = when (controller.repeatMode) {
+			Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+			Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+			else -> Player.REPEAT_MODE_OFF
 		}
 	}
 

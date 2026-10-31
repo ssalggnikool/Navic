@@ -91,6 +91,7 @@ class ExoStateHolder(
 			val sessionCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
 				.buildUpon()
 				.add(SessionCommand(COMMAND_SHUFFLE, Bundle.EMPTY))
+				.add(SessionCommand(COMMAND_SHUFFLE_STATE, Bundle.EMPTY))
 				.add(SessionCommand(COMMAND_REPEAT, Bundle.EMPTY))
 				.build()
 
@@ -106,19 +107,33 @@ class ExoStateHolder(
 			customCommand: SessionCommand,
 			args: Bundle
 		): ListenableFuture<SessionResult> {
+			val resultExtras = Bundle()
+
 			when (customCommand.customAction) {
 				COMMAND_SHUFFLE -> {
-					val enabled = if (args.containsKey(SHUFFLE_ENABLED_KEY)) {
-						args.getBoolean(SHUFFLE_ENABLED_KEY)
-					} else {
-						!player.shuffleModeEnabled
+					val shuffleOrder = args.getIntArray(SHUFFLE_ORDER_KEY)
+						?.takeIf { it.size == player.mediaItemCount }
+						?.let { BetterShuffleOrder(it) }
+
+					if (!player.shuffleModeEnabled && shuffleOrder != null) {
+						player.shuffleOrder = shuffleOrder
 					}
-					player.shuffleModeEnabled = enabled
-					if (enabled) {
-						args.getIntArray(SHUFFLE_ORDER_KEY)
-							?.takeIf { it.size == player.mediaItemCount }
-							?.let { player.shuffleOrder = BetterShuffleOrder(it) }
+
+					player.shuffleModeEnabled = args.getBoolean(
+						SHUFFLE_ENABLED_KEY, !player.shuffleModeEnabled
+					)
+
+					if (shuffleOrder != null) {
+						resultExtras.putIntArray(SHUFFLE_ORDER_KEY, shuffleOrder.toIntArray())
 					}
+
+					session.broadcastCustomCommand(
+						SessionCommand(COMMAND_SHUFFLE_STATE, Bundle.EMPTY),
+						Bundle().apply {
+							putBoolean(SHUFFLE_ENABLED_KEY, player.shuffleModeEnabled)
+							putIntArray(SHUFFLE_ORDER_KEY, player.shuffleOrder.toIntArray())
+						}
+					)
 				}
 
 				COMMAND_REPEAT -> {
@@ -130,7 +145,22 @@ class ExoStateHolder(
 				}
 			}
 
-			return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+			return Futures.immediateFuture(
+				SessionResult(
+					SessionResult.RESULT_SUCCESS,
+					resultExtras
+				)
+			)
+		}
+
+		private fun androidx.media3.exoplayer.source.ShuffleOrder.toIntArray(): IntArray {
+			val order = IntArray(length)
+			var index = firstIndex
+			for (position in order.indices) {
+				order[position] = index
+				index = getNextIndex(index)
+			}
+			return order
 		}
 	}
 
@@ -368,8 +398,9 @@ class ExoStateHolder(
 	}
 
 	companion object {
-		const val SHUFFLE_ENABLED_KEY = "shuffle_enabled"
 		const val SHUFFLE_ORDER_KEY = "shuffle_order"
+		const val SHUFFLE_ENABLED_KEY = "shuffle_enabled"
+		const val COMMAND_SHUFFLE_STATE = "COMMAND_SHUFFLE_STATE"
 		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
 		const val COMMAND_REPEAT = "COMMAND_REPEAT"
 
