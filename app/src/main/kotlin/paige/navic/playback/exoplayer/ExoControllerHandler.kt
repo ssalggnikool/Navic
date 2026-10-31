@@ -8,6 +8,7 @@ package paige.navic.playback.exoplayer
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.media3.common.C
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import paige.navic.database.dao.AlbumDao
+import paige.navic.database.entity.PlayableSongRow
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.playback.AudioGainManager
 import paige.navic.domain.manager.playback.StreamCacheManager
@@ -43,16 +45,23 @@ import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
+import paige.navic.domain.model.DomainSongArtist
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.ReplayGainMode
-import paige.navic.playback.exoplayer.ExoStateHolder.Companion.SHUFFLE_ENABLED_KEY
+import paige.navic.domain.repository.SongRepository
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildCoverUri
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildSongUri
+import paige.navic.playback.exoplayer.impl.library.MediaSessionCallback.Companion.COMMAND_SHUFFLE_STATE
+import paige.navic.playback.exoplayer.impl.library.MediaSessionCallback.Companion.SHUFFLE_ENABLED_KEY
+import paige.navic.playback.exoplayer.impl.library.MediaSessionCallback.Companion.SHUFFLE_ORDER_KEY
 import paige.navic.ui.core.PlayerUiState
+import paige.navic.ui.core.QueueSong
+import paige.navic.ui.core.toDomainSong
 import paige.navic.util.Logger
 import java.io.File
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -67,13 +76,18 @@ class ExoControllerHandler(
 	private val streamCacheManager: StreamCacheManager,
 	private val connectivityManager: ConnectivityManager,
 	private val songForId: (String) -> DomainSong?,
+	private val queueSongForId: (String) -> QueueSong?,
 	private val rememberSong: (DomainSong) -> Unit,
+	private val rememberQueueSongs: (List<DomainSong>) -> Unit,
+	private val retainQueueSongs: (Collection<String>) -> Unit,
 	private val albumDao: AlbumDao,
+	private val songRepository: SongRepository,
 	private val requestAutoFill: () -> Unit
 ) : Player.Listener, MediaController.Listener {
 	private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 	private var progressJob: Job? = null
 	private var loadingCollectionId: String? = null
+	private val resolvingSongIds = mutableSetOf<String>()
 
 	private fun startProgressLoop() {
 		progressJob?.cancel()
@@ -101,12 +115,13 @@ class ExoControllerHandler(
 
 					scope.launch(Dispatchers.IO) {
 						// i don't like this but oh well
-						val currentSong = state.value.currentSong ?: return@launch
-						val songMimeType = currentSong.mimeType
-						val isOriginalFile =
-							format.sampleMimeType == songMimeType || format.containerMimeType == songMimeType
+						val currentSong = state.value.currentSong
+						val songMimeType = currentSong?.mimeType
+						val matchesMime = format.sampleMimeType == songMimeType ||
+							format.containerMimeType == songMimeType
+						val isOriginalFile = currentSong != null && matchesMime
 						val fallbackBitrate = if (isOriginalFile) {
-							currentSong.bitRate?.times(1000)
+							currentSong?.bitRate?.times(1000)
 						} else {
 							withContext(Dispatchers.Main) {
 								getEstimateBitrate()
@@ -193,9 +208,25 @@ class ExoControllerHandler(
 
 	fun updatePlaybackState() {
 		val index = controller.currentMediaItemIndex
-		val queue = (0 until controller.mediaItemCount)
-			.mapNotNull { controller.getMediaItemAt(it).mediaId.let(songForId) }
-		val currentSong = if (index == C.INDEX_UNSET) null else queue.getOrNull(index)
+		val mediaIds = (0 until controller.mediaItemCount)
+			.map { controller.getMediaItemAt(it).mediaId }
+		val queue = mediaIds.mapNotNull(queueSongForId)
+		if (mediaIds.isNotEmpty()) retainQueueSongs(mediaIds)
+		val currentId = mediaIds.getOrNull(index)
+		val currentFullSong = currentId?.let(songForId)
+		val currentSong = currentFullSong ?: currentId?.let(queueSongForId)?.toDomainSong()
+
+		resolveQueueSongs(mediaIds)
+		if (currentId != null && currentFullSong == null) {
+			resolveCurrentSong(currentId)
+		}
+
+		if (controller.shuffleModeEnabled &&
+			controller.mediaItemCount > 0 &&
+			!isValidOrder(state.value.shuffleOrder, controller.mediaItemCount)
+		) {
+			startOrder(controller.mediaItemCount, controller.currentMediaItemIndex)
+		}
 
 		val derivedCollection = currentSong?.let { song ->
 			val stateCollection = state.value.currentCollection
@@ -222,6 +253,43 @@ class ExoControllerHandler(
 		}
 		applyAudioGain()
 		updateProgress()
+	}
+
+	private fun resolveQueueSongs(mediaIds: List<String>) {
+		val unknownIds = mediaIds.filter { queueSongForId(it) == null && resolvingSongIds.add(it) }
+		if (unknownIds.isEmpty()) return
+
+		scope.launch {
+			val songs = runCatching { songRepository.getSongsByIds(unknownIds) }
+				.onFailure { Logger.e("MediaPlayer", "failed to resolve songs", it) }
+				.getOrDefault(emptyList())
+
+			resolvingSongIds.removeAll(unknownIds.toSet())
+
+			if (songs.isNotEmpty()) {
+				rememberQueueSongs(songs)
+				songs.firstOrNull { it.id == controller.currentMediaItem?.mediaId }
+					?.let(rememberSong)
+				updatePlaybackState()
+			}
+		}
+	}
+
+	private fun resolveCurrentSong(mediaId: String) {
+		if (!resolvingSongIds.add(mediaId)) return
+
+		scope.launch {
+			val song = runCatching { songRepository.getSongsByIds(listOf(mediaId)).firstOrNull() }
+				.onFailure { Logger.e("MediaPlayer", "failed to resolve song", it) }
+				.getOrNull()
+
+			resolvingSongIds.remove(mediaId)
+
+			if (song != null && controller.currentMediaItem?.mediaId == mediaId) {
+				rememberSong(song)
+				updatePlaybackState()
+			}
+		}
 	}
 
 	private fun shuffledOrder(size: Int, startIndex: Int): List<Int> {
@@ -340,7 +408,7 @@ class ExoControllerHandler(
 			SessionCommand(ExoStateHolder.COMMAND_SHUFFLE, Bundle.EMPTY),
 			Bundle().apply {
 				putBoolean(SHUFFLE_ENABLED_KEY, controller.shuffleModeEnabled)
-				putIntArray(ExoStateHolder.SHUFFLE_ORDER_KEY, order.toIntArray())
+				putIntArray(SHUFFLE_ORDER_KEY, order.toIntArray())
 			}
 		)
 	}
@@ -427,11 +495,11 @@ class ExoControllerHandler(
 		command: SessionCommand,
 		args: Bundle
 	): ListenableFuture<SessionResult> {
-		if (command.customAction == ExoStateHolder.COMMAND_SHUFFLE_STATE) {
-			val order = args.getIntArray(ExoStateHolder.SHUFFLE_ORDER_KEY)?.toList().orEmpty()
+		if (command.customAction == COMMAND_SHUFFLE_STATE) {
+			val order = args.getIntArray(SHUFFLE_ORDER_KEY)?.toList().orEmpty()
 			state.update {
 				it.copy(
-					isShuffleEnabled = args.getBoolean(ExoStateHolder.SHUFFLE_ENABLED_KEY),
+					isShuffleEnabled = args.getBoolean(SHUFFLE_ENABLED_KEY),
 					shuffleOrder = order
 				)
 			}
@@ -574,7 +642,7 @@ class ExoControllerHandler(
 		}
 	}
 
-	private fun DomainSong.isExplicit(): Boolean {
+	private fun QueueSong.isExplicit(): Boolean {
 		return this.explicitStatus == DomainExplicitStatus.Explicit
 			&& preferenceManager.explicitContentPlayback != ExplicitContentPlayback.Allowed
 	}
@@ -586,7 +654,62 @@ fun Player.effectiveDurationMs(): Long {
 		?: 0L
 }
 
-fun DomainSong.toMediaItem(): MediaItem {
+fun DomainSong.toMediaItem(prefix: String? = null, artworkUri: Uri? = null): MediaItem =
+	buildMediaItem(
+		id = id,
+		title = title,
+		artistName = artistName,
+		albumTitle = albumTitle,
+		coverArtId = coverArtId,
+		duration = duration,
+		filePath = filePath,
+		artists = artists,
+		albumArtists = albumArtists,
+		prefix = prefix,
+		artworkUri = artworkUri
+	)
+
+fun PlayableSongRow.toMediaItem(prefix: String? = null): MediaItem =
+	buildMediaItem(
+		id = songId,
+		title = title,
+		artistName = artistName,
+		albumTitle = albumTitle,
+		coverArtId = coverArtId,
+		duration = duration,
+		filePath = filePath,
+		artists = artists,
+		albumArtists = albumArtists,
+		prefix = prefix
+	)
+
+fun QueueSong.toMediaItem(prefix: String? = null): MediaItem =
+	buildMediaItem(
+		id = id,
+		title = title,
+		artistName = artistName,
+		albumTitle = albumTitle,
+		coverArtId = coverArtId,
+		duration = duration,
+		filePath = filePath,
+		artists = artists,
+		albumArtists = albumArtists,
+		prefix = prefix
+	)
+
+private fun buildMediaItem(
+	id: String,
+	title: String,
+	artistName: String?,
+	albumTitle: String?,
+	coverArtId: String?,
+	duration: Duration,
+	filePath: String?,
+	artists: List<DomainSongArtist>,
+	albumArtists: List<DomainSongArtist>,
+	prefix: String? = null,
+	artworkUri: Uri? = null
+): MediaItem {
 	val displayArtist = artists.joinToString { it.name }.ifBlank { artistName }
 	val albumArtistName = albumArtists.joinToString { it.name }.ifBlank { artistName }
 
@@ -598,8 +721,10 @@ fun DomainSong.toMediaItem(): MediaItem {
 			setAlbumArtist(albumArtistName)
 			setAlbumTitle(albumTitle)
 			setDurationMs(duration.inWholeMilliseconds)
-			setArtworkUri(coverArtId?.buildCoverUri())
+			setArtworkUri(artworkUri ?: coverArtId?.buildCoverUri())
 			setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
+			setIsBrowsable(false)
+			setIsPlayable(true)
 		}
 
 	val metadata = metadataBuilder.build()
@@ -611,7 +736,9 @@ fun DomainSong.toMediaItem(): MediaItem {
 
 	val builder = MediaItem.Builder()
 		.setUri(uri)
-		.setMediaId(id)
+		.setMediaId(
+			prefix?.let { "$it:$id" } ?: id
+		)
 		.setMediaMetadata(metadata)
 
 	if (id.startsWith("radio_")) {

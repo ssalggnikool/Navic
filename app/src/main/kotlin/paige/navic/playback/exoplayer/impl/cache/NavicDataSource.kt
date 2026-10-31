@@ -6,6 +6,7 @@
 
 package paige.navic.playback.exoplayer.impl.cache
 
+import android.content.Context
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.core.net.toUri
@@ -21,6 +22,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import paige.navic.BuildConfig
 import paige.navic.domain.manager.playback.StreamCacheManager
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
@@ -67,7 +69,6 @@ class NavicDataSource(
 	companion object {
 		const val NAVIC_SCHEME = "navic"
 		const val NAVIC_SONG_HOST = "song"
-		const val NAVIC_COVER_HOST = "cover"
 		private const val TAG = "NavicDataSource"
 
 		fun String.buildSongUri(): Uri {
@@ -75,7 +76,7 @@ class NavicDataSource(
 		}
 
 		fun String.buildCoverUri(): Uri {
-			return "$NAVIC_SCHEME://$NAVIC_COVER_HOST/$this".toUri()
+			return "content://${BuildConfig.APPLICATION_ID}.cover-art/$this".toUri()
 		}
 
 		fun getCurrentQuality(preferenceManager: PreferenceManager, connectivityManager: ConnectivityManager): Pair<Int, String?> {

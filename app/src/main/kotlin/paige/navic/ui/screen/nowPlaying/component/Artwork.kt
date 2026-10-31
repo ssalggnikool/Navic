@@ -22,9 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
-import paige.navic.domain.model.DomainSong
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.CoverArt
+import paige.navic.ui.core.QueueSong
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Note
 
@@ -33,7 +33,7 @@ fun NowPlayingArtwork(
 	modifier: Modifier = Modifier,
 	onClick: (() -> Unit)?,
 	isLandscape: Boolean,
-	song: DomainSong
+	song: QueueSong
 ) {
 	val player = koinInject<MediaPlayer>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
