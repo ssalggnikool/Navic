@@ -7,6 +7,7 @@
 package paige.navic.playback
 
 import android.app.Application
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackParameters
@@ -344,8 +345,9 @@ class MediaPlayer(
 
 	fun playNextSingle(song: DomainSong) = this@MediaPlayer.launch {
 		val player = controller ?: return@launch
-		val insertAt = (uiState.value.currentIndex + 1).coerceIn(0, player.mediaItemCount)
+		val insertAt = player.nextInsertIndex()
 		rememberSongs(listOf(song))
+
 		controllerHandler?.insertOrder(insertAt, 1)
 		player.addMediaItem(
 			insertAt,
@@ -366,12 +368,24 @@ class MediaPlayer(
 			newCollection.map { it.toMediaItem() } to newCollection
 		}
 		val player = controller ?: return@launch
-		val insertAt = (uiState.value.currentIndex + 1).coerceIn(0, player.mediaItemCount)
+		val insertAt = player.nextInsertIndex()
 		rememberSongs(newCollection)
+
 		controllerHandler?.insertOrder(insertAt, items.size)
 		player.addMediaItems(insertAt, items)
 		controllerHandler?.pushOrder()
 		snackBarManager.notifyPlayNext()
+	}
+
+	private fun MediaController.nextInsertIndex(): Int {
+		val current = currentMediaItemIndex
+		if (current == C.INDEX_UNSET) return 0
+		val next = currentTimeline.getNextWindowIndex(
+			current,
+			Player.REPEAT_MODE_OFF,
+			shuffleModeEnabled
+		)
+		return if (next == C.INDEX_UNSET) mediaItemCount else next
 	}
 
 	fun playRadio(radio: DomainRadio) = this@MediaPlayer.launch {
