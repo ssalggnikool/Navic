@@ -94,7 +94,7 @@ class ArtistListViewModel(
 			val artistAlbums =
 				albumDao.getAlbumsByArtist(artist.id).firstOrNull() ?: emptyList()
 			artistAlbums.map { it.toDomainModel() }.forEach { album ->
-				player.addToQueue(album)
+				player.appendQueue(album)
 			}
 		}
 	}

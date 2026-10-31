@@ -71,7 +71,7 @@ class ExoPlaybackService : MediaSessionService(), KoinComponent {
 
 		setMediaNotificationProvider(notificationProvider)
 
-		stateHolder.playerInstance.let { player ->
+		stateHolder.player.let { player ->
 			player as Player
 
 			scrobbleListener = ScrobbleExoListener(

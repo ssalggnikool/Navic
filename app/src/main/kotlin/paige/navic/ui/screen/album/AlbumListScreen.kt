@@ -233,7 +233,7 @@ fun AlbumListScreen(
 											},
 											onAddToQueue = {
 												if (selectedAlbum != null) {
-													player.addToQueue(
+													player.appendQueue(
 														selectedAlbum as DomainSongCollection
 													)
 												}
@@ -266,7 +266,7 @@ fun AlbumListScreen(
 											},
 											onAddToQueue = {
 												if (selectedAlbum != null) {
-													player.addToQueue(
+													player.appendQueue(
 														selectedAlbum as DomainSongCollection
 													)
 												}
@@ -310,7 +310,7 @@ fun AlbumListScreen(
 										},
 										onAddToQueue = {
 											if (selectedAlbum != null) {
-												player.addToQueue(
+												player.appendQueue(
 													selectedAlbum as DomainSongCollection
 												)
 											}
@@ -343,7 +343,7 @@ fun AlbumListScreen(
 										},
 										onAddToQueue = {
 											if (selectedAlbum != null) {
-												player.addToQueue(
+												player.appendQueue(
 													selectedAlbum as DomainSongCollection
 												)
 											}

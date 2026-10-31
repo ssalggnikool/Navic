@@ -201,7 +201,7 @@ fun StarredScreen() {
 				},
 				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
 				onPlayAlbumNext = { if (selectedAlbum != null) player.playNext(selectedAlbum as DomainSongCollection) },
-				onAddAlbumToQueue = { if (selectedAlbum != null) player.addToQueue(selectedAlbum as DomainSongCollection) },
+				onAddAlbumToQueue = { if (selectedAlbum != null) player.appendQueue(selectedAlbum as DomainSongCollection) },
 				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 
 				artists = artistsLazyItems,

@@ -291,7 +291,7 @@ fun SearchScreen(
 									onSetStarred = { albumListViewModel.starAlbum(it) },
 									onSetShareId = { },
 									onPlayNext = { player.playNext(album as DomainSongCollection) },
-									onAddToQueue = { player.addToQueue(album as DomainSongCollection) },
+									onAddToQueue = { player.appendQueue(album as DomainSongCollection) },
 									rating = albumListSelection.data?.selected?.userRating ?: 0,
 									onSetRating = { albumListViewModel.setRating(it) }
 								)
