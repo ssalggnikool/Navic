@@ -21,6 +21,9 @@ import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -42,6 +45,7 @@ import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.domain.model.settings.ReplayGainMode
+import paige.navic.playback.exoplayer.ExoStateHolder.Companion.SHUFFLE_ENABLED_KEY
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildCoverUri
@@ -66,7 +70,7 @@ class ExoControllerHandler(
 	private val rememberSong: (DomainSong) -> Unit,
 	private val albumDao: AlbumDao,
 	private val requestAutoFill: () -> Unit
-) : Player.Listener {
+) : Player.Listener, MediaController.Listener {
 	private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 	private var progressJob: Job? = null
 	private var loadingCollectionId: String? = null
@@ -247,9 +251,9 @@ class ExoControllerHandler(
 			)
 
 	fun startOrder(size: Int, startIndex: Int) {
-		val order = if (state.value.isShuffleEnabled) shuffledOrder(size, startIndex) else emptyList()
-
-		state.update { it.copy(shuffleOrder = order) }
+		state.update {
+			it.copy(shuffleOrder = shuffledOrder(size, startIndex))
+		}
 		pushOrder()
 	}
 
@@ -328,15 +332,14 @@ class ExoControllerHandler(
 			return
 		}
 
-		sendOrder(order)
+		sendShuffleCommand(order)
 	}
 
-
-	private fun sendOrder(order: List<Int>) {
+	private fun sendShuffleCommand(order: List<Int>) {
 		controller.sendCustomCommand(
 			SessionCommand(ExoStateHolder.COMMAND_SHUFFLE, Bundle.EMPTY),
 			Bundle().apply {
-				putBoolean(ExoStateHolder.SHUFFLE_ENABLED_KEY, true)
+				putBoolean(SHUFFLE_ENABLED_KEY, controller.shuffleModeEnabled)
 				putIntArray(ExoStateHolder.SHUFFLE_ORDER_KEY, order.toIntArray())
 			}
 		)
@@ -417,6 +420,24 @@ class ExoControllerHandler(
 			?: shuffledOrder(size, controller.currentMediaItemIndex)
 		state.update { it.copy(isShuffleEnabled = true, shuffleOrder = order) }
 		pushOrder()
+	}
+
+	override fun onCustomCommand(
+		controller: MediaController,
+		command: SessionCommand,
+		args: Bundle
+	): ListenableFuture<SessionResult> {
+		if (command.customAction == ExoStateHolder.COMMAND_SHUFFLE_STATE) {
+			val order = args.getIntArray(ExoStateHolder.SHUFFLE_ORDER_KEY)?.toList().orEmpty()
+			state.update {
+				it.copy(
+					isShuffleEnabled = args.getBoolean(ExoStateHolder.SHUFFLE_ENABLED_KEY),
+					shuffleOrder = order
+				)
+			}
+		}
+
+		return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
 	}
 
 	override fun onRepeatModeChanged(repeatMode: Int) {
