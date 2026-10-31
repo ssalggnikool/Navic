@@ -248,5 +248,6 @@ dependencies {
 	ksp(libs.androidx.room3.compiler)
 	implementation(libs.cryptohash)
 	implementation(libs.mimetypes)
+	implementation(libs.kotlinx.coroutines.guava)
 	coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
