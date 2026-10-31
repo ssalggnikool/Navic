@@ -157,7 +157,7 @@ class MediaPlayer(
 		val remainingCount = state.activeQueue.size - state.activeIndex
 
 		if (remainingCount <= 1) {
-			scope.launch {
+			launch {
 				val randomSongs = songRepository.getRandomSongsList(1)
 				appendQueue(randomSongs, notify = false)
 			}
@@ -179,7 +179,7 @@ class MediaPlayer(
 		checkAndAutoFillQueue()
 	}
 
-	private fun observeAndSaveState() = scope.launch {
+	private fun observeAndSaveState() = launch {
 		uiState
 			.distinctUntilChanged { old, new ->
 				old.currentIndex == new.currentIndex &&
@@ -297,7 +297,7 @@ class MediaPlayer(
 		)
 	}
 
-	fun appendQueue(songs: List<DomainSong>, notify: Boolean = true) = this@MediaPlayer.launch {
+	fun appendQueue(songs: List<DomainSong>, notify: Boolean = true) = launch {
 		val items = songs.map { it.toMediaItem() }
 		rememberSongs(songs)
 		controllerHandler?.appendOrder(songs.size)
@@ -313,7 +313,7 @@ class MediaPlayer(
 		controllerHandler?.pushOrder()
 	}
 
-	fun moveQueueItem(fromIndex: Int, toIndex: Int) = this@MediaPlayer.launch {
+	fun moveQueueItem(fromIndex: Int, toIndex: Int) = launch {
 		val state = uiState.value
 		if (fromIndex == toIndex ||
 			fromIndex !in state.activeQueue.indices ||
@@ -334,7 +334,7 @@ class MediaPlayer(
 		controller?.clearMediaItems()
 	}
 
-	fun playAt(index: Int) = this@MediaPlayer.launch {
+	fun playAt(index: Int) = launch {
 		controller?.let { player ->
 			if (index in 0 until player.mediaItemCount) {
 				player.seekTo(index, 0L)
@@ -343,7 +343,7 @@ class MediaPlayer(
 		}
 	}
 
-	fun playNextSingle(song: DomainSong) = this@MediaPlayer.launch {
+	fun playNextSingle(song: DomainSong) = launch {
 		val player = controller ?: return@launch
 		val insertAt = player.nextInsertIndex()
 		rememberSongs(listOf(song))
@@ -357,7 +357,7 @@ class MediaPlayer(
 		snackBarManager.notifyPlayNext()
 	}
 
-	fun playNext(collection: DomainSongCollection) = this@MediaPlayer.launch {
+	fun playNext(collection: DomainSongCollection) = launch {
 		val (items, newCollection) = withContext(Dispatchers.Default) {
 			val newCollection =
 				if (collection is DomainAlbum) collection.songs.sortedWith(
@@ -388,7 +388,7 @@ class MediaPlayer(
 		return if (next == C.INDEX_UNSET) mediaItemCount else next
 	}
 
-	fun playRadio(radio: DomainRadio) = this@MediaPlayer.launch {
+	fun playRadio(radio: DomainRadio) = launch {
 		val radioId = "radio_${radio.name.hashCode()}"
 
 		val dummyRadioSong = DomainSong(
@@ -458,7 +458,7 @@ class MediaPlayer(
 		}
 	}
 
-	fun shufflePlay(collection: DomainSongCollection) = this@MediaPlayer.launch {
+	fun shufflePlay(collection: DomainSongCollection) = launch {
 		val (shuffledSongs, mediaItems) = withContext(Dispatchers.Default) {
 			val songs = collection.songs.shuffled()
 			songs to songs.map { it.toMediaItem() }
@@ -522,11 +522,11 @@ class MediaPlayer(
 		controllerHandler?.seek(normalized)
 	}
 
-	fun setPlaybackSpeed(value: Float) = this@MediaPlayer.launch {
+	fun setPlaybackSpeed(value: Float) = launch {
 		controllerHandler?.setPlaybackSpeed(value)
 	}
 
-	fun setPreservePitch(value: Boolean) = this@MediaPlayer.launch {
+	fun setPreservePitch(value: Boolean) = launch {
 		controllerHandler?.setPreservePitch(value)
 	}
 }
