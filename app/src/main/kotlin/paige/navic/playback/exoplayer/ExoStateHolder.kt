@@ -111,26 +111,20 @@ class ExoStateHolder(
 
 			when (customCommand.customAction) {
 				COMMAND_SHUFFLE -> {
-					val shuffleOrder = args.getIntArray(SHUFFLE_ORDER_KEY)
-						?.takeIf { it.size == player.mediaItemCount }
-						?.let { BetterShuffleOrder(it) }
-
-					if (!player.shuffleModeEnabled && shuffleOrder != null) {
-						player.shuffleOrder = shuffleOrder
-					}
-
-					player.shuffleModeEnabled = args.getBoolean(
+					val enabled = args.getBoolean(
 						SHUFFLE_ENABLED_KEY, !player.shuffleModeEnabled
 					)
 
-					if (shuffleOrder != null) {
-						resultExtras.putIntArray(SHUFFLE_ORDER_KEY, shuffleOrder.toIntArray())
-					}
+					args.getIntArray(SHUFFLE_ORDER_KEY)
+						?.takeIf { it.size == player.mediaItemCount }
+						?.let { player.shuffleOrder = BetterShuffleOrder(it) }
+
+					player.shuffleModeEnabled = enabled
 
 					session.broadcastCustomCommand(
 						SessionCommand(COMMAND_SHUFFLE_STATE, Bundle.EMPTY),
 						Bundle().apply {
-							putBoolean(SHUFFLE_ENABLED_KEY, player.shuffleModeEnabled)
+							putBoolean(SHUFFLE_ENABLED_KEY, enabled)
 							putIntArray(SHUFFLE_ORDER_KEY, player.shuffleOrder.toIntArray())
 						}
 					)
