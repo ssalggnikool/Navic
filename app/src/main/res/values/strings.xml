@@ -456,6 +456,7 @@
 	<string name="notice_local_network_denied">Permission denied</string>
 	<string name="notice_notifications_denied">Permission denied</string>
 	<string name="notice_link_confirmation">This link is taking you to the following website:</string>
+	<string name="notice_app_icon_changed">App icon changed, closing app!</string>
 
 	<string name="info_app_version">Navic %1$s</string>
 	<string name="info_action_is_permanent">This action cannot be undone</string>

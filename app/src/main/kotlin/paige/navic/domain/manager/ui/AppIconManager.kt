@@ -24,7 +24,7 @@ class AppIconManager(
 	fun setVariant(newVariant: AppIconVariant) {
 		Toast.makeText(
 			context,
-			"App icon changed, closing app!!",
+			context.getString(R.string.notice_app_icon_changed),
 			Toast.LENGTH_SHORT
 		).show()
 		preferenceManager.appIconVariant = newVariant
