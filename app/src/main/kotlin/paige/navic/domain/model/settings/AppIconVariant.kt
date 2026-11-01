@@ -10,6 +10,7 @@ enum class AppIconVariant(
 	val activityName: String,
 	val designer: String
 ) {
-	Default("MainActivityDefault", designer = "ssalggnikool"),
-	Inverted("MainActivityInverted", designer = "ssalggnikool")
+	Default("MainActivityDefault", designer = "paige"),
+	Inverted("MainActivityInverted", designer = "paige"),
+	Jam("MainActivityJam", designer = "paige")
 }

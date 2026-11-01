@@ -80,6 +80,20 @@
 			</intent-filter>
 		</activity-alias>
 
+		<activity-alias
+			android:name="${applicationId}.MainActivityJam"
+			android:enabled="false"
+			android:exported="true"
+			android:icon="@mipmap/ic_launcher_jam"
+			android:label="@string/app_name"
+			android:roundIcon="@mipmap/ic_launcher_jam_round"
+			android:targetActivity=".MainActivity">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity-alias>
+
 		<!-- misc activities -->
 		<activity
 			android:name=".CrashActivity"

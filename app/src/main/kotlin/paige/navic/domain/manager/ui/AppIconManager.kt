@@ -44,12 +44,13 @@ class AppIconManager(
 		}
 	}
 
-	fun getIcon(variant: AppIconVariant): Any? {
+	fun getIcon(variant: AppIconVariant): Any {
 		val resources = context.resources
 
 		val iconRes = when (variant) {
 			AppIconVariant.Default -> R.mipmap.ic_launcher
 			AppIconVariant.Inverted -> R.mipmap.ic_launcher_inverted
+			AppIconVariant.Jam -> R.mipmap.ic_launcher_jam
 		}
 
 		val drawable = if (iconRes != 0) {
