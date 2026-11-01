@@ -152,7 +152,6 @@
     <string name="option_mini_player_style_unified">Unificado</string>
     <string name="option_mini_player_progress_style">Estilo de progreso del mini-reproductor</string>
     <string name="option_mini_player_progress_style_hidden">Oculto</string>
-    <string name="option_mini_player_progress_style_visible">Visible</string>
     <string name="theme_dynamic">Dinámico</string>
     <string name="theme_seeded">Teñido</string>
     <string name="theme_ios">Cupertino</string>
@@ -196,7 +195,6 @@
     <string name="subtitle_gapless_playback">Experimental. Requiere reiniciar la aplicación. Puede entrar en conflicto con la relegación de audio en algunos dispositivos</string>
     <string name="subtitle_now_playing_background_style">Elija estático si tiene incidencias de rendimiento</string>
     <string name="option_mini_player_style_detached">Separado</string>
-    <string name="option_mini_player_progress_style_seekable">Desplazable</string>
     <string name="title_data_storage">Datos y almacenamiento</string>
     <string name="title_sync_control">Control de sincronización</string>
     <string name="title_cache_management">Gestión de caché</string>

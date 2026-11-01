@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -312,73 +313,121 @@ fun MiniPlayer(
 					},
 					enabled = enabled
 				)
-				if (preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Visible
-					|| preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Seekable
-				) {
-					var dragging by remember { mutableStateOf(false) }
-					val alpha by animateFloatAsState(
-						if (dragging) 1f else .7f
-					)
-					val progress by animateFloatAsState(
-						playerState.progress.coerceIn(0f, 1f)
-					)
-					val alignment = if (detached) Alignment.BottomStart else Alignment.TopStart
-					Box(
-						modifier = Modifier
-							.matchParentSize()
-							.clip(shape)
-							.align(alignment),
-						contentAlignment = alignment
-					) {
-						if (!detached) {
-							Box(
-								Modifier
-									.background(MaterialTheme.colorScheme.surfaceBright)
-									.fillMaxWidth()
-									.height(3.dp)
-							)
-						}
-						Box(
-							Modifier
-								.background(MaterialTheme.colorScheme.primary.copy(alpha = alpha))
-								.fillMaxWidth(if (song != null) progress else 0f)
-								.height(3.dp)
+				when (preferenceManager.miniPlayerProgressStyle) {
+					MiniPlayerProgressStyle.Hidden -> {}
+					MiniPlayerProgressStyle.Line -> {
+						val alignment = if (detached) Alignment.BottomStart else Alignment.TopStart
+						LineProgressBar(
+							modifier = Modifier
+								.matchParentSize()
+								.clip(shape)
+								.align(alignment),
+							detached = detached,
+							enabled = isInteractive,
+							alignment = alignment
 						)
-						Box(
-							Modifier
-								.fillMaxWidth()
-								.height(14.dp)
-								.then(
-									if (song != null
-										&& preferenceManager.miniPlayerProgressStyle == MiniPlayerProgressStyle.Seekable
-										&& isInteractive
-									)
-										Modifier.pointerInput(Unit) {
-											detectDragGestures(
-												onDragStart = {
-													dragging = true
-													haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-												},
-												onDragEnd = {
-													dragging = false
-													haptics.performHapticFeedback(HapticFeedbackType.GestureEnd)
-												}
-											) { change, _ ->
-												player.seek(
-													(change.position.x / size.width.toFloat()).coerceIn(
-														0f,
-														1f
-													)
-												)
-												change.consume()
-											}
-										}
-									else Modifier
-								)
+					}
+					MiniPlayerProgressStyle.Overlay -> {
+						OverlayProgressBar(
+							modifier = Modifier
+								.matchParentSize()
+								.clip(shape)
 						)
 					}
 				}
 			}
 		}
+	}
+}
+
+@Composable
+private fun LineProgressBar(
+	modifier: Modifier,
+	detached: Boolean,
+	enabled: Boolean,
+	alignment: Alignment
+) {
+	val haptics = LocalHapticFeedback.current
+
+	val player = koinInject<MediaPlayer>()
+	val playerState by player.uiState.collectAsStateWithLifecycle()
+	val song = playerState.currentSong
+
+	var dragging by remember { mutableStateOf(false) }
+	val alpha by animateFloatAsState(
+		if (dragging) 1f else .7f
+	)
+	val progress by animateFloatAsState(
+		playerState.progress.coerceIn(0f, 1f)
+	)
+
+	Box(
+		modifier = modifier,
+		contentAlignment = alignment
+	) {
+		if (!detached) {
+			Box(
+				Modifier
+					.background(MaterialTheme.colorScheme.surfaceBright)
+					.fillMaxWidth()
+					.height(3.dp)
+			)
+		}
+		Box(
+			Modifier
+				.background(MaterialTheme.colorScheme.primary.copy(alpha = alpha))
+				.fillMaxWidth(if (song != null) progress else 0f)
+				.height(3.dp)
+		)
+		Box(
+			Modifier
+				.fillMaxWidth()
+				.height(14.dp)
+				.then(
+					if (song != null && enabled)
+						Modifier.pointerInput(Unit) {
+							detectDragGestures(
+								onDragStart = {
+									dragging = true
+									haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+								},
+								onDragEnd = {
+									dragging = false
+									haptics.performHapticFeedback(HapticFeedbackType.GestureEnd)
+								}
+							) { change, _ ->
+								player.seek(
+									(change.position.x / size.width.toFloat()).coerceIn(
+										0f,
+										1f
+									)
+								)
+								change.consume()
+							}
+						}
+					else Modifier
+				)
+		)
+	}
+}
+
+@Composable
+private fun OverlayProgressBar(
+	modifier: Modifier,
+) {
+	val player = koinInject<MediaPlayer>()
+	val playerState by player.uiState.collectAsStateWithLifecycle()
+	val song = playerState.currentSong
+	val progress by animateFloatAsState(
+		playerState.progress.coerceIn(0f, 1f)
+	)
+
+	Box(modifier) {
+		Box(
+			modifier = Modifier
+				.background(MaterialTheme.colorScheme.onSurface.copy(alpha = .5f))
+				.fillMaxWidth(if (song != null) progress else 0f)
+				.fillMaxHeight()
+		)
 	}
 }

@@ -280,8 +280,8 @@
 	<string name="option_mini_player_style_detached">Detached</string>
 	<string name="option_mini_player_progress_style">Progress bar visibility</string>
 	<string name="option_mini_player_progress_style_hidden">Hidden</string>
-	<string name="option_mini_player_progress_style_visible">Visible</string>
-	<string name="option_mini_player_progress_style_seekable">Seekable</string>
+	<string name="option_mini_player_progress_style_line">Line</string>
+	<string name="option_mini_player_progress_style_overlay">Overlay</string>
 
 	<string name="option_queue_info_type_remining">Show songs/time remaining</string>
 	<string name="option_queue_info_type_full">Show songs/time of the whole queue</string>

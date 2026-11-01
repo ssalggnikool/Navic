@@ -175,8 +175,6 @@
     <string name="option_mini_player_style_detached">Fliegend</string>
     <string name="option_mini_player_progress_style">Erscheinung des Fortschrittsbalkens</string>
     <string name="option_mini_player_progress_style_hidden">Versteckt</string>
-    <string name="option_mini_player_progress_style_visible">Sichtbar</string>
-    <string name="option_mini_player_progress_style_seekable">Suchbar</string>
     <string name="theme_dynamic">Dynamisch</string>
     <string name="theme_seeded">Getönt</string>
     <string name="theme_ios">Cupertino</string>

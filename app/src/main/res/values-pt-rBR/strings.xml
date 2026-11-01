@@ -259,7 +259,6 @@
     <string name="option_mini_player_style_detached">Destacado</string>
     <string name="option_mini_player_progress_style">Visibilidade da barra de progresso</string>
     <string name="option_mini_player_progress_style_hidden">Oculto</string>
-    <string name="option_mini_player_progress_style_visible">Visível</string>
     <string name="action_download">Baixar</string>
     <string name="action_delete_download">Deletar download</string>
     <string name="action_cancel_download">Cancelar download</string>
@@ -395,7 +394,6 @@
     <string name="action_sleep_timer_queue_enabled">Timer de repouso - fim da fila</string>
     <string name="title_sleep_timer_time">Tempo</string>
     <string name="action_sleep_timer_queue">Parar no final da fila atual</string>
-    <string name="option_mini_player_progress_style_seekable">Navegável</string>
     <string name="title_codeberg">Codeberg</string>
     <string name="title_audio_effects">Efeitos de áudio</string>
     <string name="subtitle_audio_effects">Ajuste o som da música</string>

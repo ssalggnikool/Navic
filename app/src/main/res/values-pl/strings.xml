@@ -185,8 +185,6 @@
 	<string name="option_mini_player_style_detached">Oderwany</string>
 	<string name="option_mini_player_progress_style">Styl paska postępu miniodtwarzacza</string>
 	<string name="option_mini_player_progress_style_hidden">Ukryty</string>
-	<string name="option_mini_player_progress_style_visible">Widoczny</string>
-	<string name="option_mini_player_progress_style_seekable">Interaktywny</string>
 	<string name="theme_dynamic">Dynamiczny</string>
 	<string name="theme_seeded">Przyciemniony</string>
 	<string name="theme_ios">Cupertino</string>

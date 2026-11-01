@@ -200,8 +200,6 @@
     <string name="option_mini_player_style_detached">Окремий</string>
     <string name="option_mini_player_progress_style">Видимість індикатора прогресу</string>
     <string name="option_mini_player_progress_style_hidden">Прихований</string>
-    <string name="option_mini_player_progress_style_visible">Видимий</string>
-    <string name="option_mini_player_progress_style_seekable">З можливістю перемотування</string>
     <string name="theme_dynamic">Динамічна</string>
     <string name="theme_seeded">Тонована</string>
     <string name="theme_ios">Cupertino</string>

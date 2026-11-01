@@ -175,8 +175,6 @@
 	<string name="option_mini_player_style_detached">Détaché</string>
 	<string name="option_mini_player_progress_style">Style de la barre de progression</string>
 	<string name="option_mini_player_progress_style_hidden">Caché</string>
-	<string name="option_mini_player_progress_style_visible">Visible</string>
-	<string name="option_mini_player_progress_style_seekable">Interactive</string>
 	<string name="theme_mode_system">Système</string>
 	<string name="theme_mode_dark">Sombre</string>
 	<string name="theme_mode_light">Clair</string>
