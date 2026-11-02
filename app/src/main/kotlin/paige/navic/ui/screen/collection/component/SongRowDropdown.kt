@@ -76,6 +76,7 @@ fun CollectionDetailScreenSongRowDropdown(
 					onAddToQueue()
 				}
 			},
+			onInstantMix = { player.playInstantMix(song) },
 			onTrackInfo = dropUnlessResumed {
 				backStack.add(Screen.SongDetailScreen(song.id, song.coverArtId))
 			},
