@@ -14,6 +14,7 @@ data class PlayableSongRow(
 	val title: String,
 	val artistName: String?,
 	val albumTitle: String?,
+	val albumId: String?,
 	val coverArtId: String?,
 	val duration: Duration,
 	val filePath: String?,

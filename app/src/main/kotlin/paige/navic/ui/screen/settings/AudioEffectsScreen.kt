@@ -86,7 +86,7 @@ fun AudioEffectsScreen() {
 								)
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 5)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.floatOutputEnabled,
@@ -96,7 +96,7 @@ fun AudioEffectsScreen() {
 						},
 						content = { Text(stringResource(R.string.option_float_output)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_float_output)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.gaplessPlayback,
@@ -106,7 +106,23 @@ fun AudioEffectsScreen() {
 						},
 						content = { Text(stringResource(R.string.option_gapless_playback)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_gapless_playback)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
+					)
+					SettingsSliderItem(
+						content = { Text(stringResource(R.string.option_crossfade)) },
+						trailingContent = {
+							Text(
+								if (preferenceManager.crossfadeDuration > 0f)
+									"${preferenceManager.crossfadeDuration.toInt()}s"
+								else stringResource(R.string.option_off)
+							)
+						},
+						value = preferenceManager.crossfadeDuration,
+						valueRange = 0f..10f,
+						steps = 9,
+						onValueChange = { preferenceManager.crossfadeDuration = it.round(0) },
+						onValueChangeFinished = { snackBarManager.notifyRestartRequired() },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.audioOffload,
@@ -116,7 +132,7 @@ fun AudioEffectsScreen() {
 						},
 						content = { Text(stringResource(R.string.option_audio_offload)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_audio_offload)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 5)
 					)
 				}
 
