@@ -121,7 +121,7 @@ class ExoControllerHandler(
 							format.containerMimeType == songMimeType
 						val isOriginalFile = currentSong != null && matchesMime
 						val fallbackBitrate = if (isOriginalFile) {
-							currentSong?.bitRate?.times(1000)
+							currentSong.bitRate?.times(1000)
 						} else {
 							withContext(Dispatchers.Main) {
 								getEstimateBitrate()
@@ -560,6 +560,7 @@ class ExoControllerHandler(
 
 	private fun applyAudioGain() = audioGainManager.apply {
 		setAmplifierValues(preferenceManager.rgAmpGain, preferenceManager.ampGain)
+		setPreventClipping(preferenceManager.preventClipping)
 
 		if (preferenceManager.replayGainMode != ReplayGainMode.Off) {
 			val currentSong = state.value.currentSong

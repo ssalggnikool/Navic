@@ -14,10 +14,11 @@ import androidx.media3.common.util.UnstableApi
 import paige.navic.domain.model.DomainReplayGain
 import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.util.decibelsToLinear
-import paige.navic.util.effectiveGain
+import paige.navic.util.effectiveGainAndPeak
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.abs
+import kotlin.math.min
 
 @UnstableApi
 class ExoAudioGainProcessor : BaseAudioProcessor() {
@@ -27,9 +28,16 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 
 	private var replayGainMetadata: DomainReplayGain? = null
 	private var isReplayGainActive = false
+	private var activePeak: Float? = null
 
 	private val finalVolume: Float
-		get() = (if (isReplayGainActive) volume + rgAmpValue else ampValue).decibelsToLinear()
+		get() {
+			if (!isReplayGainActive) return ampValue.decibelsToLinear()
+			val linear = (volume + rgAmpValue).decibelsToLinear()
+			val peak = activePeak
+			// clamp so gain * peak stays at or below full scale
+			return if (preventClipping && peak != null && peak > 0f) min(linear, 1f / peak) else linear
+		}
 
 	// we should ONLY flush if the gain has changed, flushing needlessly will cause some "bits" of the music to skip
 	// flushing the stream is needed because otherwise the user might hear some crackling after changing values
@@ -51,17 +59,25 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 			field = value
 		}
 
+	var preventClipping = false
+		set(value) {
+			if (field != value) flush(StreamMetadata.DEFAULT)
+			field = value
+		}
+
 	fun applyGainMode(mode: ReplayGainMode) {
 		if (mode == ReplayGainMode.Off) {
 			resetGain()
 			return
 		}
-		val gain = replayGainMetadata?.effectiveGain(mode)
-		if (gain != null) {
+		val values = replayGainMetadata?.effectiveGainAndPeak(mode)
+		if (values != null) {
 			isReplayGainActive = true
-			volume = gain
+			activePeak = values.second
+			volume = values.first
 		} else {
 			isReplayGainActive = false
+			activePeak = null
 			volume = DEFAULT_GAIN_DB
 		}
 	}
@@ -70,6 +86,7 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 		replayGainMetadata = metadata
 		if (metadata == null) {
 			isReplayGainActive = false
+			activePeak = null
 			volume = DEFAULT_GAIN_DB
 		}
 	}
@@ -77,6 +94,7 @@ class ExoAudioGainProcessor : BaseAudioProcessor() {
 	fun resetGain() {
 		replayGainMetadata = null
 		isReplayGainActive = false
+		activePeak = null
 		volume = DEFAULT_GAIN_DB
 	}
 

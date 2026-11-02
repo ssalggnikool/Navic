@@ -155,7 +155,7 @@ fun AudioEffectsScreen() {
 								withoutReplayGain = preferenceManager.ampGain
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 					SettingsSliderItem(
 						content = { Text(stringResource(R.string.option_preamp_without_rg)) },
@@ -169,7 +169,19 @@ fun AudioEffectsScreen() {
 								withoutReplayGain = it
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+					)
+					SettingsToggleItem(
+						checked = preferenceManager.preventClipping,
+						onCheckedChange = {
+							preferenceManager.preventClipping = it
+							audioGainManager.setPreventClipping(it)
+						},
+						content = { Text(stringResource(R.string.option_prevent_clipping)) },
+						supportingContent = {
+							Text(stringResource(R.string.subtitle_prevent_clipping))
+						},
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
 
