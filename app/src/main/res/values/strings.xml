@@ -408,6 +408,7 @@
 	<string name="action_update_app">Update</string>
 	<string name="action_play_next">Play next</string>
 	<string name="action_add_to_queue">Add to queue</string>
+	<string name="action_instant_mix">Instant mix</string>
 	<string name="action_queue">Queue</string>
 	<string name="action_reorder">Reorder</string>
 	<string name="action_remove_from_queue">Remove from queue</string>
@@ -444,6 +445,8 @@
 	<string name="notice_created_radio">Radio %1$s added.</string>
 	<string name="notice_added_to_queue">Added to queue.</string>
 	<string name="notice_play_next">Playing next.</string>
+	<string name="notice_instant_mix_empty">No similar songs found.</string>
+	<string name="notice_instant_mix_failed">Couldn\'t start instant mix.</string>
 	<string name="notice_added_to_playlist">Added to %1$s.</string>
 	<string name="notice_added_to_multiple_playlists">Added to multiple playlists.</string>
 	<string name="notice_download_started">Download started.</string>

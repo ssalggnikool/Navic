@@ -72,6 +72,9 @@ fun NowPlayingMoreButton(
 				onDismissRequest = { expanded = false },
 				song = song,
 				isPlaylist = playerState.currentCollection is DomainPlaylist,
+				onInstantMix = if (song.id.startsWith("radio_")) null else {
+					{ player.playInstantMix(song) }
+				},
 				onViewAlbum = dropUnlessResumed {
 					playerState.currentCollection?.let { collection ->
 						backStack.remove(Screen.NowPlaying)

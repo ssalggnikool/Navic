@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import paige.navic.R
 import paige.navic.database.dao.AlbumDao
 import paige.navic.domain.manager.playback.AudioGainManager
 import paige.navic.domain.manager.playback.StreamCacheManager
@@ -46,6 +47,7 @@ import paige.navic.playback.exoplayer.toMediaItem
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.ui.core.QueueSong
 import paige.navic.ui.core.toQueueSong
+import paige.navic.util.Logger
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -413,6 +415,20 @@ class MediaPlayer(
 			shuffleModeEnabled
 		)
 		return if (next == C.INDEX_UNSET) mediaItemCount else next
+	}
+
+	fun playInstantMix(seed: DomainSong) = this@MediaPlayer.launch {
+		val similar = songRepository.getSimilarSongs(seed.id).getOrElse {
+			Logger.e("MediaPlayer", "Failed to fetch similar songs: ${it.message}")
+			snackBarManager.notify(R.string.notice_instant_mix_failed)
+			return@launch
+		}
+		val mix = similar.filter { it.id != seed.id }
+		if (mix.isEmpty()) {
+			snackBarManager.notify(R.string.notice_instant_mix_empty)
+			return@launch
+		}
+		playNowInternal(listOf(seed) + mix, 0)
 	}
 
 	fun playRadio(radio: DomainRadio) = launch {

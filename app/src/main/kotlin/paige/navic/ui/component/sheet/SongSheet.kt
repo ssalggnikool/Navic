@@ -45,6 +45,7 @@ import paige.navic.domain.manager.playback.SleepTimerMode
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.canUserShare
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.ui.component.common.CoverArt
@@ -62,6 +63,7 @@ import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.DownloadOff
 import paige.navic.ui.icons.outlined.Info
+import paige.navic.ui.icons.outlined.InstantMix
 import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.icons.outlined.PlaylistRemove
 import paige.navic.ui.icons.outlined.Queue
@@ -88,6 +90,7 @@ fun SongSheet(
 	onShare: (() -> Unit)? = null,
 	onPlayNext: (() -> Unit)? = null,
 	onAddToQueue: (() -> Unit)? = null,
+	onInstantMix: (() -> Unit)? = null,
 	onTrackInfo: (() -> Unit)? = null,
 	onViewAlbum: (() -> Unit)? = null,
 	onViewArtist: (() -> Unit)? = null,
@@ -107,6 +110,9 @@ fun SongSheet(
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 	val sessionManager = koinInject<SessionManager>()
+
+	val reachability = koinInject<ReachabilityFlow>()
+	val isReachable by reachability.isReachable.collectAsStateWithLifecycle()
 
 	val sleepTimerManager = koinInject<SleepTimerManager>()
 	val sleepTimerMode by sleepTimerManager.mode.collectAsStateWithLifecycle()
@@ -328,6 +334,20 @@ fun SongSheet(
 						},
 						colors = colors,
 						contentPadding = contentPadding
+					)
+				}
+
+				if (onInstantMix != null) {
+					ListItem(
+						content = { Text(stringResource(R.string.action_instant_mix)) },
+						leadingContent = { Icon(Icons.Outlined.InstantMix, null) },
+						onClick = {
+							onInstantMix()
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding,
+						enabled = isReachable
 					)
 				}
 
