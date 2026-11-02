@@ -11,10 +11,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.Format
+import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionParameters
@@ -22,15 +24,20 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.AudioProcessorChain
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer
-import androidx.media3.exoplayer.BaseRenderer
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.LoadControl
+import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.RenderersFactory
+import androidx.media3.exoplayer.audio.AudioRendererEventListener
+import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.metadata.MetadataOutput
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.text.TextOutput
+import androidx.media3.exoplayer.video.VideoRendererEventListener
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.flac.FlacExtractor
 import androidx.media3.extractor.mkv.MatroskaExtractor
@@ -99,10 +106,27 @@ class ExoStateHolder(
 	lateinit var mediaSession: MediaLibraryService.MediaLibrarySession
 	private var mediaSessionCallback: MediaSessionCallback? = null
 
-	/** Set by [ExoPlaybackService] so a rebuilt session is unregistered from the service. */
 	var onSessionReleased: ((MediaLibraryService.MediaLibrarySession) -> Unit)? = null
 
 	val gainProcessor = ExoAudioGainProcessor()
+
+	val secondaryGainProcessor = ExoAudioGainProcessor()
+
+	private val crossfadeDurationUs: Long
+		get() = (preferenceManager.crossfadeDuration * C.MICROS_PER_SECOND).toLong()
+
+	// touching the player directly throws an IllegalStateException (one can't access another thread's)
+	@Volatile
+	private var shuffleEnabled = false
+
+	private val crossfadePlanProvider = object : ExoPlayer.CrossfadePlanProvider {
+		override fun getCrossfadeOverlapUs(fromMediaItem: MediaItem, toMediaItem: MediaItem): Long {
+			if (shuffleEnabled) return C.TIME_UNSET
+			val fromAlbum = fromMediaItem.mediaMetadata.extras?.getString(ALBUM_ID_EXTRA)
+			val toAlbum = toMediaItem.mediaMetadata.extras?.getString(ALBUM_ID_EXTRA)
+			return if (fromAlbum != null && fromAlbum == toAlbum) 0 else C.TIME_UNSET
+		}
+	}
 
 	private val extractorsFactory = ExtractorsFactory {
 		arrayOf(
@@ -117,8 +141,10 @@ class ExoStateHolder(
 		)
 	}
 
-	private fun createRenderers(context: Context): RenderersFactory {
-		val audioProcessors = arrayOf<AudioProcessor>(gainProcessor)
+	private fun createAudioSink(
+		context: Context,
+		audioProcessors: Array<AudioProcessor>
+	): AudioSink {
 		val audioSinkBuilder = DefaultAudioSink.Builder(context)
 
 		if (preferenceManager.floatOutputEnabled) {
@@ -154,23 +180,66 @@ class ExoStateHolder(
 			audioSinkBuilder.setAudioProcessors(audioProcessors)
 		}
 
-		val audioSink = audioSinkBuilder.build()
+		return audioSinkBuilder.build()
+	}
 
-		return RenderersFactory { eventHandler, _, eventListener, _, _ ->
-			arrayOf<BaseRenderer>(
-				FfmpegAudioRenderer(
-					eventHandler,
-					eventListener,
-					audioSink
-				),
-				MediaCodecAudioRenderer(
-					context,
-					MediaCodecSelector.DEFAULT,
-					eventHandler,
-					eventListener,
-					audioSink
+	private fun createRenderers(context: Context): RenderersFactory {
+		val audioSink = createAudioSink(context, arrayOf(gainProcessor))
+		val secondaryAudioSink = crossfadeDurationUs.takeIf { it > 0 }?.let {
+			createAudioSink(context, arrayOf(secondaryGainProcessor))
+		}
+
+		return object : RenderersFactory {
+			override fun createRenderers(
+				eventHandler: Handler,
+				videoRendererEventListener: VideoRendererEventListener,
+				audioRendererEventListener: AudioRendererEventListener,
+				textRendererOutput: TextOutput,
+				metadataRendererOutput: MetadataOutput
+			): Array<Renderer> {
+				return arrayOf(
+					FfmpegAudioRenderer(
+						eventHandler,
+						audioRendererEventListener,
+						audioSink
+					),
+					MediaCodecAudioRenderer(
+						context,
+						MediaCodecSelector.DEFAULT,
+						eventHandler,
+						audioRendererEventListener,
+						audioSink
+					)
 				)
-			)
+			}
+
+			override fun createSecondaryRenderer(
+				renderer: Renderer,
+				eventHandler: Handler,
+				videoRendererEventListener: VideoRendererEventListener,
+				audioRendererEventListener: AudioRendererEventListener,
+				textRendererOutput: TextOutput,
+				metadataRendererOutput: MetadataOutput
+			): Renderer? {
+				val sink = secondaryAudioSink ?: return null
+				return when (renderer) {
+					is FfmpegAudioRenderer -> FfmpegAudioRenderer(
+						eventHandler,
+						audioRendererEventListener,
+						sink
+					)
+
+					is MediaCodecAudioRenderer -> MediaCodecAudioRenderer(
+						context,
+						MediaCodecSelector.DEFAULT,
+						eventHandler,
+						audioRendererEventListener,
+						sink
+					)
+
+					else -> null
+				}
+			}
 		}
 	}
 
@@ -223,6 +292,11 @@ class ExoStateHolder(
 			setMediaSourceFactory(mediaSourceFactory)
 			setHandleAudioBecomingNoisy(true)
 			setWakeMode(C.WAKE_MODE_NETWORK)
+			if (crossfadeDurationUs > 0) {
+				setCrossfadeConfiguration(
+					ExoPlayer.CrossfadeConfiguration(crossfadeDurationUs, crossfadePlanProvider)
+				)
+			}
 		}.build()
 			.apply {
 				setAudioAttributes(
@@ -255,6 +329,7 @@ class ExoStateHolder(
 
 				player.addListener(object : Player.Listener {
 					override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+						shuffleEnabled = shuffleModeEnabled
 						mediaSession.setCustomLayout(makeButtons(player))
 					}
 

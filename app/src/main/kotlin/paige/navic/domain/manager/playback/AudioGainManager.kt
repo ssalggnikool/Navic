@@ -13,6 +13,7 @@ import org.koin.core.component.inject
 import paige.navic.domain.model.DomainReplayGain
 import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
 
 @OptIn(UnstableApi::class)
 class AudioGainManager : KoinComponent {
@@ -21,23 +22,30 @@ class AudioGainManager : KoinComponent {
 	fun applyGainMode(
 		mode: ReplayGainMode
 	) {
-		stateHolder.gainProcessor.applyGainMode(mode)
+		onGainProcessors { it.applyGainMode(mode) }
 	}
 
 	fun resetGain() {
-		stateHolder.gainProcessor.resetGain()
+		onGainProcessors { it.resetGain() }
 	}
 
 	fun setAmplifierValues(withReplayGain: Float, withoutReplayGain: Float) {
-		stateHolder.gainProcessor.rgAmpValue = withReplayGain
-		stateHolder.gainProcessor.ampValue = withoutReplayGain
+		onGainProcessors {
+			it.rgAmpValue = withReplayGain
+			it.ampValue = withoutReplayGain
+		}
 	}
 
 	fun setPreventClipping(value: Boolean) {
-		stateHolder.gainProcessor.preventClipping = value
+		onGainProcessors { it.preventClipping = value }
 	}
 
 	fun setReplayGainMetadata(metadata: DomainReplayGain?) {
-		stateHolder.gainProcessor.setReplayGainMetadata(metadata)
+		onGainProcessors { it.setReplayGainMetadata(metadata) }
+	}
+
+	private inline fun onGainProcessors(block: (ExoAudioGainProcessor) -> Unit) {
+		block(stateHolder.gainProcessor)
+		block(stateHolder.secondaryGainProcessor)
 	}
 }

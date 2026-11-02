@@ -24,6 +24,7 @@ fun SettingsSliderItem(
 	value: Float,
 	valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
 	onValueChange: (Float) -> Unit,
+	onValueChangeFinished: (() -> Unit)? = null,
 	steps: Int = 0,
 	enabled: Boolean = true,
 	shapes: ListItemShapes,
@@ -42,6 +43,7 @@ fun SettingsSliderItem(
 				value = value,
 				valueRange = valueRange,
 				onValueChange = onValueChange,
+				onValueChangeFinished = onValueChangeFinished,
 				steps = steps
 			)
 		},

@@ -93,7 +93,7 @@ interface PlaylistDao {
 	suspend fun getPlaylistSongs(playlistId: String, limit: Int, offset: Int): List<paige.navic.database.entity.SongEntity>
 
 	@Query("""
-		SELECT s.songId, s.title, s.artistName, s.albumTitle, s.coverArtId, s.duration, s.filePath, s.artists, s.albumArtists
+		SELECT s.songId, s.title, s.artistName, s.albumTitle, s.belongsToAlbumId AS albumId, s.coverArtId, s.duration, s.filePath, s.artists, s.albumArtists
 		FROM SongEntity s
 		INNER JOIN PlaylistSongCrossRef ps ON s.songId = ps.songId
 		WHERE ps.playlistId = :playlistId
