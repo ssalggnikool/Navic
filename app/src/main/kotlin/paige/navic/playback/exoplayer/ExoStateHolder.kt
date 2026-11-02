@@ -45,21 +45,31 @@ import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import paige.navic.R
+import paige.navic.domain.manager.playback.EqualizerManager
 import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.SyncManager
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.library.AndroidAutoLibrary
 import paige.navic.playback.exoplayer.impl.library.MediaSessionCallback
+import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
 import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
+import paige.navic.playback.exoplayer.impl.listeners.ScrobbleExoListener
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import paige.navic.playback.exoplayer.impl.playback.ExoEqualizerManager
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
@@ -69,16 +79,27 @@ class ExoStateHolder(
 	private val preferenceManager: PreferenceManager,
 	private val dataSource: NavicDataSource.NavicDataSourceFactory,
 	private val androidAutoLibrary: AndroidAutoLibrary,
-	private val stateRepository: PlayerStateRepository
+	private val stateRepository: PlayerStateRepository,
+	private val equalizerManager: EqualizerManager,
+	private val reachability: ReachabilityFlow,
+	private val syncManager: SyncManager,
+	private val sessionManager: SessionManager
 ) {
 	private val mutex = Mutex()
-	private val libraryExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+	private val listenerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+	private var equalizerJob: Job? = null
+	private var exoEqualizerManager: ExoEqualizerManager? = null
+	private var scrobbleListener: ScrobbleExoListener? = null
+	private var discordIntegration: ExoDiscordIntegration? = null
 
 	private var isInitialized = false
 
 	// ExoPlaybackService and AudioGainManager depends on these fields below
 	lateinit var player: ExoPlayer
 	lateinit var mediaSession: MediaLibraryService.MediaLibrarySession
+
+	/** Set by [ExoPlaybackService] so a rebuilt session is unregistered from the service. */
+	var onSessionReleased: ((MediaLibraryService.MediaLibrarySession) -> Unit)? = null
 
 	val gainProcessor = ExoAudioGainProcessor()
 
@@ -241,10 +262,32 @@ class ExoStateHolder(
 					}
 				})
 
-				player.addListener(ExoDiscordIntegrationImpl(player))
+				player.addListener(
+					ExoDiscordIntegrationImpl(player).also { discordIntegration = it }
+				)
+
+				attachPlayerListeners(player)
 			}
 
 		return player
+	}
+
+	private fun attachPlayerListeners(player: ExoPlayer) {
+		scrobbleListener = ScrobbleExoListener(
+			player,
+			reachability,
+			syncManager,
+			sessionManager,
+			preferenceManager
+		)
+
+		exoEqualizerManager = ExoEqualizerManager(equalizerManager, context).apply {
+			player.addListener(this)
+			applyEqualizerMode(equalizerManager.config.value.mode)
+			equalizerJob = listenerScope.launch {
+				equalizerManager.config.collect { updateConfig() }
+			}
+		}
 	}
 
 	private suspend fun createMediaSession(): MediaLibraryService.MediaLibrarySession =
@@ -300,13 +343,29 @@ class ExoStateHolder(
 	fun destroySession() {
 		if (!isInitialized) return
 
+		equalizerJob?.cancel()
+		equalizerJob = null
+		exoEqualizerManager?.releaseEqualizer()
+		exoEqualizerManager = null
+		scrobbleListener?.release()
+		scrobbleListener = null
+		discordIntegration?.release()
+		discordIntegration = null
+
+		onSessionReleased?.invoke(mediaSession)
+
 		mediaSession.let {
 			it.player.stop()
 			it.player.release()
 			it.release()
 		}
-		libraryExecutor.shutdownNow()
 		isInitialized = !isInitialized
+	}
+
+	fun restartPlayback() {
+		if (!isInitialized) return
+		destroySession()
+		initState()
 	}
 
 	fun reloadNetworkDataSource() {

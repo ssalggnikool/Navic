@@ -43,6 +43,7 @@ import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.domain.repository.SongRepository
 import paige.navic.playback.exoplayer.ExoControllerHandler
 import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.effectiveDurationMs
 import paige.navic.playback.exoplayer.toMediaItem
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.ui.core.QueueSong
@@ -65,7 +66,8 @@ class MediaPlayer(
 	private val sessionManager: SessionManager,
 	private val snackBarManager: SnackBarManager,
 	private val streamCacheManager: StreamCacheManager,
-	private val connectivityManager: ConnectivityManager
+	private val connectivityManager: ConnectivityManager,
+	private val stateHolder: ExoStateHolder
 ) {
 	private val _uiState = MutableStateFlow(PlayerUiState())
 	val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
@@ -299,6 +301,30 @@ class MediaPlayer(
 		if (!state.isPaused) {
 			player.play()
 		}
+	}
+
+	fun restartPlayback() {
+		val player = controller
+		val progress = if (player != null) {
+			val duration = player.effectiveDurationMs()
+			if (duration > 0) {
+				(player.currentPosition.toFloat() / duration).coerceIn(0f, 1f)
+			} else {
+				uiState.value.progress
+			}
+		} else {
+			uiState.value.progress
+		}
+		val state = uiState.value.copy(progress = progress)
+
+		controllerHandler?.release()
+		controllerHandler = null
+		controllerFuture?.let(MediaController::releaseFuture)
+		controllerFuture = null
+		controller = null
+		stateHolder.restartPlayback()
+		pendingSyncState = state
+		connectService()
 	}
 
 	fun addToQueueSingle(song: DomainSong, notify: Boolean = true) {
