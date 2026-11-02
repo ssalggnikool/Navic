@@ -193,7 +193,7 @@
     <string name="info_no_shares">Ссылки отсутствуют</string>
     <string name="info_no_lyrics">Текст песни отсутствует</string>
     <string name="info_no_albums">Без альбомов</string>
-    <string name="info_no_artists">Без артистов</string>
+    <string name="info_no_artists">Нет исполнителей</string>
     <string name="info_no_queue">Пустая очередь</string>
     <string name="info_no_genres">Жанры отсутствуют</string>
     <string name="info_no_playlists_short">Плейлисты отсутствуют</string>
@@ -546,4 +546,5 @@
     <string name="title_integrations">Интеграции</string>
     <string name="action_edit_api_key">Редактировать ключ API %1$s</string>
     <string name="title_matrix_space">Пространство Matrix</string>
+    <string name="notice_app_icon_changed">Иконка приложения изменена, приложение закрывается!</string>
 </resources>
