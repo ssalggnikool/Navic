@@ -8,6 +8,7 @@ package paige.navic.ui.core
 
 import kotlinx.serialization.Serializable
 import paige.navic.domain.model.DomainExplicitStatus
+import paige.navic.domain.model.DomainReplayGain
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongArtist
 import paige.navic.domain.model.SongInfo
@@ -28,7 +29,8 @@ data class QueueSong(
 	override val year: Int?,
 	override val playCount: Int = 0,
 	override val isExternal: Boolean = false,
-	val explicitStatus: DomainExplicitStatus
+	val explicitStatus: DomainExplicitStatus,
+	val replayGain: DomainReplayGain? = null
 ) : SongInfo
 
 fun DomainSong.toQueueSong() = QueueSong(
@@ -45,7 +47,8 @@ fun DomainSong.toQueueSong() = QueueSong(
 	year = year,
 	playCount = playCount,
 	isExternal = isExternal,
-	explicitStatus = explicitStatus
+	explicitStatus = explicitStatus,
+	replayGain = replayGain
 )
 
 
@@ -75,7 +78,7 @@ fun QueueSong.toDomainSong() = DomainSong(
 	bitDepth = null,
 	sampleRate = null,
 	audioChannelCount = null,
-	replayGain = null,
+	replayGain = replayGain,
 	fileSize = 0,
 	fileExtension = null,
 	mimeType = null,
