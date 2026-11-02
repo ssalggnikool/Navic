@@ -66,6 +66,8 @@ import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
+internal const val ALBUM_ID_EXTRA = "paige.navic.albumId"
+
 @androidx.annotation.OptIn(UnstableApi::class)
 class ExoControllerHandler(
 	private val context: Context,
@@ -668,6 +670,7 @@ fun DomainSong.toMediaItem(prefix: String? = null, artworkUri: Uri? = null): Med
 		title = title,
 		artistName = artistName,
 		albumTitle = albumTitle,
+		albumId = albumId,
 		coverArtId = coverArtId,
 		duration = duration,
 		filePath = filePath,
@@ -683,6 +686,7 @@ fun PlayableSongRow.toMediaItem(prefix: String? = null): MediaItem =
 		title = title,
 		artistName = artistName,
 		albumTitle = albumTitle,
+		albumId = albumId,
 		coverArtId = coverArtId,
 		duration = duration,
 		filePath = filePath,
@@ -697,6 +701,7 @@ fun QueueSong.toMediaItem(prefix: String? = null): MediaItem =
 		title = title,
 		artistName = artistName,
 		albumTitle = albumTitle,
+		albumId = albumId,
 		coverArtId = coverArtId,
 		duration = duration,
 		filePath = filePath,
@@ -710,6 +715,7 @@ private fun buildMediaItem(
 	title: String,
 	artistName: String?,
 	albumTitle: String?,
+	albumId: String?,
 	coverArtId: String?,
 	duration: Duration,
 	filePath: String?,
@@ -733,6 +739,9 @@ private fun buildMediaItem(
 			setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
 			setIsBrowsable(false)
 			setIsPlayable(true)
+			setExtras(
+				Bundle().apply { putString(ALBUM_ID_EXTRA, albumId) }
+			)
 		}
 
 	val metadata = metadataBuilder.build()
