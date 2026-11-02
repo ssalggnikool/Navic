@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import paige.navic.playback.exoplayer.ExoStateHolder.Companion.COMMAND_REPEAT
 import paige.navic.playback.exoplayer.ExoStateHolder.Companion.COMMAND_SHUFFLE
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
@@ -29,6 +30,10 @@ internal class MediaSessionCallback(
 	private val library: AndroidAutoLibrary,
 ) : MediaLibraryService.MediaLibrarySession.Callback {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+	fun release() {
+		scope.cancel()
+	}
 
 	companion object {
 		// commands
@@ -130,11 +135,15 @@ internal class MediaSessionCallback(
 		pageSize: Int,
 		params: MediaLibraryService.LibraryParams?
 	): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> =
-		scope.future {
-			LibraryResult.ofItemList(
-				library.getChildren(parentId, page, pageSize),
-				params
-			)
+		if (page > 0) {
+			Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params))
+		} else {
+			scope.future {
+				LibraryResult.ofItemList(
+					library.getChildren(parentId, pageSize),
+					params
+				)
+			}
 		}
 
 	override fun onAddMediaItems(
@@ -191,10 +200,10 @@ internal class MediaSessionCallback(
 		browser: MediaSession.ControllerInfo,
 		query: String,
 		params: MediaLibraryService.LibraryParams?
-	): ListenableFuture<LibraryResult<Void>> {
+	): ListenableFuture<LibraryResult<Void>> = scope.future {
 		val count = library.searchCount(query)
 		session.notifySearchResultChanged(browser, query, count, params)
-		return Futures.immediateFuture(LibraryResult.ofVoid())
+		LibraryResult.ofVoid()
 	}
 
 	override fun onGetSearchResult(
@@ -204,12 +213,17 @@ internal class MediaSessionCallback(
 		page: Int,
 		pageSize: Int,
 		params: MediaLibraryService.LibraryParams?
-	): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> = scope.future {
-		LibraryResult.ofItemList(
-			library.search(query, page, pageSize),
-			params
-		)
-	}
+	): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> =
+		if (page > 0) {
+			Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params))
+		} else {
+			scope.future {
+				LibraryResult.ofItemList(
+					library.search(query, pageSize),
+					params
+				)
+			}
+		}
 
 	private fun MediaSession.ControllerInfo.isAndroidAuto(): Boolean =
 		packageName == "com.google.android.projection.gearhead" ||

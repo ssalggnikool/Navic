@@ -399,15 +399,13 @@ class MediaPlayer(
 
 	fun playNextSingle(song: DomainSong) = launch {
 		val player = controller ?: return@launch
+		val item = withContext(Dispatchers.Default) { song.toMediaItem() }
 
 		val insertAt = player.nextInsertIndex()
 		rememberSongs(listOf(song))
 
 		controllerHandler?.insertOrder(insertAt, 1)
-		player.addMediaItem(
-			insertAt,
-			withContext(Dispatchers.Default) { song.toMediaItem() }
-		)
+		player.addMediaItem(insertAt, item)
 		controllerHandler?.pushOrder()
 		snackBarManager.notifyPlayNext()
 	}
