@@ -65,8 +65,8 @@ fun GenreListScreenCard(
 		seedColor = seedColor,
 		isDark = isDark
 	)
-	val firstAlbumCoverArt = genre.albums.firstOrNull()?.coverArtId
-	val secondAlbumCoverArt = genre.albums.getOrNull(1)?.coverArtId
+	val firstAlbumCoverArt = genre.coverArtIds.firstOrNull()
+	val secondAlbumCoverArt = genre.coverArtIds.getOrNull(1)
 	Surface(
 		modifier = modifier,
 		color = colorScheme.primary,
@@ -126,8 +126,8 @@ fun GenreListScreenCard(
 				Text(
 					pluralStringResource(
 						R.plurals.count_albums,
-						genre.albums.count(),
-						genre.albums.count()
+						genre.albumCount,
+						genre.albumCount
 					),
 					style = MaterialTheme.typography.titleSmall,
 				)
