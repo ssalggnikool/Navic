@@ -15,5 +15,5 @@ data class DomainGenre(
 	val name: String,
 	val albumCount: Int,
 	val songCount: Int,
-	val albums: List<DomainAlbum>
+	val coverArtIds: List<String>
 )
