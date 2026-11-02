@@ -42,7 +42,7 @@
     <string name="subtitle_about">App info, versjon, oppdateringer og lisenser</string>
     <string name="subtitle_playlist">Spilleliste</string>
     <string name="subtitle_now_playing_background_style">Velg statisk hvis du har problemer med ytelse</string>
-    <string name="subtitle_check_for_updates">Se etter oppdateringer på Github når appen starter</string>
+    <string name="subtitle_check_for_updates">Se etter oppdateringer på Codeberg når appen starter</string>
     <string name="subtitle_offline_mode">Styrer når appen settes i frakobletmodus. Krever omstart</string>
     <string name="subtitle_streaming_quality">Juster kvaliteten på musikk ved strømming</string>
     <string name="subtitle_download_quality">Justerer kvaliteten på nedlastet musikk</string>
