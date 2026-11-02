@@ -17,10 +17,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,39 +75,59 @@ fun GenreListScreenCard(
 	}
 	val firstAlbumCoverArt = genre.coverArtIds.firstOrNull()
 	val secondAlbumCoverArt = genre.coverArtIds.getOrNull(1)
+	var coverLoads by remember { mutableIntStateOf(0) }
+	val coverLayer = rememberGraphicsLayer()
+	val lastRecordedLoads = remember { intArrayOf(-1) }
 	Surface(
 		modifier = modifier,
 		color = backgroundColor,
 		contentColor = contentColor,
 		shape = MaterialTheme.shapes.medium,
-		shadowElevation = 2.dp,
+		shadowElevation = 0.dp,
 		onClick = dropUnlessResumed {
 			backStack.add(Screen.GenreDetail(genreName = genre.name))
 		}
 	) {
 		Box {
-			Box(Modifier.align(Alignment.CenterEnd)) {
+			Box(
+				Modifier
+					.align(Alignment.CenterEnd)
+					.drawWithContent {
+						if (lastRecordedLoads[0] != coverLoads) {
+							coverLayer.record { this@drawWithContent.drawContent() }
+							lastRecordedLoads[0] = coverLoads
+						}
+						drawLayer(coverLayer)
+					}
+			) {
 				if (firstAlbumCoverArt != null) {
 					CoverArt(
 						coverArtId = firstAlbumCoverArt,
 						modifier = Modifier
 							.padding(top = 10.dp)
-							.rotate(10f)
 							.size(90.dp)
 							.offset(x = 5.dp, y = 5.dp),
 						shape = MaterialTheme.shapes.medium,
-						shadowElevation = 3.dp
+						shadowElevation = 0.dp,
+						rotationZ = 10f,
+						square = false,
+						crossfadeMs = 0,
+						onLoad = { coverLoads++ }
 					)
 					if (secondAlbumCoverArt != null) {
 						CoverArt(
 							coverArtId = secondAlbumCoverArt,
 							modifier = Modifier
 								.padding(top = 13.dp)
-								.rotate(25f)
 								.size(90.dp)
 								.offset(x = 25.dp, y = 15.dp),
 							shape = MaterialTheme.shapes.medium,
-							shadowElevation = 10.dp
+							shadowElevation = 0.dp,
+							fakeShadowElevation = 10.dp,
+							rotationZ = 25f,
+							square = false,
+							crossfadeMs = 0,
+							onLoad = { coverLoads++ }
 						)
 					}
 				}
