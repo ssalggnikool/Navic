@@ -77,6 +77,7 @@ class PreferenceManager(
 	var replayGainMode by preference(ReplayGainMode.Off)
 	var rgAmpGain by preference(0f)
 	var ampGain by preference(0f)
+	var preventClipping by preference(true)
 	var gaplessPlayback by preference(true)
 	var audioOffload by preference(false)
 	var floatOutputEnabled by preference(false)

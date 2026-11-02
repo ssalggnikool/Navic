@@ -33,6 +33,10 @@ class AudioGainManager : KoinComponent {
 		stateHolder.gainProcessor.ampValue = withoutReplayGain
 	}
 
+	fun setPreventClipping(value: Boolean) {
+		stateHolder.gainProcessor.preventClipping = value
+	}
+
 	fun setReplayGainMetadata(metadata: DomainReplayGain?) {
 		stateHolder.gainProcessor.setReplayGainMetadata(metadata)
 	}
