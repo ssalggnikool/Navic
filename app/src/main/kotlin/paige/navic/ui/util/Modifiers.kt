@@ -19,6 +19,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Modifier.shimmerLoading(
@@ -51,5 +54,28 @@ fun Modifier.shimmerLoading(
 				end = Offset(x = translateAnimation + 200f, y = translateAnimation + 200f),
 			)
 		)
+	}
+}
+
+/**
+ * cheap approximation of an elevation shadow
+ * TODO: make this more fancy (cornerRadius isn't even being used, lol)
+ */
+fun Modifier.fakeShadow(
+	elevation: Dp,
+	rotationZ: Float = 0f,
+	cornerRadius: Dp = 12.dp
+): Modifier {
+	if (elevation <= 0.dp) return this
+	return drawBehind {
+		val dy = elevation.toPx() * 0.5f
+		val alpha = (0.10f + elevation.value * 0.008f).coerceAtMost(0.20f)
+		rotate(rotationZ, pivot = center) {
+			drawRect(
+				color = Color.Black.copy(alpha = alpha),
+				topLeft = Offset(0f, dy),
+				size = size
+			)
+		}
 	}
 }
