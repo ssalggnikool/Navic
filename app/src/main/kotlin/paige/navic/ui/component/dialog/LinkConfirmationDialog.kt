@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
@@ -53,9 +52,7 @@ fun LinkConfirmationDialog(
 						horizontalArrangement = Arrangement.Center
 					) {
 						Text(
-							text = linkToOpen,
-							maxLines = 1,
-							overflow = TextOverflow.Ellipsis
+							text = linkToOpen
 						)
 					}
 				}
