@@ -97,6 +97,7 @@ class ExoStateHolder(
 	// ExoPlaybackService and AudioGainManager depends on these fields below
 	lateinit var player: ExoPlayer
 	lateinit var mediaSession: MediaLibraryService.MediaLibrarySession
+	private var mediaSessionCallback: MediaSessionCallback? = null
 
 	/** Set by [ExoPlaybackService] so a rebuilt session is unregistered from the service. */
 	var onSessionReleased: ((MediaLibraryService.MediaLibrarySession) -> Unit)? = null
@@ -307,10 +308,12 @@ class ExoStateHolder(
 			)
 
 			this.player.let {
+				val callback = MediaSessionCallback(it, androidAutoLibrary)
+				mediaSessionCallback = callback
 				mediaSession = MediaLibraryService.MediaLibrarySession.Builder(
 					context,
 					it,
-					MediaSessionCallback(it, androidAutoLibrary)
+					callback
 				)
 					.setPeriodicPositionUpdateEnabled(false) // fix android auto queue randomly jumping to the top
 					.setSessionActivity(sessionPendingIntent)
@@ -353,6 +356,9 @@ class ExoStateHolder(
 		discordIntegration = null
 
 		onSessionReleased?.invoke(mediaSession)
+
+		mediaSessionCallback?.release()
+		mediaSessionCallback = null
 
 		mediaSession.let {
 			it.player.stop()
