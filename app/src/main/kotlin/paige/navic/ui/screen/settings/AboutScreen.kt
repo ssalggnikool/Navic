@@ -152,7 +152,7 @@ fun SettingsAboutScreen() {
 				)
 				SettingsNavItem(
 					onClick = { linkToOpen = "https://discord.gg/TBcnNX66PH" },
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 2),
+					shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3),
 					content = { Text(stringResource(R.string.title_discord_server)) }
 				)
 			}
