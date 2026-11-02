@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.Flow
 import paige.navic.database.dao.SongDao
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.mapper.toEntity
 import paige.navic.database.paging.createPagedFlow
 import paige.navic.database.query.toSqlQuery
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSong
@@ -22,9 +24,16 @@ import kotlin.time.Clock
 class SongRepository(
 	private val songDao: SongDao,
 	private val dbRepository: DbRepository,
-	private val syncManager: SyncManager
+	private val syncManager: SyncManager,
+	private val sessionManager: SessionManager
 ) {
 	suspend fun getSongById(id: String) = songDao.getSongById(id)?.toDomainModel()
+
+	suspend fun getSimilarSongs(songId: String, count: Int = 50): Result<List<DomainSong>> =
+		runCatching {
+			sessionManager.api.getSimilarSongsID3(songId, count)
+				.map { it.toEntity().toDomainModel() }
+		}
 
 	suspend fun getSongsByIds(ids: List<String>) = ids.chunked(500)
 		.flatMap { songDao.getSongsByIds(it) }
