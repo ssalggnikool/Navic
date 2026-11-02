@@ -15,14 +15,22 @@ import androidx.room3.RawQuery
 import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
 import paige.navic.database.entity.GenreEntity
-import paige.navic.database.relation.GenreWithAlbums
 import paige.navic.util.Logger
 
 @Dao
 interface GenreDao {
-	@Transaction
 	@RawQuery
-	fun getGenresByQuery(query: RoomRawQuery): PagingSource<Int, GenreWithAlbums>
+	fun getGenresByQuery(query: RoomRawQuery): PagingSource<Int, GenreEntity>
+
+	@Query(
+		"""
+		SELECT coverArtId FROM AlbumEntity
+		WHERE (genre = :genreName OR genres LIKE '%' || :genreName || '%')
+		AND coverArtId IS NOT NULL
+		LIMIT 2
+		"""
+	)
+	suspend fun getGenreCoverArtIds(genreName: String): List<String>
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertGenres(genres: List<GenreEntity>)

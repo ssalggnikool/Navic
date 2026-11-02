@@ -30,7 +30,11 @@ class GenreRepository(
 			pagingSourceFactory = {
 				genreDao.getGenresByQuery(toGenreSqlQuery())
 			}
-		).flow.map { data -> data.map { it.toDomainModel() } }
+		).flow.map { data ->
+			data.map { genre ->
+				genre.toDomainModel(genreDao.getGenreCoverArtIds(genre.genreName))
+			}
+		}
 	}
 
 	private suspend fun refreshLocalData(): Flow<PagingData<DomainGenre>> {
