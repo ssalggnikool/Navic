@@ -69,14 +69,19 @@ class NavicDataSource(
 	companion object {
 		const val NAVIC_SCHEME = "navic"
 		const val NAVIC_SONG_HOST = "song"
+		const val COVER_ART_SIZE = 512
+		const val HIGH_QUALITY_COVER_ART_SIZE = 1024
 		private const val TAG = "NavicDataSource"
 
 		fun String.buildSongUri(): Uri {
 			return "$NAVIC_SCHEME://$NAVIC_SONG_HOST/$this".toUri()
 		}
 
-		fun String.buildCoverUri(): Uri {
+		fun String.buildCoverUri(size: Int = COVER_ART_SIZE): Uri {
 			return "content://${BuildConfig.APPLICATION_ID}.cover-art/$this".toUri()
+				.buildUpon()
+				.appendQueryParameter("size", size.toString())
+				.build()
 		}
 
 		fun getCurrentQuality(preferenceManager: PreferenceManager, connectivityManager: ConnectivityManager): Pair<Int, String?> {

@@ -30,7 +30,7 @@ class CoverArtProvider : ContentProvider() {
 		require(mode == "r") { "Cover art is read-only" }
 		val coverId = uri.pathSegments.singleOrNull()
 			?: error("Invalid cover art URI")
-		val file = renderCover(coverId)
+		val file = renderCover(coverId, uri.artworkSize())
 		return try {
 			ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
 		} finally {
@@ -38,12 +38,17 @@ class CoverArtProvider : ContentProvider() {
 		}
 	}
 
-	private fun renderCover(coverId: String): File = runBlocking(Dispatchers.IO) {
+	private fun Uri.artworkSize(): Int = getQueryParameter("size")
+		?.toIntOrNull()
+		?.coerceIn(MIN_ARTWORK_SIZE, MAX_ARTWORK_SIZE)
+		?: DEFAULT_ARTWORK_SIZE
+
+	private fun renderCover(coverId: String, size: Int): File = runBlocking(Dispatchers.IO) {
 		val context = requireNotNull(context)
 		val request = ImageRequest.Builder(context)
 			.data(sessionManager.getCoverArtUrl(coverId))
 			.diskCacheKey(coverId)
-			.size(AUTO_ARTWORK_SIZE)
+			.size(size)
 			.allowHardware(false)
 			.build()
 
@@ -51,10 +56,13 @@ class CoverArtProvider : ContentProvider() {
 			"Could not load cover art $coverId"
 		}
 
+		val quality =
+			if (size > DEFAULT_ARTWORK_SIZE) HIGH_ARTWORK_QUALITY else DEFAULT_ARTWORK_QUALITY
+
 		val file = File.createTempFile("cover-", ".jpg", context.cacheDir)
 		try {
 			file.outputStream().use { output ->
-				check(bitmap.compress(Bitmap.CompressFormat.JPEG, AUTO_ARTWORK_QUALITY, output)) {
+				check(bitmap.compress(Bitmap.CompressFormat.JPEG, quality, output)) {
 					"Could not encode cover art $coverId"
 				}
 			}
@@ -84,7 +92,10 @@ class CoverArtProvider : ContentProvider() {
 	) = 0
 
 	private companion object {
-		const val AUTO_ARTWORK_SIZE = 512
-		const val AUTO_ARTWORK_QUALITY = 80
+		const val DEFAULT_ARTWORK_SIZE = 512
+		const val MIN_ARTWORK_SIZE = 128
+		const val MAX_ARTWORK_SIZE = 1024
+		const val DEFAULT_ARTWORK_QUALITY = 80
+		const val HIGH_ARTWORK_QUALITY = 90
 	}
 }
