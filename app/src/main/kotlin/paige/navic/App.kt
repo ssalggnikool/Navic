@@ -29,7 +29,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.detailPane
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.listPane
@@ -183,12 +185,26 @@ fun App() {
 
 	val snackBarState = remember { SnackbarHostState() }
 	val snackBarManager = koinInject<SnackBarManager>()
+	val mediaPlayer = koinInject<MediaPlayer>()
 
 	LaunchedEffect(Unit) {
 		snackBarManager.events.collectLatest { event ->
-			snackBarState.showSnackbar(
-				resources.getString(event.resource, *event.args.toTypedArray())
+			val result = snackBarState.showSnackbar(
+				message = resources.getString(event.resource, *event.args.toTypedArray()),
+				actionLabel = if (event.restartRequired) {
+					resources.getString(R.string.action_restart)
+				} else {
+					null
+				},
+				duration = if (event.restartRequired) {
+					SnackbarDuration.Long
+				} else {
+					SnackbarDuration.Short
+				}
 			)
+			if (result == SnackbarResult.ActionPerformed) {
+				mediaPlayer.restartPlayback()
+			}
 		}
 	}
 
