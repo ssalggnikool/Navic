@@ -26,7 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.materialkolor.rememberDynamicColorScheme
+import com.materialkolor.MaterialKolors
+import com.materialkolor.ktx.DynamicScheme
 import dev.zt64.compose.pipette.HsvColor
 import org.koin.compose.koinInject
 import paige.navic.R
@@ -61,16 +62,18 @@ fun GenreListScreenCard(
 			value = 0.5f
 		).toColor()
 	}
-	val colorScheme = rememberDynamicColorScheme(
-		seedColor = seedColor,
-		isDark = isDark
-	)
+	val (backgroundColor, contentColor) = remember(seedColor, isDark) {
+		val colors = MaterialKolors(
+			DynamicScheme(seedColor = seedColor, isDark = isDark)
+		)
+		colors.primary() to colors.onPrimary()
+	}
 	val firstAlbumCoverArt = genre.coverArtIds.firstOrNull()
 	val secondAlbumCoverArt = genre.coverArtIds.getOrNull(1)
 	Surface(
 		modifier = modifier,
-		color = colorScheme.primary,
-		contentColor = colorScheme.onPrimary,
+		color = backgroundColor,
+		contentColor = contentColor,
 		shape = MaterialTheme.shapes.medium,
 		shadowElevation = 2.dp,
 		onClick = dropUnlessResumed {
