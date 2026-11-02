@@ -128,7 +128,7 @@ class PreferenceManager(
 	var bottomBarCollapseMode by preference(BottomBarCollapseMode.OnScroll)
 	var bottomBarVisibilityMode by preference(BottomBarVisibilityMode.AllScreens)
 	var miniPlayerStyle by preference(MiniPlayerStyle.Detached)
-	var miniPlayerProgressStyle by preference(MiniPlayerProgressStyle.Seekable)
+	var miniPlayerProgressStyle by preference(MiniPlayerProgressStyle.Line)
 
 	// theme related settings
 	var theme by preference(Theme.getDefaultTheme())

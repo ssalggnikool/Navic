@@ -221,8 +221,6 @@
     <string name="option_mini_player_style_detached">分離</string>
     <string name="option_mini_player_progress_style">再生位置</string>
     <string name="option_mini_player_progress_style_hidden">非表示</string>
-    <string name="option_mini_player_progress_style_visible">表示のみ</string>
-    <string name="option_mini_player_progress_style_seekable">操作可能</string>
     <string name="option_proxy_url">プロキシURL</string>
     <string name="option_ignore_ssl_certificates">SSL証明書を無視する</string>
     <string name="theme_dynamic">ダイナミック</string>

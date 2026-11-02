@@ -246,7 +246,6 @@
 	<string name="info_no_other_playlists">Anda tidak memiliki daftar putar lain selain yang ini.</string>
 	<string name="notice_copied">Disalin ke papan klip.</string>
 	<string name="info_track_bit_depth">Kedalaman bit</string>
-	<string name="option_mini_player_progress_style_seekable">Dapat dicari</string>
 	<string name="option_sort_by_year">Per tahun</string>
 	<string name="theme_seeded">Berwarna</string>
 	<string name="option_off">Mati</string>
@@ -300,7 +299,6 @@
 	<string name="theme_apple_music">Aplikasi Musik</string>
 	<string name="option_animation_style_expressive">Ekspresif</string>
 	<string name="option_lyrics_beat_by_beat">Lirik per ketukan</string>
-	<string name="option_mini_player_progress_style_visible">Bisa dilihat</string>
 	<string name="option_use_marquee_text">Kecepatan pengguliran otomatis teks</string>
 	<string name="option_swipe_to_skip">Geser untuk mengganti lagu</string>
 	<string name="action_view_artist">Lihat artisnya</string>

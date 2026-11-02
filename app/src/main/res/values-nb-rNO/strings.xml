@@ -111,7 +111,6 @@
     <string name="option_bottom_bar_visibility_mode_all_screens">Alle skjermer</string>
     <string name="option_mini_player_style">Minispiller stil</string>
     <string name="option_mini_player_progress_style_hidden">Gjemt</string>
-    <string name="option_mini_player_progress_style_visible">Synlig</string>
     <string name="theme_dynamic">Dynamisk</string>
     <string name="theme_mode_dark">Mørkt</string>
     <string name="theme_mode_light">Lyst</string>
@@ -371,7 +370,6 @@
     <string name="subtitle_audio_offload">Eksperimentelt. Krever omstart. Kan skape problemer med sømløsavspilling på noen enheter</string>
     <string name="option_gapless_playback">Sømløsavspilling</string>
     <string name="subtitle_dynamic_theming">Tilpass utseende på album- og artistskjermene dynamisk basert på albumbilde</string>
-    <string name="option_mini_player_progress_style_seekable">Spolbar</string>
     <string name="option_alphabetical_scroll">Alfabetisk rulling</string>
     <string name="info_track_bit_depth">Bitdybde</string>
     <string name="info_track_sampling_rate">Samplingsrate</string>

@@ -89,8 +89,6 @@
 	<string name="option_mini_player_style_detached">Losgekoppeld</string>
 	<string name="option_mini_player_progress_style">Minispeler vooruitgangsstijl</string>
 	<string name="option_mini_player_progress_style_hidden">Verborgen</string>
-	<string name="option_mini_player_progress_style_visible">Zichtbaar</string>
-	<string name="option_mini_player_progress_style_seekable">Zoekbaar</string>
 	<string name="theme_dynamic">Dynamisch</string>
 	<string name="theme_seeded">Getint</string>
 	<string name="theme_ios">Cupertino</string>

@@ -160,7 +160,7 @@ fun Swiper(
 					onDragStopped = { handleSwipeXRelease() }
 				)
 				.draggable(
-					enabled = preferenceManager.hideIfIdle && preferenceManager.miniPlayerSwipeToDismiss,
+					enabled = enabled && preferenceManager.hideIfIdle && preferenceManager.miniPlayerSwipeToDismiss,
 					orientation = Orientation.Vertical,
 					state = rememberDraggableState { delta ->
 						coroutineScope.launch {

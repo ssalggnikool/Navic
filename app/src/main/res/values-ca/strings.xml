@@ -188,8 +188,6 @@
 	<string name="option_mini_player_style_detached">Separat</string>
 	<string name="option_mini_player_progress_style">Estil del progrés del mini-reproductor</string>
 	<string name="option_mini_player_progress_style_hidden">Ocult</string>
-	<string name="option_mini_player_progress_style_visible">Visible</string>
-	<string name="option_mini_player_progress_style_seekable">Desplaçable</string>
 	<string name="theme_dynamic">Dinàmic</string>
 	<string name="theme_seeded">Tintat</string>
 	<string name="theme_ios">Cupertino</string>

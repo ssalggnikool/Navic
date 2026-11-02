@@ -93,8 +93,6 @@
     <string name="option_mini_player_style_detached">分离</string>
     <string name="option_mini_player_progress_style">迷你播放器进度条样式</string>
     <string name="option_mini_player_progress_style_hidden">隐藏</string>
-    <string name="option_mini_player_progress_style_visible">仅显示</string>
-    <string name="option_mini_player_progress_style_seekable">可调节</string>
     <string name="theme_dynamic">动态色彩</string>
     <string name="theme_seeded">单色</string>
     <string name="theme_ios">iOS</string>

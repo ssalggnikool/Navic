@@ -160,7 +160,6 @@
 	<string name="option_bottom_bar_visibility_mode_default">Varsayılan</string>
 	<string name="option_bottom_bar_visibility_mode_all_screens">Tüm ekranlar</string>
 	<string name="option_mini_player_style">Mini oynatıcı stili</string>
-	<string name="option_mini_player_progress_style_visible">Görünür</string>
 	<string name="info_track_album">Albüm</string>
 	<string name="info_track_year">Yıl</string>
 	<string name="info_track_number">Parça numarası</string>
@@ -258,7 +257,6 @@
 	<string name="option_bottom_bar_collapse_mode">Daraltma modu</string>
 	<string name="option_navigation_bar_tabs">Gezinme çubuğu sekmelerini yapılandır</string>
 	<string name="option_mini_player_progress_style">Mini oynatıcı ilerleme stili</string>
-	<string name="option_mini_player_progress_style_seekable">aranabilir</string>
 	<string name="info_no_genres">Tür yok</string>
 	<string name="title_starred">Yıldızlı</string>
 	<string name="title_discord_server">Discord sunucusu</string>

@@ -160,8 +160,6 @@
     <string name="option_mini_player_style_detached">Staccata</string>
     <string name="option_mini_player_progress_style">Visibilità della barra di avanzamento</string>
     <string name="option_mini_player_progress_style_hidden">Nascosto</string>
-    <string name="option_mini_player_progress_style_visible">Visibile</string>
-    <string name="option_mini_player_progress_style_seekable">Trascinabile</string>
     <string name="theme_mode_system">Sistema</string>
     <string name="theme_mode_dark">Scuro</string>
     <string name="theme_mode_light">Chiaro</string>

@@ -165,8 +165,6 @@
     <string name="option_mini_player_style_detached">Отдельный</string>
     <string name="option_mini_player_progress_style">Видимость ползунка</string>
     <string name="option_mini_player_progress_style_hidden">Скрытый</string>
-    <string name="option_mini_player_progress_style_visible">Видимый</string>
-    <string name="option_mini_player_progress_style_seekable">Перематываемый</string>
     <string name="theme_dynamic">Динамическая</string>
     <string name="theme_seeded">Тонированная</string>
     <string name="theme_ios">Купертино</string>

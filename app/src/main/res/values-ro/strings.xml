@@ -200,8 +200,6 @@
 	<string name="option_mini_player_style_detached">Detașat</string>
 	<string name="option_mini_player_progress_style">Stil progres miniplayer</string>
 	<string name="option_mini_player_progress_style_hidden">Ascuns</string>
-	<string name="option_mini_player_progress_style_visible">Visibil</string>
-	<string name="option_mini_player_progress_style_seekable">Căutabil</string>
 	<string name="theme_dynamic">Dinamic</string>
 	<string name="theme_seeded">Nuanțat</string>
 	<string name="theme_ios">Cupertino</string>
