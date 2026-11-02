@@ -6,6 +6,7 @@
 
 package paige.navic.ui.core
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainReplayGain
@@ -14,6 +15,7 @@ import paige.navic.domain.model.DomainSongArtist
 import paige.navic.domain.model.SongInfo
 import kotlin.time.Duration
 
+@Immutable
 @Serializable
 data class QueueSong(
 	override val id: String,

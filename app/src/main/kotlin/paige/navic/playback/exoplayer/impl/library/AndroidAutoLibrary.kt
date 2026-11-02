@@ -14,9 +14,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import com.google.common.collect.ImmutableList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import paige.navic.R
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.ArtistDao
@@ -44,7 +41,7 @@ class AndroidAutoLibrary(
 	@Volatile
 	private var randomAlbumsSeed = Random.nextInt()
 
-	fun getItem(id: String): MediaItem? = runBlocking {
+	suspend fun getItem(id: String): MediaItem? =
 		when {
 			id == ROOT_ID -> browsable(ROOT_ID, "Navic")
 			id == NEWEST_ALBUMS_ID -> browsable(
@@ -106,178 +103,167 @@ class AndroidAutoLibrary(
 			)
 				?.toMediaItem()
 		}
-	}
 
-	fun getChildren(parentId: String, page: Int, pageSize: Int): ImmutableList<MediaItem> =
-		runBlocking {
-			val limit = pageSize.coerceIn(1, MAX_PAGE_SIZE)
-			val offset = (page.coerceAtLeast(0).toLong() * pageSize.coerceAtLeast(0))
-				.coerceAtMost(Int.MAX_VALUE.toLong())
-				.toInt()
-			val items = when (parentId) {
-				ROOT_ID -> if (offset > 0) emptyList() else listOf(
-					browsable(
-						NEWEST_ALBUMS_ID,
-						title = application.getString(R.string.option_sort_newest)
-					),
-					browsable(
-						RANDOM_ALBUMS_ID,
-						title = application.getString(R.string.option_sort_random)
-					),
-					browsable(
-						STARRED_ID,
-						title = application.getString(R.string.option_sort_starred)
-					),
-					browsable(
-						FREQUENT_ALBUMS_ID,
-						title = application.getString(R.string.option_sort_frequent)
-					),
-					browsable(ARTISTS_ID, title = application.getString(R.string.title_artists)),
-					browsable(ALBUMS_ID, title = application.getString(R.string.title_albums)),
-					browsable(SONGS_ID, title = application.getString(R.string.title_songs)),
-					browsable(PLAYLISTS_ID, title = application.getString(R.string.title_playlists))
-				)
+	suspend fun getChildren(parentId: String, limit: Int): ImmutableList<MediaItem> {
+		val pageLimit = limit.coerceAtMost(maxQueueSize)
+		val items = when (parentId) {
+			ROOT_ID -> listOf(
+				browsable(
+					NEWEST_ALBUMS_ID,
+					title = application.getString(R.string.option_sort_newest)
+				),
+				browsable(
+					RANDOM_ALBUMS_ID,
+					title = application.getString(R.string.option_sort_random)
+				),
+				browsable(
+					STARRED_ID,
+					title = application.getString(R.string.option_sort_starred)
+				),
+				browsable(
+					FREQUENT_ALBUMS_ID,
+					title = application.getString(R.string.option_sort_frequent)
+				),
+				browsable(ARTISTS_ID, title = application.getString(R.string.title_artists)),
+				browsable(ALBUMS_ID, title = application.getString(R.string.title_albums)),
+				browsable(SONGS_ID, title = application.getString(R.string.title_songs)),
+				browsable(PLAYLISTS_ID, title = application.getString(R.string.title_playlists))
+			)
 
-				NEWEST_ALBUMS_ID -> albumDao.getNewestAlbumsPage(limit, offset)
+			NEWEST_ALBUMS_ID -> albumDao.getNewestAlbumsPage(pageLimit, 0)
+				.map { it.toBrowsable() }
+
+			RANDOM_ALBUMS_ID -> {
+				randomAlbumsSeed = Random.nextInt()
+				albumDao.getRandomAlbumsPage(randomAlbumsSeed, pageLimit, 0)
 					.map { it.toBrowsable() }
-
-				RANDOM_ALBUMS_ID -> {
-					if (offset == 0) randomAlbumsSeed = Random.nextInt()
-					albumDao.getRandomAlbumsPage(randomAlbumsSeed, limit, offset)
-						.map { it.toBrowsable() }
-				}
-
-				FREQUENT_ALBUMS_ID -> albumDao.getFrequentAlbumsPage(limit, offset)
-					.map { it.toBrowsable() }
-
-				STARRED_ID -> if (offset > 0) emptyList() else listOf(
-					browsable(STARRED_SONGS_ID, title = application.getString(R.string.title_songs)),
-					browsable(STARRED_ALBUMS_ID, title = application.getString(R.string.title_albums)),
-					browsable(
-						STARRED_ARTISTS_ID,
-						title = application.getString(R.string.title_artists)
-					)
-				)
-
-				STARRED_SONGS_ID -> songDao.getStarredPlayableSongsPage(limit, offset)
-					.map { it.toMediaItem() }
-
-				STARRED_ALBUMS_ID -> albumDao.getStarredAlbumsPage(limit, offset)
-					.map { it.toBrowsable() }
-
-				STARRED_ARTISTS_ID -> artistDao.getStarredArtistsPage(limit, offset)
-					.map { it.toBrowsable() }
-
-				ARTISTS_ID -> artistDao.getArtistsPage(limit, offset)
-					.map { it.toBrowsable() }
-
-				ALBUMS_ID -> albumDao.getAlbumsPage(limit, offset)
-					.map { it.toBrowsable() }
-
-				SONGS_ID -> songDao.getPlayableSongsPage(limit, offset)
-					.map { it.toMediaItem() }
-
-				PLAYLISTS_ID -> playlistDao.getPlaylistsPage(limit, offset).map {
-					browsable(
-						id = it.playlistId.prefix(PLAYLIST_PREFIX),
-						title = it.name,
-						artworkId = it.coverArtId
-					)
-				}
-
-				// whenever we are inside one of these views
-				else -> when {
-					parentId.hasPrefix(ARTIST_PREFIX) -> albumDao.getAlbumsByArtistId(
-						parentId.stripPrefix(ARTIST_PREFIX),
-						limit,
-						offset
-					).map { it.toBrowsable() }
-
-					parentId.hasPrefix(ALBUM_PREFIX) -> songDao.getAlbumPlayableSongs(
-						albumId = parentId.stripPrefix(ALBUM_PREFIX),
-						limit,
-						offset
-					).mapIndexed { index, song ->
-						song.toMediaItem(
-							prefix = song.songId.entityIndex(
-								ALBUM_PREFIX,
-								parentEntityId = parentId.stripPrefix(ALBUM_PREFIX),
-								index = offset + index
-							)
-						)
-					}
-
-					parentId.hasPrefix(PLAYLIST_PREFIX) -> playlistDao.getPlaylistPlayableSongs(
-						playlistId = parentId.stripPrefix(PLAYLIST_PREFIX),
-						limit,
-						offset
-					).mapIndexed { index, song ->
-						song.toMediaItem(
-							prefix = song.songId.entityIndex(
-								PLAYLIST_PREFIX,
-								parentEntityId = parentId.stripPrefix(PLAYLIST_PREFIX),
-								index = offset + index
-							)
-						)
-					}
-
-					else -> emptyList()
-				}
 			}
 
-			ImmutableList.copyOf(items)
-		}
+			FREQUENT_ALBUMS_ID -> albumDao.getFrequentAlbumsPage(pageLimit, 0)
+				.map { it.toBrowsable() }
 
-	fun expand(mediaId: String): List<MediaItem> = runBlocking {
-		withContext(Dispatchers.IO) {
-			val songs = if (!mediaId.startsWith("$PLAYABLE_PREFIX:")) {
-				listOfNotNull(songDao.getPlayableSongById(mediaId))
-			} else {
-				val parsedEntity = mediaId.parseEntityIndex()
+			STARRED_ID -> listOf(
+				browsable(STARRED_SONGS_ID, title = application.getString(R.string.title_songs)),
+				browsable(STARRED_ALBUMS_ID, title = application.getString(R.string.title_albums)),
+				browsable(
+					STARRED_ARTISTS_ID,
+					title = application.getString(R.string.title_artists)
+				)
+			)
 
-				when (parsedEntity.entityType) {
-					ALBUM_PREFIX -> songDao.getAlbumPlayableSongs(
-						albumId = parsedEntity.parentEntityId,
-						limit = maxQueueSize,
-						offset = parsedEntity.windowOffset()
-					)
+			STARRED_SONGS_ID -> songDao.getStarredPlayableSongsPage(pageLimit, 0)
+				.map { it.toMediaItem() }
 
-					PLAYLIST_PREFIX -> playlistDao.getPlaylistPlayableSongs(
-						playlistId = parsedEntity.parentEntityId,
-						limit = maxQueueSize,
-						offset = parsedEntity.windowOffset()
-					)
+			STARRED_ALBUMS_ID -> albumDao.getStarredAlbumsPage(pageLimit, 0)
+				.map { it.toBrowsable() }
 
-					else -> listOfNotNull(songDao.getPlayableSongById(parsedEntity.entityId))
-				}
+			STARRED_ARTISTS_ID -> artistDao.getStarredArtistsPage(pageLimit, 0)
+				.map { it.toBrowsable() }
+
+			ARTISTS_ID -> artistDao.getArtistsPage(pageLimit, 0)
+				.map { it.toBrowsable() }
+
+			ALBUMS_ID -> albumDao.getAlbumsPage(pageLimit, 0)
+				.map { it.toBrowsable() }
+
+			SONGS_ID -> songDao.getPlayableSongsPage(pageLimit, 0)
+				.map { it.toMediaItem() }
+
+			PLAYLISTS_ID -> playlistDao.getPlaylistsPage(pageLimit, 0).map {
+				browsable(
+					id = it.playlistId.prefix(PLAYLIST_PREFIX),
+					title = it.name,
+					artworkId = it.coverArtId
+				)
 			}
 
-			songs.map { it.toMediaItem() }
+			// whenever we are inside one of these views
+			else -> when {
+				parentId.hasPrefix(ARTIST_PREFIX) -> albumDao.getAlbumsByArtistId(
+					parentId.stripPrefix(ARTIST_PREFIX),
+					pageLimit,
+					0
+				).map { it.toBrowsable() }
+
+				parentId.hasPrefix(ALBUM_PREFIX) -> songDao.getAlbumPlayableSongs(
+					albumId = parentId.stripPrefix(ALBUM_PREFIX),
+					limit = pageLimit,
+					offset = 0
+				).mapIndexed { index, song ->
+					song.toMediaItem(
+						prefix = song.songId.entityIndex(
+							ALBUM_PREFIX,
+							parentEntityId = parentId.stripPrefix(ALBUM_PREFIX),
+							index = index
+						)
+					)
+				}
+
+				parentId.hasPrefix(PLAYLIST_PREFIX) -> playlistDao.getPlaylistPlayableSongs(
+					playlistId = parentId.stripPrefix(PLAYLIST_PREFIX),
+					limit = pageLimit,
+					offset = 0
+				).mapIndexed { index, song ->
+					song.toMediaItem(
+						prefix = song.songId.entityIndex(
+							PLAYLIST_PREFIX,
+							parentEntityId = parentId.stripPrefix(PLAYLIST_PREFIX),
+							index = index
+						)
+					)
+				}
+
+				else -> emptyList()
+			}
 		}
+
+		return ImmutableList.copyOf(items.take(pageLimit))
 	}
 
-	suspend fun search(query: String, page: Int, pageSize: Int): ImmutableList<MediaItem> {
-		val limit = pageSize.coerceIn(1, MAX_PAGE_SIZE)
-		val offset = (page.coerceAtLeast(0).toLong() * pageSize.coerceAtLeast(0))
-			.coerceAtMost(Int.MAX_VALUE.toLong())
-			.toInt()
+	suspend fun expand(mediaId: String): List<MediaItem> {
+		val songs = if (!mediaId.startsWith("$PLAYABLE_PREFIX:")) {
+			listOfNotNull(songDao.getPlayableSongById(mediaId))
+		} else {
+			val parsedEntity = mediaId.parseEntityIndex()
 
+			when (parsedEntity.entityType) {
+				ALBUM_PREFIX -> songDao.getAlbumPlayableSongs(
+					albumId = parsedEntity.parentEntityId,
+					limit = maxQueueSize,
+					offset = parsedEntity.windowOffset()
+				)
+
+				PLAYLIST_PREFIX -> playlistDao.getPlaylistPlayableSongs(
+					playlistId = parsedEntity.parentEntityId,
+					limit = maxQueueSize,
+					offset = parsedEntity.windowOffset()
+				)
+
+				else -> listOfNotNull(songDao.getPlayableSongById(parsedEntity.entityId))
+			}
+		}
+
+		return songs.map { it.toMediaItem() }
+	}
+
+	suspend fun search(query: String, limit: Int): ImmutableList<MediaItem> {
+		val pageLimit = limit.coerceAtMost(maxQueueSize)
 		val items = mutableListOf<MediaItem>()
 
 		suspend fun fill(next: suspend (Int) -> List<MediaItem>) {
-			val remaining = limit - items.size
+			val remaining = pageLimit - items.size
 			if (remaining > 0) items += next(remaining)
 		}
 
 		fill {
-			songDao.searchPlayableSongsPage(query, it, offset).map { song -> song.toMediaItem() }
+			songDao.searchPlayableSongsPage(query, it, 0).map { song -> song.toMediaItem() }
 		}
-		fill { albumDao.searchAlbumsPage(query, it, offset).map { album -> album.toBrowsable() } }
+		fill { albumDao.searchAlbumsPage(query, it, 0).map { album -> album.toBrowsable() } }
 		fill {
-			artistDao.searchArtistsPage(query, it, offset).map { artist -> artist.toBrowsable() }
+			artistDao.searchArtistsPage(query, it, 0).map { artist -> artist.toBrowsable() }
 		}
 		fill {
-			playlistDao.searchPlaylistsPage(query, it, offset).map { playlist ->
+			playlistDao.searchPlaylistsPage(query, it, 0).map { playlist ->
 				browsable(
 					id = playlist.playlistId.prefix(PLAYLIST_PREFIX),
 					title = playlist.name,
@@ -289,11 +275,10 @@ class AndroidAutoLibrary(
 		return ImmutableList.copyOf(items)
 	}
 
-	fun searchCount(query: String): Int = runBlocking {
+	suspend fun searchCount(query: String): Int =
 		songDao.searchSongCount(query) + albumDao.searchAlbumCount(query) + artistDao.searchArtistCount(
 			query
 		) + playlistDao.searchPlaylistCount(query)
-	}
 
 	private fun browsable(
 		id: String,
@@ -333,7 +318,6 @@ class AndroidAutoLibrary(
 	)
 
 	companion object {
-		private const val MAX_PAGE_SIZE = 500
 		const val ROOT_ID = "root"
 		const val ARTISTS_ID = "artists"
 		const val ALBUMS_ID = "albums"
