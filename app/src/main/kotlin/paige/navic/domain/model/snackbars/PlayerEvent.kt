@@ -10,5 +10,6 @@ import androidx.annotation.StringRes
 
 data class PlayerEvent(
 	@StringRes val resource: Int,
-	val args: List<Any> = emptyList()
+	val args: List<Any> = emptyList(),
+	val restartRequired: Boolean = false
 )

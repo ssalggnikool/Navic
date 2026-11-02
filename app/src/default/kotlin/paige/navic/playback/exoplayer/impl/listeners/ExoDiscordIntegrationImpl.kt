@@ -12,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -123,6 +124,11 @@ class ExoDiscordIntegrationImpl(val player: Player) : ExoDiscordIntegration {
 				setCurrentActivity(player.currentMediaItem)
 			}
 		}
+	}
+
+	override fun release() {
+		scope.cancel()
+		runCatching { client.disconnect() }
 	}
 
 	private fun isIntegrationEnabled() = preferenceManager.enableDiscordIntegration

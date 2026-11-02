@@ -89,11 +89,11 @@
 	<string name="subtitle_about">App info, version, updates, licences</string>
 	<string name="subtitle_playlist">Playlist</string>
 	<string name="subtitle_enable_scrobbling">Scrobble played tracks to your music server</string>
-	<string name="subtitle_gapless_playback">Experimental. Requires an application restart. May conflict with audio offload on some devices</string>
-	<string name="subtitle_audio_offload">Experimental. Requires application restart. May conflict with gapless playback on some devices</string>
+	<string name="subtitle_gapless_playback">Experimental. Requires a restart. May conflict with audio offload on some devices</string>
+	<string name="subtitle_audio_offload">Experimental. Requires a restart. May conflict with gapless playback on some devices</string>
 	<string name="subtitle_now_playing_background_style">Choose static if you have performance issues</string>
 	<string name="subtitle_check_for_updates">Check Codeberg for updates when the app opens</string>
-	<string name="subtitle_offline_mode">Dictates when the app should go into an offline mode. Requires application restart</string>
+	<string name="subtitle_offline_mode">Dictates when the app should go into an offline mode</string>
 	<string name="subtitle_streaming_quality">Adjust the quality of streamed music</string>
 	<string name="subtitle_download_quality">Adjust the quality of downloaded music</string>
 	<string name="subtitle_dynamic_theming">Dynamically theme the album and artist view based on the cover art</string>
@@ -373,6 +373,7 @@
 	<string name="action_edit">Edit</string>
 	<string name="action_cancel">Cancel</string>
 	<string name="action_refresh">Refresh</string>
+	<string name="action_restart">Restart</string>
 	<string name="action_share">Share</string>
 	<string name="action_save">Save</string>
 	<string name="action_track_info">View track info</string>
@@ -447,6 +448,7 @@
 	<string name="notice_created_radio">Radio %1$s added.</string>
 	<string name="notice_added_to_queue">Added to queue.</string>
 	<string name="notice_play_next">Playing next.</string>
+	<string name="notice_restart_required">Restart now to apply this change?</string>
 	<string name="notice_instant_mix_empty">No similar songs found.</string>
 	<string name="notice_instant_mix_failed">Couldn\'t start instant mix.</string>
 	<string name="notice_added_to_playlist">Added to %1$s.</string>
@@ -555,7 +557,7 @@
 	<string name="title_branch_name">Branch name</string>
 	<string name="title_commit_author">Commit author</string>
 	<string name="option_float_output">Float output precision</string>
-	<string name="subtitle_float_output">Experimental. Requires application restart. Playback speed will no longer work if this option is enabled</string>
+	<string name="subtitle_float_output">Experimental. Requires a restart. Playback speed will no longer work if this option is enabled</string>
 	<string name="title_storage_management">Storage management</string>
 	<string name="media_session_channel_name">Media playback</string>
 	<string name="info_incorrect_credentials">Incorrect credentials. Please double-check and try again.</string>

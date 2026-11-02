@@ -144,6 +144,7 @@ class ScrobbleExoListener(
 	}
 
 	fun release() {
+		progressJob?.cancel()
 		player.removeListener(this)
 	}
 }

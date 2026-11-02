@@ -61,6 +61,7 @@
     <string name="action_delete">Apagar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_refresh">Atualizar</string>
+    <string name="action_restart">Reiniciar</string>
     <string name="action_share">Compartilhar</string>
     <string name="action_track_info">Ver detalhes da faixa</string>
     <string name="action_view_album">Ver álbum</string>
@@ -383,6 +384,7 @@
     <string name="notice_deleted_download">Download deletado.</string>
     <string name="notice_removed_from_playlist">Removido da playlist.</string>
     <string name="notice_play_next">Será reproduzido a seguir.</string>
+    <string name="notice_restart_required">Reiniciar agora para aplicar esta alteração?</string>
     <string name="option_sort_year">Ano</string>
     <string name="subtitle_app_icon_designer">Feito por: %1$s</string>
     <string name="option_palette_specification">Especificação da paleta</string>
@@ -402,6 +404,8 @@
     <string name="option_preamp_with_rg">Com tags ReplayGain</string>
     <string name="option_preamp_without_rg">Sem tags ReplayGain</string>
     <string name="option_preamp_tip">Ao configurar quaisquer das opções de preamp para um valor muito alto talvez ocasione em distorção no áudio.</string>
+    <string name="option_prevent_clipping">Evitar clipping</string>
+    <string name="subtitle_prevent_clipping">Reduzir o ganho quando ele ultrapassar o volume máximo</string>
     <string name="option_dynamic_replaygain_tip">Configurar o ReplayGain para Dinâmico irá utilizar o ganho do álbum se um álbum estiver sendo tocado. Caso contrário, o ganho da faixa será utilizado.</string>
     <string name="action_scroll_down">Descer para baixo</string>
     <string name="action_reset_dont_show_agains">Resetar diálogos de "não mostrar novamente"</string>
