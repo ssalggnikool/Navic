@@ -88,6 +88,15 @@ class ExoDiscordIntegrationImpl(val player: Player) : ExoDiscordIntegration {
 		scope.launch(block = block)
 	}
 
+	override fun onMediaItemTransition(
+		mediaItem: MediaItem?,
+		reason: @Player.MediaItemTransitionReason Int
+	) {
+		launch {
+			setCurrentActivity(mediaItem)
+		}
+	}
+
 	override fun onPlaybackStateChanged(playbackState: @Player.State Int) {
 		launch {
 			if (playbackState == Player.STATE_READY) {
