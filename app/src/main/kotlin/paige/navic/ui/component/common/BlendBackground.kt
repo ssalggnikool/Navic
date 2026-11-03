@@ -58,7 +58,7 @@ private const val ART_SIZE_PX = 256
 private const val RENDER_SCALE = 0.25f
 private val BLUR_RADIUS = 80.dp
 private const val SATURATION = 1.5f
-private const val CROSSFADE_MS = 1_000
+private const val CROSSFADE_MS = 3_000
 
 @Composable
 fun BlendBackground(
