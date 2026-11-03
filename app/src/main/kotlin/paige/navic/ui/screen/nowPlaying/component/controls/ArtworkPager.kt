@@ -6,7 +6,6 @@
 
 package paige.navic.ui.screen.nowPlaying.component.controls
 
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +14,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,29 +42,22 @@ fun NowPlayingArtworkPager(
 		initialPage = playerState.activeIndex.coerceAtLeast(0),
 		pageCount = { playerState.activeQueue.size }
 	)
-	val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
-	var userSwiped by remember { mutableStateOf(false) }
-
-	LaunchedEffect(isDragged) {
-		if (isDragged) userSwiped = true
-	}
 
 	LaunchedEffect(playerState.activeIndex) {
-		if (!isDragged && playerState.activeIndex != -1 && playerState.activeIndex != pagerState.currentPage) {
+		if (!pagerState.isScrollInProgress && playerState.activeIndex != -1 && playerState.activeIndex != pagerState.currentPage) {
 			pagerState.animateScrollToPage(playerState.activeIndex)
 		}
 	}
 
 	LaunchedEffect(pagerState) {
 		snapshotFlow { pagerState.settledPage }.collect { page ->
-			if (userSwiped && page != playerState.activeIndex && page in playerState.activeQueue.indices) {
+			if (page != playerState.activeIndex && page in playerState.activeQueue.indices) {
 				val wasPaused = playerState.isPaused
 				player.playAt(playerState.normalIndex(page))
 				if (wasPaused) {
 					player.pause()
 				}
 			}
-			userSwiped = false
 		}
 	}
 
