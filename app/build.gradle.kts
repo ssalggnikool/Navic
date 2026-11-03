@@ -37,6 +37,10 @@ android {
 		buildConfig = true
 	}
 
+	androidResources {
+		generateLocaleConfig = true
+	}
+
 	defaultConfig {
 		applicationId = "paige.navic"
 		minSdk = libs.versions.android.minSdk.get().toInt()
@@ -193,6 +197,7 @@ dependencies {
 
 	// Androidx
 	implementation(libs.androidx.activity.compose)
+	implementation(libs.androidx.appcompat)
 	implementation(libs.androidx.lifecycle.viewmodel)
 	implementation(libs.androidx.lifecycle.runtime)
 	implementation(libs.androidx.datastore.preferences)

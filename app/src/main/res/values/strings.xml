@@ -169,6 +169,8 @@
 	<string name="option_enable_scrobbling">Enable scrobbling</string>
 	<string name="option_choose_theme">Application theme</string>
 	<string name="option_choose_app_icon">Application icon</string>
+	<string name="option_language">Language</string>
+	<string name="option_system_default">System default</string>
 	<string name="option_replaygain_mode">ReplayGain mode</string>
 	<string name="option_title_preamp">Preamp options</string>
 	<string name="option_preamp_with_rg">With ReplayGain tags</string>
