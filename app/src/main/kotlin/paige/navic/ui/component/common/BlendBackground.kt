@@ -60,7 +60,7 @@ private const val FRAME_INTERVAL_NS = 42_000_000L
 
 private const val ART_SIZE_PX = 256
 private const val RENDER_SCALE = 1f / 24f
-private const val BLUR_RADIUS_PX = 25f
+private val BLUR_RADIUS = 80.dp
 private const val SATURATION = 1.5f
 
 private const val CANVAS_OVERDRAW = 1.3f
@@ -123,17 +123,13 @@ fun BlendBackground(
 		contentScale = ContentScale.Crop
 	)
 
-	val blurRadius = with(LocalDensity.current) {
-		(BLUR_RADIUS_PX / density).dp
-	}
-
 	PlatformLayerComposable(
 		// blur has to wrap the AndroidView, not the content inside it
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
 			.renderAtScale(RENDER_SCALE)
-			.backwardsCompatibleBlur(blurRadius)
+			.backwardsCompatibleBlur(BLUR_RADIUS)
 	) {
 		BoxWithConstraints(Modifier.fillMaxSize()) {
 			val canvasWidth = maxWidth * CANVAS_OVERDRAW
@@ -175,12 +171,7 @@ fun BlendBackground(
 			Box(
 				modifier = Modifier
 					.fillMaxSize()
-					.background(Color.Black.copy(alpha = BLACK_SCRIM_ALPHA))
-			)
-			Box(
-				modifier = Modifier
-					.fillMaxSize()
-					.background(Color.White.copy(alpha = WHITE_SCRIM_ALPHA))
+					.background(Color.Black.copy(alpha = 0.4f))
 			)
 		}
 	}
