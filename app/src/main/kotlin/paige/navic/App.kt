@@ -7,6 +7,7 @@
 package paige.navic
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
@@ -133,6 +134,7 @@ import paige.navic.ui.screen.starred.StarredScreen
 import paige.navic.ui.screen.stats.StatisticsScreen
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.Material3Transitions
+import paige.navic.util.MiscUtils
 
 @OptIn(ExperimentalSerializationApi::class)
 private val config = SavedStateConfiguration {
@@ -149,6 +151,7 @@ fun App() {
 	val density = LocalDensity.current
 	val activity = LocalActivity.current!!
 	val resources = LocalResources.current
+	val context = koinInject<Context>()
 
 	val sizeClass = calculateWindowSizeClass(activity)
 	val sessionManager = koinInject<SessionManager>()
@@ -185,7 +188,6 @@ fun App() {
 
 	val snackBarState = remember { SnackbarHostState() }
 	val snackBarManager = koinInject<SnackBarManager>()
-	val mediaPlayer = koinInject<MediaPlayer>()
 
 	LaunchedEffect(Unit) {
 		snackBarManager.events.collectLatest { event ->
@@ -203,7 +205,7 @@ fun App() {
 				}
 			)
 			if (result == SnackbarResult.ActionPerformed) {
-				mediaPlayer.restartPlayback()
+				MiscUtils.triggerRebirth(context)
 			}
 		}
 	}

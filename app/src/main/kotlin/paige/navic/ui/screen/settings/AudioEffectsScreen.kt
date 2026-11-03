@@ -108,6 +108,7 @@ fun AudioEffectsScreen() {
 						supportingContent = { Text(stringResource(R.string.subtitle_gapless_playback)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
 					)
+					// TODO: this shouldn't really need a full app restart
 					SettingsSliderItem(
 						content = { Text(stringResource(R.string.option_crossfade)) },
 						trailingContent = {
