@@ -459,4 +459,5 @@
     <string name="alt_addresses_edit_address">Rediger adresse</string>
     <string name="notice_deleted_downloads">Slett nedlastinger.</string>
     <string name="action_move_downloads">Flytt nedlastinger</string>
+    <string name="notice_app_icon_changed">App ikonet er endret. Lukker app.</string>
 </resources>
