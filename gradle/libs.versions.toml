@@ -100,7 +100,7 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager", version.ref = "koin" }
 subsonicKotlin = { module = "dev.zt64.subsonic:subsonic-client", version = "1.0.0-beta08-SNAPSHOT" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version = "2.1.5" }
-antisocialcord = { module = "com.github.Nightdavisao:antisocialcord-kt", version = "master-SNAPSHOT" }
+antisocialcord = { module = "com.github.Nightdavisao:antisocialcord-kt", version = "c99fbe1" }
 androidx-room3-paging = { group = "androidx.room3", name = "room3-paging", version.ref = "androidx-room3" }
 
 [plugins]
