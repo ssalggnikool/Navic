@@ -511,4 +511,5 @@
     <string name="notice_deleted_downloads">ダウンロードデータを削除しました。</string>
     <string name="info_delete_download_single">本当に%1$sのダウンロードデータを削除しますか？</string>
     <string name="title_matrix_space">マトリックススペース</string>
+    <string name="notice_app_icon_changed">アプリアイコンが変更されました。アプリを終了します。</string>
 </resources>
