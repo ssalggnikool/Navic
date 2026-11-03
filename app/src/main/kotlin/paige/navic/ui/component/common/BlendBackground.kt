@@ -6,6 +6,8 @@
 
 package paige.navic.ui.component.common
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -37,7 +39,6 @@ import coil3.ImageLoader
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
-import coil3.request.crossfade
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
 import paige.navic.domain.manager.session.SessionManager
@@ -77,7 +78,7 @@ fun BlendBackground(
 		while (true) {
 			withFrameNanos { now ->
 				// Cap animation at 24 fps
-				if (now - last >= FRAME_INTERVAL_NS) {
+				if ((now - last) >= FRAME_INTERVAL_NS) {
 					elapsedNanos = (elapsedNanos + (now - last)) % LOOP_NS
 					last = now
 				}
@@ -93,25 +94,6 @@ fun BlendBackground(
 	val staticImageLoader = koinInject<ImageLoader>(named("static"))
 	val sessionManager = koinInject<SessionManager>()
 
-	val model = remember(coverArtId, coilPlatformContext) {
-		ImageRequest.Builder(coilPlatformContext)
-			.disableHardwareIfCucked()
-			.data(coverArtId?.let { sessionManager.getCoverArtUrl(it) })
-			.size(ART_SIZE_PX, ART_SIZE_PX)
-			.memoryCacheKey(coverArtId?.let { "${it}_static_$ART_SIZE_PX" })
-			.diskCacheKey(coverArtId)
-			.diskCachePolicy(CachePolicy.ENABLED)
-			.memoryCachePolicy(CachePolicy.ENABLED)
-			.crossfade(CROSSFADE_MS)
-			.build()
-	}
-
-	val painter = rememberAsyncImagePainter(
-		model = model,
-		imageLoader = staticImageLoader,
-		contentScale = ContentScale.Crop
-	)
-
 	PlatformLayerComposable(
 		modifier = modifier
 			.fillMaxSize()
@@ -119,60 +101,83 @@ fun BlendBackground(
 			.renderAtScale(RENDER_SCALE)
 			.backwardsCompatibleBlur(BLUR_RADIUS * RENDER_SCALE)
 	) {
-		Box(
-			modifier = Modifier
-				.fillMaxSize()
-				.graphicsLayer {
-					compositingStrategy = CompositingStrategy.Offscreen
-					colorFilter = saturation
-				}
-		) {
-			Image(
-				painter = painter,
-				contentDescription = null,
+		Crossfade(
+			targetState = coverArtId,
+			animationSpec = tween(CROSSFADE_MS),
+			modifier = Modifier.fillMaxSize(),
+		) { targetCoverArtId ->
+			val model = remember(targetCoverArtId, coilPlatformContext) {
+				ImageRequest.Builder(coilPlatformContext)
+					.disableHardwareIfCucked()
+					.data(targetCoverArtId?.let { sessionManager.getCoverArtUrl(it) })
+					.size(ART_SIZE_PX, ART_SIZE_PX)
+					.memoryCacheKey(targetCoverArtId?.let { "${it}_static_$ART_SIZE_PX" })
+					.diskCacheKey(targetCoverArtId)
+					.diskCachePolicy(CachePolicy.ENABLED)
+					.memoryCachePolicy(CachePolicy.ENABLED)
+					.build()
+			}
+
+			val painter = rememberAsyncImagePainter(
+				model = model,
+				imageLoader = staticImageLoader,
 				contentScale = ContentScale.Crop,
-				modifier = Modifier.fillMaxSize()
 			)
 			Box(
 				modifier = Modifier
 					.fillMaxSize()
 					.graphicsLayer {
-						rotationZ = -angle(elapsedNanos, FRAME_PERIOD_NS)
+						compositingStrategy = CompositingStrategy.Offscreen
+						colorFilter = saturation
 					}
 			) {
+				Image(
+					painter = painter,
+					contentDescription = null,
+					contentScale = ContentScale.Crop,
+					modifier = Modifier.fillMaxSize()
+				)
 				Box(
 					modifier = Modifier
-						.fillMaxSize(0.5f)
-						.align(Alignment.TopStart)
+						.fillMaxSize()
+						.graphicsLayer {
+							rotationZ = -angle(elapsedNanos, FRAME_PERIOD_NS)
+						},
 				) {
-					Image(
-						painter = painter,
-						contentDescription = null,
-						contentScale = ContentScale.Crop,
-						alignment = Alignment.TopStart,
+					Box(
 						modifier = Modifier
-							.fillMaxSize()
-							.graphicsLayer {
-								rotationZ = angle(elapsedNanos, TOP_LEFT_PERIOD_NS)
-							}
-					)
-				}
-				Box(
-					modifier = Modifier
-						.fillMaxSize(0.5f)
-						.align(Alignment.BottomEnd)
-				) {
-					Image(
-						painter = painter,
-						contentDescription = null,
-						contentScale = ContentScale.Crop,
-						alignment = Alignment.BottomEnd,
+							.fillMaxSize(0.5f)
+							.align(Alignment.TopStart)
+					) {
+						Image(
+							painter = painter,
+							contentDescription = null,
+							contentScale = ContentScale.Crop,
+							alignment = Alignment.TopStart,
+							modifier = Modifier
+								.fillMaxSize()
+								.graphicsLayer {
+									rotationZ = angle(elapsedNanos, TOP_LEFT_PERIOD_NS)
+								}
+						)
+					}
+					Box(
 						modifier = Modifier
-							.fillMaxSize()
-							.graphicsLayer {
-								rotationZ = angle(elapsedNanos, BOT_RIGHT_PERIOD_NS)
-							}
-					)
+							.fillMaxSize(0.5f)
+							.align(Alignment.BottomEnd),
+					) {
+						Image(
+							painter = painter,
+							contentDescription = null,
+							contentScale = ContentScale.Crop,
+							alignment = Alignment.BottomEnd,
+							modifier = Modifier
+								.fillMaxSize()
+								.graphicsLayer {
+									rotationZ = angle(elapsedNanos, BOT_RIGHT_PERIOD_NS)
+								}
+						)
+					}
 				}
 			}
 		}
