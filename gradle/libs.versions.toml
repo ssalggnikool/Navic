@@ -8,6 +8,7 @@ kotlin = "2.4.21"
 
 # Androidx
 androidx-activity = "1.13.0"
+androidx-appcompat = "1.8.0"
 androidx-lifecycle = "2.11.0"
 androidx-datastore = "1.3.0"
 androidx-room3 = "3.0.3"
@@ -50,6 +51,7 @@ compose-material3-windowSize = { module = "androidx.compose.material3:material3-
 # Androidx
 androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingCommon" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore" }
