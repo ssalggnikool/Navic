@@ -59,7 +59,7 @@ private const val LOOP_NS = 2_520_000_000_000L
 private const val FRAME_INTERVAL_NS = 42_000_000L
 
 private const val ART_SIZE_PX = 256
-private const val RENDER_SCALE = 1f / 24f
+private const val RENDER_SCALE = 0.25f
 private val BLUR_RADIUS = 80.dp
 private const val SATURATION = 1.5f
 
@@ -129,7 +129,7 @@ fun BlendBackground(
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
 			.renderAtScale(RENDER_SCALE)
-			.backwardsCompatibleBlur(BLUR_RADIUS)
+			.backwardsCompatibleBlur(BLUR_RADIUS * RENDER_SCALE)
 	) {
 		BoxWithConstraints(Modifier.fillMaxSize()) {
 			val canvasWidth = maxWidth * CANVAS_OVERDRAW
