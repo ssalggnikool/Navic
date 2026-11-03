@@ -6,6 +6,11 @@
 
 package paige.navic.ui.screen.nowPlaying.component.rows
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,35 +57,40 @@ fun NowPlayingTechnicalInfoRow() {
 					.background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
 			)
 
-			Row(
-				modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
-				verticalAlignment = Alignment.CenterVertically
-			) {
-				val sampleRateFormatted = (playerState.playbackSampleRate)?.let {
+			AnimatedContent(
+				targetState = song?.id to playerState.playbackBitrate,
+				transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(200)) }
+			) { (_, _) ->
+				Row(
+					modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					val sampleRateFormatted = (playerState.playbackSampleRate)?.let {
 						if (it >= 1000) "${it / 1000.0} kHz" else "$it Hz"
 					} ?: "-- kHz"
 
-				val bitDepthFormatted = (playerState.playbackBitDepth)
-					?.takeIf { it > 16 }
-					?.let { "$it bit" }
+					val bitDepthFormatted = (playerState.playbackBitDepth)
+						?.takeIf { it > 16 }
+						?.let { "$it bit" }
 
-				val bitrateFormatted =
-					(playerState.playbackBitrate?.let { it / 1000 })?.let { "$it kbps" }
-						?: "-- kbps"
+					val bitrateFormatted =
+						(playerState.playbackBitrate?.let { it / 1000 })?.let { "$it kbps" }
+							?: "-- kbps"
 
-				val format =
-					playerState.playbackMimeType
-						?.let { PlaybackUtils.getPrettyFormatName(it) }
-						?.uppercase()
-						?: song?.fileExtension?.uppercase()
-						?: "--"
+					val format =
+						playerState.playbackMimeType
+							?.let { PlaybackUtils.getPrettyFormatName(it) }
+							?.uppercase()
+							?: song?.fileExtension?.uppercase()
+							?: "--"
 
-				Text(
-					text = bitDepthFormatted?.let { "$format • $it / $sampleRateFormatted • $bitrateFormatted" }
-						?: "$format • $sampleRateFormatted • $bitrateFormatted",
-					style = style,
-					color = color
-				)
+					Text(
+						text = bitDepthFormatted?.let { "$format • $it / $sampleRateFormatted • $bitrateFormatted" }
+							?: "$format • $sampleRateFormatted • $bitrateFormatted",
+						style = style,
+						color = color
+					)
+				}
 			}
 		}
 	}
