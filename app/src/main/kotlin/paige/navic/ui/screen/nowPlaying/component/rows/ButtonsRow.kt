@@ -12,6 +12,9 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -117,13 +120,18 @@ fun NowPlayingButtonsRow() {
 			},
 			enabled = enabled,
 		) {
-			Icon(
-				imageVector = if (playerState.isShuffleEnabled)
-					Icons.Filled.ShuffleOn
-				else Icons.Outlined.Shuffle,
-				contentDescription = stringResource(R.string.action_shuffle),
-				modifier = Modifier.size(24.dp)
-			)
+			AnimatedContent(
+				targetState = playerState.isShuffleEnabled,
+				transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(200)) }
+			) { isShuffle ->
+				Icon(
+					imageVector = if (isShuffle)
+						Icons.Filled.ShuffleOn
+					else Icons.Outlined.Shuffle,
+					contentDescription = stringResource(R.string.action_shuffle),
+					modifier = Modifier.size(24.dp)
+				)
+			}
 		}
 		IconButton(
 			modifier = Modifier.weight(1f).aspectRatio(1f),
@@ -200,15 +208,20 @@ fun NowPlayingButtonsRow() {
 			},
 			enabled = enabled,
 		) {
-			Icon(
-				imageVector = when (playerState.repeatMode) {
-					1 -> Icons.Filled.RepeatOneOn
-					2 -> Icons.Filled.RepeatOn
-					else -> Icons.Outlined.Repeat
-				},
-				contentDescription = null,
-				modifier = Modifier.size(24.dp)
-			)
+			AnimatedContent(
+				targetState = playerState.repeatMode,
+				transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(200)) }
+			) { mode ->
+				Icon(
+					imageVector = when (mode) {
+						1 -> Icons.Filled.RepeatOneOn
+						2 -> Icons.Filled.RepeatOn
+						else -> Icons.Outlined.Repeat
+					},
+					contentDescription = null,
+					modifier = Modifier.size(24.dp)
+				)
+			}
 		}
 	}
 }
