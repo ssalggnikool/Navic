@@ -21,7 +21,7 @@ A modern (Open)Subsonic music streaming app for Android.
 * **Works everywhere**: access library offline & scrobble offline
 * **Downloads**: download your music, supports download transcoding\* and saving to SD card
 * **Powerful playback**: equaliser, ReplayGain\*, transcoding\*, ALAC support & more
-* **Discord RPC**: show off what you're listening to on Discord, no configuration required
+* **Discord RPC**: show off what you're listening to on Discord, no configuration required *(requires up to date Discord app)*
 * **Lyrics support**: multiple lyric providers & word-by-word lyrics\*
 * **Radio stations**: stream & add internet radio stations
 * **Home widgets**: a couple of home screen widgets are inbuilt
