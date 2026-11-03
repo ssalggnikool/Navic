@@ -9,7 +9,9 @@ package paige.navic.ui.component.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,9 +28,12 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -36,6 +42,7 @@ import coil3.ImageLoader
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
+import coil3.request.crossfade
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
 import paige.navic.domain.manager.session.SessionManager
@@ -45,14 +52,23 @@ import paige.navic.util.disableHardwareIfCucked
 import kotlin.math.roundToInt
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
-private const val FRAME_PERIOD_NS = 24_000_000_000L
-private const val TOP_LEFT_PERIOD_NS = 12_000_000_000L
-private const val BOT_RIGHT_PERIOD_NS = 20_000_000_000L
-private const val LOOP_NS = 120_000_000_000L
+private const val SLOW_PERIOD_NS = 120_000_000_000L
+private const val MID_PERIOD_NS = 90_000_000_000L
+private const val FAST_PERIOD_NS = 70_000_000_000L
+private const val LOOP_NS = 2_520_000_000_000L
+private const val FRAME_INTERVAL_NS = 42_000_000L
 
 private const val ART_SIZE_PX = 256
-private const val RENDER_SCALE = 0.25f
-private val BLUR_RADIUS = 80.dp
+private const val RENDER_SCALE = 1f / 24f
+private const val BLUR_RADIUS_PX = 25f
+private const val SATURATION = 1.5f
+
+private const val CANVAS_OVERDRAW = 1.3f
+private const val LAYER_OVERDRAW = 1.3f
+
+private const val BLACK_SCRIM_ALPHA = 0.50f
+private const val WHITE_SCRIM_ALPHA = 0.10f
+private const val CROSSFADE_MS = 1_000
 
 @Composable
 fun BlendBackground(
@@ -67,17 +83,20 @@ fun BlendBackground(
 
 	LaunchedEffect(isActive) {
 		if (!isActive) return@LaunchedEffect
-		var last = androidx.compose.runtime.withFrameNanos { it }
+		var last = withFrameNanos { it }
 		while (true) {
-			androidx.compose.runtime.withFrameNanos { now ->
-				elapsedNanos = (elapsedNanos + (now - last)) % LOOP_NS
-				last = now
+			withFrameNanos { now ->
+				// cap the animation at 24fps instead of running at the display refresh rate
+				if (now - last >= FRAME_INTERVAL_NS) {
+					elapsedNanos = (elapsedNanos + (now - last)) % LOOP_NS
+					last = now
+				}
 			}
 		}
 	}
 
 	val saturation = remember {
-		ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(1.5f) })
+		ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(SATURATION) })
 	}
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
@@ -94,6 +113,7 @@ fun BlendBackground(
 			.diskCacheKey(coverArtId)
 			.diskCachePolicy(CachePolicy.ENABLED)
 			.memoryCachePolicy(CachePolicy.ENABLED)
+			.crossfade(CROSSFADE_MS)
 			.build()
 	}
 
@@ -103,75 +123,89 @@ fun BlendBackground(
 		contentScale = ContentScale.Crop
 	)
 
+	val blurRadius = with(LocalDensity.current) {
+		(BLUR_RADIUS_PX / density).dp
+	}
+
 	PlatformLayerComposable(
 		// blur has to wrap the AndroidView, not the content inside it
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
 			.renderAtScale(RENDER_SCALE)
-			.backwardsCompatibleBlur(BLUR_RADIUS * RENDER_SCALE)
+			.backwardsCompatibleBlur(blurRadius)
 	) {
-		Box(
-			modifier = Modifier
-				.fillMaxSize()
-				.graphicsLayer {
-					compositingStrategy = CompositingStrategy.Offscreen
-					colorFilter = saturation
-				}
-		) {
-			Image(
-				painter = painter,
-				contentDescription = null,
-				contentScale = ContentScale.Crop,
-				modifier = Modifier.fillMaxSize()
-			)
+		BoxWithConstraints(Modifier.fillMaxSize()) {
+			val canvasWidth = maxWidth * CANVAS_OVERDRAW
+			val canvasHeight = maxHeight * CANVAS_OVERDRAW
+			val layerSize = maxOf(canvasWidth, canvasHeight) * LAYER_OVERDRAW
+
 			Box(
 				modifier = Modifier
 					.fillMaxSize()
 					.graphicsLayer {
-						rotationZ = -angle(elapsedNanos, FRAME_PERIOD_NS)
+						compositingStrategy = CompositingStrategy.Offscreen
+						colorFilter = saturation
 					}
 			) {
-				Box(
-					modifier = Modifier
-						.fillMaxSize(0.5f)
-						.align(Alignment.TopStart)
+				BlendLayer(painter, layerSize, 0.dp, 0.dp) {
+					-angle(elapsedNanos, SLOW_PERIOD_NS)
+				}
+				BlendLayer(
+					painter, layerSize,
+					translationX = -canvasWidth * 0.95f,
+					translationY = -canvasHeight * 0.7f
 				) {
-					Image(
-						painter = painter,
-						contentDescription = null,
-						contentScale = ContentScale.Crop,
-						alignment = Alignment.TopStart,
-						modifier = Modifier
-							.fillMaxSize()
-							.graphicsLayer {
-								rotationZ = angle(elapsedNanos, TOP_LEFT_PERIOD_NS)
-							}
-					)
+					angle(elapsedNanos, MID_PERIOD_NS)
 				}
 				Box(
 					modifier = Modifier
-						.fillMaxSize(0.5f)
-						.align(Alignment.BottomEnd)
+						.fillMaxSize()
+						.graphicsLayer { rotationZ = angle(elapsedNanos, FAST_PERIOD_NS) }
 				) {
-					Image(
-						painter = painter,
-						contentDescription = null,
-						contentScale = ContentScale.Crop,
-						alignment = Alignment.BottomEnd,
-						modifier = Modifier
-							.fillMaxSize()
-							.graphicsLayer {
-								rotationZ = angle(elapsedNanos, BOT_RIGHT_PERIOD_NS)
-							}
-					)
+					BlendLayer(
+						painter, layerSize,
+						translationX = -canvasWidth * 0.5f,
+						translationY = canvasHeight * 0.7f
+					) {
+						angle(elapsedNanos, FAST_PERIOD_NS)
+					}
 				}
 			}
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.background(Color.Black.copy(alpha = BLACK_SCRIM_ALPHA))
+			)
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.background(Color.White.copy(alpha = WHITE_SCRIM_ALPHA))
+			)
 		}
-		Box(
+	}
+}
+
+@Composable
+private fun BlendLayer(
+	painter: Painter,
+	size: Dp,
+	translationX: Dp,
+	translationY: Dp,
+	rotation: () -> Float
+) {
+	Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+		Image(
+			painter = painter,
+			contentDescription = null,
+			contentScale = ContentScale.Crop,
 			modifier = Modifier
-				.fillMaxSize()
-				.background(Color.Black.copy(alpha = 0.4f))
+				.size(size)
+				.graphicsLayer {
+					rotationZ = rotation()
+					this.translationX = translationX.toPx()
+					this.translationY = translationY.toPx()
+				}
 		)
 	}
 }
