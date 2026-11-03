@@ -127,7 +127,6 @@ fun BlendBackground(
 					colorFilter = saturation
 				}
 		) {
-			// Base layer (Prevents the black squares)
 			Image(
 				painter = painter,
 				contentDescription = null,
