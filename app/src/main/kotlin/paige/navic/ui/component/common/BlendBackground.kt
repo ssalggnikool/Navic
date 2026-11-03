@@ -76,7 +76,7 @@ fun BlendBackground(
 		var last = withFrameNanos { it }
 		while (true) {
 			withFrameNanos { now ->
-				// Cap animation at 24fps
+				// Cap animation at 24 fps
 				if (now - last >= FRAME_INTERVAL_NS) {
 					elapsedNanos = (elapsedNanos + (now - last)) % LOOP_NS
 					last = now
