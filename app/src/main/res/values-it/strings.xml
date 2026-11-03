@@ -534,4 +534,5 @@
     <string name="subtitle_swipe_to_dismiss">\"Nascondi se idle\" deve essere attivo</string>
     <string name="option_swipe_to_dismiss">Trascina per ignorare</string>
     <string name="title_matrix_space">Istanza matrix</string>
+    <string name="notice_app_icon_changed">Icona dell\' app cambiata, riavvio dell\' app!</string>
 </resources>
