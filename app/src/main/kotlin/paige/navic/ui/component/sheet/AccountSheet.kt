@@ -52,9 +52,11 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
 import paige.navic.domain.manager.session.LoginManager
+import paige.navic.domain.manager.session.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
-import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.manager.session.canShare
+import paige.navic.domain.manager.session.getUser
+import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.ui.component.common.Monogram
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
@@ -77,8 +79,6 @@ fun AccountSheet(
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
 	val sessionManager = koinInject<SessionManager>()
-	val sessionState =
-		sessionManager.sessionState.collectAsStateWithLifecycle()
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
 	val sleepTimerManager = koinInject<SleepTimerManager>()
@@ -195,9 +195,13 @@ fun AccountSheet(
 
 			Spacer(Modifier.height(9.dp))
 
-			val isSharingAllowed =
-				(sessionState.value as? SessionState.Authenticated)?.currentUser?.canShare() == true
-			val count = if (isSharingAllowed) 5 else 4
+			val isSharingAllowed = sessionManager.getUser()?.canShare() == true
+			val supportsChat = sessionManager.supportsExtension(ServerExtension.CHAT)
+
+			var count = 3
+
+			if (isSharingAllowed) count++
+			if (supportsChat) count++
 
 			if (isSharingAllowed) {
 				SegmentedListItem(
@@ -214,18 +218,20 @@ fun AccountSheet(
 				)
 			}
 
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 4,
-					count = count
-				),
-				onClick = {
-					animateToDismiss()
-					backStack.add(Screen.Chat)
-				},
-				leadingContent = { Icon(Icons.Outlined.Forum, null) },
-				content = { Text(stringResource(R.string.title_chat)) }
-			)
+			if (supportsChat) {
+				SegmentedListItem(
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = count - 4,
+						count = count
+					),
+					onClick = {
+						animateToDismiss()
+						backStack.add(Screen.Chat)
+					},
+					leadingContent = { Icon(Icons.Outlined.Forum, null) },
+					content = { Text(stringResource(R.string.title_chat)) }
+				)
+			}
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(

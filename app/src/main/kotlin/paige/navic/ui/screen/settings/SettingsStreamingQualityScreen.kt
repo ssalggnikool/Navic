@@ -36,8 +36,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
+import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.domain.model.settings.StreamingQuality
 import paige.navic.domain.model.settings.description
 import paige.navic.ui.component.common.SegmentedListItemDefaults
@@ -56,7 +58,7 @@ fun SettingsStreamingQualityScreen() {
 	val reachability = koinInject<ReachabilityFlow>()
 	val isReachable by reachability.isReachable.collectAsStateWithLifecycle()
 	val isMetered by reachability.isMetered.collectAsStateWithLifecycle()
-	val supportsTranscoding by sessionManager.supportsTranscoding.collectAsStateWithLifecycle()
+	val supportsTranscoding = sessionManager.supportsExtension(ServerExtension.TRANSCODING)
 
 	Scaffold(
 		topBar = { NestedTopBar({ Text(stringResource(R.string.title_streaming_quality)) }) }

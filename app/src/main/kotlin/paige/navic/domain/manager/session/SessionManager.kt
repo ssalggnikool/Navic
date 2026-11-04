@@ -38,13 +38,26 @@ import paige.navic.util.network.getProxyUrlOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
+enum class ServerExtension {
+	TRANSCODING,
+	CHAT
+}
+
+data class ServerInfo(
+	val extensions: Set<ServerExtension> = emptySet(),
+	val serverVersion: String?, // what is even the difference?
+	val version: String?,
+	val type: String?,
+	val isOpenSubsonic: Boolean = false
+)
+
+
 sealed interface SessionState {
 	data object Unauthenticated : SessionState
 	data object Restoring : SessionState
 	data class Authenticated(
 		val currentUser: User?,
-		/* use this to check the music server being used */
-		val serverInfo: Any? = null
+		val serverInfo: ServerInfo?
 	) : SessionState
 }
 
@@ -70,11 +83,6 @@ class SessionManager(
 		if (hasStoredCredentials) SessionState.Restoring else SessionState.Unauthenticated
 	)
 	val sessionState: StateFlow<SessionState> = _state.asStateFlow()
-
-	private val _supportsTranscoding = MutableStateFlow(
-		settings.getBoolean("supportsTranscoding", false)
-	)
-	val supportsTranscoding: StateFlow<Boolean> = _supportsTranscoding.asStateFlow()
 
 	private val mutex = Mutex()
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -176,8 +184,6 @@ class SessionManager(
 		val extensions = runCatching {
 			client.getOpenSubsonicExtensions()
 		}.getOrDefault(emptyList())
-		_supportsTranscoding.value = extensions.any { it.name == "transcoding" }
-		settings["supportsTranscoding"] = _supportsTranscoding.value
 
 		this.instanceUrl = instanceUrl
 		this.username = username
@@ -186,15 +192,35 @@ class SessionManager(
 		api = client
 		_state.value = SessionState.Authenticated(
 			currentUser = user,
-			serverInfo = pingResult
+			serverInfo = ServerInfo(
+				extensions = buildSet {
+					extensions.forEach { extension ->
+						if (extension.name == "transcoding") {
+							if (extension.versions.contains(1)) {
+								add(ServerExtension.TRANSCODING)
+							}
+						}
+					}
+
+					val supportsChat = runCatching {
+						client.getChatMessages()
+					}.isSuccess
+
+					if (supportsChat) {
+						add(ServerExtension.CHAT)
+					}
+				},
+				serverVersion = pingResult.serverVersion,
+				version = pingResult.version,
+				type = pingResult.type,
+				isOpenSubsonic = pingResult.openSubsonic
+			)
 		)
 	}
 
 	fun logout() {
 		settings["username"] = null
 		settings.remove("password")
-		_supportsTranscoding.value = false
-		settings["supportsTranscoding"] = false
 		ttlLruCache.clear()
 		_state.value = SessionState.Unauthenticated
 	}
@@ -250,4 +276,16 @@ fun User.canShare(): Boolean {
 
 fun SessionManager.canUserShare(): Boolean {
 	return (sessionState.value as? SessionState.Authenticated)?.currentUser?.canShare() == true
+}
+
+fun SessionManager.getUser(): User? {
+	return (sessionState.value as? SessionState.Authenticated)?.currentUser
+}
+
+fun SessionManager.getServerInfo(): ServerInfo? {
+	return (sessionState.value as? SessionState.Authenticated)?.serverInfo
+}
+
+fun SessionManager.supportsExtension(extension: ServerExtension): Boolean {
+	return this.getServerInfo()?.extensions?.contains(extension) == true
 }
