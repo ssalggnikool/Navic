@@ -195,7 +195,7 @@ fun AccountSheet(
 			Spacer(Modifier.height(9.dp))
 
 			val isSharingAllowed =
-				(sessionState as? SessionState.Authenticated)?.currentUser?.canShare() == true
+				(sessionState.value as? SessionState.Authenticated)?.currentUser?.canShare() == true
 			val count = if (isSharingAllowed) 4 else 3
 
 			if (isSharingAllowed) {
