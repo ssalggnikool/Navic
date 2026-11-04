@@ -97,17 +97,6 @@ private fun Actions(
 		}
 	}
 
-	TooltipBox(stringResource(R.string.title_settings)) {
-		IconButton(onClick = dropUnlessResumed {
-			backStack.add(Screen.Settings.Root)
-		}) {
-			Icon(
-				imageVector = Icons.Filled.Settings,
-				contentDescription = stringResource(R.string.title_settings)
-			)
-		}
-	}
-
 	TooltipBox(stringResource(R.string.title_account)) {
 		IconButton(onClick = {
 			accountSheetOpen = true
