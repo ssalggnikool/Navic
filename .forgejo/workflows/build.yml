@@ -32,7 +32,7 @@ concurrency:
 jobs:
   build-android:
     name: Android
-    runs-on: ubuntu-latest
+    runs-on: freebsd-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -40,11 +40,7 @@ jobs:
           submodules: 'recursive'
 
       - name: Setup JDK
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: gradle
+        run: pkg install openjdk21
 
       - name: Setup Android SDK
         uses: https://github.com/android-actions/setup-android@035682743ab223ec9c6169af09811dff8247e520
