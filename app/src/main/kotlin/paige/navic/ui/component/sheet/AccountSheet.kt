@@ -59,6 +59,7 @@ import paige.navic.ui.component.common.Monogram
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Settings
 import paige.navic.ui.icons.outlined.Bedtime
 import paige.navic.ui.icons.outlined.Edit
 import paige.navic.ui.icons.outlined.Forum
@@ -196,7 +197,7 @@ fun AccountSheet(
 
 			val isSharingAllowed =
 				(sessionState.value as? SessionState.Authenticated)?.currentUser?.canShare() == true
-			val count = if (isSharingAllowed) 4 else 3
+			val count = if (isSharingAllowed) 5 else 4
 
 			if (isSharingAllowed) {
 				SegmentedListItem(
@@ -215,7 +216,7 @@ fun AccountSheet(
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 3,
+					index = count - 4,
 					count = count
 				),
 				onClick = {
@@ -228,7 +229,7 @@ fun AccountSheet(
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 2,
+					index = count - 3,
 					count = count
 				),
 				onClick = { sleepTimerSheetOpen = true },
@@ -270,6 +271,19 @@ fun AccountSheet(
 						color = color
 					)
 				}
+			)
+
+			SegmentedListItem(
+				shapes = SegmentedListItemDefaults.segmentedShapes(
+					index = count - 2,
+					count = count
+				),
+				onClick = {
+					animateToDismiss()
+					backStack.add(Screen.Settings.Root)
+				},
+				leadingContent = { Icon(Icons.Filled.Settings, null) },
+				content = { Text(stringResource(R.string.title_settings)) }
 			)
 
 			SegmentedListItem(
