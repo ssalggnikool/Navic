@@ -6,7 +6,6 @@
 
 package paige.navic.playback.exoplayer.impl.cache
 
-import android.content.Context
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.core.net.toUri
@@ -26,8 +25,10 @@ import paige.navic.BuildConfig
 import paige.navic.domain.manager.playback.StreamCacheManager
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
+import paige.navic.domain.manager.session.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
+import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.playback.PlaybackUtils
 import paige.navic.util.Logger
 import java.io.File
@@ -206,7 +207,7 @@ class NavicDataSource(
 
 		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0)
 
-		if (!sessionManager.supportsTranscoding.value) {
+		if (!sessionManager.supportsExtension(ServerExtension.TRANSCODING)) {
 			val streamUrl = defaultStreamUrl.toStreamUri().toString()
 			ttlLruCache.put(cacheKey, streamUrl)
 			return streamUrl.toUri()
