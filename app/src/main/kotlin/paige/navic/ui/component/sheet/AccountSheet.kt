@@ -297,7 +297,14 @@ fun AccountSheet(
 					backStack.clear()
 					backStack.add(Screen.Login)
 				},
-				leadingContent = { Icon(Icons.Outlined.Logout, null) },
+				colors = SegmentedListItemDefaults.segmentedErrorColors(),
+				leadingContent = {
+					Icon(
+						imageVector = Icons.Outlined.Logout,
+						contentDescription = null,
+						tint = MaterialTheme.colorScheme.error
+					)
+				},
 				content = { Text(stringResource(R.string.action_log_out)) }
 			)
 		}
