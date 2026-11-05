@@ -14,7 +14,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,7 +39,9 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.getServerInfo
 import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.navigation.Screen
@@ -54,6 +58,8 @@ fun SettingsConnectionOptionsScreen() {
 	val sessionManager = koinInject<SessionManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
 	val exoStateHolder = koinInject<ExoStateHolder>()
+
+	val serverInfo = sessionManager.getServerInfo()
 
 	var instanceUrlField by remember(sessionManager.instanceUrl) {
 		mutableStateOf(sessionManager.instanceUrl)
@@ -201,6 +207,68 @@ fun SettingsConnectionOptionsScreen() {
 							}
 						}
 					)
+				}
+				serverInfo?.let {
+					val count = if (it.extensions.isNotEmpty()) {
+						4
+					} else {
+						3
+					}
+
+					SettingsGroup(
+						title = { Text(stringResource(R.string.info_server_info)) }
+					) {
+						SegmentedListItem(
+							content = { Text(stringResource(R.string.info_server_type)) },
+							colors = ListItemDefaults.segmentedColors(
+								containerColor = MaterialTheme.colorScheme.surfaceContainer
+							),
+							supportingContent = { Text(it.type ?: "Unknown") },
+							onClick = {},
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 0,
+								count = count
+							),
+						)
+						SegmentedListItem(
+							content = { Text(stringResource(R.string.info_server_version)) },
+							colors = ListItemDefaults.segmentedColors(
+								containerColor = MaterialTheme.colorScheme.surfaceContainer
+							),
+							supportingContent = { Text(it.serverVersion ?: "Unknown") },
+							onClick = {},
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 1,
+								count = count
+							),
+						)
+						SegmentedListItem(
+							content = { Text(stringResource(R.string.info_server_is_opensubsonic)) },
+							colors = ListItemDefaults.segmentedColors(
+								containerColor = MaterialTheme.colorScheme.surfaceContainer
+							),
+							supportingContent = { Text(it.isOpenSubsonic.toString()) },
+							onClick = {},
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 2,
+								count = count
+							),
+						)
+						if (it.extensions.isNotEmpty()) {
+							SegmentedListItem(
+								content = { Text(stringResource(R.string.info_server_extensions)) },
+								colors = ListItemDefaults.segmentedColors(
+									containerColor = MaterialTheme.colorScheme.surfaceContainer
+								),
+								supportingContent = { Text(it.extensions.joinToString(", ")) },
+								onClick = {},
+								shapes = SegmentedListItemDefaults.segmentedShapes(
+									index = count - 1,
+									count = count
+								)
+							)
+						}
+					}
 				}
 			}
 		}

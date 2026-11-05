@@ -51,7 +51,6 @@ data class ServerInfo(
 	val isOpenSubsonic: Boolean = false
 )
 
-
 sealed interface SessionState {
 	data object Unauthenticated : SessionState
 	data object Restoring : SessionState

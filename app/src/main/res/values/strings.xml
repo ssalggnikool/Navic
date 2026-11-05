@@ -567,4 +567,9 @@
 	<string name="title_integrations">Integrations</string>
 	<string name="action_edit_api_key">Edit %1$s API key</string>
 	<string name="action_repeat">Repeat</string>
+    <string name="info_server_type">Server type</string>
+	<string name="info_server_version">Server version</string>
+	<string name="info_server_is_opensubsonic">Is OpenSubsonic?</string>
+	<string name="info_server_info">Server information</string>
+	<string name="info_server_extensions">Server extensions</string>
 </resources>
