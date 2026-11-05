@@ -12,7 +12,6 @@
     <string name="title_playback">Avspeling</string>
     <string name="title_data_storage">Data og lagring</string>
     <string name="title_sync_control">Synkroniseringskontroll</string>
-    <string name="title_cache_management">Hurtigbuffer og lagringsadministrasjon</string>
     <string name="title_danger_zone">Faresone</string>
     <string name="title_developer">Utviklaralternativ</string>
     <string name="title_about">Om</string>

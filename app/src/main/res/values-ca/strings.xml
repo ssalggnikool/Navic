@@ -12,7 +12,6 @@
 	<string name="title_playback">Reproducció</string>
 	<string name="title_data_storage">Dades i emmagatzematge</string>
 	<string name="title_sync_control">Sincronització</string>
-	<string name="title_cache_management">Gestió de la memòria cau i l\'emmagatzematge</string>
 	<string name="title_danger_zone">Opcions perilloses</string>
 	<string name="title_developer">Opcions per a desenvolupadors</string>
 	<string name="title_about">Quant a</string>

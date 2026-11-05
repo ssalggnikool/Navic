@@ -197,7 +197,6 @@
     <string name="option_mini_player_style_detached">Separado</string>
     <string name="title_data_storage">Datos y almacenamiento</string>
     <string name="title_sync_control">Control de sincronización</string>
-    <string name="title_cache_management">Gestión de caché</string>
     <string name="title_sort_by">Ordenar por</string>
     <string name="title_direction">Dirección</string>
     <string name="title_bulk_download">Descargar todos los álbumes</string>

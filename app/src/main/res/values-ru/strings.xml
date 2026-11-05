@@ -200,7 +200,6 @@
     <string name="info_track_replay_gain_effective">Текущее значение ReplayGain</string>
     <string name="title_data_storage">Данные и хранилище</string>
     <string name="title_sync_control">Управление синхронизацией</string>
-    <string name="title_cache_management">Управление кэшем</string>
     <string name="title_danger_zone">Опасная зона</string>
     <string name="title_sort_by">Сортировка</string>
     <string name="title_direction">Направление</string>
@@ -498,7 +497,6 @@
     <string name="subtitle_confirm_download_deletion">Выберите, когда запрашивать подтверждение удаления скачанного</string>
     <string name="subtitle_swipe_to_dismiss">\"Скрывать при простое\" должно быть включено</string>
     <string name="option_swipe_to_dismiss">Свайп для скрытия</string>
-    <string name="option_streaming_cache">Кэш стриминга</string>
     <string name="option_download_location">Расположение скачанного</string>
     <string name="option_download_storage_internal">Внутреннее хранилище</string>
     <string name="option_download_storage_external">SD-карта</string>
@@ -538,7 +536,6 @@
     <string name="title_commit_author">Автор коммита</string>
     <string name="subtitle_float_output">Экспериментальное. Требуется перезапуск приложения. Изменение скорости воспроизведения будет недоступно, если включено</string>
     <string name="option_float_output">Плавающая точность вывода</string>
-    <string name="title_storage_management">Управление хранилищем</string>
     <string name="media_session_channel_name">Воспроизведение медиа</string>
     <string name="info_incorrect_credentials">Неверные учётные данные. Пожалуйста, проверьте еще раз и попробуйте снова.</string>
     <string name="title_integrations">Интеграции</string>

@@ -197,7 +197,6 @@
     <string name="info_lyrics_provider">Testo fornito da %1$s</string>
     <string name="title_data_storage">Dati &amp; Archiviazione</string>
     <string name="title_sync_control">Controllo sincronizzazione</string>
-    <string name="title_cache_management">Gestione cache &amp; archiviazione</string>
     <string name="title_danger_zone">Area pericolosa</string>
     <string name="subtitle_data_storage">Sincronizzazione, cache, dati</string>
     <string name="subtitle_trigger_sync">Forza il download completo della libreria</string>
@@ -483,7 +482,6 @@
     <string name="subtitle_download_location">Dove verranno salvati i nuovi download</string>
     <string name="subtitle_sd_card_unavailable">Nessuna scheda SD trovata; i download verranno salvati sulla memoria interna</string>
     <string name="subtitle_confirm_download_deletion">Scegli dove chiedere conferma prima di cancellare i download</string>
-    <string name="option_streaming_cache">Cache streaming</string>
     <string name="option_download_location">Posizione download</string>
     <string name="option_download_storage_internal">Memoria interna</string>
     <string name="option_download_storage_external">Scheda SD</string>
@@ -524,7 +522,6 @@
     <string name="title_commit_author">Autore del commit</string>
     <string name="option_float_output">Precisione dell\' output float</string>
     <string name="subtitle_float_output">Sperimentale. Richiede che l\'app venga riavviata. La velocità del playback non funzionerà più se questa opzione è attiva</string>
-    <string name="title_storage_management">Gestione storage</string>
     <string name="media_session_channel_name">Playback media</string>
     <string name="info_incorrect_credentials">Credenziali errate. Per favore ricontrolla e riprova.</string>
     <string name="title_integrations">Integrazioni</string>

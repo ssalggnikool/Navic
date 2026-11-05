@@ -193,7 +193,6 @@
 	<string name="info_app_version">Navic %1$s</string>
 	<string name="title_data_storage">Data en Opslag</string>
 	<string name="title_sync_control">Synchronisatiecontrole</string>
-	<string name="title_cache_management">Cache en Opslagbeheer</string>
 	<string name="title_danger_zone">Gevarenzone</string>
 	<string name="subtitle_data_storage">Synchronisatie, opslag en cache</string>
 	<string name="subtitle_trigger_sync">Dwingt onmiddellijk een volledige bibliotheekophaling</string>

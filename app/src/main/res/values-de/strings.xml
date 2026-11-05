@@ -112,7 +112,6 @@
     <string name="title_navigation_bar">Navigationsleiste</string>
     <string name="title_data_storage">Daten &amp; Speicher</string>
     <string name="title_sync_control">Synchronisationseinstellungen</string>
-    <string name="title_cache_management">Cacheverwaltung</string>
     <string name="title_danger_zone">Gefahrbereich</string>
     <string name="title_mini_player">Mini-Player</string>
     <string name="title_miscellaneous">Verschiedenes</string>
@@ -512,11 +511,9 @@
     <string name="title_commit_author">Commit-Autor</string>
     <string name="option_float_output">Floatingpoint Ausgabeprezision</string>
     <string name="subtitle_float_output">Experimentell. Benötigt einen App Neustart. Ändern der Wiedergabegeschwindigkeit wird nach Einschalten dieser Option nicht mehr verfügbar sein</string>
-    <string name="title_storage_management">Speicherverwaltung</string>
     <string name="media_session_channel_name">Wiedergabe</string>
     <string name="info_incorrect_credentials">Falsche Anmeldedaten. Bitte prüfe deine Eingabe und versuche es erneut.</string>
     <string name="title_integrations">Integrationen</string>
     <string name="action_edit_api_key">API-Schlüssel %1$s bearbeiten</string>
-    <string name="option_streaming_cache">Streaming cache</string>
     <string name="title_commit_hash">Commit-Hash</string>
 </resources>
