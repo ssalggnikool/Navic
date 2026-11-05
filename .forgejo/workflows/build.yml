@@ -49,6 +49,8 @@ jobs:
       - name: Setup Android SDK
         uses: https://github.com/android-actions/setup-android@v4
 
+      - run: ulimit -n 65536
+
       # - name: Setup Gradle
       #   uses: gradle/actions/setup-gradle@v6
 
