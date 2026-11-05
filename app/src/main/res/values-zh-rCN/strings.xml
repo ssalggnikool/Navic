@@ -190,7 +190,6 @@
     <string name="info_unknown">未知</string>
     <string name="title_data_storage">数据&amp;存储</string>
     <string name="title_sync_control">同步化控制</string>
-    <string name="title_cache_management">缓存与存储管理</string>
     <string name="title_danger_zone">危险区</string>
     <string name="title_library_download">下载整个库</string>
     <string name="title_confirm">确认</string>

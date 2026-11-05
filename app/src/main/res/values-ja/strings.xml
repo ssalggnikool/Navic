@@ -120,7 +120,6 @@
     <string name="option_choose_theme">アプリのテーマ</string>
     <string name="option_choose_app_icon">アプリのアイコン</string>
     <string name="title_sync_control">同期制御</string>
-    <string name="title_cache_management">キャッシュの管理</string>
     <string name="title_danger_zone">危険地帯</string>
     <string name="title_developer">開発者向けオプション</string>
     <string name="title_about">このアプリについて</string>
@@ -461,7 +460,6 @@
     <string name="subtitle_download_location">ダウンロードデータの保存場所</string>
     <string name="subtitle_sd_card_unavailable">SDカードが検出されませんでした。内部ストレージを使用します</string>
     <string name="subtitle_confirm_download_deletion">ダウンロードデータの削除前に確認を求めるタイミングを選択</string>
-    <string name="option_streaming_cache">ストリーミングキャッシュ</string>
     <string name="option_download_location">ダウンロード場所</string>
     <string name="option_download_storage_internal">内部ストレージ</string>
     <string name="option_download_storage_external">SDカード</string>
@@ -498,7 +496,6 @@
     <string name="title_commit_author">コミット作成者</string>
     <string name="option_float_output">浮動小数点数の出力精度</string>
     <string name="subtitle_float_output">実験的機能。アプリの再起動が必要です。この設定を有効化すると再生速度は機能しなくなります</string>
-    <string name="title_storage_management">ストレージ管理</string>
     <string name="media_session_channel_name">メディア再生</string>
     <string name="info_incorrect_credentials">認証情報が違います。入力内容を確認して、再試行してください。</string>
     <string name="title_integrations">連携機能</string>

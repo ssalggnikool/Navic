@@ -12,7 +12,6 @@
     <string name="title_playback">Відтворення</string>
     <string name="title_data_storage">Дані та сховище</string>
     <string name="title_sync_control">Керування синхронізацією</string>
-    <string name="title_cache_management">Керування кешем</string>
     <string name="title_danger_zone">Небезпечна зона</string>
     <string name="title_developer">Параметри розробника</string>
     <string name="title_about">Про додаток</string>
@@ -497,7 +496,6 @@
     <string name="subtitle_confirm_download_deletion">Виберіть, коли запитувати підтвердження перед видаленням завантажень</string>
     <string name="subtitle_swipe_to_dismiss">Має бути увімкнено опцію «Приховувати під час бездіяльності»</string>
     <string name="option_swipe_to_dismiss">Закривати змахуванням</string>
-    <string name="option_streaming_cache">Кеш потокового відтворення</string>
     <string name="option_download_location">Розташування завантажень</string>
     <string name="option_download_storage_internal">Внутрішнє сховище</string>
     <string name="option_download_storage_external">SD-карта</string>
@@ -537,7 +535,6 @@
     <string name="title_commit_author">Автор коміту</string>
     <string name="option_float_output">Точність виведення чисел з рухомою комою</string>
     <string name="subtitle_float_output">Експериментальна функція. Потребує перезапуску додатку. Якщо увімкнено, зміна швидкості відтворення не працюватиме</string>
-    <string name="title_storage_management">Керування сховищем</string>
     <string name="media_session_channel_name">Відтворення медіа</string>
     <string name="info_incorrect_credentials">Неправильні облікові дані. Перевірте їх та спробуйте ще раз.</string>
     <string name="title_integrations">Інтеграції</string>

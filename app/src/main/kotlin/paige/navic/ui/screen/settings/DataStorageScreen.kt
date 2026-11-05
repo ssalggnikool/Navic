@@ -341,7 +341,7 @@ fun SettingsDataStorageScreen() {
 					)
 				}
 
-				SettingsGroup(title = { Text(stringResource(R.string.title_storage_management)) }) {
+				SettingsGroup(title = { Text(stringResource(R.string.title_download_management)) }) {
 					SettingsChoiceItem(
 						choices = DownloadStorage.entries.toImmutableList(),
 						selectedChoice = preferenceManager.downloadStorage,
@@ -366,30 +366,14 @@ fun SettingsDataStorageScreen() {
 						},
 						content = { Text(stringResource(R.string.option_download_location)) },
 						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 7)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 
 					SegmentedListItem(
 						onClick = { showConfirmDeletionDialog = true },
 						content = { Text(stringResource(R.string.option_confirm_download_deletion)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_confirm_download_deletion)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 7)
-					)
-
-					SegmentedListItem(
-						content = { Text(stringResource(R.string.option_downloaded_songs)) },
-						supportingContent = {
-							Text(
-								text = "${
-									pluralStringResource(
-										R.plurals.count_songs,
-										downloadCount,
-										downloadCount
-									)
-								} ($downloadsSizeMb) // $freeSpaceFormatted free"
-							)
-						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 7)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
 					)
 
 					SegmentedListItem(
@@ -467,20 +451,36 @@ fun SettingsDataStorageScreen() {
 							}
 						},
 						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
-				SettingsGroup(title = { Text(stringResource(R.string.title_cache_management)) }) {
+				SettingsGroup(title = { Text(stringResource(R.string.title_storage_usage)) }) {
 					SegmentedListItem(
-						content = { Text(stringResource(R.string.option_image_cache_size)) },
-						supportingContent = { Text(imageCacheSizeMb) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2)
+						content = { Text(stringResource(R.string.option_downloaded_songs)) },
+						supportingContent = {
+							Text(
+								text = "${
+									pluralStringResource(
+										R.plurals.count_songs,
+										downloadCount,
+										downloadCount
+									)
+								} ($downloadsSizeMb) // $freeSpaceFormatted free"
+							)
+						},
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 
 					SegmentedListItem(
-						content = { Text(stringResource(R.string.option_streaming_cache)) },
+						content = { Text(stringResource(R.string.option_image_cache_size)) },
+						supportingContent = { Text(imageCacheSizeMb) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+					)
+
+					SegmentedListItem(
+						content = { Text(stringResource(R.string.option_streaming_cache_size)) },
 						supportingContent = { Text(streamCacheSize) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
 

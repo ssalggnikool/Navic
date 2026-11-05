@@ -172,7 +172,6 @@
 	<string name="title_playback">Oynatma</string>
 	<string name="title_data_storage">Veri ve Depolama</string>
 	<string name="title_sync_control">Senkronizasyon Kontrolü</string>
-	<string name="title_cache_management">Önbellek ve Depolama Yönetimi</string>
 	<string name="title_danger_zone">Tehlikeli Bölge</string>
 	<string name="title_mini_player">Mini Oynatıcı</string>
 	<string name="title_miscellaneous">Diğer</string>
