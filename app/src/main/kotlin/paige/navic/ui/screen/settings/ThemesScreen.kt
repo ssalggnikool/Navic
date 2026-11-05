@@ -115,7 +115,6 @@ fun SettingsThemesScreen() {
 					val count = if (isSeeded) 5 else 2
 
 					SegmentedListItem(
-						onClick = {},
 						content = {
 							LazyRow(
 								modifier = Modifier

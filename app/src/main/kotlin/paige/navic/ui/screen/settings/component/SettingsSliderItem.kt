@@ -33,7 +33,6 @@ fun SettingsSliderItem(
 	content: @Composable () -> Unit
 ) {
 	SegmentedListItem(
-		onClick = {},
 		enabled = enabled,
 		shapes = shapes,
 		contentPadding = contentPadding,
