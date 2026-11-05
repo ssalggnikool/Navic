@@ -6,6 +6,12 @@
 
 package paige.navic.ui.screen.login.component
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,31 +59,33 @@ import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.runtime.PermissionManager
 import paige.navic.domain.manager.session.LoginManager
+import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
-import paige.navic.ui.core.LoginUiState
+import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Error
 import paige.navic.ui.navigation.Screen
+import paige.navic.ui.navigation.Screen.Library
 import paige.navic.ui.theme.defaultFont
 
 @Composable
 fun LoginScreenContent(innerPadding: PaddingValues) {
 	val viewModel = koinInject<LoginManager>()
-	val loginState by viewModel.loginState.collectAsStateWithLifecycle()
 	val formState by viewModel.formState.collectAsStateWithLifecycle()
 
 	val instanceState = viewModel.instanceState
 	val usernameState = viewModel.usernameState
 	val passwordState = viewModel.passwordState
 
+	var errorState by remember { mutableStateOf<Exception?>(null) }
+	var isBusy by remember { mutableStateOf(false) }
+
 	val snackBarState = LocalSnackBarState.current
 	val resources = LocalResources.current
-
-	val isBusy = loginState is LoginUiState.Loading || loginState is LoginUiState.Syncing
 
 	val haptics = LocalHapticFeedback.current
 	val backStack = LocalNavStack.current
@@ -110,10 +118,12 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 
 	LaunchedEffect(Unit) {
 		viewModel.events.collect { event ->
+			isBusy = event is LoginEvent.Loading
+
 			when (event) {
 				LoginEvent.Success -> {
 					backStack.clear()
-					backStack.add(Screen.Library())
+					backStack.add(Library())
 				}
 
 				LoginEvent.InvalidCredentials -> {
@@ -130,19 +140,16 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 						LoginField.Password -> passwordFocusRequester.requestFocus()
 					}
 				}
+
+				is LoginEvent.Error -> {
+					errorState = event.error
+				}
+				else -> {}
 			}
 		}
 	}
 
 	Box {
-		LoginScreenProgress(
-			modifier = Modifier
-				.align(Alignment.TopCenter)
-				.padding(top = innerPadding.calculateTopPadding()),
-			isBusy = isBusy,
-			loginUiState = loginState
-		)
-
 		Column(
 			modifier = Modifier
 				.fillMaxSize()
@@ -173,7 +180,37 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 
 				Spacer(Modifier.height(8.dp))
 
-				LoginScreenError(loginUiState = loginState)
+				val spatialSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
+				val effectSpec = MaterialTheme.motionScheme.slowEffectsSpec<Float>()
+				AnimatedContent(
+					errorState != null,
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(horizontal = 16.dp),
+					transitionSpec = {
+						(fadeIn(
+							animationSpec = effectSpec
+						) + scaleIn(
+							initialScale = 0.8f,
+							animationSpec = spatialSpec
+						)) togetherWith (fadeOut(
+							animationSpec = effectSpec
+						) + scaleOut(
+							animationSpec = spatialSpec
+						))
+					}
+				) {
+					if (it) {
+						errorState?.let { ex ->
+							ErrorBox(
+								UiState.Error(ex, null),
+								padding = PaddingValues(0.dp),
+								modifier = Modifier.fillMaxWidth(),
+								bottomPadding = 8.dp
+							)
+						}
+					}
+				}
 
 				LoginScreenFields(
 					isBusy = isBusy,
@@ -216,7 +253,6 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 					.padding(horizontal = 16.dp)
 					.padding(bottom = 8.dp)
 			) {
-				LoginScreenSyncStatus(loginUiState = loginState)
 				Button(
 					modifier = Modifier.fillMaxWidth(),
 					onClick = {

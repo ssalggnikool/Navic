@@ -54,6 +54,7 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidx-lifecycle" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore" }
 androidx-animation-graphics = { group = "androidx.compose.animation", name = "animation-graphics", version = "1.12.1" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version = "2.7.1" }

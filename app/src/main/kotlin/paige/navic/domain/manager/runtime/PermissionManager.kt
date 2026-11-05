@@ -57,8 +57,7 @@ class PermissionManager(
 		ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
 
 	private suspend fun requestPermission(permission: String): Boolean {
-		if (isGranted(permission)) return true
-		return requestMutex.withLock {
+		return isGranted(permission) || requestMutex.withLock {
 			isGranted(permission) || launchPermissionRequest(permission)
 		}
 	}
@@ -78,7 +77,6 @@ class PermissionManager(
 
 				launcher = activity.activityResultRegistry.register(
 					UUID.randomUUID().toString(),
-					activity,
 					ActivityResultContracts.RequestPermission()
 				) { isGranted ->
 					cleanup()

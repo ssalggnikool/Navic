@@ -6,8 +6,6 @@
 
 package paige.navic.domain.manager.session
 
-import android.content.Context
-import androidx.annotation.StringRes
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import dev.zt64.subsonic.api.model.SubsonicErrorCode
@@ -25,15 +23,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import paige.navic.R
-import paige.navic.domain.manager.runtime.NotificationIds
-import paige.navic.domain.manager.runtime.NotificationManager
 import paige.navic.domain.repository.DbRepository
 import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
 import paige.navic.ui.core.LoginFormState
-import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.util.AddressUtil
 
 class LoginManager(
@@ -41,15 +35,10 @@ class LoginManager(
 	private val sessionManager: SessionManager,
 	private val syncManager: SyncManager,
 	private val syncCoordinator: SyncCoordinator,
-	private val notificationManager: NotificationManager,
-	private val downloadManager: DownloadManager,
-	private val context: Context
+	private val downloadManager: DownloadManager
 ) {
 	val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 	private val mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
-
-	val loginState: StateFlow<LoginUiState>
-		field = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
 
 	val instanceState = TextFieldState()
 	val usernameState = TextFieldState()
@@ -85,7 +74,13 @@ class LoginManager(
 		val host = AddressUtil.extractHostFromUri(instanceState.text.toString())
 			?: return false
 
-		return withContext(Dispatchers.IO) { AddressUtil.isAddressLocal(host) }
+		return try {
+			withContext(Dispatchers.IO) {
+				AddressUtil.isAddressLocal(host)
+			}
+		} catch (_: Exception) {
+			false
+		}
 	}
 
 	fun login() {
@@ -108,68 +103,33 @@ class LoginManager(
 		}
 
 		scope.launch {
-			loginState.value = LoginUiState.Loading
+			val normalizedUrl = if (url.startsWith("https://") || url.startsWith("http://")) {
+				url
+			} else {
+				"https://$url"
+			}
 
 			try {
-				val normalizedUrl = if (url.startsWith("https://") || url.startsWith("http://")) {
-					url
-				} else {
-					"https://$url"
-				}
-
-				try {
-					sessionManager.login(normalizedUrl, username, password)
-				} catch (e: SubsonicException) {
-					if (e.code != SubsonicErrorCode.WRONG_USERNAME_OR_PASSWORD) {
-						throw e
-					}
-					loginState.value = LoginUiState.Idle
+				_events.tryEmit(LoginEvent.Loading)
+				sessionManager.login(normalizedUrl, username, password)
+			} catch (e: SubsonicException) {
+				if (e.code == SubsonicErrorCode.WRONG_USERNAME_OR_PASSWORD) {
 					_events.tryEmit(LoginEvent.InvalidCredentials)
 					return@launch
 				}
-
-				syncManager.startPeriodicSync(syncImmediately = false)
-
-				val result = try {
-					syncCoordinator.run(force = true) { progress, message ->
-						loginState.value = LoginUiState.Syncing(progress, message)
-
-						notificationManager.showProgressNotification(
-							id = NotificationIds.SYNC_LIBRARY,
-							title = contextTitle(progress),
-							message = contextString(message),
-							progress = progress,
-							indeterminate = progress <= 0f
-						)
-					}
-				} finally {
-					notificationManager.cancelNotification(NotificationIds.SYNC_LIBRARY)
-				}
-
-				result.onSuccess {
-					loginState.value = LoginUiState.Success
-					_events.tryEmit(LoginEvent.Success)
-				}.onFailure { e ->
-					loginState.value = LoginUiState.Error(e as? Exception ?: Exception(e))
-				}
-
+				_events.tryEmit(LoginEvent.Error(e))
+				return@launch
 			} catch (e: Exception) {
-				loginState.value = LoginUiState.Error(e)
+				_events.tryEmit(LoginEvent.Error(e))
+				return@launch
 			}
+
+			syncManager.triggerManualSync()
+			_events.tryEmit(LoginEvent.Success)
 		}
 	}
 
-	private fun contextTitle(progress: Float): String {
-		val title = context.getString(R.string.title_sync_control)
-		return "$title (${(progress * 100).toInt()}%)"
-	}
-
-	private fun contextString(@StringRes id: Int): String {
-		return context.getString(id)
-	}
-
 	fun logout() {
-		loginState.value = LoginUiState.Idle
 		syncManager.stopPeriodicSync()
 		downloadManager.cancelAllActiveDownloads()
 		sessionManager.logout()

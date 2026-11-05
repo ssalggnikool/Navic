@@ -7,7 +7,10 @@
 package paige.navic.ui.screen.library
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -19,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,11 +32,12 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
-import paige.navic.domain.manager.session.LoginManager
+import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.playback.MediaPlayer
+import paige.navic.ui.component.common.SyncProgressBar
 import paige.navic.ui.component.dialog.DeletionDialog
 import paige.navic.ui.component.dialog.DeletionTarget
 import paige.navic.ui.component.dialog.ShareDialog
@@ -40,7 +45,6 @@ import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.snackbar.ErrorSnackBar
-import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
@@ -89,8 +93,12 @@ fun LibraryScreen() {
 	)
 	val statsState by statsViewModel.state.collectAsStateWithLifecycle()
 
-	val loginManager = koinInject<LoginManager>()
-	val loginState by loginManager.loginState.collectAsStateWithLifecycle()
+	val syncManager = koinInject<SyncManager>()
+	val syncState by syncManager.syncState.collectAsStateWithLifecycle()
+	val listsLoading = albumsState is UiState.Loading ||
+		playlistsState is UiState.Loading ||
+		artistsState is UiState.Loading ||
+		genresState is UiState.Loading
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
 	var playlistDeletionId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -100,11 +108,13 @@ fun LibraryScreen() {
 
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-	LaunchedEffect(loginState is LoginUiState.Success) {
-		albumsViewModel.refreshAlbums(false)
-		playlistsViewModel.refreshPlaylists(false)
-		artistsViewModel.refreshArtists(false)
-		genresViewModel.refreshGenres(false)
+	LaunchedEffect(syncState.isSyncing) {
+		if (!syncState.isSyncing) {
+			albumsViewModel.refreshAlbums(false)
+			playlistsViewModel.refreshPlaylists(false)
+			artistsViewModel.refreshArtists(false)
+			genresViewModel.refreshGenres(false)
+		}
 	}
 
 	val gridState = rememberLazyGridState()
@@ -118,92 +128,109 @@ fun LibraryScreen() {
 	}
 
 	Scaffold(
-		topBar = { RootTopBar({ Text(stringResource(R.string.title_library)) }, scrollBehavior) },
+		topBar = {
+			RootTopBar(
+				{
+					Text(stringResource(R.string.title_library))
+				}, scrollBehavior
+			)
+			SyncProgressBar(
+				modifier = Modifier.systemBarsPadding(),
+				visible = syncState.isSyncing || listsLoading,
+				progress = if (syncState.isSyncing) {
+					syncState.progress.takeIf { it > 0f }
+				} else {
+					null
+				}
+			)
+		},
 		bottomBar = {
 			val scrollManager = LocalBottomBarScrollManager.current
 			RootBottomBar(scrolled = scrollManager.isTriggered)
 		}
 	) { innerPadding ->
-		PullToRefreshBox(
+		Box(
 			modifier = Modifier
+				.fillMaxSize()
 				.padding(top = innerPadding.calculateTopPadding())
-				.background(MaterialTheme.colorScheme.surface),
-			finished = albumsState !is UiState.Loading &&
-				playlistsState !is UiState.Loading &&
-				artistsState !is UiState.Loading &&
-				genresState !is UiState.Loading,
-			onRefresh = {
-				albumsViewModel.refreshAlbums(true)
-				playlistsViewModel.refreshPlaylists(true)
-				artistsViewModel.refreshArtists(true)
-				genresViewModel.refreshGenres(true)
-			},
-			key = listOf(albumsState, playlistsState, artistsState, genresState)
+				.background(MaterialTheme.colorScheme.surface)
 		) {
-			val selectedAlbum = albumsState.data?.selected
-			val selectedArtist = artistsState.data?.selected
-			val selectedPlaylist = playlistsState.data?.selected
+			PullToRefreshBox(
+				modifier = Modifier.fillMaxSize(),
+				finished = !listsLoading,
+				onRefresh = {
+					albumsViewModel.refreshAlbums(true)
+					playlistsViewModel.refreshPlaylists(true)
+					artistsViewModel.refreshArtists(true)
+					genresViewModel.refreshGenres(true)
+				},
+				key = listOf(albumsState, playlistsState, artistsState, genresState)
+			) {
+				val selectedAlbum = albumsState.data?.selected
+				val selectedArtist = artistsState.data?.selected
+				val selectedPlaylist = playlistsState.data?.selected
 
-			LibraryScreenContent(
-				state = gridState,
-				scrollBehavior = scrollBehavior,
-				innerPadding = innerPadding,
-				onSetShareId = { shareId = it },
+				LibraryScreenContent(
+					state = gridState,
+					scrollBehavior = scrollBehavior,
+					innerPadding = innerPadding,
+					onSetShareId = { shareId = it },
 
-				albumsState = albumsLazyItems,
-				selectedAlbum = albumsState.data?.selected,
-				selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
-				selectedAlbumRating = selectedAlbum?.userRating ?: 0,
-				onSelectAlbum = {
-					albumsViewModel.selected = it
-				},
-				onClearAlbumSelection = {
-					albumsViewModel.selected = null
-				},
-				onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
-				onPlayAlbumNext = { selectedAlbum?.let { player.playNext(it as DomainSongCollection) } },
-				onAddAlbumToQueue = { selectedAlbum?.let { player.appendQueue(selectedAlbum as DomainSongCollection) } },
-				onRateSelectedAlbum = { albumsViewModel.setRating(it) },
+					albumsState = albumsLazyItems,
+					selectedAlbum = albumsState.data?.selected,
+					selectedAlbumIsStarred = selectedAlbum?.starredAt != null,
+					selectedAlbumRating = selectedAlbum?.userRating ?: 0,
+					onSelectAlbum = {
+						albumsViewModel.selected = it
+					},
+					onClearAlbumSelection = {
+						albumsViewModel.selected = null
+					},
+					onStarSelectedAlbum = { albumsViewModel.starAlbum(it) },
+					onPlayAlbumNext = { selectedAlbum?.let { player.playNext(it as DomainSongCollection) } },
+					onAddAlbumToQueue = { selectedAlbum?.let { player.appendQueue(selectedAlbum as DomainSongCollection) } },
+					onRateSelectedAlbum = { albumsViewModel.setRating(it) },
 
-				artistsState = artistsLazyItems,
-				selectedArtist = selectedArtist,
-				selectedArtistAlbums = null,
-				selectedArtistIsStarred = artistsState.data?.selected?.starredAt != null,
-				onSelectArtist = { artistsViewModel.selectArtist(it) },
-				onClearArtistSelection = { artistsViewModel.clearSelection() },
-				onStarSelectedArtist = { artistsViewModel.starArtist(it) },
-				onPlayArtistNext = {
-					if (selectedArtist != null) artistsViewModel.playArtistAlbumsNext(
-						player
-					)
-				},
-				onAddArtistToQueue = {
-					if (selectedArtist != null) artistsViewModel.addArtistAlbumsToQueue(
-						player
-					)
-				},
+					artistsState = artistsLazyItems,
+					selectedArtist = selectedArtist,
+					selectedArtistAlbums = null,
+					selectedArtistIsStarred = artistsState.data?.selected?.starredAt != null,
+					onSelectArtist = { artistsViewModel.selectArtist(it) },
+					onClearArtistSelection = { artistsViewModel.clearSelection() },
+					onStarSelectedArtist = { artistsViewModel.starArtist(it) },
+					onPlayArtistNext = {
+						if (selectedArtist != null) artistsViewModel.playArtistAlbumsNext(
+							player
+						)
+					},
+					onAddArtistToQueue = {
+						if (selectedArtist != null) artistsViewModel.addArtistAlbumsToQueue(
+							player
+						)
+					},
 
-				playlistsState = playlistsLazyItems,
-				selectedPlaylist = selectedPlaylist,
-				onSelectPlaylist = {
-					playlistsViewModel.selected = it
-				},
-				onClearPlaylistSelection = { playlistsViewModel.clear() },
-				onDeletePlaylist = { playlistDeletionId = it },
-				onPlayPlaylistNext = {
-					if (selectedPlaylist != null) player.playNext(
-						selectedPlaylist as DomainSongCollection
-					)
-				},
-				onAddPlaylistToQueue = {
-					if (selectedPlaylist != null) player.appendQueue(
-						selectedPlaylist as DomainSongCollection
-					)
-				},
+					playlistsState = playlistsLazyItems,
+					selectedPlaylist = selectedPlaylist,
+					onSelectPlaylist = {
+						playlistsViewModel.selected = it
+					},
+					onClearPlaylistSelection = { playlistsViewModel.clear() },
+					onDeletePlaylist = { playlistDeletionId = it },
+					onPlayPlaylistNext = {
+						if (selectedPlaylist != null) player.playNext(
+							selectedPlaylist as DomainSongCollection
+						)
+					},
+					onAddPlaylistToQueue = {
+						if (selectedPlaylist != null) player.appendQueue(
+							selectedPlaylist as DomainSongCollection
+						)
+					},
 
-				genresState = genresLazyItems,
-				statsState = statsState
-			)
+					genresState = genresLazyItems,
+					statsState = statsState
+				)
+			}
 		}
 	}
 

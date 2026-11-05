@@ -200,6 +200,7 @@ dependencies {
 	implementation(libs.androidx.appcompat)
 	implementation(libs.androidx.lifecycle.viewmodel)
 	implementation(libs.androidx.lifecycle.runtime)
+	implementation(libs.androidx.lifecycle.process)
 	implementation(libs.androidx.datastore.preferences)
 	implementation(libs.androidx.animation.graphics)
 	implementation(libs.androidx.sqlite.bundled)
