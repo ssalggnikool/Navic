@@ -159,7 +159,6 @@ fun ShareDialog(
 
 				if (checked) {
 					SegmentedListItem(
-						onClick = {},
 						enabled = false,
 						contentPadding = PaddingValues(10.dp),
 						shapes = SegmentedListItemDefaults.segmentedShapes(

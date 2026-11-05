@@ -277,7 +277,6 @@ fun SettingsDataStorageScreen() {
 
 				SettingsGroup(title = { Text(stringResource(R.string.title_sync_control)) }) {
 					SegmentedListItem(
-						onClick = {},
 						content = { Text(stringResource(R.string.option_live_status)) },
 						supportingContent = {
 							Column(Modifier.fillMaxWidth()) {
@@ -305,14 +304,12 @@ fun SettingsDataStorageScreen() {
 					)
 
 					SegmentedListItem(
-						onClick = {},
 						content = { Text(stringResource(R.string.option_last_sync)) },
 						supportingContent = { Text(timeSinceLastSync()) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
 					)
 
 					SegmentedListItem(
-						onClick = {},
 						content = { Text(stringResource(R.string.option_pending_actions)) },
 						trailingContent = {
 							HelpButton(
@@ -380,7 +377,6 @@ fun SettingsDataStorageScreen() {
 					)
 
 					SegmentedListItem(
-						onClick = {},
 						content = { Text(stringResource(R.string.option_downloaded_songs)) },
 						supportingContent = {
 							Text(
@@ -476,14 +472,12 @@ fun SettingsDataStorageScreen() {
 				}
 				SettingsGroup(title = { Text(stringResource(R.string.title_cache_management)) }) {
 					SegmentedListItem(
-						onClick = {},
 						content = { Text(stringResource(R.string.option_image_cache_size)) },
 						supportingContent = { Text(imageCacheSizeMb) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2)
 					)
 
 					SegmentedListItem(
-						onClick = {},
 						content = { Text(stringResource(R.string.option_streaming_cache)) },
 						supportingContent = { Text(streamCacheSize) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)

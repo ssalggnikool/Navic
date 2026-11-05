@@ -224,7 +224,6 @@ fun SettingsConnectionOptionsScreen() {
 								containerColor = MaterialTheme.colorScheme.surfaceContainer
 							),
 							supportingContent = { Text(it.type ?: "Unknown") },
-							onClick = {},
 							shapes = SegmentedListItemDefaults.segmentedShapes(
 								index = 0,
 								count = count
@@ -236,7 +235,6 @@ fun SettingsConnectionOptionsScreen() {
 								containerColor = MaterialTheme.colorScheme.surfaceContainer
 							),
 							supportingContent = { Text(it.serverVersion ?: "Unknown") },
-							onClick = {},
 							shapes = SegmentedListItemDefaults.segmentedShapes(
 								index = 1,
 								count = count
@@ -248,7 +246,6 @@ fun SettingsConnectionOptionsScreen() {
 								containerColor = MaterialTheme.colorScheme.surfaceContainer
 							),
 							supportingContent = { Text(it.isOpenSubsonic.toString()) },
-							onClick = {},
 							shapes = SegmentedListItemDefaults.segmentedShapes(
 								index = 2,
 								count = count
@@ -261,7 +258,6 @@ fun SettingsConnectionOptionsScreen() {
 									containerColor = MaterialTheme.colorScheme.surfaceContainer
 								),
 								supportingContent = { Text(it.extensions.joinToString(", ")) },
-								onClick = {},
 								shapes = SegmentedListItemDefaults.segmentedShapes(
 									index = count - 1,
 									count = count

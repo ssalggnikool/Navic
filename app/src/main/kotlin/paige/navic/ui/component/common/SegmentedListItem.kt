@@ -27,6 +27,37 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SegmentedListItem(
+	shapes: ListItemShapes,
+	modifier: Modifier = Modifier,
+	enabled: Boolean = true,
+	leadingContent: @Composable (() -> Unit)? = null,
+	trailingContent: @Composable (() -> Unit)? = null,
+	overlineContent: @Composable (() -> Unit)? = null,
+	supportingContent: @Composable (() -> Unit)? = null,
+	verticalAlignment: Alignment.Vertical = SegmentedListItemDefaults.verticalAlignment(),
+	colors: ListItemColors = SegmentedListItemDefaults.segmentedColors(),
+	elevation: ListItemElevation = ListItemDefaults.elevation(),
+	contentPadding: PaddingValues = SegmentedListItemDefaults.ContentPadding,
+	content: @Composable () -> Unit,
+) {
+	androidx.compose.material3.SegmentedListItem(
+		shapes = shapes,
+		modifier = modifier,
+		enabled = enabled,
+		leadingContent = leadingContent,
+		trailingContent = trailingContent,
+		overlineContent = overlineContent,
+		supportingContent = supportingContent,
+		verticalAlignment = verticalAlignment,
+		colors = colors,
+		elevation = elevation,
+		contentPadding = contentPadding,
+		content = content
+	)
+}
+
+@Composable
+fun SegmentedListItem(
 	onClick: () -> Unit,
 	shapes: ListItemShapes,
 	modifier: Modifier = Modifier,
