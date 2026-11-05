@@ -127,8 +127,7 @@ fun SettingsScreen() {
 					destination = Screen.Settings.About,
 					icon = Icons.Filled.Info,
 					title = R.string.title_about,
-					subtitle = R.string.subtitle_about,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+					subtitle = R.string.subtitle_about
 				)
 			}
 		}
@@ -142,7 +141,7 @@ private fun PageRow(
 	iconSize: Dp = 22.dp,
 	title: Int,
 	subtitle: Int,
-	shapes: ListItemShapes
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes()
 ) {
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()

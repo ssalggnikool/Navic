@@ -61,7 +61,6 @@ import paige.navic.domain.manager.runtime.PermissionManager
 import paige.navic.domain.manager.session.LoginManager
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SegmentedListButton
-import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
@@ -282,8 +281,7 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 					onClick = {
 						localNetworkDenied = false
 						permissionManager.openPermissionsSettings()
-					},
-					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 1)
+					}
 				) {
 					Text(stringResource(R.string.action_open_settings))
 				}
@@ -303,8 +301,7 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 					onClick = {
 						notificationsDenied = false
 						permissionManager.openPermissionsSettings()
-					},
-					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 1)
+					}
 				) {
 					Text(stringResource(R.string.action_open_settings))
 				}

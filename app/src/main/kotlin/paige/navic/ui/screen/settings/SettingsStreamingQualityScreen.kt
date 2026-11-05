@@ -142,8 +142,7 @@ fun SettingsStreamingQualityScreen() {
 						checked = preferenceManager.isAdvancedTranscodingActive,
 						enabled = supportsTranscoding,
 						onCheckedChange = { preferenceManager.isAdvancedTranscodingActive = it },
-						content = { Text(stringResource(R.string.option_stream_custom_quality)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+						content = { Text(stringResource(R.string.option_stream_custom_quality)) }
 					)
 				}
 

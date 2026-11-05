@@ -90,7 +90,6 @@ fun SettingsAboutScreen() {
 				}
 				SegmentedListItem(
 					onClick = { clipboard.setText(AnnotatedString(text)) },
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1),
 					content = { Text(text) }
 				)
 			}
@@ -163,8 +162,7 @@ fun SettingsAboutScreen() {
 						content = { Text(stringResource(R.string.option_check_for_updates)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_check_for_updates)) },
 						checked = preferenceManager.checkForUpdates,
-						onCheckedChange = { preferenceManager.checkForUpdates = it },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+						onCheckedChange = { preferenceManager.checkForUpdates = it }
 					)
 				}
 			}

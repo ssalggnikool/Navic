@@ -23,7 +23,6 @@ import paige.navic.R
 import paige.navic.di.LocalSnackBarState
 import paige.navic.ui.component.common.ErrorCodeBlock
 import paige.navic.ui.component.common.SegmentedListButton
-import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.util.Logger
 
@@ -65,8 +64,7 @@ fun ErrorSnackBar(
 				onClick = {
 					visible = false
 					onClearError()
-				},
-				shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 1)
+				}
 			) {
 				Text(stringResource(R.string.action_ok))
 			}

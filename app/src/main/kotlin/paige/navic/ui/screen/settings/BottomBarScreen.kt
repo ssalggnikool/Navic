@@ -101,8 +101,7 @@ fun BottomBarScreen() {
 				SettingsGroup(title = { Text(stringResource(R.string.title_navigation_bar)) }) {
 					SettingsNavItem(
 						onClick = { tabsDialogOpen = true },
-						content = { Text(stringResource(R.string.option_navigation_bar_tabs)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+						content = { Text(stringResource(R.string.option_navigation_bar_tabs)) }
 					)
 				}
 

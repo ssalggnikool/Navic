@@ -9,15 +9,16 @@ package paige.navic.ui.screen.settings.component
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.runtime.Composable
+import paige.navic.ui.component.common.SegmentedListItem
+import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.ChevronForward
-import paige.navic.ui.component.common.SegmentedListItem
 
 @Composable
 fun SettingsNavItem(
 	onClick: () -> Unit,
 	enabled: Boolean = true,
-	shapes: ListItemShapes,
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes(),
 	leadingContent: @Composable (() -> Unit)? = null,
 	supportingContent: @Composable (() -> Unit)? = null,
 	content: @Composable () -> Unit
