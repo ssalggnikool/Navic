@@ -63,7 +63,7 @@
     <string name="subtitle_gapless_playback">実験的機能。アプリの再起動が必要です。一部のデバイスではオーディオオフロードと競合する可能性があります</string>
     <string name="subtitle_audio_offload">実験的機能。アプリの再起動が必要です。一部のデバイスではギャップレス再生と競合する場合があります</string>
     <string name="subtitle_now_playing_background_style">パフォーマンスの問題がある場合は、固定を選択してください</string>
-    <string name="subtitle_check_for_updates">アプリを開いたときにGitHubのアップデートを確認する</string>
+    <string name="subtitle_check_for_updates">アプリを開いたときにCodebergのアップデートを確認する</string>
     <string name="subtitle_offline_mode">アプリがオフラインモードに移行するタイミングを指定します。アプリの再起動が必要です</string>
     <string name="subtitle_streaming_quality">ストリーミング楽曲の音質を調整</string>
     <string name="subtitle_download_quality">ダウンロード楽曲の音質を調整</string>
@@ -505,4 +505,6 @@
     <string name="action_test_snack_bar">スナックバーをテスト</string>
     <string name="notice_deleted_downloads">ダウンロードデータを削除しました。</string>
     <string name="info_delete_download_single">本当に%1$sのダウンロードデータを削除しますか？</string>
+    <string name="title_matrix_space">マトリックススペース</string>
+    <string name="notice_app_icon_changed">アプリアイコンが変更されました。アプリを終了します。</string>
 </resources>
