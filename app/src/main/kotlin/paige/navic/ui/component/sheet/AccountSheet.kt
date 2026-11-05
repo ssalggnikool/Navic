@@ -102,7 +102,6 @@ fun AccountSheet(
 		}
 	}
 
-
 	val scope = rememberCoroutineScope()
 	val animateToDismiss = {
 		scope
@@ -193,126 +192,136 @@ fun AccountSheet(
 				}
 			}
 
-			Spacer(Modifier.height(9.dp))
+			Spacer(Modifier.height(8.dp))
 
-			val isSharingAllowed = sessionManager.getUser()?.canShare() == true
-			val supportsChat = sessionManager.supportsExtension(ServerExtension.CHAT)
+			Column(
+				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
+			) {
+				val isSharingAllowed = sessionManager.getUser()?.canShare() == true
+				val supportsChat = sessionManager.supportsExtension(ServerExtension.CHAT)
 
-			var count = 3
+				var count = 1
 
-			if (isSharingAllowed) count++
-			if (supportsChat) count++
+				if (isSharingAllowed) count++
+				if (supportsChat) count++
 
-			if (isSharingAllowed) {
+				if (isSharingAllowed) {
+					SegmentedListItem(
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 0,
+							count = count
+						),
+						onClick = {
+							animateToDismiss()
+							backStack.add(Screen.ShareList)
+						},
+						leadingContent = { Icon(Icons.Outlined.Share, null) },
+						content = { Text(stringResource(R.string.action_view_shares)) }
+					)
+				}
+
+				if (supportsChat) {
+					SegmentedListItem(
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 1,
+							count = count
+						),
+						onClick = {
+							animateToDismiss()
+							backStack.add(Screen.Chat)
+						},
+						leadingContent = { Icon(Icons.Outlined.Forum, null) },
+						content = { Text(stringResource(R.string.title_chat)) }
+					)
+				}
+
+				SegmentedListItem(
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = count - 1,
+						count = count
+					),
+					onClick = { sleepTimerSheetOpen = true },
+					leadingContent = {
+						val tint = when (sleepTimerMode) {
+							!is SleepTimerMode.Disabled -> MaterialTheme.colorScheme.positive
+							else -> LocalContentColor.current
+						}
+						Icon(
+							imageVector = Icons.Outlined.Bedtime,
+							contentDescription = null,
+							tint = tint
+						)
+					},
+					content = {
+						val label = when (val mode = sleepTimerMode) {
+							is SleepTimerMode.Time -> stringResource(
+								R.string.action_sleep_timer_enabled,
+								sleepTimerManager.timeLeft?.label() ?: ""
+							)
+
+							is SleepTimerMode.Songs -> stringResource(
+								R.string.action_sleep_timer_songs_enabled,
+								mode.remaining
+							)
+
+							is SleepTimerMode.EndOfQueue -> stringResource(
+								R.string.action_sleep_timer_queue_enabled
+							)
+
+							else -> stringResource(R.string.action_sleep_timer)
+						}
+						val color = when (sleepTimerMode) {
+							!is SleepTimerMode.Disabled -> MaterialTheme.colorScheme.positive
+							else -> LocalContentColor.current
+						}
+						Text(
+							text = label,
+							color = color
+						)
+					}
+				)
+			}
+
+			Spacer(Modifier.height(4.dp))
+
+			Column(
+				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
+			) {
 				SegmentedListItem(
 					shapes = SegmentedListItemDefaults.segmentedShapes(
 						index = 0,
-						count = count
+						count = 2
 					),
 					onClick = {
 						animateToDismiss()
-						backStack.add(Screen.ShareList)
+						backStack.add(Screen.Settings.Root)
 					},
-					leadingContent = { Icon(Icons.Outlined.Share, null) },
-					content = { Text(stringResource(R.string.action_view_shares)) }
+					leadingContent = { Icon(Icons.Filled.Settings, null) },
+					content = { Text(stringResource(R.string.title_settings)) }
 				)
-			}
 
-			if (supportsChat) {
 				SegmentedListItem(
 					shapes = SegmentedListItemDefaults.segmentedShapes(
-						index = count - 4,
-						count = count
+						index = 1,
+						count = 2
 					),
 					onClick = {
 						animateToDismiss()
-						backStack.add(Screen.Chat)
+						loginManager.logout()
+						backStack.clear()
+						backStack.add(Screen.Login)
 					},
-					leadingContent = { Icon(Icons.Outlined.Forum, null) },
-					content = { Text(stringResource(R.string.title_chat)) }
+					colors = SegmentedListItemDefaults.segmentedErrorColors(),
+					leadingContent = {
+						Icon(
+							imageVector = Icons.Outlined.Logout,
+							contentDescription = null,
+							tint = MaterialTheme.colorScheme.error
+						)
+					},
+					content = { Text(stringResource(R.string.action_log_out)) }
 				)
 			}
-
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 3,
-					count = count
-				),
-				onClick = { sleepTimerSheetOpen = true },
-				leadingContent = {
-					val tint = when (sleepTimerMode) {
-						!is SleepTimerMode.Disabled -> MaterialTheme.colorScheme.positive
-						else -> LocalContentColor.current
-					}
-					Icon(
-						imageVector = Icons.Outlined.Bedtime,
-						contentDescription = null,
-						tint = tint
-					)
-				},
-				content = {
-					val label = when (val mode = sleepTimerMode) {
-						is SleepTimerMode.Time -> stringResource(
-							R.string.action_sleep_timer_enabled,
-							sleepTimerManager.timeLeft?.label() ?: ""
-						)
-
-						is SleepTimerMode.Songs -> stringResource(
-							R.string.action_sleep_timer_songs_enabled,
-							mode.remaining
-						)
-
-						is SleepTimerMode.EndOfQueue -> stringResource(
-							R.string.action_sleep_timer_queue_enabled
-						)
-
-						else -> stringResource(R.string.action_sleep_timer)
-					}
-					val color = when (sleepTimerMode) {
-						!is SleepTimerMode.Disabled -> MaterialTheme.colorScheme.positive
-						else -> LocalContentColor.current
-					}
-					Text(
-						text = label,
-						color = color
-					)
-				}
-			)
-
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 2,
-					count = count
-				),
-				onClick = {
-					animateToDismiss()
-					backStack.add(Screen.Settings.Root)
-				},
-				leadingContent = { Icon(Icons.Filled.Settings, null) },
-				content = { Text(stringResource(R.string.title_settings)) }
-			)
-
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 1,
-					count = count
-				),
-				onClick = {
-					animateToDismiss()
-					loginManager.logout()
-					backStack.clear()
-					backStack.add(Screen.Login)
-				},
-				colors = SegmentedListItemDefaults.segmentedErrorColors(),
-				leadingContent = {
-					Icon(
-						imageVector = Icons.Outlined.Logout,
-						contentDescription = null,
-						tint = MaterialTheme.colorScheme.error
-					)
-				},
-				content = { Text(stringResource(R.string.action_log_out)) }
-			)
 		}
 	}
 
