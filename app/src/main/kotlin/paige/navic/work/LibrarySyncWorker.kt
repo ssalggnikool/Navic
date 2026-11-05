@@ -89,7 +89,7 @@ class LibrarySyncWorker(
 	}
 
 	private fun createForegroundInfo(progress: Float, message: Int): ForegroundInfo {
-		val title = applicationContext.getString(R.string.title_sync_control)
+		val title = applicationContext.getString(R.string.notice_syncing_library)
 		val notification = notificationManager.createProgressNotification(
 			id = NotificationIds.SYNC_LIBRARY,
 			title = "$title (${(progress * 100).toInt()}%)",
