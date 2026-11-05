@@ -18,10 +18,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -54,6 +56,7 @@ import paige.navic.domain.manager.playback.SleepTimerMode
 import paige.navic.domain.manager.session.LoginManager
 import paige.navic.domain.manager.session.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.session.canShare
 import paige.navic.domain.manager.session.getUser
 import paige.navic.domain.manager.session.supportsExtension
@@ -66,6 +69,7 @@ import paige.navic.ui.icons.outlined.Bedtime
 import paige.navic.ui.icons.outlined.Edit
 import paige.navic.ui.icons.outlined.Forum
 import paige.navic.ui.icons.outlined.Logout
+import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.theme.positive
@@ -79,6 +83,8 @@ fun AccountSheet(
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
 	val sessionManager = koinInject<SessionManager>()
+	val syncManager = koinInject<SyncManager>()
+	val syncState by syncManager.syncState.collectAsStateWithLifecycle()
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
 	val sleepTimerManager = koinInject<SleepTimerManager>()
@@ -290,7 +296,42 @@ fun AccountSheet(
 				SegmentedListItem(
 					shapes = SegmentedListItemDefaults.segmentedShapes(
 						index = 0,
-						count = 2
+						count = 3
+					),
+					onClick = {
+						if (!syncState.isSyncing) {
+							syncManager.triggerManualSync()
+						} else {
+							syncManager.stopPeriodicSync()
+						}
+					},
+					leadingContent = {
+						if (!syncState.isSyncing) {
+							Icon(Icons.Outlined.Refresh, null)
+						} else {
+							CircularProgressIndicator(
+								progress = { syncState.progress },
+								modifier = Modifier.size(24.dp),
+								color = MaterialTheme.colorScheme.secondary,
+								trackColor = MaterialTheme.colorScheme.surfaceVariant,
+							)
+						}
+					},
+					content = {
+						val label = if (syncState.isSyncing) {
+							stringResource(syncState.message)
+						} else {
+							stringResource(R.string.action_trigger_sync)
+						}
+
+						Text(label)
+					}
+				)
+
+				SegmentedListItem(
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = 1,
+						count = 3
 					),
 					onClick = {
 						animateToDismiss()
@@ -302,8 +343,8 @@ fun AccountSheet(
 
 				SegmentedListItem(
 					shapes = SegmentedListItemDefaults.segmentedShapes(
-						index = 1,
-						count = 2
+						index = 2,
+						count = 3
 					),
 					onClick = {
 						animateToDismiss()
