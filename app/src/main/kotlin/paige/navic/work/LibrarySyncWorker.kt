@@ -9,6 +9,8 @@ package paige.navic.work
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
@@ -32,10 +34,22 @@ class LibrarySyncWorker(
 		val force = inputData.getBoolean(WorkKeys.FORCE, false)
 		val isPeriodic = inputData.getBoolean(WorkKeys.PERIODIC, false)
 		val showForeground = syncCoordinator.isFullSyncDue(force)
+		var foregroundStarted = false
+		var foregroundDenied = false
 
-		if (showForeground) {
-			setForeground(createForegroundInfo(0f, R.string.info_syncing))
+		suspend fun updateForeground(progress: Float, message: Int) {
+			if (!showForeground || foregroundDenied) return
+			if (!foregroundStarted && !isAppVisible()) return
+			try {
+				setForeground(createForegroundInfo(progress, message))
+				foregroundStarted = true
+			} catch (e: IllegalStateException) {
+				foregroundDenied = true
+				Logger.w("LibrarySyncWorker", "foreground service denied", e)
+			}
 		}
+
+		updateForeground(0f, R.string.info_syncing)
 
 		return try {
 			val result = syncCoordinator.run(force) { progress, message ->
@@ -46,7 +60,7 @@ class LibrarySyncWorker(
 					)
 				)
 
-				setForeground(createForegroundInfo(progress, message))
+				updateForeground(progress, message)
 			}
 
 			if (result.isSuccess) {
@@ -63,16 +77,15 @@ class LibrarySyncWorker(
 		}
 	}
 
+	private fun isAppVisible() =
+		ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
 	private fun retryOrFinish(isPeriodic: Boolean): Result {
 		return when {
 			runAttemptCount < 3 -> Result.retry()
 			isPeriodic -> Result.success()
 			else -> Result.failure()
 		}
-	}
-
-	override suspend fun getForegroundInfo(): ForegroundInfo {
-		return createForegroundInfo(0f, R.string.info_syncing)
 	}
 
 	private fun createForegroundInfo(progress: Float, message: Int): ForegroundInfo {

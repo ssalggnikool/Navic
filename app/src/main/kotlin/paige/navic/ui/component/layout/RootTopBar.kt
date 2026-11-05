@@ -32,7 +32,6 @@ import paige.navic.ui.component.common.TooltipBox
 import paige.navic.ui.component.sheet.AccountSheet
 import paige.navic.ui.core.UiState
 import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Settings
 import paige.navic.ui.icons.outlined.AccountCircle
 import paige.navic.ui.icons.outlined.Search
 import paige.navic.ui.navigation.Screen

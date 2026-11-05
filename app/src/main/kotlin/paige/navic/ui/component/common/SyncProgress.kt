@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.ui.screen.login.component
+package paige.navic.ui.component.common
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseOut
@@ -19,16 +19,15 @@ import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import paige.navic.ui.core.LoginUiState
 
 @Composable
-fun LoginScreenProgress(
+fun SyncProgressBar(
 	modifier: Modifier = Modifier,
-	isBusy: Boolean,
-	loginUiState: LoginUiState
+	visible: Boolean,
+	progress: Float? = null
 ) {
 	val smoothedProgress by animateFloatAsState(
-		((loginUiState as? LoginUiState.Syncing)?.progress ?: 1f).coerceIn(0f..1f),
+		(progress ?: 0f).coerceIn(0f..1f),
 		animationSpec = tween(
 			durationMillis = 250,
 			easing = EaseOut
@@ -36,19 +35,17 @@ fun LoginScreenProgress(
 	)
 	AnimatedVisibility(
 		modifier = modifier.fillMaxWidth(),
-		visible = isBusy,
+		visible = visible,
 		enter = expandVertically() + fadeIn(),
 		exit = shrinkVertically() + fadeOut()
 	) {
-		if (loginUiState is LoginUiState.Syncing) {
+		if (progress != null) {
 			LinearWavyProgressIndicator(
 				modifier = Modifier.fillMaxWidth(),
 				progress = { smoothedProgress }
 			)
 		} else {
-			LinearWavyProgressIndicator(
-				modifier = Modifier.fillMaxWidth()
-			)
+			LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
 		}
 	}
 }

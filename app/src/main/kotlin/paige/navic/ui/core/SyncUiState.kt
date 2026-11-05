@@ -6,12 +6,10 @@
 
 package paige.navic.ui.core
 
-sealed class LoginUiState {
-	object Idle : LoginUiState()
-	object Loading : LoginUiState()
-	object Success : LoginUiState()
-	data class Syncing(val progress: Float, val message: Int) : LoginUiState()
-	data class Error(val error: Exception) : LoginUiState()
+sealed class SyncUiState {
+	object Idle : SyncUiState()
+	data class Syncing(val progress: Float, val message: Int) : SyncUiState()
+	data class Error(val error: Exception) : SyncUiState()
 }
 
 data class LoginFormState(
@@ -27,7 +25,9 @@ enum class LoginField {
 }
 
 sealed class LoginEvent {
+	object Loading: LoginEvent()
 	object Success : LoginEvent()
 	object InvalidCredentials : LoginEvent()
 	data class ValidationFailed(val field: LoginField) : LoginEvent()
+	data class Error(val error: Exception) : LoginEvent()
 }
