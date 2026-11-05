@@ -83,7 +83,7 @@
 	<string name="subtitle_bottom_app_bar">Customize the bottom bar &amp; mini player</string>
 	<string name="subtitle_playback">Audio effects &amp; behaviour, scrobbling</string>
 	<string name="subtitle_data_storage">Syncing, caching, data usage</string>
-	<string name="subtitle_trigger_sync">Forces a full library pull immediately</string>
+	<string name="subtitle_trigger_sync">Update the local database of your music library</string>
 	<string name="subtitle_pending_actions">%1$d items waiting for network</string>
 	<string name="subtitle_developer">Debugging, testing, logs</string>
 	<string name="subtitle_about">App info, version, updates, licences</string>
@@ -112,6 +112,7 @@
 	<string name="subtitle_sd_card_unavailable">No SD card detected; downloads will use internal storage</string>
 	<string name="subtitle_confirm_download_deletion">Choose when to ask for confirmation before deleting downloads</string>
 	<string name="subtitle_swipe_to_dismiss">\"Hide if idle\" needs to be enabled</string>
+	<string name="subtitle_clear_pending_sync_actions">Clear queued offline actions, like scrobbles</string>
 
 	<string name="option_off">Off</string>
 	<string name="option_now_playing_background_style">Background style</string>
@@ -258,13 +259,15 @@
 	<string name="info_sync_just_now">Just now</string>
 	<string name="info_bulk_download_warning">Are you sure you want to download every album from %1$s?\nThis may require a significant amount of storage and data.</string>
 	<string name="info_library_download_warning">Are you sure you want to download your entire library? \nThis will skip items you\'ve already downloaded, but it may still consume a significant amount of storage space and data.</string>
-	<string name="info_library_download">Save all synced music for offline playback</string>
+	<string name="info_library_download">Download all music for offline playback</string>
 	<string name="info_progress">Progress</string>
 	<string name="info_in_use">(in use)</string>
 	<string name="info_explicit">Explicit</string>
 	<string name="info_transcoding_defaults">Leaving any of these empty will omit them and allow the server to decide.</string>
 	<string name="info_external_song">External</string>
 	<string name="info_external_song_description">This song was marked as external by your server, so you may not be able to listen to it.</string>
+	<string name="info_sync_actions">Some actions that you perform in Navic while your server isn\'t reachable get queued so that those actions can be re-performed when the server is reachable again.</string>
+	<string name="info_library_syncing">Navic stores a local database of metadata from your library. This makes it so that you can access your library even when your server isn\'t reachable. Navic periodically updates this database, but you can also manually sync it with this option.</string>
 
 	<string name="option_now_playing_toolbar_position">Toolbar position</string>
 	<string name="option_position_top">Top</string>
@@ -426,7 +429,7 @@
 	<string name="action_clear_pending_actions">Clear pending sync actions</string>
 	<string name="action_clear_downloads">Clear downloads</string>
 	<string name="action_rebuild_database">Rebuild database</string>
-	<string name="action_trigger_sync">Trigger manual sync</string>
+	<string name="action_trigger_sync">Sync library now</string>
 	<string name="action_test_exception_handler">Test exception handler</string>
 	<string name="action_test_snack_bar">Test snack bar</string>
 	<string name="action_dont_show_again">Don\'t show again</string>
@@ -439,7 +442,8 @@
 	<string name="action_reset_dont_show_agains">Reset "don't show again" dialogs</string>
 	<string name="action_send_message">Send message</string>
 	<string name="action_edit_discord_app_id">Edit Discord app ID</string>
-	<string name="subtitle_rebuild_database">Wipes all local metadata and forces a fresh sync</string>
+	<string name="action_help">Help</string>
+	<string name="subtitle_rebuild_database">Wipe the local copy of your library and sync it again</string>
 
 	<string name="notice_deleted_playlist">Playlist deleted.</string>
 	<string name="notice_deleted_share">Share deleted.</string>
@@ -467,6 +471,7 @@
 	<string name="notice_notifications_denied">Permission denied</string>
 	<string name="notice_link_confirmation">This link is taking you to the following website:</string>
 	<string name="notice_app_icon_changed">App icon changed, closing app!</string>
+	<string name="notice_syncing_library">Syncing library…</string>
 
 	<string name="info_app_version" translatable="false">Navic %1$s</string>
 	<string name="info_action_is_permanent">This action cannot be undone</string>
