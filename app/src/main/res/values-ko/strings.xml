@@ -10,7 +10,6 @@
     <string name="title_playback">재생</string>
     <string name="title_data_storage">데이터 &amp; 저장공간</string>
     <string name="title_sync_control">동기화 제어</string>
-    <string name="title_cache_management">캐시 &amp; 저장공간 관리</string>
     <string name="title_danger_zone">위험 구역</string>
     <string name="title_developer">개발자 옵션</string>
     <string name="title_about">앱 정보</string>

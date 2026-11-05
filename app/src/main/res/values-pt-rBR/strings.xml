@@ -183,7 +183,6 @@
     <string name="title_bulk_download">Baixar todos os álbuns</string>
     <string name="title_direction">Direção</string>
     <string name="title_confirm">Confirmar</string>
-    <string name="title_cache_management">Gerenciamento de cache</string>
     <string name="title_danger_zone">Zona crítica</string>
     <string name="info_update">A versão %1$s está disponível</string>
     <string name="info_no_songs">Sem músicas</string>
@@ -432,7 +431,6 @@
     <string name="option_account_instance">URL da instância</string>
     <string name="option_lyrics_fake_beat_by_beat">Efeito falso de batida por batida</string>
     <string name="subtitle_lyrics_fake_beat_by_beat">Simular timing por palavra caso não esteja disponível</string>
-    <string name="option_streaming_cache">Cache de streaming</string>
     <string name="option_download_location">Local de download</string>
     <string name="option_download_storage_internal">Espaço interno</string>
     <string name="option_download_storage_external">Cartão SD</string>

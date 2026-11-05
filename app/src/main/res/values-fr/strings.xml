@@ -197,7 +197,6 @@
 	<string name="info_lyrics_provider">Paroles fournies par %1$s</string>
 	<string name="title_data_storage">Données &amp; Stockage</string>
 	<string name="title_sync_control">Contrôle de la synchronisation</string>
-	<string name="title_cache_management">Gestion du stockage et du cache</string>
 	<string name="title_danger_zone">Zone de danger</string>
 	<string name="title_sort_by">Trier par</string>
 	<string name="title_bulk_download">Télécharger tous les albums</string>
