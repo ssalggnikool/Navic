@@ -22,6 +22,7 @@ import androidx.work.workDataOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -34,6 +35,7 @@ import paige.navic.database.dao.SyncActionDao
 import paige.navic.database.entity.SyncActionEntity
 import paige.navic.database.entity.SyncActionType
 import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.ui.core.SyncUiState
 import paige.navic.util.Logger
 import paige.navic.work.LibrarySyncWorker
 import paige.navic.work.SyncActionWorker
@@ -54,10 +56,13 @@ class SyncManager(
 	private val syncDao: SyncActionDao,
 	private val albumDao: AlbumDao,
 	private val sessionManager: SessionManager,
-	private val preferenceManager: PreferenceManager
+	private val preferenceManager: PreferenceManager,
 ) {
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 	private val workManager = WorkManager.getInstance(context)
+
+	val syncUiState: StateFlow<SyncUiState>
+		field = MutableStateFlow<SyncUiState>(SyncUiState.Idle)
 
 	init {
 		scope.launch {
@@ -67,6 +72,17 @@ class SyncManager(
 					startPeriodicSync()
 					schedulePendingActions()
 				}
+
+			syncState.collect { state ->
+				if (state.isSyncing) {
+					syncUiState.value = SyncUiState.Syncing(
+						state.progress,
+						state.message
+					)
+				} else {
+					syncUiState.value = SyncUiState.Idle
+				}
+			}
 		}
 	}
 
@@ -188,7 +204,13 @@ class SyncManager(
 		time: Instant = Clock.System.now()
 	) {
 		scope.launch {
-			syncDao.enqueue(SyncActionEntity(actionType = actionType, itemId = itemId, time = time))
+			syncDao.enqueue(
+				action = SyncActionEntity(
+					actionType = actionType,
+					itemId = itemId,
+					time = time
+				)
+			)
 			scheduleActionWorker()
 		}
 	}
