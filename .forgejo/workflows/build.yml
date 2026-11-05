@@ -58,9 +58,9 @@ jobs:
           SIGNING_STORE_FILE: ${{ github.workspace }}/release.keystore
         run: |
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
-          ./gradlew :app:packageDefaultRelease --stacktrace
+          ./gradlew :app:packageDefaultRelease --stacktrace --no-daemon
           mv app/build/outputs/apk/**/**/*.apk ./
-          ./gradlew :app:packageFdroidRelease --stacktrace
+          ./gradlew :app:packageFdroidRelease --stacktrace --no-daemon
           mv app/build/outputs/apk/**/**/*.apk ./
           rm release.keystore
 
@@ -68,9 +68,9 @@ jobs:
         id: build_debug
         if: github.event_name == 'pull_request'
         run: |
-          ./gradlew :app:assembleDefaultDebug --stacktrace
+          ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon
           mv app/build/outputs/apk/**/**/*.apk ./
-          ./gradlew :app:assembleFdroidDebug --stacktrace
+          ./gradlew :app:assembleFdroidDebug --stacktrace --no-daemon
           mv app/build/outputs/apk/**/**/*.apk ./
 
       - name: Upload APK artifact
