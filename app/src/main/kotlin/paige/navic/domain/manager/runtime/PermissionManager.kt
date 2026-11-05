@@ -14,9 +14,16 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import kotlinx.coroutines.CancellableContinuation
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import paige.navic.di.ActivityProvider
 import java.util.UUID
 import kotlin.coroutines.resume
@@ -25,61 +32,71 @@ class PermissionManager(
 	private val context: Context,
 	private val activities: ActivityProvider
 ) {
-	private var pendingContinuation: CancellableContinuation<Boolean>? = null
-	private var permissionLauncher = run {
-		val activity = activities.get<ComponentActivity>()
-		activity.activityResultRegistry.register(
-			key = UUID.randomUUID().toString(),
-			contract = ActivityResultContracts.RequestPermission(),
-			callback = { isGranted ->
-				pendingContinuation?.resume(isGranted)
-				pendingContinuation = null
-			},
-		)
-	}
+	private val requestMutex = Mutex()
 
 	fun openPermissionsSettings() {
 		val activity = activities.get<ComponentActivity>()
-		val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-		intent.data = Uri.fromParts("package", activity.packageName, null)
-		intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+		val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+			data = Uri.fromParts("package", activity.packageName, null)
+		}
 		activity.startActivity(intent)
 	}
 
 	suspend fun requestLocalNetworkPermission(): Boolean {
-		if (Build.VERSION.SDK_INT < 37) {
-			// this permission is only needed on android 17
-			return true
-		}
-
-		val alreadyGranted = context.checkSelfPermission(
-			Manifest.permission.ACCESS_LOCAL_NETWORK
-		) == PackageManager.PERMISSION_GRANTED
-
-		return alreadyGranted || suspendCancellableCoroutine { continuation ->
-			pendingContinuation = continuation
-			continuation.invokeOnCancellation {
-				pendingContinuation = null
-			}
-			permissionLauncher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
-		}
+		// this permission is only needed on android 17
+		if (Build.VERSION.SDK_INT < 37) return true
+		return requestPermission(Manifest.permission.ACCESS_LOCAL_NETWORK)
 	}
 
 	suspend fun requestNotificationsPermission(): Boolean {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-			return true
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
+		return requestPermission(Manifest.permission.POST_NOTIFICATIONS)
+	}
+
+	private fun isGranted(permission: String): Boolean =
+		ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+
+	private suspend fun requestPermission(permission: String): Boolean {
+		if (isGranted(permission)) return true
+		return requestMutex.withLock {
+			isGranted(permission) || launchPermissionRequest(permission)
 		}
+	}
 
-		val alreadyGranted = context.checkSelfPermission(
-			Manifest.permission.POST_NOTIFICATIONS
-		) == PackageManager.PERMISSION_GRANTED
+	private suspend fun launchPermissionRequest(permission: String): Boolean {
+		return withContext(Dispatchers.Main.immediate) {
+			val activity = activities.get<ComponentActivity>()
 
-		return alreadyGranted || suspendCancellableCoroutine { continuation ->
-			pendingContinuation = continuation
-			continuation.invokeOnCancellation {
-				pendingContinuation = null
+			suspendCancellableCoroutine { continuation ->
+				lateinit var launcher: ActivityResultLauncher<String>
+				lateinit var observer: LifecycleEventObserver
+
+				fun cleanup() {
+					launcher.unregister()
+					activity.lifecycle.removeObserver(observer)
+				}
+
+				launcher = activity.activityResultRegistry.register(
+					UUID.randomUUID().toString(),
+					activity,
+					ActivityResultContracts.RequestPermission()
+				) { isGranted ->
+					cleanup()
+					if (continuation.isActive) continuation.resume(isGranted)
+				}
+
+				observer = LifecycleEventObserver { _, event ->
+					if (event == Lifecycle.Event.ON_DESTROY) {
+						cleanup()
+						if (continuation.isActive) continuation.resume(false)
+					}
+				}
+				activity.lifecycle.addObserver(observer)
+
+				continuation.invokeOnCancellation { cleanup() }
+
+				launcher.launch(permission)
 			}
-			permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
 		}
 	}
 }
