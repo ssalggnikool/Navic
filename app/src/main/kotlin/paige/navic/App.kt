@@ -7,6 +7,7 @@
 package paige.navic
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
@@ -29,7 +30,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.detailPane
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.listPane
@@ -131,6 +134,7 @@ import paige.navic.ui.screen.starred.StarredScreen
 import paige.navic.ui.screen.stats.StatisticsScreen
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.Material3Transitions
+import paige.navic.util.MiscUtils
 
 @OptIn(ExperimentalSerializationApi::class)
 private val config = SavedStateConfiguration {
@@ -147,6 +151,7 @@ fun App() {
 	val density = LocalDensity.current
 	val activity = LocalActivity.current!!
 	val resources = LocalResources.current
+	val context = koinInject<Context>()
 
 	val sizeClass = calculateWindowSizeClass(activity)
 	val sessionManager = koinInject<SessionManager>()
@@ -186,9 +191,22 @@ fun App() {
 
 	LaunchedEffect(Unit) {
 		snackBarManager.events.collectLatest { event ->
-			snackBarState.showSnackbar(
-				resources.getString(event.resource, *event.args.toTypedArray())
+			val result = snackBarState.showSnackbar(
+				message = resources.getString(event.resource, *event.args.toTypedArray()),
+				actionLabel = if (event.restartRequired) {
+					resources.getString(R.string.action_restart)
+				} else {
+					null
+				},
+				duration = if (event.restartRequired) {
+					SnackbarDuration.Long
+				} else {
+					SnackbarDuration.Short
+				}
 			)
+			if (result == SnackbarResult.ActionPerformed) {
+				MiscUtils.triggerRebirth(context)
+			}
 		}
 	}
 

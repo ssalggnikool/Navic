@@ -17,16 +17,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.materialkolor.rememberDynamicColorScheme
+import com.materialkolor.MaterialKolors
+import com.materialkolor.ktx.DynamicScheme
 import dev.zt64.compose.pipette.HsvColor
 import org.koin.compose.koinInject
 import paige.navic.R
@@ -61,45 +67,67 @@ fun GenreListScreenCard(
 			value = 0.5f
 		).toColor()
 	}
-	val colorScheme = rememberDynamicColorScheme(
-		seedColor = seedColor,
-		isDark = isDark
-	)
-	val firstAlbumCoverArt = genre.albums.firstOrNull()?.coverArtId
-	val secondAlbumCoverArt = genre.albums.getOrNull(1)?.coverArtId
+	val (backgroundColor, contentColor) = remember(seedColor, isDark) {
+		val colors = MaterialKolors(
+			DynamicScheme(seedColor = seedColor, isDark = isDark)
+		)
+		colors.primary() to colors.onPrimary()
+	}
+	val firstAlbumCoverArt = genre.coverArtIds.firstOrNull()
+	val secondAlbumCoverArt = genre.coverArtIds.getOrNull(1)
+	var coverLoads by remember { mutableIntStateOf(0) }
+	val coverLayer = rememberGraphicsLayer()
+	val lastRecordedLoads = remember { intArrayOf(-1) }
 	Surface(
 		modifier = modifier,
-		color = colorScheme.primary,
-		contentColor = colorScheme.onPrimary,
+		color = backgroundColor,
+		contentColor = contentColor,
 		shape = MaterialTheme.shapes.medium,
-		shadowElevation = 2.dp,
+		shadowElevation = 0.dp,
 		onClick = dropUnlessResumed {
 			backStack.add(Screen.GenreDetail(genreName = genre.name))
 		}
 	) {
 		Box {
-			Box(Modifier.align(Alignment.CenterEnd)) {
+			Box(
+				Modifier
+					.align(Alignment.CenterEnd)
+					.drawWithContent {
+						if (lastRecordedLoads[0] != coverLoads) {
+							coverLayer.record { this@drawWithContent.drawContent() }
+							lastRecordedLoads[0] = coverLoads
+						}
+						drawLayer(coverLayer)
+					}
+			) {
 				if (firstAlbumCoverArt != null) {
 					CoverArt(
 						coverArtId = firstAlbumCoverArt,
 						modifier = Modifier
 							.padding(top = 10.dp)
-							.rotate(10f)
 							.size(90.dp)
 							.offset(x = 5.dp, y = 5.dp),
 						shape = MaterialTheme.shapes.medium,
-						shadowElevation = 3.dp
+						shadowElevation = 0.dp,
+						rotationZ = 10f,
+						square = false,
+						crossfadeMs = 0,
+						onLoad = { coverLoads++ }
 					)
 					if (secondAlbumCoverArt != null) {
 						CoverArt(
 							coverArtId = secondAlbumCoverArt,
 							modifier = Modifier
 								.padding(top = 13.dp)
-								.rotate(25f)
 								.size(90.dp)
 								.offset(x = 25.dp, y = 15.dp),
 							shape = MaterialTheme.shapes.medium,
-							shadowElevation = 10.dp
+							shadowElevation = 0.dp,
+							fakeShadowElevation = 10.dp,
+							rotationZ = 25f,
+							square = false,
+							crossfadeMs = 0,
+							onLoad = { coverLoads++ }
 						)
 					}
 				}
@@ -126,8 +154,8 @@ fun GenreListScreenCard(
 				Text(
 					pluralStringResource(
 						R.plurals.count_albums,
-						genre.albums.count(),
-						genre.albums.count()
+						genre.albumCount,
+						genre.albumCount
 					),
 					style = MaterialTheme.typography.titleSmall,
 				)

@@ -12,7 +12,7 @@ import paige.navic.domain.model.DomainSongCollection
 
 @Serializable
 data class PlayerUiState(
-	val queue: List<DomainSong> = emptyList(),
+	val queue: List<QueueSong> = emptyList(),
 	val currentSong: DomainSong? = null,
 	val currentCollection: DomainSongCollection? = null,
 	val currentIndex: Int = -1,
@@ -30,15 +30,17 @@ data class PlayerUiState(
 	val playbackMimeType: String? = null
 ) {
 	val isShuffled: Boolean
-		get() = isShuffleEnabled && shuffleOrder.size == queue.size && shuffleOrder.isNotEmpty() &&
+		get() = isShuffleEnabled && shuffleOrder.size == queue.size &&
+			shuffleOrder.isNotEmpty() && shuffleOrder.toSet().size == queue.size &&
 			shuffleOrder.all { it in queue.indices }
 
-	val activeQueue: List<DomainSong>
+	val activeQueue: List<QueueSong>
 		get() = if (isShuffled) shuffleOrder.map(queue::get) else queue
 
 	val activeIndex: Int
-		get() {
-			if (!isShuffled) return currentIndex
-			return shuffleOrder.indexOf(currentIndex).takeIf { it >= 0 } ?: currentIndex
-		}
+		get() = if (!isShuffled) currentIndex
+		else shuffleOrder.indexOf(currentIndex).takeIf { it >= 0 } ?: currentIndex
+
+	fun normalIndex(index: Int): Int =
+		if (isShuffled) shuffleOrder.getOrElse(index) { index } else index
 }

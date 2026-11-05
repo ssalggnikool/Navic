@@ -31,4 +31,12 @@ class SnackBarManager {
 
 	fun notifyAddedToQueue() = notify(R.string.notice_added_to_queue)
 	fun notifyPlayNext() = notify(R.string.notice_play_next)
+
+	fun notifyRestartRequired() {
+		scope.launch {
+			_events.emit(
+				PlayerEvent(R.string.notice_restart_required, restartRequired = true)
+			)
+		}
+	}
 }

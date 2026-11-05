@@ -32,6 +32,7 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.AudioGainManager
 import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
@@ -51,6 +52,7 @@ import kotlin.math.round
 fun AudioEffectsScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
 	val audioGainManager = koinInject<AudioGainManager>()
+	val snackBarManager = koinInject<SnackBarManager>()
 	val backStack = LocalNavStack.current
 
 	Scaffold(
@@ -84,28 +86,54 @@ fun AudioEffectsScreen() {
 								)
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 5)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.floatOutputEnabled,
-						onCheckedChange = { preferenceManager.floatOutputEnabled = it },
+						onCheckedChange = {
+							preferenceManager.floatOutputEnabled = it
+							snackBarManager.notifyRestartRequired()
+						},
 						content = { Text(stringResource(R.string.option_float_output)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_float_output)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.gaplessPlayback,
-						onCheckedChange = { preferenceManager.gaplessPlayback = it },
+						onCheckedChange = {
+							preferenceManager.gaplessPlayback = it
+							snackBarManager.notifyRestartRequired()
+						},
 						content = { Text(stringResource(R.string.option_gapless_playback)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_gapless_playback)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5)
+					)
+					// TODO: this shouldn't really need a full app restart
+					SettingsSliderItem(
+						content = { Text(stringResource(R.string.option_crossfade)) },
+						trailingContent = {
+							Text(
+								if (preferenceManager.crossfadeDuration > 0f)
+									"${preferenceManager.crossfadeDuration.toInt()}s"
+								else stringResource(R.string.option_off)
+							)
+						},
+						value = preferenceManager.crossfadeDuration,
+						valueRange = 0f..10f,
+						steps = 9,
+						onValueChange = { preferenceManager.crossfadeDuration = it.round(0) },
+						onValueChangeFinished = { snackBarManager.notifyRestartRequired() },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5)
 					)
 					SettingsToggleItem(
 						checked = preferenceManager.audioOffload,
-						onCheckedChange = { preferenceManager.audioOffload = it },
+						onCheckedChange = {
+							preferenceManager.audioOffload = it
+							snackBarManager.notifyRestartRequired()
+						},
 						content = { Text(stringResource(R.string.option_audio_offload)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_audio_offload)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 5)
 					)
 				}
 
@@ -155,7 +183,7 @@ fun AudioEffectsScreen() {
 								withoutReplayGain = preferenceManager.ampGain
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 					SettingsSliderItem(
 						content = { Text(stringResource(R.string.option_preamp_without_rg)) },
@@ -169,7 +197,19 @@ fun AudioEffectsScreen() {
 								withoutReplayGain = it
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+					)
+					SettingsToggleItem(
+						checked = preferenceManager.preventClipping,
+						onCheckedChange = {
+							preferenceManager.preventClipping = it
+							audioGainManager.setPreventClipping(it)
+						},
+						content = { Text(stringResource(R.string.option_prevent_clipping)) },
+						supportingContent = {
+							Text(stringResource(R.string.subtitle_prevent_clipping))
+						},
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
 

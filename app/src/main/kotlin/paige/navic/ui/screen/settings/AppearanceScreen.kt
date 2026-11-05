@@ -6,6 +6,7 @@
 
 package paige.navic.ui.screen.settings
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
@@ -52,6 +54,7 @@ import paige.navic.ui.screen.settings.component.SettingsToggleItem
 import paige.navic.ui.screen.settings.dialog.ArtworkShapeDialog
 import paige.navic.ui.screen.settings.dialog.GridSizeDialog
 import paige.navic.ui.screen.settings.dialog.GridSizePreview
+import java.util.Locale
 
 @Composable
 fun SettingsAppearanceScreen() {
@@ -90,10 +93,34 @@ fun SettingsAppearanceScreen() {
 				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
 				SettingsGroup {
-					SegmentedListItem(
+					val currentLanguage = AppCompatDelegate.getApplicationLocales()
+						.get(0)?.toLanguageTag()
+					SettingsChoiceItem(
+						content = { Text(stringResource(R.string.option_language)) },
+						choices = languageTags.toImmutableList(),
+						selectedChoice = languageTags.find {
+							it != null && Locale.forLanguageTag(it).toLanguageTag() == currentLanguage
+						},
+						onChoiceSelected = { tag ->
+							AppCompatDelegate.setApplicationLocales(
+								if (tag == null) LocaleListCompat.getEmptyLocaleList()
+								else LocaleListCompat.forLanguageTags(tag)
+							)
+						},
+						label = { tag ->
+							tag?.let { Locale.forLanguageTag(it).getDisplayName(Locale.forLanguageTag(it)) }
+								?: stringResource(R.string.option_system_default)
+						},
+						closeOnChoiceSelected = true,
 						shapes = SegmentedListItemDefaults.segmentedShapes(
 							index = 0,
-							count = 3
+							count = 4
+						)
+					)
+					SegmentedListItem(
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 1,
+							count = 4
 						),
 						onClick = dropUnlessResumed {
 							backStack.add(Screen.Settings.Fonts)
@@ -103,8 +130,8 @@ fun SettingsAppearanceScreen() {
 					)
 					SegmentedListItem(
 						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = 1,
-							count = 3
+							index = 2,
+							count = 4
 						),
 						onClick = dropUnlessResumed {
 							backStack.add(Screen.Settings.Themes)
@@ -114,8 +141,8 @@ fun SettingsAppearanceScreen() {
 					)
 					SegmentedListItem(
 						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = 2,
-							count = 3
+							index = 3,
+							count = 4
 						),
 						onClick = dropUnlessResumed {
 							backStack.add(Screen.Settings.AppIcon)
@@ -260,3 +287,11 @@ fun SettingsAppearanceScreen() {
 		onDismissRequest = { showGridSizeDialog = false }
 	)
 }
+
+// keep in sync with the app's res/values-* folders
+private val languageTags = listOf<String?>(null) + listOf(
+	"en-US", "ar", "bg", "bn", "ca", "de", "de-CH", "el", "en-AU", "en-CA",
+	"en-GB", "es", "et", "fr", "in", "it", "iw", "ja", "ko", "la", "lv",
+	"nb-NO", "nl", "nn", "pl", "pt-BR", "ro", "ru", "sv", "ta", "tr", "uk",
+	"vi", "zh-CN", "zh-TW"
+)

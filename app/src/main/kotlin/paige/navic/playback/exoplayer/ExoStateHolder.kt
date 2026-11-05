@@ -11,11 +11,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Process
+import android.os.Handler
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.Format
+import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionParameters
@@ -23,16 +24,20 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.AudioProcessorChain
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer
-import androidx.media3.exoplayer.BaseRenderer
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.LoadControl
+import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.RenderersFactory
+import androidx.media3.exoplayer.audio.AudioRendererEventListener
+import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.metadata.MetadataOutput
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
-import androidx.media3.exoplayer.source.ShuffleOrder
+import androidx.media3.exoplayer.text.TextOutput
+import androidx.media3.exoplayer.video.VideoRendererEventListener
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.flac.FlacExtractor
 import androidx.media3.extractor.mkv.MatroskaExtractor
@@ -44,111 +49,82 @@ import androidx.media3.extractor.text.DefaultSubtitleParserFactory
 import androidx.media3.extractor.ts.AdtsExtractor
 import androidx.media3.extractor.wav.WavExtractor
 import androidx.media3.session.CommandButton
-import androidx.media3.session.MediaSession
+import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.SessionCommand
-import androidx.media3.session.SessionResult
 import androidx.media3.session.SessionToken
-import coil3.ImageLoader
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import paige.navic.R
+import paige.navic.domain.manager.playback.EqualizerManager
 import paige.navic.domain.manager.runtime.PreferenceManager
-import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.SyncManager
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
+import paige.navic.domain.repository.PlayerStateRepository
+import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
+import paige.navic.playback.exoplayer.impl.library.AndroidAutoLibrary
+import paige.navic.playback.exoplayer.impl.library.MediaSessionCallback
+import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
 import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
+import paige.navic.playback.exoplayer.impl.listeners.ScrobbleExoListener
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
-import paige.navic.playback.exoplayer.impl.util.ExoArtworkLoader
+import paige.navic.playback.exoplayer.impl.playback.ExoEqualizerManager
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
 @OptIn(UnstableApi::class)
-class ExoStateHolder : KoinComponent {
-	private val context: Context by inject()
-	private val preferenceManager: PreferenceManager by inject()
-	private val dataSource: NavicDataSource.NavicDataSourceFactory by inject()
-	private val sessionManager: SessionManager by inject()
-	private val imageLoader: ImageLoader by inject()
-	private val storageManager: StorageManager by inject()
+class ExoStateHolder(
+	private val context: Context,
+	private val preferenceManager: PreferenceManager,
+	private val dataSource: NavicDataSource.NavicDataSourceFactory,
+	private val androidAutoLibrary: AndroidAutoLibrary,
+	private val stateRepository: PlayerStateRepository,
+	private val equalizerManager: EqualizerManager,
+	private val reachability: ReachabilityFlow,
+	private val syncManager: SyncManager,
+	private val sessionManager: SessionManager
+) {
 	private val mutex = Mutex()
+	private val listenerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+	private var equalizerJob: Job? = null
+	private var exoEqualizerManager: ExoEqualizerManager? = null
+	private var scrobbleListener: ScrobbleExoListener? = null
+	private var discordIntegration: ExoDiscordIntegration? = null
 
 	private var isInitialized = false
 
 	// ExoPlaybackService and AudioGainManager depends on these fields below
-	lateinit var playerInstance: ExoPlayer
-	lateinit var mediaSession: MediaSession
+	lateinit var player: ExoPlayer
+	lateinit var mediaSession: MediaLibraryService.MediaLibrarySession
+	private var mediaSessionCallback: MediaSessionCallback? = null
+
+	var onSessionReleased: ((MediaLibraryService.MediaLibrarySession) -> Unit)? = null
 
 	val gainProcessor = ExoAudioGainProcessor()
 
+	val secondaryGainProcessor = ExoAudioGainProcessor()
 
-	private class MediaSessionCallback(private val player: ExoPlayer) : MediaSession.Callback {
-		override fun onConnect(
-			session: MediaSession,
-			controller: MediaSession.ControllerInfo
-		): MediaSession.ConnectionResult {
-			// only the app may edit the playlist or push a shuffle order, otherwise
-			// external controllers desync the app queue from the player timeline
-			val isOwnApp = controller.uid == Process.myUid()
+	private val crossfadeDurationUs: Long
+		get() = (preferenceManager.crossfadeDuration * C.MICROS_PER_SECOND).toLong()
 
-			val sessionCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
-				.buildUpon()
-				.add(SessionCommand(COMMAND_SHUFFLE, Bundle.EMPTY))
-				.add(SessionCommand(COMMAND_REPEAT, Bundle.EMPTY))
-				.apply {
-					if (isOwnApp) add(SessionCommand(COMMAND_SET_SHUFFLE_ORDER, Bundle.EMPTY))
-				}
-				.build()
+	// touching the player directly throws an IllegalStateException (one can't access another thread's)
+	@Volatile
+	private var shuffleEnabled = false
 
-			val playerCommands =
-				if (isOwnApp) {
-					MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
-				} else {
-					// shortcut: blocks playlist edits from every external controller, so Android
-					// Auto browse-and-play needs an exception here once real Auto support lands
-					MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
-						.buildUpon()
-						.remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
-						.remove(Player.COMMAND_SET_MEDIA_ITEM)
-						.build()
-				}
-
-			return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands)
-		}
-
-		override fun onCustomCommand(
-			session: MediaSession,
-			controller: MediaSession.ControllerInfo,
-			customCommand: SessionCommand,
-			args: Bundle
-		): ListenableFuture<SessionResult> {
-			when (customCommand.customAction) {
-				COMMAND_SHUFFLE -> {
-					player.shuffleModeEnabled = !player.shuffleModeEnabled
-				}
-
-				COMMAND_REPEAT -> {
-					player.repeatMode = when (player.repeatMode) {
-						Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
-						Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
-						else -> Player.REPEAT_MODE_OFF
-					}
-				}
-
-				COMMAND_SET_SHUFFLE_ORDER -> {
-					val order = args.getIntArray(KEY_SHUFFLE_ORDER)
-					if (order != null && order.size == player.mediaItemCount) {
-						player.setShuffleOrder(
-							ShuffleOrder.DefaultShuffleOrder(order, System.nanoTime())
-						)
-					}
-				}
-			}
-
-			return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+	private val crossfadePlanProvider = object : ExoPlayer.CrossfadePlanProvider {
+		override fun getCrossfadeOverlapUs(fromMediaItem: MediaItem, toMediaItem: MediaItem): Long {
+			if (shuffleEnabled) return C.TIME_UNSET
+			val fromAlbum = fromMediaItem.mediaMetadata.extras?.getString(ALBUM_ID_EXTRA)
+			val toAlbum = toMediaItem.mediaMetadata.extras?.getString(ALBUM_ID_EXTRA)
+			return if (fromAlbum != null && fromAlbum == toAlbum) 0 else C.TIME_UNSET
 		}
 	}
 
@@ -165,8 +141,10 @@ class ExoStateHolder : KoinComponent {
 		)
 	}
 
-	private fun createRenderers(context: Context): RenderersFactory {
-		val audioProcessors = arrayOf<AudioProcessor>(gainProcessor)
+	private fun createAudioSink(
+		context: Context,
+		audioProcessors: Array<AudioProcessor>
+	): AudioSink {
 		val audioSinkBuilder = DefaultAudioSink.Builder(context)
 
 		if (preferenceManager.floatOutputEnabled) {
@@ -202,23 +180,66 @@ class ExoStateHolder : KoinComponent {
 			audioSinkBuilder.setAudioProcessors(audioProcessors)
 		}
 
-		val audioSink = audioSinkBuilder.build()
+		return audioSinkBuilder.build()
+	}
 
-		return RenderersFactory { eventHandler, _, eventListener, _, _ ->
-			arrayOf<BaseRenderer>(
-				FfmpegAudioRenderer(
-					eventHandler,
-					eventListener,
-					audioSink
-				),
-				MediaCodecAudioRenderer(
-					context,
-					MediaCodecSelector.DEFAULT,
-					eventHandler,
-					eventListener,
-					audioSink
+	private fun createRenderers(context: Context): RenderersFactory {
+		val audioSink = createAudioSink(context, arrayOf(gainProcessor))
+		val secondaryAudioSink = crossfadeDurationUs.takeIf { it > 0 }?.let {
+			createAudioSink(context, arrayOf(secondaryGainProcessor))
+		}
+
+		return object : RenderersFactory {
+			override fun createRenderers(
+				eventHandler: Handler,
+				videoRendererEventListener: VideoRendererEventListener,
+				audioRendererEventListener: AudioRendererEventListener,
+				textRendererOutput: TextOutput,
+				metadataRendererOutput: MetadataOutput
+			): Array<Renderer> {
+				return arrayOf(
+					FfmpegAudioRenderer(
+						eventHandler,
+						audioRendererEventListener,
+						audioSink
+					),
+					MediaCodecAudioRenderer(
+						context,
+						MediaCodecSelector.DEFAULT,
+						eventHandler,
+						audioRendererEventListener,
+						audioSink
+					)
 				)
-			)
+			}
+
+			override fun createSecondaryRenderer(
+				renderer: Renderer,
+				eventHandler: Handler,
+				videoRendererEventListener: VideoRendererEventListener,
+				audioRendererEventListener: AudioRendererEventListener,
+				textRendererOutput: TextOutput,
+				metadataRendererOutput: MetadataOutput
+			): Renderer? {
+				val sink = secondaryAudioSink ?: return null
+				return when (renderer) {
+					is FfmpegAudioRenderer -> FfmpegAudioRenderer(
+						eventHandler,
+						audioRendererEventListener,
+						sink
+					)
+
+					is MediaCodecAudioRenderer -> MediaCodecAudioRenderer(
+						context,
+						MediaCodecSelector.DEFAULT,
+						eventHandler,
+						audioRendererEventListener,
+						sink
+					)
+
+					else -> null
+				}
+			}
 		}
 	}
 
@@ -231,7 +252,7 @@ class ExoStateHolder : KoinComponent {
 					CommandButton.ICON_SHUFFLE_OFF
 				}
 			)
-				.setDisplayName("Shuffle")
+				.setDisplayName(context.getString(R.string.action_shuffle))
 				.setSessionCommand(SessionCommand(COMMAND_SHUFFLE, Bundle.EMPTY))
 				.build()
 		)
@@ -244,7 +265,7 @@ class ExoStateHolder : KoinComponent {
 					else -> CommandButton.ICON_REPEAT_ONE
 				}
 			)
-				.setDisplayName("Repeat")
+				.setDisplayName(context.getString(R.string.action_repeat))
 				.setSessionCommand(SessionCommand(COMMAND_REPEAT, Bundle.EMPTY))
 				.build()
 		)
@@ -263,7 +284,7 @@ class ExoStateHolder : KoinComponent {
 	private suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
 		val mediaSourceFactory = DefaultMediaSourceFactory(dataSource, extractorsFactory)
 
-		playerInstance = ExoPlayer.Builder(
+		player = ExoPlayer.Builder(
 			context,
 			createRenderers(context)
 		).apply {
@@ -271,6 +292,11 @@ class ExoStateHolder : KoinComponent {
 			setMediaSourceFactory(mediaSourceFactory)
 			setHandleAudioBecomingNoisy(true)
 			setWakeMode(C.WAKE_MODE_NETWORK)
+			if (crossfadeDurationUs > 0) {
+				setCrossfadeConfiguration(
+					ExoPlayer.CrossfadeConfiguration(crossfadeDurationUs, crossfadePlanProvider)
+				)
+			}
 		}.build()
 			.apply {
 				setAudioAttributes(
@@ -303,6 +329,7 @@ class ExoStateHolder : KoinComponent {
 
 				player.addListener(object : Player.Listener {
 					override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+						shuffleEnabled = shuffleModeEnabled
 						mediaSession.setCustomLayout(makeButtons(player))
 					}
 
@@ -311,59 +338,102 @@ class ExoStateHolder : KoinComponent {
 					}
 				})
 
-				player.addListener(ExoDiscordIntegrationImpl(player))
+				player.addListener(
+					ExoDiscordIntegrationImpl(player).also { discordIntegration = it }
+				)
+
+				attachPlayerListeners(player)
 			}
 
-		return playerInstance
+		return player
 	}
 
-	private suspend fun createMediaSession(): MediaSession = mutex.withLock {
-		val bitmapLoader = ExoArtworkLoader(
-			context,
-			dataSourceFactory = dataSource,
-			imageLoader,
+	private fun attachPlayerListeners(player: ExoPlayer) {
+		scrobbleListener = ScrobbleExoListener(
+			player,
+			reachability,
+			syncManager,
 			sessionManager,
-			storageManager
+			preferenceManager
 		)
-		val sessionIntent = context.packageManager
-			.getLaunchIntentForPackage(context.packageName)
-			?.apply {
-				flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or
-					Intent.FLAG_ACTIVITY_CLEAR_TOP
+
+		exoEqualizerManager = ExoEqualizerManager(equalizerManager, context).apply {
+			player.addListener(this)
+			applyEqualizerMode(equalizerManager.config.value.mode)
+			equalizerJob = listenerScope.launch {
+				equalizerManager.config.collect { updateConfig() }
+			}
+		}
+	}
+
+	private suspend fun createMediaSession(): MediaLibraryService.MediaLibrarySession =
+		mutex.withLock {
+			val sessionIntent = context.packageManager
+				.getLaunchIntentForPackage(context.packageName)
+				?.apply {
+					flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or
+						Intent.FLAG_ACTIVITY_CLEAR_TOP
+				}
+
+			val sessionPendingIntent = PendingIntent.getActivity(
+				context,
+				0,
+				sessionIntent,
+				PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+			)
+
+			this.player.let {
+				val callback = MediaSessionCallback(it, androidAutoLibrary)
+				mediaSessionCallback = callback
+				mediaSession = MediaLibraryService.MediaLibrarySession.Builder(
+					context,
+					it,
+					callback
+				)
+					.setPeriodicPositionUpdateEnabled(false) // fix android auto queue randomly jumping to the top
+					.setSessionActivity(sessionPendingIntent)
+					.setCustomLayout(makeButtons(it))
+					.build()
 			}
 
-		val sessionPendingIntent = PendingIntent.getActivity(
-			context,
-			0,
-			sessionIntent,
-			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-		)
-
-		this.playerInstance.let {
-			mediaSession = MediaSession.Builder(context, it)
-				.setSessionActivity(sessionPendingIntent)
-				.setBitmapLoader(bitmapLoader)
-				.setCallback(MediaSessionCallback(it))
-				.setCustomLayout(makeButtons(it))
-				.build()
+			return mediaSession
 		}
 
-		return mediaSession
-	}
-
-	/**
-	 * initializes instances for the player and the media session, should be called ASAP on PlaybackService (onCreate)
-	 */
 	fun initState() = runBlocking {
 		if (isInitialized) return@runBlocking
 
 		createPlayerInstance()
 		createMediaSession()
+
+		// the service can start without the UI, so restore the last mode here too
+		val savedState = stateRepository.state.first()
+		player.shuffleModeEnabled = savedState.isShuffleEnabled
+		player.repeatMode = savedState.repeatMode
+		// auto builds the queue before any order is pushed, so seed ours to keep the chosen song first
+		player.shuffleOrder = BetterShuffleOrder(
+			player.mediaItemCount,
+			player.currentMediaItemIndex
+		)
+
 		isInitialized = !isInitialized
 	}
 
 	fun destroySession() {
 		if (!isInitialized) return
+
+		equalizerJob?.cancel()
+		equalizerJob = null
+		exoEqualizerManager?.releaseEqualizer()
+		exoEqualizerManager = null
+		scrobbleListener?.release()
+		scrobbleListener = null
+		discordIntegration?.release()
+		discordIntegration = null
+
+		onSessionReleased?.invoke(mediaSession)
+
+		mediaSessionCallback?.release()
+		mediaSessionCallback = null
 
 		mediaSession.let {
 			it.player.stop()
@@ -373,10 +443,16 @@ class ExoStateHolder : KoinComponent {
 		isInitialized = !isInitialized
 	}
 
+	fun restartPlayback() {
+		if (!isInitialized) return
+		destroySession()
+		initState()
+	}
+
 	fun reloadNetworkDataSource() {
 		if (!isInitialized) return
 
-		val player = playerInstance
+		val player = player
 		val mediaItemIndex = player.currentMediaItemIndex
 		val mediaItem = player.currentMediaItem ?: return
 		if (mediaItemIndex == C.INDEX_UNSET) return
@@ -391,8 +467,7 @@ class ExoStateHolder : KoinComponent {
 	companion object {
 		const val COMMAND_SHUFFLE = "COMMAND_SHUFFLE"
 		const val COMMAND_REPEAT = "COMMAND_REPEAT"
-		const val COMMAND_SET_SHUFFLE_ORDER = "COMMAND_SET_SHUFFLE_ORDER"
-		const val KEY_SHUFFLE_ORDER = "KEY_SHUFFLE_ORDER"
+
 
 		fun newSessionToken(context: Context): SessionToken {
 			return SessionToken(context, ComponentName(context, ExoPlaybackService::class.java))

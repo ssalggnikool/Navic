@@ -8,7 +8,6 @@ package paige.navic.ui.screen.nowPlaying.component.controls
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.rememberSliderState
@@ -28,7 +27,6 @@ import paige.navic.ui.component.common.SlimSlider
 import paige.navic.ui.component.common.SpermSlider
 import paige.navic.ui.component.common.SpermSliderDefaults
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingProgressBar() {
 	val preferenceManager = koinInject<PreferenceManager>()

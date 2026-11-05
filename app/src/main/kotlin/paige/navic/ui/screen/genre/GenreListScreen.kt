@@ -123,7 +123,6 @@ fun GenreListScreen(
 				if (itemCount > 0 && genresLazyItems != null) {
 					items(itemCount) { index ->
 						GenreListScreenCard(
-							modifier = Modifier.animateItem(),
 							genre = genresLazyItems[index] ?: return@items
 						)
 					}

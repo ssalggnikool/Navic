@@ -38,14 +38,29 @@ interface ArtistDao {
 	@Query("SELECT * FROM ArtistEntity WHERE artistId = :artistId LIMIT 1")
 	suspend fun getArtistById(artistId: String): ArtistEntity?
 
+	@Query("SELECT * FROM ArtistEntity ORDER BY name COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getArtistsPage(limit: Int, offset: Int): List<ArtistEntity>
+
+	@Query("SELECT * FROM ArtistEntity WHERE starredAt IS NOT NULL ORDER BY name COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getStarredArtistsPage(limit: Int, offset: Int): List<ArtistEntity>
+
+	@Query("SELECT COUNT(*) FROM ArtistEntity")
+	suspend fun getArtistCount(): Int
+
 	@Query("SELECT EXISTS(SELECT 1 FROM ArtistEntity WHERE artistId = :artistId AND starredAt IS NOT NULL)")
 	suspend fun isArtistStarred(artistId: String): Boolean
 
 	@Query("UPDATE ArtistEntity SET starredAt = :starredAt WHERE artistId = :artistId")
 	suspend fun updateArtistStarredAt(artistId: String, starredAt: Instant?)
 
+	@Query("SELECT * FROM ArtistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun searchArtistsPage(query: String, limit: Int, offset: Int): List<ArtistEntity>
+
 	@Query("SELECT * FROM ArtistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchArtistsList(query: String): List<ArtistEntity>
+
+	@Query("SELECT COUNT(*) FROM ArtistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
+	suspend fun searchArtistCount(query: String): Int
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertArtist(artist: ArtistEntity)

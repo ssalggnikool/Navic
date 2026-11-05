@@ -6,6 +6,11 @@
 
 package paige.navic.ui.screen.nowPlaying.component.controls
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,9 +43,14 @@ fun NowPlayingStarButton(
 		modifier = Modifier.size(32.dp),
 		enabled = playerState.currentSong != null
 	) {
-		Icon(
-			if (songIsStarred) Icons.Filled.Star else Icons.Outlined.Star,
-			contentDescription = stringResource(R.string.action_star)
-		)
+		AnimatedContent(
+			targetState = songIsStarred,
+			transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(200)) }
+		) { isStarred ->
+			Icon(
+				if (isStarred) Icons.Filled.Star else Icons.Outlined.Star,
+				contentDescription = stringResource(R.string.action_star)
+			)
+		}
 	}
 }

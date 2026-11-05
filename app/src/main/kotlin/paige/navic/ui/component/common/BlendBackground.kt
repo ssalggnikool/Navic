@@ -6,6 +6,8 @@
 
 package paige.navic.ui.component.common
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,9 +53,13 @@ private const val TOP_LEFT_PERIOD_NS = 12_000_000_000L
 private const val BOT_RIGHT_PERIOD_NS = 20_000_000_000L
 private const val LOOP_NS = 120_000_000_000L
 
+private const val FRAME_INTERVAL_NS = 42_000_000L
+
 private const val ART_SIZE_PX = 256
 private const val RENDER_SCALE = 0.25f
 private val BLUR_RADIUS = 80.dp
+private const val SATURATION = 1.5f
+private const val CROSSFADE_MS = 3_000
 
 @Composable
 fun BlendBackground(
@@ -67,104 +74,110 @@ fun BlendBackground(
 
 	LaunchedEffect(isActive) {
 		if (!isActive) return@LaunchedEffect
-		var last = androidx.compose.runtime.withFrameNanos { it }
+		var last = withFrameNanos { it }
 		while (true) {
-			androidx.compose.runtime.withFrameNanos { now ->
-				elapsedNanos = (elapsedNanos + (now - last)) % LOOP_NS
-				last = now
+			withFrameNanos { now ->
+				// Cap animation at 24 fps
+				if ((now - last) >= FRAME_INTERVAL_NS) {
+					elapsedNanos = (elapsedNanos + (now - last)) % LOOP_NS
+					last = now
+				}
 			}
 		}
 	}
 
 	val saturation = remember {
-		ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(1.5f) })
+		ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(SATURATION) })
 	}
 
 	val coilPlatformContext = LocalCoilPlatformContext.current
 	val staticImageLoader = koinInject<ImageLoader>(named("static"))
-
 	val sessionManager = koinInject<SessionManager>()
 
-	val model = remember(coverArtId, coilPlatformContext) {
-		ImageRequest.Builder(coilPlatformContext)
-			.disableHardwareIfCucked()
-			.data(coverArtId?.let { sessionManager.getCoverArtUrl(it) })
-			.size(ART_SIZE_PX, ART_SIZE_PX)
-			.memoryCacheKey(coverArtId?.let { "${it}_static_$ART_SIZE_PX" })
-			.diskCacheKey(coverArtId)
-			.diskCachePolicy(CachePolicy.ENABLED)
-			.memoryCachePolicy(CachePolicy.ENABLED)
-			.build()
-	}
-
-	val painter = rememberAsyncImagePainter(
-		model = model,
-		imageLoader = staticImageLoader,
-		contentScale = ContentScale.Crop
-	)
-
 	PlatformLayerComposable(
-		// blur has to wrap the AndroidView, not the content inside it
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
 			.renderAtScale(RENDER_SCALE)
 			.backwardsCompatibleBlur(BLUR_RADIUS * RENDER_SCALE)
 	) {
-		Box(
-			modifier = Modifier
-				.fillMaxSize()
-				.graphicsLayer {
-					compositingStrategy = CompositingStrategy.Offscreen
-					colorFilter = saturation
-				}
-		) {
-			Image(
-				painter = painter,
-				contentDescription = null,
+		Crossfade(
+			targetState = coverArtId,
+			animationSpec = tween(CROSSFADE_MS),
+			modifier = Modifier.fillMaxSize(),
+		) { targetCoverArtId ->
+			val model = remember(targetCoverArtId, coilPlatformContext) {
+				ImageRequest.Builder(coilPlatformContext)
+					.disableHardwareIfCucked()
+					.data(targetCoverArtId?.let { sessionManager.getCoverArtUrl(it) })
+					.size(ART_SIZE_PX, ART_SIZE_PX)
+					.memoryCacheKey(targetCoverArtId?.let { "${it}_static_$ART_SIZE_PX" })
+					.diskCacheKey(targetCoverArtId)
+					.diskCachePolicy(CachePolicy.ENABLED)
+					.memoryCachePolicy(CachePolicy.ENABLED)
+					.build()
+			}
+
+			val painter = rememberAsyncImagePainter(
+				model = model,
+				imageLoader = staticImageLoader,
 				contentScale = ContentScale.Crop,
-				modifier = Modifier.fillMaxSize()
 			)
 			Box(
 				modifier = Modifier
 					.fillMaxSize()
 					.graphicsLayer {
-						rotationZ = -angle(elapsedNanos, FRAME_PERIOD_NS)
+						compositingStrategy = CompositingStrategy.Offscreen
+						colorFilter = saturation
 					}
 			) {
+				Image(
+					painter = painter,
+					contentDescription = null,
+					contentScale = ContentScale.Crop,
+					modifier = Modifier.fillMaxSize()
+				)
 				Box(
 					modifier = Modifier
-						.fillMaxSize(0.5f)
-						.align(Alignment.TopStart)
+						.fillMaxSize()
+						.graphicsLayer {
+							rotationZ = -angle(elapsedNanos, FRAME_PERIOD_NS)
+						},
 				) {
-					Image(
-						painter = painter,
-						contentDescription = null,
-						contentScale = ContentScale.Crop,
-						alignment = Alignment.TopStart,
+					Box(
 						modifier = Modifier
-							.fillMaxSize()
-							.graphicsLayer {
-								rotationZ = angle(elapsedNanos, TOP_LEFT_PERIOD_NS)
-							}
-					)
-				}
-				Box(
-					modifier = Modifier
-						.fillMaxSize(0.5f)
-						.align(Alignment.BottomEnd)
-				) {
-					Image(
-						painter = painter,
-						contentDescription = null,
-						contentScale = ContentScale.Crop,
-						alignment = Alignment.BottomEnd,
+							.fillMaxSize(0.5f)
+							.align(Alignment.TopStart)
+					) {
+						Image(
+							painter = painter,
+							contentDescription = null,
+							contentScale = ContentScale.Crop,
+							alignment = Alignment.TopStart,
+							modifier = Modifier
+								.fillMaxSize()
+								.graphicsLayer {
+									rotationZ = angle(elapsedNanos, TOP_LEFT_PERIOD_NS)
+								}
+						)
+					}
+					Box(
 						modifier = Modifier
-							.fillMaxSize()
-							.graphicsLayer {
-								rotationZ = angle(elapsedNanos, BOT_RIGHT_PERIOD_NS)
-							}
-					)
+							.fillMaxSize(0.5f)
+							.align(Alignment.BottomEnd),
+					) {
+						Image(
+							painter = painter,
+							contentDescription = null,
+							contentScale = ContentScale.Crop,
+							alignment = Alignment.BottomEnd,
+							modifier = Modifier
+								.fillMaxSize()
+								.graphicsLayer {
+									rotationZ = angle(elapsedNanos, BOT_RIGHT_PERIOD_NS)
+								}
+						)
+					}
 				}
 			}
 		}

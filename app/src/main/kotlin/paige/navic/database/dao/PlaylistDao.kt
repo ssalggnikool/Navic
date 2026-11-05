@@ -14,6 +14,7 @@ import androidx.room3.Query
 import androidx.room3.RawQuery
 import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
+import paige.navic.database.entity.PlayableSongRow
 import paige.navic.database.entity.PlaylistEntity
 import paige.navic.database.entity.PlaylistSongCrossRef
 import paige.navic.database.relation.PlaylistWithSongs
@@ -32,6 +33,12 @@ interface PlaylistDao {
 	@Query("SELECT * FROM PlaylistEntity WHERE playlistId IN (:ids)")
 	suspend fun getPlaylistsByIds(ids: List<String>): List<PlaylistWithSongs>
 
+	@Query("SELECT * FROM PlaylistEntity ORDER BY name COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getPlaylistsPage(limit: Int, offset: Int): List<PlaylistEntity>
+
+	@Query("SELECT COUNT(*) FROM PlaylistEntity")
+	suspend fun getPlaylistCount(): Int
+
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insertPlaylist(playlist: PlaylistEntity)
 
@@ -44,6 +51,9 @@ interface PlaylistDao {
 	@Transaction
 	@Query("SELECT * FROM PlaylistEntity WHERE playlistId = :playlistId LIMIT 1")
 	suspend fun getPlaylistById(playlistId: String): PlaylistWithSongs?
+
+	@Query("SELECT * FROM PlaylistEntity WHERE playlistId = :playlistId LIMIT 1")
+	suspend fun getPlaylistEntityById(playlistId: String): PlaylistEntity?
 
 	@Query("DELETE FROM PlaylistEntity WHERE playlistId = :playlistId")
 	suspend fun deletePlaylist(playlistId: String)
@@ -63,9 +73,38 @@ interface PlaylistDao {
 	@Query("SELECT playlistId FROM PlaylistEntity")
 	suspend fun getAllPlaylistIds(): List<String>
 
+	@Query("SELECT * FROM PlaylistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun searchPlaylistsPage(query: String, limit: Int, offset: Int): List<PlaylistEntity>
+
 	@Transaction
 	@Query("SELECT * FROM PlaylistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchPlaylistsList(query: String): List<PlaylistWithSongs>
+
+	@Query("SELECT COUNT(*) FROM PlaylistEntity WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
+	suspend fun searchPlaylistCount(query: String): Int
+
+	@Query("""
+		SELECT s.* FROM SongEntity s
+		INNER JOIN PlaylistSongCrossRef ps ON s.songId = ps.songId
+		WHERE ps.playlistId = :playlistId
+		ORDER BY ps.position ASC
+		LIMIT :limit OFFSET :offset
+	""")
+	suspend fun getPlaylistSongs(playlistId: String, limit: Int, offset: Int): List<paige.navic.database.entity.SongEntity>
+
+	@Query("""
+		SELECT s.songId, s.title, s.artistName, s.albumTitle, s.belongsToAlbumId AS albumId, s.coverArtId, s.duration, s.filePath, s.artists, s.albumArtists
+		FROM SongEntity s
+		INNER JOIN PlaylistSongCrossRef ps ON s.songId = ps.songId
+		WHERE ps.playlistId = :playlistId
+		ORDER BY ps.position ASC
+		LIMIT :limit OFFSET :offset
+	""")
+	suspend fun getPlaylistPlayableSongs(
+		playlistId: String,
+		limit: Int,
+		offset: Int
+	): List<PlayableSongRow>
 
 	@Transaction
 	suspend fun deleteObsoletePlaylists(remoteIds: Set<String>) {

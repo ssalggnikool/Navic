@@ -21,11 +21,14 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import paige.navic.BuildConfig
 import paige.navic.domain.manager.playback.StreamCacheManager
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
+import paige.navic.domain.manager.session.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
+import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.playback.PlaybackUtils
 import paige.navic.util.Logger
 import java.io.File
@@ -67,15 +70,19 @@ class NavicDataSource(
 	companion object {
 		const val NAVIC_SCHEME = "navic"
 		const val NAVIC_SONG_HOST = "song"
-		const val NAVIC_COVER_HOST = "cover"
+		const val COVER_ART_SIZE = 512
+		const val HIGH_QUALITY_COVER_ART_SIZE = 1024
 		private const val TAG = "NavicDataSource"
 
 		fun String.buildSongUri(): Uri {
 			return "$NAVIC_SCHEME://$NAVIC_SONG_HOST/$this".toUri()
 		}
 
-		fun String.buildCoverUri(): Uri {
-			return "$NAVIC_SCHEME://$NAVIC_COVER_HOST/$this".toUri()
+		fun String.buildCoverUri(size: Int = COVER_ART_SIZE): Uri {
+			return "content://${BuildConfig.APPLICATION_ID}.cover-art/$this".toUri()
+				.buildUpon()
+				.appendQueryParameter("size", size.toString())
+				.build()
 		}
 
 		fun getCurrentQuality(preferenceManager: PreferenceManager, connectivityManager: ConnectivityManager): Pair<Int, String?> {
@@ -200,7 +207,7 @@ class NavicDataSource(
 
 		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0)
 
-		if (!sessionManager.supportsTranscoding.value) {
+		if (!sessionManager.supportsExtension(ServerExtension.TRANSCODING)) {
 			val streamUrl = defaultStreamUrl.toStreamUri().toString()
 			ttlLruCache.put(cacheKey, streamUrl)
 			return streamUrl.toUri()

@@ -16,6 +16,7 @@ import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
 import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
+import paige.navic.database.entity.PlayableSongRow
 import paige.navic.database.entity.SongEntity
 import paige.navic.util.Logger
 import kotlin.time.Instant
@@ -38,6 +39,24 @@ interface SongDao {
 
 	@Query("SELECT * FROM SongEntity WHERE songId = :songId LIMIT 1")
 	suspend fun getSongById(songId: String): SongEntity?
+
+	@Query("SELECT songId, title, artistName, albumTitle, belongsToAlbumId AS albumId, coverArtId, duration, filePath, artists, albumArtists FROM SongEntity WHERE songId = :songId LIMIT 1")
+	suspend fun getPlayableSongById(songId: String): PlayableSongRow?
+
+	@Query("SELECT * FROM SongEntity ORDER BY artistName COLLATE NOCASE, albumTitle COLLATE NOCASE, discNumber, trackNumber, title COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getSongsPage(limit: Int, offset: Int): List<SongEntity>
+
+	@Query("SELECT songId, title, artistName, albumTitle, belongsToAlbumId AS albumId, coverArtId, duration, filePath, artists, albumArtists FROM SongEntity ORDER BY artistName COLLATE NOCASE, albumTitle COLLATE NOCASE, discNumber, trackNumber, title COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getPlayableSongsPage(limit: Int, offset: Int): List<PlayableSongRow>
+
+	@Query("SELECT * FROM SongEntity WHERE starredAt IS NOT NULL ORDER BY starredAt DESC, title COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getStarredSongsPage(limit: Int, offset: Int): List<SongEntity>
+
+	@Query("SELECT songId, title, artistName, albumTitle, belongsToAlbumId AS albumId, coverArtId, duration, filePath, artists, albumArtists FROM SongEntity WHERE starredAt IS NOT NULL ORDER BY starredAt DESC, title COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun getStarredPlayableSongsPage(limit: Int, offset: Int): List<PlayableSongRow>
+
+	@Query("SELECT COUNT(*) FROM SongEntity")
+	suspend fun getSongCount(): Int
 
 	@Upsert
 	suspend fun insertSong(song: SongEntity)
@@ -106,8 +125,33 @@ interface SongDao {
 	@Query("SELECT * FROM SongEntity ORDER BY RANDOM() LIMIT :count")
 	suspend fun getRandomSongsList(count: Int): List<SongEntity>
 
+	@Query("SELECT * FROM SongEntity WHERE title LIKE '%' || :query || '%' COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun searchSongsPage(query: String, limit: Int, offset: Int): List<SongEntity>
+
+	@Query("SELECT songId, title, artistName, albumTitle, belongsToAlbumId AS albumId, coverArtId, duration, filePath, artists, albumArtists FROM SongEntity WHERE title LIKE '%' || :query || '%' COLLATE NOCASE LIMIT :limit OFFSET :offset")
+	suspend fun searchPlayableSongsPage(query: String, limit: Int, offset: Int): List<PlayableSongRow>
+
 	@Query("SELECT * FROM SongEntity WHERE title LIKE '%' || :query || '%' COLLATE NOCASE")
 	suspend fun searchSongsList(query: String): List<SongEntity>
+
+	@Query("SELECT COUNT(*) FROM SongEntity WHERE title LIKE '%' || :query || '%' COLLATE NOCASE")
+	suspend fun searchSongCount(query: String): Int
+
+	@Query("""
+		SELECT * FROM SongEntity
+		WHERE belongsToAlbumId = :albumId
+		ORDER BY discNumber, trackNumber, title COLLATE NOCASE
+		LIMIT :limit OFFSET :offset
+	""")
+	suspend fun getAlbumSongs(albumId: String, limit: Int, offset: Int): List<SongEntity>
+
+	@Query("""
+		SELECT songId, title, artistName, albumTitle, belongsToAlbumId AS albumId, coverArtId, duration, filePath, artists, albumArtists FROM SongEntity
+		WHERE belongsToAlbumId = :albumId
+		ORDER BY discNumber, trackNumber, title COLLATE NOCASE
+		LIMIT :limit OFFSET :offset
+	""")
+	suspend fun getAlbumPlayableSongs(albumId: String, limit: Int, offset: Int): List<PlayableSongRow>
 
 	@Transaction
 	suspend fun updateSongsByAlbumId(albumId: String, remoteSongs: List<SongEntity>) {

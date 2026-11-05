@@ -52,13 +52,16 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
 import paige.navic.domain.manager.session.LoginManager
+import paige.navic.domain.manager.session.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
-import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.manager.session.canShare
+import paige.navic.domain.manager.session.getUser
+import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.ui.component.common.Monogram
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.filled.Settings
 import paige.navic.ui.icons.outlined.Bedtime
 import paige.navic.ui.icons.outlined.Edit
 import paige.navic.ui.icons.outlined.Forum
@@ -76,8 +79,6 @@ fun AccountSheet(
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
 	val sessionManager = koinInject<SessionManager>()
-	val sessionState =
-		sessionManager.sessionState.collectAsStateWithLifecycle()
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
 	val sleepTimerManager = koinInject<SleepTimerManager>()
@@ -194,9 +195,13 @@ fun AccountSheet(
 
 			Spacer(Modifier.height(9.dp))
 
-			val isSharingAllowed =
-				(sessionState as? SessionState.Authenticated)?.currentUser?.canShare() == true
-			val count = if (isSharingAllowed) 4 else 3
+			val isSharingAllowed = sessionManager.getUser()?.canShare() == true
+			val supportsChat = sessionManager.supportsExtension(ServerExtension.CHAT)
+
+			var count = 3
+
+			if (isSharingAllowed) count++
+			if (supportsChat) count++
 
 			if (isSharingAllowed) {
 				SegmentedListItem(
@@ -213,22 +218,24 @@ fun AccountSheet(
 				)
 			}
 
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 3,
-					count = count
-				),
-				onClick = {
-					animateToDismiss()
-					backStack.add(Screen.Chat)
-				},
-				leadingContent = { Icon(Icons.Outlined.Forum, null) },
-				content = { Text(stringResource(R.string.title_chat)) }
-			)
+			if (supportsChat) {
+				SegmentedListItem(
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = count - 4,
+						count = count
+					),
+					onClick = {
+						animateToDismiss()
+						backStack.add(Screen.Chat)
+					},
+					leadingContent = { Icon(Icons.Outlined.Forum, null) },
+					content = { Text(stringResource(R.string.title_chat)) }
+				)
+			}
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 2,
+					index = count - 3,
 					count = count
 				),
 				onClick = { sleepTimerSheetOpen = true },
@@ -274,6 +281,19 @@ fun AccountSheet(
 
 			SegmentedListItem(
 				shapes = SegmentedListItemDefaults.segmentedShapes(
+					index = count - 2,
+					count = count
+				),
+				onClick = {
+					animateToDismiss()
+					backStack.add(Screen.Settings.Root)
+				},
+				leadingContent = { Icon(Icons.Filled.Settings, null) },
+				content = { Text(stringResource(R.string.title_settings)) }
+			)
+
+			SegmentedListItem(
+				shapes = SegmentedListItemDefaults.segmentedShapes(
 					index = count - 1,
 					count = count
 				),
@@ -283,7 +303,14 @@ fun AccountSheet(
 					backStack.clear()
 					backStack.add(Screen.Login)
 				},
-				leadingContent = { Icon(Icons.Outlined.Logout, null) },
+				colors = SegmentedListItemDefaults.segmentedErrorColors(),
+				leadingContent = {
+					Icon(
+						imageVector = Icons.Outlined.Logout,
+						contentDescription = null,
+						tint = MaterialTheme.colorScheme.error
+					)
+				},
 				content = { Text(stringResource(R.string.action_log_out)) }
 			)
 		}

@@ -28,8 +28,8 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 import paige.navic.R
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongArtist
+import paige.navic.domain.model.SongInfo
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Explicit
 import paige.navic.ui.theme.warning
@@ -97,7 +97,7 @@ fun AnnotatedString.Builder.appendArtists(
 
 @Composable
 fun buildSongInfoString(
-	song: DomainSong,
+	song: SongInfo,
 	onClickArtist: ((artistId: String) -> Unit)? = null,
 	showExternal: Boolean = true,
 	showAlbum: Boolean = true,
