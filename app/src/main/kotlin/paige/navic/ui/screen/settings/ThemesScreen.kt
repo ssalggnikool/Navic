@@ -105,8 +105,7 @@ fun SettingsThemesScreen() {
 						selectedChoice = preferenceManager.themeMode,
 						onChoiceSelected = { preferenceManager.themeMode = it },
 						content = { Text(stringResource(R.string.title_theme_mode)) },
-						label = { stringResource(it.title) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+						label = { stringResource(it.title) }
 					)
 				}
 

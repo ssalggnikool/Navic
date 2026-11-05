@@ -84,8 +84,7 @@ fun SettingsDownloadQualityScreen() {
 						onCheckedChange = {
 							preferenceManager.isAdvancedDownloadTranscodingActive = it
 						},
-						content = { Text(stringResource(R.string.option_download_custom_quality)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+						content = { Text(stringResource(R.string.option_download_custom_quality)) }
 					)
 				}
 

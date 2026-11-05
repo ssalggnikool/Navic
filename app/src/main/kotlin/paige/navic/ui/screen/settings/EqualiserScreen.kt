@@ -37,7 +37,6 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.playback.EqualizerManager
 import paige.navic.domain.model.settings.EqualizerMode
-import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.VerticalSlider
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
@@ -98,8 +97,7 @@ fun SettingsEqualizerScreen() {
 							}
 						},
 						content = { Text(stringResource(R.string.option_equalizer_mode)) },
-						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+						label = { stringResource(it.displayName) }
 					)
 				}
 
