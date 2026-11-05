@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SegmentedListItem(
-	shapes: ListItemShapes,
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1),
 	modifier: Modifier = Modifier,
 	enabled: Boolean = true,
 	leadingContent: @Composable (() -> Unit)? = null,
@@ -59,7 +59,7 @@ fun SegmentedListItem(
 @Composable
 fun SegmentedListItem(
 	onClick: () -> Unit,
-	shapes: ListItemShapes,
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1),
 	modifier: Modifier = Modifier,
 	enabled: Boolean = true,
 	leadingContent: @Composable (() -> Unit)? = null,
@@ -99,7 +99,7 @@ fun SegmentedListItem(
 fun SegmentedListItem(
 	selected: Boolean,
 	onClick: () -> Unit,
-	shapes: ListItemShapes,
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1),
 	modifier: Modifier = Modifier,
 	enabled: Boolean = true,
 	leadingContent: @Composable (() -> Unit)? = null,
@@ -231,6 +231,9 @@ object SegmentedListItemDefaults {
 		contentColor = MaterialTheme.colorScheme.error,
 		supportingContentColor = MaterialTheme.colorScheme.error
 	)
+
+	@Composable
+	fun segmentedShapes() = segmentedShapes(index = 0, count = 1)
 
 	@Composable
 	fun segmentedShapes(

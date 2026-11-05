@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import paige.navic.R
 import paige.navic.ui.component.common.SegmentedListItem
+import paige.navic.ui.component.common.SegmentedListItemDefaults
 
 @Composable
 fun <Choice> SettingsChoiceItem(
@@ -41,7 +42,7 @@ fun <Choice> SettingsChoiceItem(
 	description: String? = null,
 	choiceEnabled: (Choice) -> Boolean = { true },
 	closeOnChoiceSelected: Boolean = false,
-	shapes: ListItemShapes,
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes(),
 	content: @Composable () -> Unit
 ) {
 	var choiceDialogOpen by rememberSaveable { mutableStateOf(false) }
