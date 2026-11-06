@@ -49,8 +49,6 @@ jobs:
       - name: Setup Android SDK
         uses: https://github.com/android-actions/setup-android@v4
 
-      - run: ulimit -n 65536
-
       # - name: Setup Gradle
       #   uses: gradle/actions/setup-gradle@v6
 
@@ -63,6 +61,7 @@ jobs:
           SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           SIGNING_STORE_FILE: ${{ github.workspace }}/release.keystore
         run: |
+          ulimit -n 65536
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
           ./gradlew :app:packageDefaultRelease --stacktrace --no-daemon
           mv app/build/outputs/apk/**/**/*.apk ./
@@ -74,6 +73,7 @@ jobs:
         id: build_debug
         if: github.event_name == 'pull_request'
         run: |
+          ulimit -n 65536
           ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon
           mv app/build/outputs/apk/**/**/*.apk ./
           ./gradlew :app:assembleFdroidDebug --stacktrace --no-daemon
