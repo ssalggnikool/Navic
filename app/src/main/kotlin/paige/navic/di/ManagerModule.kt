@@ -18,7 +18,7 @@ import paige.navic.domain.download.DownloadProcessor
 import paige.navic.domain.manager.playback.AudioGainManager
 import paige.navic.domain.manager.playback.EqualizerManager
 import paige.navic.domain.manager.playback.SleepTimerManager
-import paige.navic.domain.manager.playback.StreamCacheManager
+import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
 import paige.navic.domain.manager.runtime.NotificationManager
 import paige.navic.domain.manager.runtime.PermissionManager
 import paige.navic.domain.manager.runtime.PreferenceManager
