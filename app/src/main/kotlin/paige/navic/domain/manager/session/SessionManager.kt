@@ -39,7 +39,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
 enum class ServerExtension {
-	TRANSCODING,
+	TRANSCODE_DECISION,
 	CHAT
 }
 
@@ -196,7 +196,7 @@ class SessionManager(
 					extensions.forEach { extension ->
 						if (extension.name == "transcoding") {
 							if (extension.versions.contains(1)) {
-								add(ServerExtension.TRANSCODING)
+								add(ServerExtension.TRANSCODE_DECISION)
 							}
 						}
 					}

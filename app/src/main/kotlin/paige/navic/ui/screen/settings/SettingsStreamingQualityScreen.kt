@@ -58,7 +58,7 @@ fun SettingsStreamingQualityScreen() {
 	val reachability = koinInject<ReachabilityFlow>()
 	val isReachable by reachability.isReachable.collectAsStateWithLifecycle()
 	val isMetered by reachability.isMetered.collectAsStateWithLifecycle()
-	val supportsTranscoding = sessionManager.supportsExtension(ServerExtension.TRANSCODING)
+	val supportsTranscoding = sessionManager.supportsExtension(ServerExtension.TRANSCODE_DECISION)
 
 	Scaffold(
 		topBar = { NestedTopBar({ Text(stringResource(R.string.title_streaming_quality)) }) }

@@ -88,8 +88,6 @@ class PreferenceManager(
 	var streamingQualityCellular by preference(StreamingQuality.Lossless)
 	var isAdvancedTranscodingActive by preference(false)
 	var customMaxBitrate by preference(0)
-	var customMaxBitrateCellular by preference(0)
-	var customFormatWifi by preference("")
 	var customFormat by preference("")
 
 	var downloadStorage by preference(DownloadStorage.Internal)

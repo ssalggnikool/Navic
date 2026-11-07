@@ -205,7 +205,7 @@ class NavicDataSource(
 
 		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0)
 
-		if (!sessionManager.supportsExtension(ServerExtension.TRANSCODING)) {
+		if (!sessionManager.supportsExtension(ServerExtension.TRANSCODE_DECISION)) {
 			val streamUrl = defaultStreamUrl.toStreamUri().toString()
 			ttlLruCache.put(cacheKey, streamUrl)
 			return streamUrl.toUri()
