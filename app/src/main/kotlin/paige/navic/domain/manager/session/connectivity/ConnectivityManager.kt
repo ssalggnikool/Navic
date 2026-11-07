@@ -88,6 +88,6 @@ class ConnectivityManager(
 		.stateIn(
 			scope,
 			started = SharingStarted.Eagerly,
-			initialValue = connectivityManager.getNetworkCapabilities(null)?.isMetered()
+			initialValue = connectivityManager.getNetworkCapabilities(null)?.isMetered() == true
 		)
 }
