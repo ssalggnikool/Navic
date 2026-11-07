@@ -12,20 +12,12 @@ body:
       required: true
 
   - type: textarea
-    id: bug-expected
-    attributes:
-      label: Expected behaviour
-      description: A clear and concise description of what you expected to happen
-    validations:
-      required: true
-
-  - type: textarea
     id: reproducing
     attributes:
       label: Reproducing
       description: Steps to reproduce the behavior
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: screenshots
@@ -65,9 +57,9 @@ body:
     id: server-version
     attributes:
       label: Server Version
-      description: The music server you use, and its version
+      description: The music server you use, and its version, if applicable
     validations:
-      required: true
+      required: false
 
   - type: checkboxes
     id: confirmation
