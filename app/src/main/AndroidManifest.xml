@@ -186,7 +186,7 @@
 				android:resource="@xml/file_paths" />
 		</provider>
 		<provider
-			android:name=".media.CoverArtProvider"
+			android:name=".domain.media.CoverArtProvider"
 			android:authorities="${applicationId}.cover-art"
 			android:exported="true"
 			android:grantUriPermissions="true" />

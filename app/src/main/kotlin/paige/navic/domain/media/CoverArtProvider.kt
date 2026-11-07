@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.media
+package paige.navic.domain.media
 
 import android.content.ContentProvider
 import android.content.ContentValues

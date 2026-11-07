@@ -37,10 +37,10 @@ import paige.navic.database.entity.SyncActionType
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.ui.core.SyncUiState
 import paige.navic.util.Logger
-import paige.navic.work.LibrarySyncWorker
-import paige.navic.work.SyncActionWorker
-import paige.navic.work.WorkKeys
-import paige.navic.work.WorkNames
+import paige.navic.domain.work.LibrarySyncWorker
+import paige.navic.domain.work.SyncActionWorker
+import paige.navic.domain.work.WorkKeys
+import paige.navic.domain.work.WorkNames
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
 import kotlin.time.Instant

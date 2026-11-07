@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.work
+package paige.navic.domain.work
 
 object WorkNames {
 	const val DOWNLOAD_QUEUE = "download_queue"
