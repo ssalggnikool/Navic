@@ -483,7 +483,6 @@
     <string name="subtitle_confirm_download_deletion">Choisissez à quel moment demander une confirmation avant de supprimer les fichiers téléchargés</string>
     <string name="subtitle_swipe_to_dismiss">L\'option « Masquer en cas d\'inactivité » doit être activée</string>
     <string name="option_swipe_to_dismiss">Balayer pour fermer</string>
-    <string name="option_streaming_cache">Cache de diffusion</string>
     <string name="option_download_location">Emplacement de téléchargement</string>
     <string name="option_download_storage_internal">Stockage interne</string>
     <string name="option_download_storage_external">Carte SD</string>
@@ -528,7 +527,6 @@
     <string name="title_commit_author">Auteur du commit</string>
     <string name="option_float_output">Précision de sortie en virgule flottante</string>
     <string name="subtitle_float_output">Fonctionnalité expérimentale. Nécessite le redémarrage de l\'application. Le changement de vitesse de lecture ne fonctionnera plus si cette option est activée</string>
-    <string name="title_storage_management">Gestion du stockage</string>
     <string name="media_session_channel_name">Lecture multimédia</string>
     <string name="info_incorrect_credentials">Identifiants incorrects. Veuillez vérifier vos identifiants et réessayer.</string>
     <string name="title_integrations">Intégrations</string>
