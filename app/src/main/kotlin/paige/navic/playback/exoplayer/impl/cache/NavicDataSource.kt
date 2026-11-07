@@ -192,7 +192,6 @@ class NavicDataSource(
 
 	private fun String.toStreamUri(): Uri {
 		return toUri().buildUpon()
-			.appendQueryParameter("estimateContentLength", "true")
 			.build()
 	}
 
