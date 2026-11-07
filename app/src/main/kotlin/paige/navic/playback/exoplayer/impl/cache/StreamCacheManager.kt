@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.domain.manager.playback
+package paige.navic.playback.exoplayer.impl.cache
 
 import android.content.Context
 import androidx.annotation.OptIn

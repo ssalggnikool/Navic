@@ -39,7 +39,7 @@ import paige.navic.database.dao.AlbumDao
 import paige.navic.database.entity.PlayableSongRow
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.playback.AudioGainManager
-import paige.navic.domain.manager.playback.StreamCacheManager
+import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.SessionManager
