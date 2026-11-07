@@ -8,10 +8,10 @@ package paige.navic.di
 
 import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.dsl.module
-import paige.navic.work.DownloadMigrationWorker
-import paige.navic.work.DownloadWorker
-import paige.navic.work.LibrarySyncWorker
-import paige.navic.work.SyncActionWorker
+import paige.navic.domain.work.DownloadMigrationWorker
+import paige.navic.domain.work.DownloadWorker
+import paige.navic.domain.work.LibrarySyncWorker
+import paige.navic.domain.work.SyncActionWorker
 
 val workerModule = module {
 	workerOf(::DownloadWorker)

@@ -38,10 +38,10 @@ import paige.navic.domain.manager.runtime.NotificationManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.util.Logger
-import paige.navic.work.DownloadMigrationWorker
-import paige.navic.work.DownloadWorker
-import paige.navic.work.WorkKeys
-import paige.navic.work.WorkNames
+import paige.navic.domain.work.DownloadMigrationWorker
+import paige.navic.domain.work.DownloadWorker
+import paige.navic.domain.work.WorkKeys
+import paige.navic.domain.work.WorkNames
 import java.io.File
 import java.util.concurrent.TimeUnit
 
