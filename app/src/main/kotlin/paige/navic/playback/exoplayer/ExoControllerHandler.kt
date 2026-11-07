@@ -52,7 +52,7 @@ import paige.navic.domain.model.settings.ReplayGainMode
 import paige.navic.domain.repository.SongRepository
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
-import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.HIGH_QUALITY_COVER_ART_SIZE
+import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.HQ_ARTWORK_SIZE
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildCoverUri
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.Companion.buildSongUri
 import paige.navic.playback.exoplayer.impl.library.MediaSessionCallback.Companion.COMMAND_SHUFFLE_STATE
@@ -735,7 +735,7 @@ private fun buildMediaItem(
 			setAlbumArtist(albumArtistName)
 			setAlbumTitle(albumTitle)
 			setDurationMs(duration.inWholeMilliseconds)
-			setArtworkUri(artworkUri ?: coverArtId?.buildCoverUri(HIGH_QUALITY_COVER_ART_SIZE))
+			setArtworkUri(artworkUri ?: coverArtId?.buildCoverUri(HQ_ARTWORK_SIZE))
 			setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
 			setIsBrowsable(false)
 			setIsPlayable(true)
