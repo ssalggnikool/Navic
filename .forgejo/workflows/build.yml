@@ -63,9 +63,9 @@ jobs:
         run: |
           ulimit -n 65536
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
-          ./gradlew :app:packageDefaultRelease --stacktrace --no-daemon
+          ./gradlew :app:packageDefaultRelease --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
-          ./gradlew :app:packageFdroidRelease --stacktrace --no-daemon
+          ./gradlew :app:packageFdroidRelease --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
           rm release.keystore
 
@@ -74,9 +74,9 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           ulimit -n 65536
-          ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon
+          ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
-          ./gradlew :app:assembleFdroidDebug --stacktrace --no-daemon
+          ./gradlew :app:assembleFdroidDebug --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
 
       - name: Upload APK artifact
