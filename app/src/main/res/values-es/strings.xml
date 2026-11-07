@@ -440,7 +440,6 @@
     <string name="title_commit_author">Autor del commit</string>
     <string name="option_float_output">Precisión de la salida de punto flotante</string>
     <string name="subtitle_float_output">Experimental. Requiere reiniciar la aplicación. La velocidad del playback no funcionará si se activa esta opción</string>
-    <string name="title_storage_management">Gestión del almacenamiento</string>
     <string name="media_session_channel_name">Reproducción multimedia</string>
     <string name="info_incorrect_credentials">Credenciales incorrectas. Por favor revíselas e inténtelo de nuevo.</string>
     <string name="title_integrations">Integraciones</string>
@@ -468,7 +467,6 @@
     <string name="option_preamp_without_rg">Sin etiquetas de ReplayGain</string>
     <string name="option_preamp_tip">Elegir un valor alto en cualquiera de las opciones de preamplificación puede producir distorsiones de audio.</string>
     <string name="option_dynamic_replaygain_tip">Poner ReplayGain en Dinámico usará la ganancia del álbum si hay uno en reproducción. Si no, usará la ganancia de la pista en su lugar.</string>
-    <string name="option_streaming_cache">Caché de streaming</string>
     <string name="option_download_location">Ubicación de descargas</string>
     <string name="option_download_storage_internal">Almacenamiento interno</string>
     <string name="option_download_storage_external">Tarjeta SD</string>

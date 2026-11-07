@@ -462,7 +462,6 @@
     <string name="subtitle_confirm_download_deletion">Pilih kapan konfirmasi diperlukan sebelum menghapus unduhan</string>
     <string name="subtitle_swipe_to_dismiss">\"Sembunyikan saat tidak aktif\" harus diaktifkan</string>
     <string name="option_swipe_to_dismiss">Geser untuk menutup</string>
-    <string name="option_streaming_cache">Cache streaming</string>
     <string name="option_download_location">Lokasi unduhan</string>
     <string name="option_download_storage_internal">Penyimpanan internal</string>
     <string name="option_download_storage_external">Kartu SD</string>
