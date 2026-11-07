@@ -85,6 +85,9 @@ class ConnectivityManager(
 	val isMetered = status
 		.map { (it as? NetworkStatus.NetworkCapsChanged)?.caps?.isMetered() ?: false }
 		.distinctUntilChanged()
-		.stateIn(scope, SharingStarted.Eagerly, false)
-
+		.stateIn(
+			scope,
+			started = SharingStarted.Eagerly,
+			initialValue = connectivityManager.getNetworkCapabilities(null)?.isMetered()
+		)
 }
