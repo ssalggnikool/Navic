@@ -80,7 +80,7 @@ fun CoverArt(
 			if (shadowElevation > 0.dp) Modifier.shadow(shadowElevation, shape)
 			else Modifier
 		)
-		.fakeShadow(fakeShadowElevation, rotationZ)
+		.fakeShadow(fakeShadowElevation, rotationZ, shape = shape)
 		.graphicsLayer {
 			this.rotationZ = rotationZ
 			clip = true
