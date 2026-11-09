@@ -7,6 +7,7 @@
 package paige.navic.domain.server.subsonic
 
 import dev.zt64.subsonic.api.model.MediaType
+import dev.zt64.subsonic.api.model.PlaybackState
 import dev.zt64.subsonic.api.model.SubsonicErrorCode
 import dev.zt64.subsonic.api.model.SubsonicException
 import dev.zt64.subsonic.api.model.SubsonicResponse
@@ -20,6 +21,7 @@ import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistInfo
 import paige.navic.domain.model.DomainChatMessage
 import paige.navic.domain.model.DomainGenre
+import paige.navic.domain.model.DomainPlaybackState
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainRadio
 import paige.navic.domain.model.DomainSearchResult
@@ -222,6 +224,29 @@ internal class SubsonicMusicServer(
 				id = id,
 				time = time ?: Clock.System.now(),
 				submission = submission
+			)
+		}
+	}
+
+	override suspend fun reportPlayback(
+		id: String,
+		positionMs: Long,
+		state: DomainPlaybackState,
+		playbackRate: Float
+	) {
+		val apiState = when (state) {
+			DomainPlaybackState.STARTING -> PlaybackState.STARTING
+			DomainPlaybackState.PLAYING -> PlaybackState.PLAYING
+			DomainPlaybackState.PAUSED -> PlaybackState.PAUSED
+			DomainPlaybackState.STOPPED -> PlaybackState.STOPPED
+		}
+		call {
+			client.reportPlayback(
+				mediaId = id,
+				mediaType = MediaType.SONG,
+				positionMs = positionMs,
+				state = apiState,
+				playbackRate = playbackRate
 			)
 		}
 	}
