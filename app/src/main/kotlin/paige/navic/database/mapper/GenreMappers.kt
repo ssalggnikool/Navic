@@ -9,18 +9,15 @@ package paige.navic.database.mapper
 import paige.navic.database.entity.GenreEntity
 import paige.navic.database.relation.GenreWithCovers
 import paige.navic.domain.model.DomainGenre
-import dev.zt64.subsonic.api.model.Genre as ApiGenre
 
-fun ApiGenre.toEntity() = GenreEntity(
-    genreName = name,
-    albumCount = albumCount,
-    songCount = songCount
+fun GenreEntity.toDomainModel(coverArtIds: List<String> = emptyList()) = DomainGenre(
+	name = genreName,
+	albumCount = albumCount,
+	songCount = songCount,
+	coverArtIds = coverArtIds
 )
 
-fun GenreWithCovers.toDomainModel() = DomainGenre(
-	name = genre.genreName,
-	albumCount = genre.albumCount,
-	songCount = genre.songCount,
+fun GenreWithCovers.toDomainModel() = genre.toDomainModel(
 	coverArtIds = listOfNotNull(firstCoverArtId, secondCoverArtId)
 )
 

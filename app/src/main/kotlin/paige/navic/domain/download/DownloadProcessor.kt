@@ -6,8 +6,6 @@
 
 package paige.navic.domain.download
 
-import dev.zt64.subsonic.api.model.SubsonicException
-import dev.zt64.subsonic.api.model.SubsonicResponse
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.ServerResponseException
@@ -15,13 +13,11 @@ import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.prepareRequest
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.serialization.json.Json
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.DownloadDao
 import paige.navic.database.dao.LyricDao
@@ -70,23 +66,9 @@ class DownloadProcessor(
 					}
 
 					val contentType = response.headers["content-type"]
-
-					if (contentType == ContentType.Application.Json.contentType) {
-						try {
-							val subsonicResponse =
-								Json.decodeFromString<SubsonicResponse<Any>>(response.bodyAsText())
-
-							if (subsonicResponse is SubsonicResponse.Error) {
-								throw SubsonicException(
-									subsonicResponse.error.message,
-									subsonicResponse.error.code
-								)
-							}
-						} catch (e: Exception) {
-							if (e is SubsonicException) throw e
-							// probably not our business, let something else handle the exception
-						}
-					}
+					sessionManager.api
+						.parseResponseError(contentType, response.bodyAsText())
+						?.let { throw it }
 				}
 			}
 		}
@@ -107,7 +89,7 @@ class DownloadProcessor(
 	private suspend fun resolveSong(songId: String): DomainSong {
 		songDao.getSongById(songId)?.let { return it.toDomainModel() }
 
-		val remote = sessionManager.api.getSong(songId).toEntity().toDomainModel()
+		val remote = sessionManager.api.getSong(songId)
 		songDao.insertSong(remote.toEntity())
 		return remote
 	}

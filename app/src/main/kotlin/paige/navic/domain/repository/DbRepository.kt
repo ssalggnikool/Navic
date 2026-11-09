@@ -7,7 +7,6 @@
 package paige.navic.domain.repository
 
 import androidx.room3.concurrent.AtomicInt
-import dev.zt64.subsonic.api.model.SubsonicException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -36,11 +35,12 @@ import paige.navic.database.entity.SongEntity
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.model.DomainAlbum
+import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
+import paige.navic.domain.server.ServerException
 import paige.navic.util.Logger
 import kotlin.coroutines.cancellation.CancellationException
-import dev.zt64.subsonic.api.model.Album as ApiAlbum
-import dev.zt64.subsonic.api.model.AlbumListType as ApiAlbumListType
 
 class DbRepository(
 	private val albumDao: AlbumDao,
@@ -96,7 +96,7 @@ class DbRepository(
 			progressCallback(0.02f, R.string.info_syncing_radios)
 			try {
 				syncRadios().getOrThrow()
-			} catch (ex: SubsonicException) {
+			} catch (ex: ServerException) {
 				Logger.e(
 					tag = "DbRepository",
 					msg = "could not sync radio stations, maybe this server doesn't support it",
@@ -152,13 +152,13 @@ class DbRepository(
 	): Result<Pair<Set<String>, Set<String>>> = runDbOp {
 		val pageSize = 500
 		var offset = 0
-		val allAlbumSummaries = mutableListOf<ApiAlbum>()
+		val allAlbumSummaries = mutableListOf<DomainAlbum>()
 
 		onProgress(0.0f, R.string.info_syncing_albums)
 		while (true) {
 			val batch =
-				sessionManager.api.getAlbumsID3(
-					ApiAlbumListType.AlphabeticalByName,
+				sessionManager.api.getAlbums(
+					DomainAlbumListType.AlphabeticalByName,
 					pageSize,
 					offset
 				)
@@ -179,7 +179,7 @@ class DbRepository(
 
 		onProgress(0.1f, R.string.info_syncing_albums)
 
-		val albumChannel = Channel<ApiAlbum>(capacity = 100)
+		val albumChannel = Channel<DomainAlbum>(capacity = 100)
 
 		coroutineScope {
 			launch(Dispatchers.IO) {
@@ -359,8 +359,8 @@ class DbRepository(
 		//	)
 		//	artists.clear()
 
-		val batch = sessionManager.api.getArtists().index
-			.flatMap { index -> index.artists.map { artist -> artist.toEntity() } }
+		val batch = sessionManager.api.getArtists()
+			.map { it.toEntity() }
 		artists.addAll(batch)
 		//}
 
@@ -373,7 +373,7 @@ class DbRepository(
 	}
 
 	suspend fun syncRadios(): Result<Unit> = runDbOp {
-		val remoteRadios = sessionManager.api.getInternetRadioStations()
+		val remoteRadios = sessionManager.radio?.getRadioStations().orEmpty()
 		val entities = remoteRadios.map { it.toEntity() }
 
 		entities.chunked(dbChunkSize).forEach { chunk ->

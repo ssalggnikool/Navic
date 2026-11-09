@@ -34,6 +34,8 @@ import paige.navic.domain.manager.ui.LinkManager
 import paige.navic.domain.manager.ui.LogManager
 import paige.navic.domain.manager.ui.ShareManager
 import paige.navic.domain.manager.ui.SnackBarManager
+import paige.navic.domain.server.MusicServerFactory
+import paige.navic.domain.server.subsonic.SubsonicMusicServerFactory
 import paige.navic.domain.sync.SyncActionProcessor
 import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.playback.exoplayer.ExoStateHolder
@@ -64,6 +66,7 @@ val managerModule = module {
 	singleOf(::SnackBarManager)
 	singleOf(::StorageManager)
 	singleOf(::StreamCacheManager)
+	single<MusicServerFactory> { SubsonicMusicServerFactory(get(), get()) }
 	singleOf(::SyncActionProcessor)
 	singleOf(::SyncCoordinator)
 	single(createdAtStart = true) {

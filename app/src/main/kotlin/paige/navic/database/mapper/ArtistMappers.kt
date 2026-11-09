@@ -8,23 +8,6 @@ package paige.navic.database.mapper
 
 import paige.navic.database.entity.ArtistEntity
 import paige.navic.domain.model.DomainArtist
-import dev.zt64.subsonic.api.model.Artist as ApiArtist
-
-fun ApiArtist.toEntity() = ArtistEntity(
-    artistId = this.id,
-    name = this.name,
-    albumCount = this.albumCount,
-    coverArtId = this.coverArtId,
-    artistImageUrl = this.artistImageUrl,
-    starredAt = this.starredAt,
-    userRating = this.userRating,
-    sortName = this.sortName,
-    musicBrainzId = this.musicBrainzId,
-    lastFmUrl = null,
-    roles = this.roles,
-    biography = null,
-    similarArtistIds = emptyList()
-)
 
 fun ArtistEntity.toDomainModel() = DomainArtist(
 	id = this.artistId,

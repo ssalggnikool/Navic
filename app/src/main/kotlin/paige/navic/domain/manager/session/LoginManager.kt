@@ -8,8 +8,6 @@ package paige.navic.domain.manager.session
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
-import dev.zt64.subsonic.api.model.SubsonicErrorCode
-import dev.zt64.subsonic.api.model.SubsonicException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,6 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import paige.navic.domain.repository.DbRepository
+import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
@@ -112,12 +111,8 @@ class LoginManager(
 			try {
 				_events.tryEmit(LoginEvent.Loading)
 				sessionManager.login(normalizedUrl, username, password)
-			} catch (e: SubsonicException) {
-				if (e.code == SubsonicErrorCode.WRONG_USERNAME_OR_PASSWORD) {
-					_events.tryEmit(LoginEvent.InvalidCredentials)
-					return@launch
-				}
-				_events.tryEmit(LoginEvent.Error(e))
+			} catch (e: InvalidCredentialsException) {
+				_events.tryEmit(LoginEvent.InvalidCredentials)
 				return@launch
 			} catch (e: Exception) {
 				_events.tryEmit(LoginEvent.Error(e))

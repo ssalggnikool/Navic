@@ -111,18 +111,18 @@ class LyricsRepository(
 					}
 
 					LyricsProvider.Id.SUBSONIC -> {
-						val subsonicLyrics = sessionManager.api.getLyrics(song.id).firstOrNull()
+						val subsonicLyrics = sessionManager.api.getLyrics(song.id)
 
 						val lines = subsonicLyrics?.lines?.flatMap { line ->
-							if (!subsonicLyrics.synced && line.value.contains("\n")) {
-								line.value.lineSequence()
+							if (!subsonicLyrics.synced && line.text.contains("\n")) {
+								line.text.lineSequence()
 									.filter { it.isNotBlank() }
 									.map { LyricsLine(time = null, text = it.trim()) }
 									.toList()
 							} else {
 								val time =
-									if (subsonicLyrics.synced) line.start?.milliseconds else null
-								listOf(LyricsLine(time = time, text = line.value))
+									if (subsonicLyrics.synced) line.startMillis?.milliseconds else null
+								listOf(LyricsLine(time = time, text = line.text))
 							}
 						}
 

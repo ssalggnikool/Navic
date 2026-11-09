@@ -16,7 +16,6 @@ import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.FileDataSource
 import androidx.media3.datasource.cache.CacheDataSource
-import dev.zt64.subsonic.api.model.MediaType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -24,11 +23,8 @@ import kotlinx.coroutines.withContext
 import paige.navic.BuildConfig
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
-import paige.navic.domain.manager.session.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
-import paige.navic.domain.manager.session.supportsExtension
-import paige.navic.playback.PlaybackUtils
 import paige.navic.util.Logger
 import java.io.File
 
@@ -189,11 +185,6 @@ class NavicDataSource(
 
 
 
-	private fun String.toStreamUri(): Uri {
-		return toUri().buildUpon()
-			.build()
-	}
-
 	private suspend fun resolveStreamUrl(id: String): Uri {
 		val (bitrateKbps, format) = getCurrentQuality(preferenceManager, connectivityManager)
 		val cacheKey = "$id|$bitrateKbps|${format.orEmpty()}"
@@ -203,43 +194,15 @@ class NavicDataSource(
 			return cachedStreamUrl.toUri()
 		}
 
-		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0)
-
-		if (!sessionManager.supportsExtension(ServerExtension.TRANSCODE_DECISION)) {
-			val streamUrl = defaultStreamUrl.toStreamUri().toString()
-			ttlLruCache.put(cacheKey, streamUrl)
-			return streamUrl.toUri()
-		}
-
-		return try {
-			val transcodeDecision = withContext(Dispatchers.IO) {
-				sessionManager.api.getTranscodeDecision(
-					id,
-					MediaType.SONG,
-					PlaybackUtils.buildClientInfo(bitrateKbps, format)
-				)
-			}
-			val isTranscode = !transcodeDecision.canDirectPlay &&
-				transcodeDecision.canTranscode &&
-				transcodeDecision.transcodeParams != null
-			val streamUrl = if (isTranscode) {
-				sessionManager.api.getTranscodeStreamUrl(
-					id, MediaType.SONG, 0,
-					transcodeDecision.transcodeParams!!
-				).toStreamUri().toString()
-			} else {
-				defaultStreamUrl.toStreamUri().toString()
-			}
-
-			ttlLruCache.put(cacheKey, streamUrl)
-
-			streamUrl.toUri()
+		val streamUrl = try {
+			sessionManager.api.getPlaybackStreamUrl(id, bitrateKbps, format)
 		} catch (e: Exception) {
 			if (e is CancellationException) throw e
-			Logger.w(TAG, "transcode decision failed for $id, using direct stream", e)
-			val streamUrl = defaultStreamUrl.toStreamUri().toString()
-			ttlLruCache.put(cacheKey, streamUrl)
-			streamUrl.toUri()
+			Logger.w(TAG, "stream url resolution failed for $id, using direct stream", e)
+			sessionManager.api.getStreamUrl(id)
 		}
+
+		ttlLruCache.put(cacheKey, streamUrl)
+		return streamUrl.toUri()
 	}
 }

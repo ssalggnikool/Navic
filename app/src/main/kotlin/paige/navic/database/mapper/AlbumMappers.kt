@@ -9,18 +9,44 @@ package paige.navic.database.mapper
 import paige.navic.database.entity.AlbumEntity
 import paige.navic.database.relation.AlbumWithSongs
 import paige.navic.domain.model.DomainAlbum
-import paige.navic.domain.model.DomainAlbumInfo
-import dev.zt64.subsonic.api.model.Album as ApiAlbum
-import dev.zt64.subsonic.api.model.AlbumInfo as ApiAlbumInfo
+import paige.navic.domain.model.DomainSong
 
-fun ApiAlbum.toEntity(
+fun AlbumEntity.toDomainModel(songs: List<DomainSong> = emptyList()) = DomainAlbum(
+	id = this.albumId,
+	name = this.name,
+	artistId = this.artistId,
+	artistName = this.artistName,
+	displayArtist = this.displayArtist,
+	coverArtId = this.coverArtId,
+	songCount = this.songCount,
+	duration = this.duration,
+	year = this.year,
+	genre = this.genre,
+	starredAt = this.starredAt,
+	userRating = this.userRating,
+	musicBrainzId = this.musicBrainzId,
+	createdAt = this.createdAt,
+	lastPlayedAt = this.lastPlayedAt,
+	playCount = this.playCount,
+	genres = this.genres,
+	version = this.version,
+	songs = songs,
+	isExternal = this.isExternal
+)
+
+fun AlbumWithSongs.toDomainModel() = album.toDomainModel(
+	songs = songs
+		.map { it.toDomainModel() }
+		.sortedBy { it.trackNumber }
+)
+
+fun DomainAlbum.toEntity(
 	artistIdOverride: String? = null,
 	artistNameOverride: String? = null
 ) = AlbumEntity(
 	albumId = this.id,
 	name = this.name,
-	// TODO: figure out why this can be null and how to handle it
-	artistId = artistIdOverride ?: this.artistId ?: "unknown artist",
+	artistId = artistIdOverride ?: this.artistId,
 	artistName = artistNameOverride ?: this.artistName,
 	coverArtId = this.coverArtId,
 	songCount = this.songCount,
@@ -37,60 +63,4 @@ fun ApiAlbum.toEntity(
 	version = this.version,
 	isExternal = this.isExternal,
 	displayArtist = this.displayArtist
-)
-
-fun AlbumWithSongs.toDomainModel() = DomainAlbum(
-	id = album.albumId,
-	name = album.name,
-	artistId = album.artistId,
-	artistName = album.artistName,
-	displayArtist = album.displayArtist,
-	coverArtId = album.coverArtId,
-	songCount = album.songCount,
-	duration = album.duration,
-	year = album.year,
-	genre = album.genre,
-	starredAt = album.starredAt,
-	userRating = album.userRating,
-	musicBrainzId = album.musicBrainzId,
-	createdAt = album.createdAt,
-	lastPlayedAt = album.lastPlayedAt,
-	playCount = album.playCount,
-	genres = album.genres,
-	version = album.version,
-	songs = songs
-		.map { it.toDomainModel() }
-		.sortedBy { it.trackNumber },
-	isExternal = album.isExternal
-)
-
-fun DomainAlbum.toEntity() = AlbumEntity(
-	albumId = this.id,
-	name = this.name,
-	artistId = this.artistId,
-	artistName = this.artistName,
-	coverArtId = this.coverArtId,
-	songCount = this.songCount,
-	duration = this.duration,
-	year = this.year,
-	genre = this.genre,
-	starredAt = this.starredAt,
-	userRating = this.userRating,
-	musicBrainzId = this.musicBrainzId,
-	createdAt = this.createdAt,
-	lastPlayedAt = this.lastPlayedAt,
-	playCount = this.playCount,
-	genres = this.genres,
-	version = this.version,
-	isExternal = this.isExternal,
-	displayArtist = this.displayArtist
-)
-
-fun ApiAlbumInfo.toDomainModel() = DomainAlbumInfo(
-	musicBrainzId = musicBrainzId,
-	largeImageUrl = largeImageUrl,
-	mediumImageUrl = mediumImageUrl,
-	smallImageUrl = smallImageUrl,
-	lastFmUrl = lastFmUrl,
-	notes = notes
 )

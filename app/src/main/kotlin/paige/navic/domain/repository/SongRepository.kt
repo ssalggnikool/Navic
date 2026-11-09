@@ -31,8 +31,7 @@ class SongRepository(
 
 	suspend fun getSimilarSongs(songId: String, count: Int = 50): Result<List<DomainSong>> =
 		runCatching {
-			sessionManager.api.getSimilarSongsID3(songId, count)
-				.map { it.toEntity().toDomainModel() }
+			sessionManager.api.getSimilarSongs(songId, count)
 		}
 
 	suspend fun getSongsByIds(ids: List<String>) = ids.chunked(500)

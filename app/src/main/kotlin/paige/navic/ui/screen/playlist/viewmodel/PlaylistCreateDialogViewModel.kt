@@ -38,7 +38,7 @@ class PlaylistCreateDialogViewModel(
 				songIds = songIds
 			)
 			playlistDao.insertPlaylist(playlist.toEntity())
-			snackBarManager.notify(R.string.notice_created_playlist, playlist.name)
+			snackBarManager.notify(R.string.notice_created_playlist, playlist.name.orEmpty())
 			setSuccess(null)
 			_events.send(
 				Event.Dismiss(

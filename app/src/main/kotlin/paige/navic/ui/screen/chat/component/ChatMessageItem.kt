@@ -20,7 +20,7 @@ import coil3.compose.AsyncImage
 import coil3.network.NetworkHeaders
 import coil3.network.httpHeaders
 import coil3.request.ImageRequest
-import dev.zt64.subsonic.api.model.ChatMessage
+import paige.navic.domain.model.DomainChatMessage
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
@@ -28,7 +28,7 @@ import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable
 fun ChatMessageItem(
-	message: ChatMessage
+	message: DomainChatMessage
 ) {
 	val coilPlatformContext = LocalCoilPlatformContext.current
 
@@ -41,7 +41,7 @@ fun ChatMessageItem(
 			preferenceManager.customHeadersMap().forEach { (key, value) -> add(key, value) }
 		}.build()
 		ImageRequest.Builder(coilPlatformContext)
-			.data(sessionManager.api.getAvatarUrl(username = message.username, auth = true))
+			.data(sessionManager.api.getAvatarUrl(message.username))
 			.httpHeaders(networkHeaders)
 			.build()
 	}
