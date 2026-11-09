@@ -7,6 +7,10 @@
 package paige.navic.domain.manager.session
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +26,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import paige.navic.domain.repository.DbRepository
+import paige.navic.domain.server.AuthMethod
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.ui.core.LoginEvent
@@ -43,22 +48,28 @@ class LoginManager(
 	val usernameState = TextFieldState()
 	val passwordState = TextFieldState()
 
+	var authMethod by mutableStateOf(AuthMethod.Token)
+
+	fun selectAuthMethod(method: AuthMethod) {
+		if (authMethod != method) {
+			passwordState.clearText()
+		}
+		authMethod = method
+	}
+
 	private val validationShown = MutableStateFlow(false)
 
 	val formState: StateFlow<LoginFormState> = combine(
-		snapshotFlow {
-			Triple(
-				instanceState.text.isBlank(),
-				usernameState.text.isBlank(),
-				passwordState.text.isBlank()
-			)
-		},
+		snapshotFlow { instanceState.text.isBlank() },
+		snapshotFlow { usernameState.text.isBlank() },
+		snapshotFlow { passwordState.text.isBlank() },
+		snapshotFlow { authMethod },
 		validationShown
-	) { (instanceBlank, usernameBlank, passwordBlank), shown ->
+	) { instanceBlank, usernameBlank, secretBlank, method, shown ->
 		LoginFormState(
 			instanceError = shown && instanceBlank,
-			usernameError = shown && usernameBlank,
-			passwordError = shown && passwordBlank
+			usernameError = shown && method == AuthMethod.Token && usernameBlank,
+			passwordError = shown && secretBlank
 		)
 	}.stateIn(
 		scope = mainScope,
@@ -85,14 +96,17 @@ class LoginManager(
 	fun login() {
 		validationShown.value = true
 
+		val method = authMethod
 		val url = instanceState.text.toString().trim().removeSuffix("/")
 		val username = usernameState.text.toString()
-		val password = passwordState.text.toString()
+		val secret = passwordState.text.toString().let {
+			if (method == AuthMethod.ApiKey) it.trim() else it
+		}
 
 		val invalidField = when {
 			url.isBlank() -> LoginField.Instance
-			username.isBlank() -> LoginField.Username
-			password.isBlank() -> LoginField.Password
+			method == AuthMethod.Token && username.isBlank() -> LoginField.Username
+			secret.isBlank() -> LoginField.Password
 			else -> null
 		}
 
@@ -110,7 +124,11 @@ class LoginManager(
 
 			try {
 				_events.tryEmit(LoginEvent.Loading)
-				sessionManager.login(normalizedUrl, username, password)
+				if (method == AuthMethod.ApiKey) {
+					sessionManager.login(normalizedUrl, secret)
+				} else {
+					sessionManager.login(normalizedUrl, username, secret)
+				}
 			} catch (e: InvalidCredentialsException) {
 				_events.tryEmit(LoginEvent.InvalidCredentials)
 				return@launch

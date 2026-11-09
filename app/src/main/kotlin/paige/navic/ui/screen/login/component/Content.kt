@@ -216,6 +216,8 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 					instanceState = instanceState,
 					instanceError = formState.instanceError,
 					instanceFocusRequester = instanceFocusRequester,
+					authMethod = viewModel.authMethod,
+					onAuthMethodChange = viewModel::selectAuthMethod,
 					usernameState = usernameState,
 					usernameError = formState.usernameError,
 					usernameFocusRequester = usernameFocusRequester,

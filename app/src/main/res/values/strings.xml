@@ -143,6 +143,7 @@
 	<string name="option_account_instance">Instance URL</string>
 	<string name="option_account_username">Username</string>
 	<string name="option_account_password">Password</string>
+	<string name="option_account_api_key">API key</string>
 	<string name="option_lyrics_autoscroll">Auto-scrolling view</string>
 	<string name="option_lyrics_beat_by_beat">Beat-by-beat sync mode</string>
 	<string name="option_lyrics_fake_beat_by_beat">Fake beat-by-beat effect</string>
