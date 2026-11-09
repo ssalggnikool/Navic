@@ -17,11 +17,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainUser
+import paige.navic.domain.server.AuthMethod
 import paige.navic.domain.server.ChatServer
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
 import paige.navic.domain.server.RadioServer
+import paige.navic.domain.server.ServerCredentials
 import paige.navic.domain.server.ServerExtension
 import paige.navic.domain.server.ServerInfo
 import paige.navic.domain.server.ShareServer
@@ -56,7 +58,10 @@ class SessionManager(
 	}
 
 	private val hasStoredCredentials: Boolean
-		get() = username.isNotBlank() && password.isNotBlank() && instanceUrl.isNotBlank()
+		get() = instanceUrl.isNotBlank() && when (authMethod) {
+			AuthMethod.Token -> username.isNotBlank() && password.isNotBlank()
+			AuthMethod.ApiKey -> apiKey.isNotBlank()
+		}
 
 	private val _state = MutableStateFlow(
 		if (hasStoredCredentials) SessionState.Restoring else SessionState.Unauthenticated
@@ -83,10 +88,28 @@ class SessionManager(
 			settings["instanceUrl"] = value
 		}
 
+	var authMethod: AuthMethod
+		get() = runCatching {
+			AuthMethod.valueOf(settings.getString("authMethod", AuthMethod.Token.name))
+		}.getOrDefault(AuthMethod.Token)
+		private set(value) {
+			settings["authMethod"] = value.name
+		}
+
+	var apiKey: String
+		get() = settings.getEncryptedString("apiKey", "")
+		private set(value) {
+			settings.insertEncryptedString("apiKey", value)
+		}
+
+	private fun storedCredentials(): ServerCredentials = when (authMethod) {
+		AuthMethod.Token -> ServerCredentials.Token(username = username, password = password)
+		AuthMethod.ApiKey -> ServerCredentials.ApiKey(apiKey = apiKey)
+	}
+
 	var api: MusicServer = serverFactory.create(
 		baseUrl = instanceUrl,
-		username = username,
-		password = password
+		credentials = storedCredentials()
 	)
 		private set
 
@@ -103,7 +126,7 @@ class SessionManager(
 		if (hasStoredCredentials) {
 			scope.launch {
 				try {
-					login(instanceUrl, username, password)
+					login(instanceUrl, storedCredentials())
 				} catch (e: InvalidCredentialsException) {
 					Logger.e(TAG, "Credentials invalid, logging out", e)
 					logout()
@@ -123,11 +146,24 @@ class SessionManager(
 		instanceUrl: String,
 		username: String,
 		password: String
-	) {
+	) = login(
+		instanceUrl = instanceUrl,
+		credentials = ServerCredentials.Token(username = username, password = password)
+	)
+
+	@Throws(InvalidCredentialsException::class)
+	suspend fun login(
+		instanceUrl: String,
+		apiKey: String
+	) = login(
+		instanceUrl = instanceUrl,
+		credentials = ServerCredentials.ApiKey(apiKey = apiKey)
+	)
+
+	private suspend fun login(instanceUrl: String, credentials: ServerCredentials) {
 		val server = serverFactory.create(
 			baseUrl = instanceUrl,
-			username = username,
-			password = password
+			credentials = credentials
 		)
 
 		val serverInfo = server.serverInfo()
@@ -136,8 +172,21 @@ class SessionManager(
 		val user = server.currentUser()
 
 		this.instanceUrl = instanceUrl
-		this.username = username
-		this.password = password
+		when (credentials) {
+			is ServerCredentials.Token -> {
+				authMethod = AuthMethod.Token
+				username = credentials.username
+				password = credentials.password
+				settings.remove("apiKey")
+			}
+
+			is ServerCredentials.ApiKey -> {
+				authMethod = AuthMethod.ApiKey
+				username = user.username
+				settings.remove("password")
+				apiKey = credentials.apiKey
+			}
+		}
 
 		api = server
 		_state.value = SessionState.Authenticated(
@@ -149,6 +198,7 @@ class SessionManager(
 	fun logout() {
 		settings["username"] = null
 		settings.remove("password")
+		settings.remove("apiKey")
 		ttlLruCache.clear()
 		_state.value = SessionState.Unauthenticated
 	}
@@ -156,8 +206,7 @@ class SessionManager(
 	fun refreshClient() {
 		api = serverFactory.create(
 			baseUrl = instanceUrl,
-			username = username,
-			password = password
+			credentials = storedCredentials()
 		)
 	}
 

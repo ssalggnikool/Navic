@@ -14,6 +14,7 @@ import io.ktor.client.request.header
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
+import paige.navic.domain.server.ServerCredentials
 import paige.navic.util.network.NavicDnsResolver
 import paige.navic.util.network.buildKtorEngine
 import paige.navic.util.network.createOkHttpClient
@@ -23,10 +24,19 @@ class SubsonicMusicServerFactory(
 	private val preferenceManager: PreferenceManager,
 	private val dnsResolver: NavicDnsResolver
 ) : MusicServerFactory {
-	override fun create(baseUrl: String, username: String, password: String): MusicServer {
+	override fun create(baseUrl: String, credentials: ServerCredentials): MusicServer {
+		val auth = when (credentials) {
+			is ServerCredentials.Token -> SubsonicAuth.Token(
+				username = credentials.username,
+				password = credentials.password
+			)
+
+			is ServerCredentials.ApiKey -> SubsonicAuth.Key(apiKey = credentials.apiKey)
+		}
+
 		val client = SubsonicClient.Companion(
 			baseUrl = baseUrl,
-			auth = SubsonicAuth.Token(username = username, password = password),
+			auth = auth,
 			client = USER_AGENT,
 			clientConfig = {
 				install(UserAgent) {
@@ -49,7 +59,10 @@ class SubsonicMusicServerFactory(
 			)
 		)
 
-		return SubsonicMusicServer(client, username)
+		return SubsonicMusicServer(
+			client = client,
+			username = (credentials as? ServerCredentials.Token)?.username
+		)
 	}
 
 	private companion object {

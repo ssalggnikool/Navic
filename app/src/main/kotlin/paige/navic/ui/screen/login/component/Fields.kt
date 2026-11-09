@@ -15,6 +15,9 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,6 +31,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import paige.navic.R
+import paige.navic.domain.server.AuthMethod
 
 @Composable
 fun LoginScreenFields(
@@ -35,6 +39,8 @@ fun LoginScreenFields(
 	instanceState: TextFieldState,
 	instanceError: Boolean,
 	instanceFocusRequester: FocusRequester,
+	authMethod: AuthMethod,
+	onAuthMethodChange: (AuthMethod) -> Unit,
 	usernameState: TextFieldState,
 	usernameError: Boolean,
 	usernameFocusRequester: FocusRequester,
@@ -61,35 +67,62 @@ fun LoginScreenFields(
 			showKeyboardOnFocus = true
 		),
 		onKeyboardAction = KeyboardActionHandler {
-			usernameFocusRequester.requestFocus()
+			if (authMethod == AuthMethod.Token) {
+				usernameFocusRequester.requestFocus()
+			} else {
+				passwordFocusRequester.requestFocus()
+			}
 		}
 	)
 
 	LoginScreenSuggestionChips(instanceState = instanceState)
 
-	OutlinedTextField(
+	SingleChoiceSegmentedButtonRow(
 		modifier = Modifier
-			.heightIn(min = 60.dp)
-			.padding(horizontal = 16.dp)
 			.fillMaxWidth()
-			.focusRequester(usernameFocusRequester)
-			.semantics {
-				contentType = ContentType.Username
-			},
-		state = usernameState,
-		isError = usernameError,
-		label = { Text(stringResource(R.string.option_account_username)) },
-		lineLimits = TextFieldLineLimits.SingleLine,
-		enabled = !isBusy,
-		keyboardOptions = KeyboardOptions(
-			autoCorrectEnabled = false,
-			imeAction = ImeAction.Next,
-			showKeyboardOnFocus = true
-		),
-		onKeyboardAction = KeyboardActionHandler {
-			passwordFocusRequester.requestFocus()
-		}
-	)
+			.padding(horizontal = 16.dp)
+	) {
+		SegmentedButton(
+			shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+			onClick = { onAuthMethodChange(AuthMethod.Token) },
+			selected = authMethod == AuthMethod.Token,
+			enabled = !isBusy,
+			label = { Text(stringResource(R.string.option_account_password)) }
+		)
+		SegmentedButton(
+			shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+			onClick = { onAuthMethodChange(AuthMethod.ApiKey) },
+			selected = authMethod == AuthMethod.ApiKey,
+			enabled = !isBusy,
+			label = { Text(stringResource(R.string.option_account_api_key)) }
+		)
+	}
+
+	if (authMethod == AuthMethod.Token) {
+		OutlinedTextField(
+			modifier = Modifier
+				.heightIn(min = 60.dp)
+				.padding(horizontal = 16.dp)
+				.fillMaxWidth()
+				.focusRequester(usernameFocusRequester)
+				.semantics {
+					contentType = ContentType.Username
+				},
+			state = usernameState,
+			isError = usernameError,
+			label = { Text(stringResource(R.string.option_account_username)) },
+			lineLimits = TextFieldLineLimits.SingleLine,
+			enabled = !isBusy,
+			keyboardOptions = KeyboardOptions(
+				autoCorrectEnabled = false,
+				imeAction = ImeAction.Next,
+				showKeyboardOnFocus = true
+			),
+			onKeyboardAction = KeyboardActionHandler {
+				passwordFocusRequester.requestFocus()
+			}
+		)
+	}
 
 	OutlinedSecureTextField(
 		modifier = Modifier
@@ -102,7 +135,17 @@ fun LoginScreenFields(
 			},
 		state = passwordState,
 		isError = passwordError,
-		label = { Text(stringResource(R.string.option_account_password)) },
+		label = {
+			Text(
+				stringResource(
+					if (authMethod == AuthMethod.ApiKey) {
+						R.string.option_account_api_key
+					} else {
+						R.string.option_account_password
+					}
+				)
+			)
+		},
 		enabled = !isBusy,
 		keyboardOptions = KeyboardOptions(
 			autoCorrectEnabled = false,

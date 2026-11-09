@@ -7,5 +7,5 @@
 package paige.navic.domain.server
 
 fun interface MusicServerFactory {
-	fun create(baseUrl: String, username: String, password: String): MusicServer
+	fun create(baseUrl: String, credentials: ServerCredentials): MusicServer
 }

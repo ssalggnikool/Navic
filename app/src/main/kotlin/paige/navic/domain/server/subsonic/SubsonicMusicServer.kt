@@ -41,7 +41,7 @@ import kotlin.time.Instant
 
 internal class SubsonicMusicServer(
 	private val client: SubsonicClient,
-	private val username: String
+	private val username: String?
 ) : MusicServer, ChatServer, ShareServer, RadioServer {
 	private companion object {
 		val SEMVER_REGEX = Regex("""^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)""")
@@ -128,8 +128,16 @@ internal class SubsonicMusicServer(
 		)
 	}
 
-	override suspend fun currentUser(): DomainUser =
-		call { client.getUser(username) }.toDomainModel()
+	override suspend fun currentUser(): DomainUser {
+		val tokenUsername = username ?: call { client.tokenInfo() }.username
+		val user = if (username != null) {
+			call { client.getUser(tokenUsername) }
+		} else {
+			runCatching { call { client.getUser(tokenUsername) } }.getOrNull()
+		}
+
+		return user?.toDomainModel() ?: DomainUser(username = tokenUsername)
+	}
 
 	override suspend fun getAlbums(
 		type: DomainAlbumListType,
@@ -386,7 +394,9 @@ internal class SubsonicMusicServer(
 		code.toServerException(message ?: code.description)
 
 	private fun SubsonicErrorCode.toServerException(message: String): ServerException =
-		if (this == SubsonicErrorCode.WRONG_USERNAME_OR_PASSWORD) {
+		if (this == SubsonicErrorCode.WRONG_USERNAME_OR_PASSWORD ||
+			this == SubsonicErrorCode.INVALID_API_KEY
+		) {
 			InvalidCredentialsException(message)
 		} else {
 			ServerException(message)
