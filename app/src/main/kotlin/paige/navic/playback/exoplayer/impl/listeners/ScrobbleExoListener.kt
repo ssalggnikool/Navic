@@ -54,7 +54,6 @@ class ScrobbleExoListener(
 
 		scope.launch(Dispatchers.IO) {
 			try {
-				println("$songId $positionMs $state $playbackRate")
 				sessionManager.api.reportPlayback(
 					id = songId,
 					positionMs = positionMs,
