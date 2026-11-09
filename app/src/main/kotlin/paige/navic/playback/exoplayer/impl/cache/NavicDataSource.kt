@@ -183,8 +183,6 @@ class NavicDataSource(
 		}
 	}
 
-
-
 	private suspend fun resolveStreamUrl(id: String): Uri {
 		val (bitrateKbps, format) = getCurrentQuality(preferenceManager, connectivityManager)
 		val cacheKey = "$id|$bitrateKbps|${format.orEmpty()}"

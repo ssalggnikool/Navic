@@ -43,7 +43,47 @@ internal class SubsonicMusicServer(
 	private val client: SubsonicClient,
 	private val username: String
 ) : MusicServer, ChatServer, ShareServer, RadioServer {
+	private companion object {
+		val SEMVER_REGEX = Regex("""^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)""")
+		const val ID3_SUPPORT = "v1.8.0"
+	}
+
 	private var extensions: Set<ServerExtension>? = null
+
+	private data class SemanticVersioning(
+		val major: Int = 0,
+		val minor: Int = 0,
+		val patch: Int = 0
+	) : Comparable<SemanticVersioning> {
+		override fun compareTo(other: SemanticVersioning): Int {
+			if (this.major != other.major) return this.major.compareTo(other.major)
+			if (this.minor != other.minor) return this.minor.compareTo(other.minor)
+			return this.patch.compareTo(other.patch)
+		}
+	}
+
+	private fun parseSubsonicVersion(version: String): SemanticVersioning? {
+		val cleaned = version.trim().removePrefix("v")
+		val matchResult = SEMVER_REGEX.find(cleaned) ?: return null
+
+		return SemanticVersioning(
+			major = matchResult.groupValues.getOrNull(1)?.toIntOrNull() ?: 0,
+			minor = matchResult.groupValues.getOrNull(2)?.toIntOrNull() ?: 0,
+			patch = matchResult.groupValues.getOrNull(3)?.toIntOrNull() ?: 0
+		)
+	}
+
+	private suspend fun isEqualOrAboveSubsonicVersion(target: String): Boolean {
+		val currentVersion = serverInfo().version?.let {
+			parseSubsonicVersion(it)
+		} ?: return false
+
+		val targetVersion = parseSubsonicVersion(target) ?: return false
+
+		return currentVersion >= targetVersion
+	}
+
+	private suspend fun supportsID3() = isEqualOrAboveSubsonicVersion(ID3_SUPPORT)
 
 	override suspend fun ping(): ServerStatus {
 		val response = call { client.ping() }
@@ -61,16 +101,20 @@ internal class SubsonicMusicServer(
 			client.getOpenSubsonicExtensions()
 		}.getOrDefault(emptyList())
 
-		val detected = buildSet {
-			supportedExtensions.forEach { extension ->
-				if (extension.name == "transcoding" && extension.versions.contains(1)) {
-					add(ServerExtension.TRANSCODE_DECISION)
+		val detected = if (response.openSubsonic) {
+			buildSet {
+				supportedExtensions.forEach { extension ->
+					if (extension.name == "transcoding" && extension.versions.contains(1)) {
+						add(ServerExtension.TRANSCODE_DECISION)
+					}
+				}
+
+				if (runCatching { client.getChatMessages() }.isSuccess) {
+					add(ServerExtension.CHAT)
 				}
 			}
-
-			if (runCatching { client.getChatMessages() }.isSuccess) {
-				add(ServerExtension.CHAT)
-			}
+		} else {
+			emptySet()
 		}
 
 		extensions = detected
@@ -92,7 +136,11 @@ internal class SubsonicMusicServer(
 		size: Int,
 		offset: Int
 	): List<DomainAlbum> = call {
-		client.getAlbumsID3(type.toApi(), size, offset)
+		if (supportsID3()) {
+			client.getAlbumsID3(type.toApi(), size, offset)
+		} else {
+			client.getAlbums(type.toApi(), size, offset)
+		}
 	}.map { it.toDomainModel() }
 
 	override suspend fun getAlbum(id: String): DomainAlbum =
@@ -110,8 +158,13 @@ internal class SubsonicMusicServer(
 	override suspend fun getArtistInfo(id: String): DomainArtistInfo =
 		call { client.getArtistInfo(id) }.toDomainModel()
 
-	override suspend fun getAlbumInfo(id: String): DomainAlbumInfo =
-		call { client.getAlbumInfoID3(id) }.toDomainModel()
+	override suspend fun getAlbumInfo(id: String): DomainAlbumInfo = call {
+		if (supportsID3()) {
+			client.getAlbumInfoID3(id)
+		} else {
+			client.getAlbumInfo(id)
+		}
+	}.toDomainModel()
 
 	override suspend fun getGenres(): List<DomainGenre> =
 		call { client.getGenres() }.map { it.toDomainModel() }
@@ -123,10 +176,22 @@ internal class SubsonicMusicServer(
 		call { client.getPlaylist(id) }.toDomainModel(includeSongs = true)
 
 	override suspend fun getSimilarSongs(id: String, count: Int): List<DomainSong> =
-		call { client.getSimilarSongsID3(id, count) }.map { it.toDomainModel() }
+		call {
+			if (supportsID3()) {
+				client.getSimilarSongsID3(id, count)
+			} else {
+				client.getSimilarSongs(id, count)
+			}
+		}.map { it.toDomainModel() }
 
 	override suspend fun search(query: String): DomainSearchResult =
-		call { client.searchID3(query) }.toDomainModel()
+		call {
+			if (supportsID3()) {
+				client.searchID3(query)
+			} else {
+				client.search(query)
+			}
+		}.toDomainModel()
 
 	override suspend fun getLyrics(songId: String): ServerLyrics? =
 		call { client.getLyrics(songId) }.firstOrNull()?.toDomainModel()
@@ -197,37 +262,35 @@ internal class SubsonicMusicServer(
 		bitrateKbps: Int,
 		format: String?
 	): String {
-		val directUrl = getStreamUrl(id)
+		val directUrl = getStreamUrl(
+			id,
+			maxBitRate = bitrateKbps,
+			format
+		)
 		val supportedExtensions = extensions ?: serverInfo().extensions
 		if (ServerExtension.TRANSCODE_DECISION !in supportedExtensions) return directUrl
 
-		return try {
-			val decision = call {
-				client.getTranscodeDecision(
+		val decision = call {
+			client.getTranscodeDecision(
+				id,
+				MediaType.SONG,
+				SubsonicClientInfo.buildClientInfo(bitrateKbps, format)
+			)
+		}
+		val shouldTranscode = !decision.canDirectPlay &&
+			decision.canTranscode &&
+			decision.transcodeParams != null
+		if (shouldTranscode) {
+			call {
+				client.getTranscodeStreamUrl(
 					id,
 					MediaType.SONG,
-					SubsonicClientInfo.buildClientInfo(bitrateKbps, format)
+					0,
+					decision.transcodeParams!!
 				)
 			}
-			val shouldTranscode = !decision.canDirectPlay &&
-				decision.canTranscode &&
-				decision.transcodeParams != null
-
-			if (shouldTranscode) {
-				call {
-					client.getTranscodeStreamUrl(
-						id,
-						MediaType.SONG,
-						0,
-						decision.transcodeParams!!
-					)
-				}
-			} else {
-				directUrl
-			}
-		} catch (e: ServerException) {
-			directUrl
 		}
+		return directUrl
 	}
 
 	override fun getCoverArtUrl(id: String, size: String?): String =
@@ -236,7 +299,7 @@ internal class SubsonicMusicServer(
 	override suspend fun getCoverArt(id: String, size: String?): ByteArray =
 		call { client.getCoverArt(id, size = size) }
 
-	override fun getAvatarUrl(username: String): String? =
+	override fun getAvatarUrl(username: String): String =
 		client.getAvatarUrl(username, auth = true)
 
 	override fun parseResponseError(contentType: String?, body: String): ServerException? {
@@ -249,7 +312,7 @@ internal class SubsonicMusicServer(
 			} else {
 				null
 			}
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			null
 		}
 	}
