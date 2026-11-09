@@ -13,6 +13,7 @@ import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistInfo
 import paige.navic.domain.model.DomainChatMessage
 import paige.navic.domain.model.DomainGenre
+import paige.navic.domain.model.DomainPlaybackState
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainRadio
 import paige.navic.domain.model.DomainSearchResult
@@ -67,6 +68,13 @@ interface MusicServer {
 		id: String,
 		submission: Boolean = true,
 		time: Instant? = null
+	)
+
+	suspend fun reportPlayback(
+		id: String,
+		positionMs: Long,
+		state: DomainPlaybackState,
+		playbackRate: Float = 1f
 	)
 
 	suspend fun createPlaylist(name: String, songIds: List<String>): DomainPlaylist
