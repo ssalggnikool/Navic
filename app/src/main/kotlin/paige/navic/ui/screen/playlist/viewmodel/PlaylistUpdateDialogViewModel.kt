@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import paige.navic.R
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.ui.SnackBarManager
+import paige.navic.domain.model.DomainPlaylist
 import paige.navic.ui.core.UiState
 import paige.navic.ui.viewmodel.AsyncViewModel
-import dev.zt64.subsonic.api.model.Playlist as ApiPlaylist
 
 data class PlaylistUpdateViewState(
-	val playlists: List<ApiPlaylist> = listOf(),
-	val selectedPlaylists: Set<ApiPlaylist> = setOf()
+	val playlists: List<DomainPlaylist> = listOf(),
+	val selectedPlaylists: Set<DomainPlaylist> = setOf()
 )
 
 class PlaylistUpdateDialogViewModel(
@@ -40,7 +40,7 @@ class PlaylistUpdateDialogViewModel(
 		)
 	}
 
-	fun togglePlaylistSelection(playlist: ApiPlaylist) = updateData {
+	fun togglePlaylistSelection(playlist: DomainPlaylist) = updateData {
 		it.copy(
 			playlists = it.playlists,
 			selectedPlaylists = if (playlist in it.selectedPlaylists) {
@@ -64,7 +64,7 @@ class PlaylistUpdateDialogViewModel(
 			if (selected.size == 1) {
 				snackBarManager.notify(
 					R.string.notice_added_to_playlist,
-					selected.first().name
+					selected.first().name.orEmpty()
 				)
 			} else if (selected.size > 1) {
 				snackBarManager.notify(R.string.notice_added_to_multiple_playlists)

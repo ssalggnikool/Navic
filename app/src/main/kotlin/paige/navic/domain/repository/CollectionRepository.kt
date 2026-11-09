@@ -19,10 +19,10 @@ import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.DomainAlbum
+import paige.navic.domain.model.DomainAlbumInfo
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
-import dev.zt64.subsonic.api.model.AlbumInfo as ApiAlbumInfo
 
 class CollectionRepository(
 	private val albumDao: AlbumDao,
@@ -76,8 +76,8 @@ class CollectionRepository(
 		.getSongById(songId)
 		?.toDomainModel()
 
-	suspend fun getAlbumInfo(albumId: String): ApiAlbumInfo {
-		return sessionManager.api.getAlbumInfoID3(albumId)
+	suspend fun getAlbumInfo(albumId: String): DomainAlbumInfo {
+		return sessionManager.api.getAlbumInfo(albumId)
 	}
 
 	suspend fun removeSongFromPlaylist(playlistId: String, position: Int) {

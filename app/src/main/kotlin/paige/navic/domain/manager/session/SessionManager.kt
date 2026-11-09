@@ -8,15 +8,6 @@ package paige.navic.domain.manager.session
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
-import dev.zt64.subsonic.api.model.Role
-import dev.zt64.subsonic.api.model.SubsonicErrorCode
-import dev.zt64.subsonic.api.model.SubsonicException
-import dev.zt64.subsonic.api.model.User
-import dev.zt64.subsonic.client.SubsonicAuth
-import dev.zt64.subsonic.client.SubsonicClient
-import io.ktor.client.plugins.UserAgent
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.header
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,38 +15,28 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.model.DomainUser
+import paige.navic.domain.server.ChatServer
+import paige.navic.domain.server.InvalidCredentialsException
+import paige.navic.domain.server.MusicServer
+import paige.navic.domain.server.MusicServerFactory
+import paige.navic.domain.server.RadioServer
+import paige.navic.domain.server.ServerExtension
+import paige.navic.domain.server.ServerInfo
+import paige.navic.domain.server.ShareServer
 import paige.navic.util.Logger
 import paige.navic.util.TTLLruCache
 import paige.navic.util.getEncryptedString
 import paige.navic.util.insertEncryptedString
-import paige.navic.util.network.NavicDnsResolver
-import paige.navic.util.network.buildKtorEngine
-import paige.navic.util.network.createOkHttpClient
-import paige.navic.util.network.getProxyUrlOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
-
-enum class ServerExtension {
-	TRANSCODE_DECISION,
-	CHAT
-}
-
-data class ServerInfo(
-	val extensions: Set<ServerExtension> = emptySet(),
-	val serverVersion: String?, // what is even the difference?
-	val version: String?,
-	val type: String?,
-	val isOpenSubsonic: Boolean = false
-)
 
 sealed interface SessionState {
 	data object Unauthenticated : SessionState
 	data object Restoring : SessionState
 	data class Authenticated(
-		val currentUser: User?,
+		val currentUser: DomainUser?,
 		val serverInfo: ServerInfo?
 	) : SessionState
 }
@@ -63,7 +44,7 @@ sealed interface SessionState {
 class SessionManager(
 	private val settings: Settings,
 	private val preferenceManager: PreferenceManager,
-	private val dnsResolver: NavicDnsResolver
+	private val serverFactory: MusicServerFactory
 ) {
 	val ttlLruCache = TTLLruCache<String, String>(
 		maxSize = 500,
@@ -72,7 +53,6 @@ class SessionManager(
 
 	private companion object {
 		const val TAG = "SessionManager"
-		const val USER_AGENT = "Navic"
 	}
 
 	private val hasStoredCredentials: Boolean
@@ -83,7 +63,6 @@ class SessionManager(
 	)
 	val sessionState: StateFlow<SessionState> = _state.asStateFlow()
 
-	private val mutex = Mutex()
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
 	var username: String
@@ -104,26 +83,30 @@ class SessionManager(
 			settings["instanceUrl"] = value
 		}
 
-	var api: SubsonicClient = createClient(
-		instanceUrl = instanceUrl,
+	var api: MusicServer = serverFactory.create(
+		baseUrl = instanceUrl,
 		username = username,
 		password = password
 	)
 		private set
+
+	val chat: ChatServer?
+		get() = api as? ChatServer
+
+	val shares: ShareServer?
+		get() = api as? ShareServer
+
+	val radio: RadioServer?
+		get() = api as? RadioServer
 
 	init {
 		if (hasStoredCredentials) {
 			scope.launch {
 				try {
 					login(instanceUrl, username, password)
-				} catch (e: SubsonicException) {
-					if (e.code == SubsonicErrorCode.WRONG_USERNAME_OR_PASSWORD) {
-						Logger.e(TAG, "Credentials invalid, logging out", e)
-						logout()
-					} else {
-						Logger.w(TAG, "SubsonicException during restoration: $e")
-						_state.value = SessionState.Authenticated(currentUser = null, serverInfo = null)
-					}
+				} catch (e: InvalidCredentialsException) {
+					Logger.e(TAG, "Credentials invalid, logging out", e)
+					logout()
 				} catch (e: Exception) {
 					Logger.w(TAG, "Failed to reach server during restoration, treating as offline authenticated", e)
 					_state.value = SessionState.Authenticated(
@@ -135,85 +118,31 @@ class SessionManager(
 		}
 	}
 
-	private fun createClient(
-		instanceUrl: String,
-		username: String,
-		password: String
-	) = SubsonicClient.Companion(
-		baseUrl = instanceUrl,
-		auth = SubsonicAuth.Token(
-			username = username,
-			password = password,
-		),
-		client = USER_AGENT,
-		clientConfig = {
-			install(UserAgent) {
-				agent = USER_AGENT
-			}
-
-			val customHeaders = preferenceManager.customHeadersMap()
-			if (customHeaders.isNotEmpty()) {
-				defaultRequest {
-					customHeaders.forEach { (key, value) -> header(key, value) }
-				}
-			}
-		},
-		engine = buildKtorEngine(
-			createOkHttpClient(
-				proxyUrl = preferenceManager.proxyUrl.getProxyUrlOrNull(),
-				trustAllCerts = preferenceManager.dangerousSslNoopEnabled,
-				dnsResolver
-			)
-		)
-	)
-
-	@Throws(SubsonicException::class)
+	@Throws(InvalidCredentialsException::class)
 	suspend fun login(
 		instanceUrl: String,
 		username: String,
 		password: String
 	) {
-		val client = createClient(instanceUrl, username, password)
+		val server = serverFactory.create(
+			baseUrl = instanceUrl,
+			username = username,
+			password = password
+		)
 
-		val pingResult = client.ping()
-		Logger.i(TAG, "Ping result: $pingResult")
+		val serverInfo = server.serverInfo()
+		Logger.i(TAG, "Ping result: $serverInfo")
 
-		val user = fetchCurrentUser(username, client)
-
-		val extensions = runCatching {
-			client.getOpenSubsonicExtensions()
-		}.getOrDefault(emptyList())
+		val user = server.currentUser()
 
 		this.instanceUrl = instanceUrl
 		this.username = username
 		this.password = password
 
-		api = client
+		api = server
 		_state.value = SessionState.Authenticated(
 			currentUser = user,
-			serverInfo = ServerInfo(
-				extensions = buildSet {
-					extensions.forEach { extension ->
-						if (extension.name == "transcoding") {
-							if (extension.versions.contains(1)) {
-								add(ServerExtension.TRANSCODE_DECISION)
-							}
-						}
-					}
-
-					val supportsChat = runCatching {
-						client.getChatMessages()
-					}.isSuccess
-
-					if (supportsChat) {
-						add(ServerExtension.CHAT)
-					}
-				},
-				serverVersion = pingResult.serverVersion,
-				version = pingResult.version,
-				type = pingResult.type,
-				isOpenSubsonic = pingResult.openSubsonic
-			)
+			serverInfo = serverInfo
 		)
 	}
 
@@ -225,10 +154,10 @@ class SessionManager(
 	}
 
 	fun refreshClient() {
-		api = createClient(
-			instanceUrl = instanceUrl,
+		api = serverFactory.create(
+			baseUrl = instanceUrl,
 			username = username,
-			password = password,
+			password = password
 		)
 	}
 
@@ -247,37 +176,23 @@ class SessionManager(
 
 	fun getCoverArtUrl(coverArtId: String) = api.getCoverArtUrl(
 		coverArtId,
-		auth = true,
 		size = "${preferenceManager.coverArtQuality.value}"
 	)
-
-	// TODO: use getTokenInfo instead to retrieve the username, will be required when implementing API key support
-	private suspend fun fetchCurrentUser(
-		username: String = this.username,
-		client: SubsonicClient = api
-	): User = mutex.withLock {
-		// TODO: custom exception instead of the generic "Exception"
-		if (username.isBlank()) {
-			throw Exception("Failed to get current user because the username is blank")
-		}
-
-		client.getUser(username)
-	}
 }
 
-fun User.hasRole(role: Role): Boolean {
+fun DomainUser.hasRole(role: String): Boolean {
 	return this.roles.contains(role)
 }
 
-fun User.canShare(): Boolean {
-	return this.hasRole(Role.SHARE)
+fun DomainUser.canShare(): Boolean {
+	return this.hasRole("share")
 }
 
 fun SessionManager.canUserShare(): Boolean {
 	return (sessionState.value as? SessionState.Authenticated)?.currentUser?.canShare() == true
 }
 
-fun SessionManager.getUser(): User? {
+fun SessionManager.getUser(): DomainUser? {
 	return (sessionState.value as? SessionState.Authenticated)?.currentUser
 }
 

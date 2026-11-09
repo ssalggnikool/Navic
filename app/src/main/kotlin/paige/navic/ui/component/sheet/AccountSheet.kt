@@ -54,7 +54,7 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
 import paige.navic.domain.manager.session.LoginManager
-import paige.navic.domain.manager.session.ServerExtension
+import paige.navic.domain.server.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.session.canShare

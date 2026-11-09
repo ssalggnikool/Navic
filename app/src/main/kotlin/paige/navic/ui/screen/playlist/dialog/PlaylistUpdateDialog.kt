@@ -48,7 +48,7 @@ import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistUpdateDialogViewModel
-import dev.zt64.subsonic.api.model.Playlist as ApiPlaylist
+import paige.navic.domain.model.DomainPlaylist
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -66,7 +66,7 @@ fun PlaylistUpdateDialog(
 
 	var createDialogShown by rememberSaveable { mutableStateOf(false) }
 
-	val list: @Composable (playlists: List<ApiPlaylist>) -> Unit = { playlists ->
+	val list: @Composable (playlists: List<DomainPlaylist>) -> Unit = { playlists ->
 		LazyColumn(
 			modifier = Modifier
 				.clip(MaterialTheme.shapes.largeIncreased)
@@ -83,7 +83,7 @@ fun PlaylistUpdateDialog(
 							},
 							role = Role.Checkbox
 						),
-					content = { Text(playlist.name) },
+					content = { Text(playlist.name.orEmpty()) },
 					leadingContent = {
 						Checkbox(
 							checked = isSelected,

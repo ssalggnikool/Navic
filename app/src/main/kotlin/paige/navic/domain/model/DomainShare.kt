@@ -8,7 +8,6 @@ package paige.navic.domain.model
 
 import androidx.compose.runtime.Immutable
 import kotlin.time.Instant
-import dev.zt64.subsonic.api.model.SubsonicResource as ApiSubsonicResource
 
 @Immutable
 data class DomainShare(
@@ -20,5 +19,5 @@ data class DomainShare(
 	val expiresAt: Instant?,
 	val lastVisited: Instant?,
 	val visitCount: Int,
-	val items: List<ApiSubsonicResource>
+	val items: List<DomainShareItem>
 )

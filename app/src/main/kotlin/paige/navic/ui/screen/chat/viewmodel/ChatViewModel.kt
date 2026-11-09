@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.zt64.subsonic.api.model.ChatMessage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
@@ -21,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.model.DomainChatMessage
 import paige.navic.ui.core.UiState
 import paige.navic.util.Logger
 import kotlin.time.Duration.Companion.seconds
@@ -28,8 +28,8 @@ import kotlin.time.Duration.Companion.seconds
 class ChatViewModel(
 	private val sessionManager: SessionManager
 ) : ViewModel() {
-	val state: StateFlow<UiState<ImmutableList<ChatMessage>>>
-		field = MutableStateFlow<UiState<ImmutableList<ChatMessage>>>(UiState.Loading<ImmutableList<ChatMessage>>())
+	val state: StateFlow<UiState<ImmutableList<DomainChatMessage>>>
+		field = MutableStateFlow<UiState<ImmutableList<DomainChatMessage>>>(UiState.Loading<ImmutableList<DomainChatMessage>>())
 
 	val isSendingMessage: StateFlow<Boolean>
 		field = MutableStateFlow(false)
@@ -54,7 +54,7 @@ class ChatViewModel(
 			state.value = UiState.Loading(state.value.data)
 			try {
 				state.value =
-					UiState.Success(sessionManager.api.getChatMessages().toPersistentList())
+					UiState.Success(sessionManager.chat?.getChatMessages().orEmpty().toPersistentList())
 			} catch (ex: Exception) {
 				state.value = UiState.Error(ex, state.value.data)
 				Logger.e("ChatViewModel", "could not refresh messages", ex)
@@ -66,7 +66,7 @@ class ChatViewModel(
 		viewModelScope.launch {
 			isSendingMessage.value = true
 			try {
-				sessionManager.api.addChatMessage(inputState.text.toString())
+				sessionManager.chat?.addChatMessage(inputState.text.toString())
 				refreshMessages()
 			} catch (ex: Exception) {
 				Logger.e("ChatViewModel", "could not send message", ex)

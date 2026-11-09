@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import paige.navic.R
-import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SessionState
@@ -93,7 +92,7 @@ class CollectionDetailViewModel(
 				collection = collection,
 				starred = albumRepository.isAlbumStarred(collection.id),
 				rating = albumRepository.getAlbumRating(collection.id),
-				albumInfo = repository.getAlbumInfo(collectionId).toDomainModel()
+				albumInfo = repository.getAlbumInfo(collectionId)
 			)
 		} else {
 			CollectionViewState(collection = collection)

@@ -29,7 +29,7 @@ class RadioCreateDialogViewModel(
 	fun create() {
 		launch {
 			setLoading()
-			sessionManager.api.createInternetRadioStation(
+			sessionManager.radio?.createRadioStation(
 				name = name.text.toString(),
 				streamUrl = streamUrl.text.toString(),
 				homepageUrl = homepageUrl.text.toString().trim().takeIf { it.isNotBlank() }

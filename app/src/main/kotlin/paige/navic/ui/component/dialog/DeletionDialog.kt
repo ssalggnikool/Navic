@@ -72,12 +72,12 @@ class DeletionViewModel(
 					}
 
 					is DeletionTarget.Share -> {
-						sessionManager.api.deleteShare(target.id)
+						sessionManager.shares?.deleteShare(target.id)
 						R.string.notice_deleted_share
 					}
 
 					is DeletionTarget.Radio -> {
-						sessionManager.api.deleteInternetRadioStation(target.id)
+						sessionManager.radio?.deleteRadioStation(target.id)
 						R.string.notice_deleted_radio
 					}
 				}
