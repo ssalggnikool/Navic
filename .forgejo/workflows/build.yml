@@ -61,9 +61,9 @@ jobs:
           SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           SIGNING_STORE_FILE: ${{ github.workspace }}/release.keystore
         run: |
-          hard=$(ulimit -Hn)
-          case "$hard" in unlimited) hard=1048576 ;; esac
-          ulimit -n "$hard" || true
+          for n in 1048576 262144 65536 16384 8192; do
+            ulimit -n "$n" 2>/dev/null && break
+          done
           echo "nofile: soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
           ./gradlew :app:packageDefaultRelease --stacktrace --no-daemon --no-watch-fs
@@ -76,9 +76,9 @@ jobs:
         id: build_debug
         if: github.event_name == 'pull_request'
         run: |
-          hard=$(ulimit -Hn)
-          case "$hard" in unlimited) hard=1048576 ;; esac
-          ulimit -n "$hard" || true
+          for n in 1048576 262144 65536 16384 8192; do
+            ulimit -n "$n" 2>/dev/null && break
+          done
           echo "nofile: soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
           ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
