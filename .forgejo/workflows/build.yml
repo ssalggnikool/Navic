@@ -61,11 +61,14 @@ jobs:
           SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           SIGNING_STORE_FILE: ${{ github.workspace }}/release.keystore
         run: |
-          ulimit -n 65536
+          hard=$(ulimit -Hn)
+          case "$hard" in unlimited) hard=1048576 ;; esac
+          ulimit -n "$hard" || true
+          echo "nofile: soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
-          ./gradlew :app:packageDefaultRelease --stacktrace --no-daemon --no-watch-fs --no-parallel
+          ./gradlew :app:packageDefaultRelease --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
-          ./gradlew :app:packageFdroidRelease --stacktrace --no-daemon --no-watch-fs --no-parallel
+          ./gradlew :app:packageFdroidRelease --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
           rm release.keystore
 
@@ -73,10 +76,13 @@ jobs:
         id: build_debug
         if: github.event_name == 'pull_request'
         run: |
-          ulimit -n 65536
-          ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon --no-watch-fs --no-parallel
+          hard=$(ulimit -Hn)
+          case "$hard" in unlimited) hard=1048576 ;; esac
+          ulimit -n "$hard" || true
+          echo "nofile: soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
+          ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
-          ./gradlew :app:assembleFdroidDebug --stacktrace --no-daemon --no-watch-fs --no-parallel
+          ./gradlew :app:assembleFdroidDebug --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
 
       - name: Upload APK artifact
