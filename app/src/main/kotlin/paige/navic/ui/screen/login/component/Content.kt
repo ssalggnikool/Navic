@@ -158,14 +158,14 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 			horizontalAlignment = Alignment.CenterHorizontally,
 			verticalArrangement = Arrangement.spacedBy(6.dp)
 		) {
+			Spacer(
+				Modifier.weight(0.2f)
+			)
 			Column(
 				modifier = Modifier
 					.weight(1f)
-					.widthIn(max = 600.dp)
 					.verticalScroll(rememberScrollState())
 			) {
-				Spacer(Modifier.weight(1f))
-
 				Text(
 					text = stringResource(R.string.action_log_in),
 					style = MaterialTheme.typography.headlineMedium,
@@ -244,8 +244,6 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 							}
 						})
 				)
-
-				Spacer(Modifier.weight(2.25f))
 			}
 
 			Column(

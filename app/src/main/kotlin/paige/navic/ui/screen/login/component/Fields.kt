@@ -6,6 +6,8 @@
 
 package paige.navic.ui.screen.login.component
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -49,112 +51,116 @@ fun LoginScreenFields(
 	passwordFocusRequester: FocusRequester,
 	onLogin: () -> Unit
 ) {
-	OutlinedTextField(
-		modifier = Modifier
-			.heightIn(min = 60.dp)
-			.padding(horizontal = 16.dp)
-			.fillMaxWidth()
-			.focusRequester(instanceFocusRequester),
-		state = instanceState,
-		isError = instanceError,
-		label = { Text(stringResource(R.string.option_account_instance)) },
-		lineLimits = TextFieldLineLimits.SingleLine,
-		enabled = !isBusy,
-		keyboardOptions = KeyboardOptions(
-			autoCorrectEnabled = false,
-			keyboardType = KeyboardType.Uri,
-			imeAction = ImeAction.Next,
-			showKeyboardOnFocus = true
-		),
-		onKeyboardAction = KeyboardActionHandler {
-			if (authMethod == AuthMethod.Token) {
-				usernameFocusRequester.requestFocus()
-			} else {
-				passwordFocusRequester.requestFocus()
-			}
-		}
-	)
-
-	LoginScreenSuggestionChips(instanceState = instanceState)
-
-	SingleChoiceSegmentedButtonRow(
-		modifier = Modifier
-			.fillMaxWidth()
-			.padding(horizontal = 16.dp)
+	Column(
+		verticalArrangement = Arrangement.spacedBy(8.dp)
 	) {
-		SegmentedButton(
-			shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-			onClick = { onAuthMethodChange(AuthMethod.Token) },
-			selected = authMethod == AuthMethod.Token,
-			enabled = !isBusy,
-			label = { Text(stringResource(R.string.option_account_password)) }
-		)
-		SegmentedButton(
-			shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-			onClick = { onAuthMethodChange(AuthMethod.ApiKey) },
-			selected = authMethod == AuthMethod.ApiKey,
-			enabled = !isBusy,
-			label = { Text(stringResource(R.string.option_account_api_key)) }
-		)
-	}
-
-	if (authMethod == AuthMethod.Token) {
 		OutlinedTextField(
 			modifier = Modifier
 				.heightIn(min = 60.dp)
 				.padding(horizontal = 16.dp)
 				.fillMaxWidth()
-				.focusRequester(usernameFocusRequester)
-				.semantics {
-					contentType = ContentType.Username
-				},
-			state = usernameState,
-			isError = usernameError,
-			label = { Text(stringResource(R.string.option_account_username)) },
+				.focusRequester(instanceFocusRequester),
+			state = instanceState,
+			isError = instanceError,
+			label = { Text(stringResource(R.string.option_account_instance)) },
 			lineLimits = TextFieldLineLimits.SingleLine,
 			enabled = !isBusy,
 			keyboardOptions = KeyboardOptions(
 				autoCorrectEnabled = false,
+				keyboardType = KeyboardType.Uri,
 				imeAction = ImeAction.Next,
 				showKeyboardOnFocus = true
 			),
 			onKeyboardAction = KeyboardActionHandler {
-				passwordFocusRequester.requestFocus()
+				if (authMethod == AuthMethod.Token) {
+					usernameFocusRequester.requestFocus()
+				} else {
+					passwordFocusRequester.requestFocus()
+				}
+			}
+		)
+
+		LoginScreenSuggestionChips(instanceState = instanceState)
+
+		SingleChoiceSegmentedButtonRow(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(horizontal = 16.dp)
+		) {
+			SegmentedButton(
+				shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+				onClick = { onAuthMethodChange(AuthMethod.Token) },
+				selected = authMethod == AuthMethod.Token,
+				enabled = !isBusy,
+				label = { Text(stringResource(R.string.option_account_password)) }
+			)
+			SegmentedButton(
+				shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+				onClick = { onAuthMethodChange(AuthMethod.ApiKey) },
+				selected = authMethod == AuthMethod.ApiKey,
+				enabled = !isBusy,
+				label = { Text(stringResource(R.string.option_account_api_key)) }
+			)
+		}
+
+		if (authMethod == AuthMethod.Token) {
+			OutlinedTextField(
+				modifier = Modifier
+					.heightIn(min = 60.dp)
+					.padding(horizontal = 16.dp)
+					.fillMaxWidth()
+					.focusRequester(usernameFocusRequester)
+					.semantics {
+						contentType = ContentType.Username
+					},
+				state = usernameState,
+				isError = usernameError,
+				label = { Text(stringResource(R.string.option_account_username)) },
+				lineLimits = TextFieldLineLimits.SingleLine,
+				enabled = !isBusy,
+				keyboardOptions = KeyboardOptions(
+					autoCorrectEnabled = false,
+					imeAction = ImeAction.Next,
+					showKeyboardOnFocus = true
+				),
+				onKeyboardAction = KeyboardActionHandler {
+					passwordFocusRequester.requestFocus()
+				}
+			)
+		}
+
+		OutlinedSecureTextField(
+			modifier = Modifier
+				.heightIn(min = 60.dp)
+				.padding(horizontal = 16.dp)
+				.fillMaxWidth()
+				.focusRequester(passwordFocusRequester)
+				.semantics {
+					contentType = ContentType.Password
+				},
+			state = passwordState,
+			isError = passwordError,
+			label = {
+				Text(
+					stringResource(
+						if (authMethod == AuthMethod.ApiKey) {
+							R.string.option_account_api_key
+						} else {
+							R.string.option_account_password
+						}
+					)
+				)
+			},
+			enabled = !isBusy,
+			keyboardOptions = KeyboardOptions(
+				autoCorrectEnabled = false,
+				keyboardType = KeyboardType.Password,
+				imeAction = ImeAction.Go,
+				showKeyboardOnFocus = true
+			),
+			onKeyboardAction = KeyboardActionHandler {
+				onLogin()
 			}
 		)
 	}
-
-	OutlinedSecureTextField(
-		modifier = Modifier
-			.heightIn(min = 60.dp)
-			.padding(horizontal = 16.dp)
-			.fillMaxWidth()
-			.focusRequester(passwordFocusRequester)
-			.semantics {
-				contentType = ContentType.Password
-			},
-		state = passwordState,
-		isError = passwordError,
-		label = {
-			Text(
-				stringResource(
-					if (authMethod == AuthMethod.ApiKey) {
-						R.string.option_account_api_key
-					} else {
-						R.string.option_account_password
-					}
-				)
-			)
-		},
-		enabled = !isBusy,
-		keyboardOptions = KeyboardOptions(
-			autoCorrectEnabled = false,
-			keyboardType = KeyboardType.Password,
-			imeAction = ImeAction.Go,
-			showKeyboardOnFocus = true
-		),
-		onKeyboardAction = KeyboardActionHandler {
-			onLogin()
-		}
-	)
 }
