@@ -71,7 +71,7 @@ fun DomainAlbumListType.toSqlQuery(
 
 	var orderBy = when (this) {
 		DomainAlbumListType.AlphabeticalByArtist -> "LOWER(artistName) ASC, LOWER(name) ASC"
-		DomainAlbumListType.AlphabeticalByName -> "LOWER(name) ASC"
+		DomainAlbumListType.AlphabeticalByName -> "${sqlLetterExpression("COALESCE(name, '')")} ASC, LOWER(name) ASC"
 		DomainAlbumListType.Frequent -> "playCount DESC, LOWER(name) ASC"
 		DomainAlbumListType.Highest -> "userRating DESC, LOWER(name) ASC"
 		DomainAlbumListType.Newest -> "createdAt DESC, LOWER(name) ASC"
@@ -119,8 +119,9 @@ fun getAlbumLetterCountsQuery(
 	}
 
 	val order = if (reversed) "DESC" else "ASC"
+	val letterExpr = sqlLetterExpression("COALESCE(name, '')")
 
-	val sql = "SELECT CASE WHEN UPPER(SUBSTR(name, 1, 1)) BETWEEN 'A' AND 'Z' THEN UPPER(SUBSTR(name, 1, 1)) ELSE '#' END AS letter, COUNT(*) AS count FROM AlbumEntity$whereSql GROUP BY letter ORDER BY letter COLLATE NOCASE $order"
+	val sql = "SELECT $letterExpr AS letter, COUNT(*) AS count FROM AlbumEntity$whereSql GROUP BY letter ORDER BY letter COLLATE NOCASE $order"
 
 	return createRoomRawQuery(sql, args)
 }

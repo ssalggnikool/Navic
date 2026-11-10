@@ -31,3 +31,37 @@ internal fun createRoomRawQuery(sql: String, args: List<Any>): RoomRawQuery {
 		}
 	}
 }
+
+private val letterFolds = mapOf(
+	'A' to "ÁÀÂÄÅÆáàâäåæ",
+	'C' to "ÇçĆćČč",
+	'D' to "Đđ",
+	'E' to "ÉÈÊËéèêëĚě",
+	'I' to "ÍÌÎÏíìîï",
+	'L' to "Łł",
+	'N' to "ÑñŃń",
+	'O' to "ÓÒÔÖØóòôöøŐő",
+	'R' to "Řř",
+	'S' to "ŚśŠšŞş",
+	'T' to "Ťť",
+	'U' to "ÚÙÛÜúùûüŰű",
+	'Y' to "Ýýÿ",
+	'Z' to "ŹźŽžŻż",
+)
+
+private val foldBranches: String = letterFolds.entries.joinToString("\n") { (letter, chars) ->
+	chars.map { "WHEN '$it' THEN '$letter'" }.joinToString("\n")
+}
+
+internal fun sqlLetterExpression(columnName: String): String {
+	val first = "SUBSTR($columnName, 1, 1)"
+	return """
+		CASE
+			WHEN UPPER($first) BETWEEN 'A' AND 'Z' THEN UPPER($first)
+			ELSE CASE $first
+				$foldBranches
+				ELSE '#'
+			END
+		END
+	""".trimIndent()
+}

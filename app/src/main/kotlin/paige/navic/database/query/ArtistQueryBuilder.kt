@@ -51,7 +51,7 @@ fun DomainArtistListType.toSqlQuery(
 	}
 
 	var orderBy = when (this) {
-		DomainArtistListType.AlphabeticalByName -> "name COLLATE NOCASE ASC"
+		DomainArtistListType.AlphabeticalByName -> "${sqlLetterExpression("name")} ASC, name COLLATE NOCASE ASC"
 		DomainArtistListType.Random -> "RANDOM()"
 	}
 
@@ -91,7 +91,8 @@ fun getArtistLetterCountsQuery(
 		""
 	}
 
-	val sql = "SELECT CASE WHEN UPPER(SUBSTR(name, 1, 1)) BETWEEN 'A' AND 'Z' THEN UPPER(SUBSTR(name, 1, 1)) ELSE '#' END AS letter, COUNT(*) AS count FROM ArtistEntity$whereSql GROUP BY letter ORDER BY letter COLLATE NOCASE ASC"
+	val letterExpr = sqlLetterExpression("name")
+	val sql = "SELECT $letterExpr AS letter, COUNT(*) AS count FROM ArtistEntity$whereSql GROUP BY letter ORDER BY letter COLLATE NOCASE ASC"
 
 	return createRoomRawQuery(sql, args)
 }
