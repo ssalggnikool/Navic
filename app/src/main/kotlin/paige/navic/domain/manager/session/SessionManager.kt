@@ -227,6 +227,9 @@ class SessionManager(
 		coverArtId,
 		size = "${preferenceManager.coverArtQuality.value}"
 	)
+
+	suspend fun supportsApiKeyAuthentication(instanceUrl: String): Boolean =
+		serverFactory.supportsApiKeyAuthentication(instanceUrl)
 }
 
 fun DomainUser.hasRole(role: String): Boolean {
