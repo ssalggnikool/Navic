@@ -10,6 +10,8 @@ Developer reference for how to build Navic from source
 	  ![](https://files.catbox.moe/zhrvz9.png)
 	* Android Studio has likely already prompted you to install the SDK and JDK. You likely still
 	  have to install the NDK, though
+* The standard toolset for building C projects, which is covered by installing 
+something like `build-essentials` on Ubuntu, required for building FFmpeg.
 
 ### Cloning the repository
 
