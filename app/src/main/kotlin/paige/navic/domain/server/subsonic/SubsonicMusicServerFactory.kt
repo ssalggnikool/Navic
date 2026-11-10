@@ -34,36 +34,45 @@ class SubsonicMusicServerFactory(
 			is ServerCredentials.ApiKey -> SubsonicAuth.Key(apiKey = credentials.apiKey)
 		}
 
-		val client = SubsonicClient.Companion(
-			baseUrl = baseUrl,
-			auth = auth,
-			client = USER_AGENT,
-			clientConfig = {
-				install(UserAgent) {
-					agent = USER_AGENT
-				}
-
-				val customHeaders = preferenceManager.customHeadersMap()
-				if (customHeaders.isNotEmpty()) {
-					defaultRequest {
-						customHeaders.forEach { (key, value) -> header(key, value) }
-					}
-				}
-			},
-			engine = buildKtorEngine(
-				createOkHttpClient(
-					proxyUrl = preferenceManager.proxyUrl.getProxyUrlOrNull(),
-					trustAllCerts = preferenceManager.dangerousSslNoopEnabled,
-					dnsResolver
-				)
-			)
-		)
-
 		return SubsonicMusicServer(
-			client = client,
+			client = createClient(baseUrl, auth),
 			username = (credentials as? ServerCredentials.Token)?.username
 		)
 	}
+
+	override suspend fun supportsApiKeyAuthentication(baseUrl: String): Boolean {
+		val client = createClient(baseUrl, SubsonicAuth.None)
+		return client.use { client ->
+			client.getOpenSubsonicExtensions().any { extension ->
+				extension.name == "apiKeyAuthentication" && extension.versions.contains(1)
+			}
+		}
+	}
+
+	private fun createClient(baseUrl: String, auth: SubsonicAuth) = SubsonicClient.Companion(
+		baseUrl = baseUrl,
+		auth = auth,
+		client = USER_AGENT,
+		clientConfig = {
+			install(UserAgent) {
+				agent = USER_AGENT
+			}
+
+			val customHeaders = preferenceManager.customHeadersMap()
+			if (customHeaders.isNotEmpty()) {
+				defaultRequest {
+					customHeaders.forEach { (key, value) -> header(key, value) }
+				}
+			}
+		},
+		engine = buildKtorEngine(
+			createOkHttpClient(
+				proxyUrl = preferenceManager.proxyUrl.getProxyUrlOrNull(),
+				trustAllCerts = preferenceManager.dangerousSslNoopEnabled,
+				dnsResolver
+			)
+		)
+	)
 
 	private companion object {
 		const val USER_AGENT = "Navic"

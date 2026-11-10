@@ -42,6 +42,7 @@ fun LoginScreenFields(
 	instanceError: Boolean,
 	instanceFocusRequester: FocusRequester,
 	authMethod: AuthMethod,
+	supportsApiKeyAuthentication: Boolean,
 	onAuthMethodChange: (AuthMethod) -> Unit,
 	usernameState: TextFieldState,
 	usernameError: Boolean,
@@ -82,25 +83,39 @@ fun LoginScreenFields(
 
 		LoginScreenSuggestionChips(instanceState = instanceState)
 
+		val authMethods = if (supportsApiKeyAuthentication) {
+			listOf(AuthMethod.Token, AuthMethod.ApiKey)
+		} else {
+			listOf(AuthMethod.Token)
+		}
+
 		SingleChoiceSegmentedButtonRow(
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(horizontal = 16.dp)
 		) {
-			SegmentedButton(
-				shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-				onClick = { onAuthMethodChange(AuthMethod.Token) },
-				selected = authMethod == AuthMethod.Token,
-				enabled = !isBusy,
-				label = { Text(stringResource(R.string.option_account_password)) }
-			)
-			SegmentedButton(
-				shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-				onClick = { onAuthMethodChange(AuthMethod.ApiKey) },
-				selected = authMethod == AuthMethod.ApiKey,
-				enabled = !isBusy,
-				label = { Text(stringResource(R.string.option_account_api_key)) }
-			)
+			authMethods.forEachIndexed { index, method ->
+				SegmentedButton(
+					shape = SegmentedButtonDefaults.itemShape(
+						index = index,
+						count = authMethods.size
+					),
+					onClick = { onAuthMethodChange(method) },
+					selected = authMethod == method,
+					enabled = !isBusy,
+					label = {
+						Text(
+							stringResource(
+								if (method == AuthMethod.ApiKey) {
+									R.string.option_account_api_key
+								} else {
+									R.string.option_account_password
+								}
+							)
+						)
+					}
+				)
+			}
 		}
 
 		if (authMethod == AuthMethod.Token) {

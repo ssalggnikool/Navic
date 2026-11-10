@@ -8,4 +8,6 @@ package paige.navic.domain.server
 
 fun interface MusicServerFactory {
 	fun create(baseUrl: String, credentials: ServerCredentials): MusicServer
+
+	suspend fun supportsApiKeyAuthentication(baseUrl: String): Boolean = false
 }
