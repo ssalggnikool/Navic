@@ -408,6 +408,7 @@
 	<string name="action_clear_search">Clear</string>
 	<string name="action_more">More</string>
 	<string name="action_add_to_playlist">Add to playlist</string>
+	<string name="action_save_as_playlist">Save as playlist</string>
 	<string name="action_add_to_another_playlist">Add to another playlist</string>
 	<string name="action_remove_from_playlist">Remove from playlist</string>
 	<string name="action_see_all">See all</string>
