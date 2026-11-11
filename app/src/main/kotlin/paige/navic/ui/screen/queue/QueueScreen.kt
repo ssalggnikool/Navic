@@ -96,50 +96,6 @@ fun QueueScreen() {
 	val backStack = LocalNavStack.current
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 
-	val songCountText = when (preferenceManager.queueInfoType) {
-		QueueInfoType.Full -> pluralStringResource(R.plurals.count_songs, queue.size, queue.size)
-		QueueInfoType.Remaining -> pluralStringResource(
-			R.plurals.count_remaining_songs,
-			queue.size - playerState.activeIndex,
-			queue.size - playerState.activeIndex
-		)
-	}
-	val durationText = remember(queue, playerState.progress, playerState.activeIndex) {
-		var totalMillis = queue.sumOf { it.duration.inWholeMilliseconds } // ms because precision
-
-		if (preferenceManager.queueInfoType == QueueInfoType.Remaining) {
-			// duration of all songs that are before the current index
-			val pastMillis =
-				queue.take(playerState.activeIndex).sumOf { it.duration.inWholeMilliseconds }
-
-			// elapsed duration of the current index
-			val currentTrack = queue.getOrNull(playerState.activeIndex)
-			val elapsedCurrentSeconds =
-				(currentTrack?.duration?.inWholeMilliseconds ?: 0L) * playerState.progress
-
-			// deduct previous durations plus current elapsed duration
-			totalMillis -= pastMillis + elapsedCurrentSeconds.toLong()
-
-			// wow, that's confusing as shit for some reason
-		}
-
-		// then we format manually because Duration.toString() doesn't let u disable decimals
-		val totalSeconds = totalMillis.milliseconds.inWholeSeconds
-		val hours = totalSeconds / 3600
-		val minutes = (totalSeconds % 3600) / 60
-		val seconds = totalSeconds % 60
-
-		buildString {
-			if (hours > 0) append("${hours}h ")
-			if (minutes > 0 || hours > 0) append("${minutes}m ")
-			append("${seconds}s")
-		}
-	}
-	val formattedDurationText = when (preferenceManager.queueInfoType) {
-		QueueInfoType.Full -> durationText
-		QueueInfoType.Remaining -> stringResource(R.string.info_duration_left, durationText)
-	}
-
 	Column(modifier = Modifier.fillMaxSize()) {
 		if (queue.isNotEmpty()) {
 			Row(
