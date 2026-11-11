@@ -21,21 +21,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,10 +63,14 @@ import paige.navic.domain.model.settings.QueueInfoType
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.core.QueueSong
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.navigation.Screen
+import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
 import paige.navic.ui.screen.queue.component.QueueScreenItem
 import paige.navic.ui.screen.queue.viewmodel.QueueViewModel
 import paige.navic.ui.theme.defaultFont
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -83,6 +93,7 @@ fun QueueScreen() {
 	val haptic = LocalHapticFeedback.current
 	val preferenceManager = koinInject<PreferenceManager>()
 	val backStack = LocalNavStack.current
+	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 
 	val songCountText = when (preferenceManager.queueInfoType) {
 		QueueInfoType.Full -> pluralStringResource(R.plurals.count_songs, queue.size, queue.size)
@@ -153,18 +164,34 @@ fun QueueScreen() {
 						currentIndex = playerState.activeIndex
 					)
 				}
-				FilledTonalButton(
-					onClick = {
-						haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-						player.clearQueue()
-						backStack.remove(Screen.Queue)
-						backStack.remove(Screen.NowPlaying)
-					},
-					colors = ButtonDefaults.filledTonalButtonColors(),
-					contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-					modifier = Modifier.height(36.dp)
+				Row(
+					horizontalArrangement = Arrangement.spacedBy(8.dp),
+					verticalAlignment = Alignment.CenterVertically
 				) {
-					Text(stringResource(R.string.action_clear_queue))
+					IconButton(
+						onClick = { playlistDialogShown = true },
+						colors = IconButtonDefaults.filledTonalIconButtonColors(),
+						modifier = Modifier.height(36.dp)
+					) {
+						Icon(
+							Icons.Outlined.PlaylistAdd,
+							contentDescription = stringResource(R.string.action_save_as_playlist),
+							modifier = Modifier.size(20.dp)
+						)
+					}
+					FilledTonalButton(
+						onClick = {
+							haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+							player.clearQueue()
+							backStack.remove(Screen.Queue)
+							backStack.remove(Screen.NowPlaying)
+						},
+						colors = ButtonDefaults.filledTonalButtonColors(),
+						contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+						modifier = Modifier.height(36.dp)
+					) {
+						Text(stringResource(R.string.action_clear_queue))
+					}
 				}
 			}
 		}
@@ -232,6 +259,14 @@ fun QueueScreen() {
 					adapter.shouldScrollToCurrentIndex = false
 				}
 			})
+	}
+
+	if (playlistDialogShown) {
+		PlaylistCreateDialog(
+			songIds = queue.map { it.id }.toPersistentList(),
+			onDismissRequest = { playlistDialogShown = false },
+			onRefresh = {}
+		)
 	}
 }
 
