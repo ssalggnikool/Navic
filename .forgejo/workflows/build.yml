@@ -49,8 +49,8 @@ jobs:
       - name: Setup Android SDK
         uses: https://github.com/android-actions/setup-android@v4
 
-      # - name: Setup Gradle
-      #   uses: gradle/actions/setup-gradle@v6
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build with Gradle (release)
         id: build_release
@@ -61,10 +61,6 @@ jobs:
           SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           SIGNING_STORE_FILE: ${{ github.workspace }}/release.keystore
         run: |
-          for n in 1048576 262144 65536 16384 8192; do
-            ulimit -n "$n" 2>/dev/null && break
-          done
-          echo "nofile: soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
           echo "${{ secrets.KEYSTORE }}" | base64 -d > release.keystore
           ./gradlew :app:packageDefaultRelease --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
@@ -76,10 +72,6 @@ jobs:
         id: build_debug
         if: github.event_name == 'pull_request'
         run: |
-          for n in 1048576 262144 65536 16384 8192; do
-            ulimit -n "$n" 2>/dev/null && break
-          done
-          echo "nofile: soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
           ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
           ./gradlew :app:assembleFdroidDebug --stacktrace --no-daemon --no-watch-fs
