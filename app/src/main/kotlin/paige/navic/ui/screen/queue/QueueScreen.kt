@@ -46,6 +46,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -145,18 +146,20 @@ fun QueueScreen() {
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(horizontal = 24.dp, vertical = 8.dp),
-				horizontalArrangement = Arrangement.SpaceBetween
+				horizontalArrangement = Arrangement.SpaceBetween,
+				verticalAlignment = Alignment.CenterVertically
 			) {
 				Row(
 					modifier = Modifier
-						.height(36.dp)
+						.weight(1f)
 						.clickable {
 							preferenceManager.queueInfoType =
 								when (preferenceManager.queueInfoType) {
 									QueueInfoType.Full -> QueueInfoType.Remaining
 									QueueInfoType.Remaining -> QueueInfoType.Full
 								}
-						}, verticalAlignment = Alignment.CenterVertically
+						},
+					verticalAlignment = Alignment.CenterVertically
 				) {
 					QueueInfoText(
 						player = player,
@@ -165,6 +168,7 @@ fun QueueScreen() {
 					)
 				}
 				Row(
+					modifier = Modifier.padding(start = 8.dp),
 					horizontalArrangement = Arrangement.spacedBy(8.dp),
 					verticalAlignment = Alignment.CenterVertically
 				) {
@@ -341,12 +345,14 @@ private fun QueueInfoText(
 	}
 
 	Text(
-		text = "$songCountText • $formattedDurationText",
+		text = "$songCountText\n$formattedDurationText",
 		style = MaterialTheme.typography.titleMedium,
 		fontWeight = FontWeight.SemiBold,
 		fontFamily = defaultFont(round = 100f),
 		color = MaterialTheme.colorScheme.onSurfaceVariant,
-		textAlign = TextAlign.Center
+		textAlign = TextAlign.Start,
+		maxLines = 2,
+		overflow = TextOverflow.Ellipsis
 	)
 }
 
