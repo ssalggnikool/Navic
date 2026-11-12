@@ -1,6 +1,5 @@
 package paige.navic.ui.component.common
 
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -13,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import paige.navic.R
+import paige.navic.ui.component.dialog.AlertDialog
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Help
 

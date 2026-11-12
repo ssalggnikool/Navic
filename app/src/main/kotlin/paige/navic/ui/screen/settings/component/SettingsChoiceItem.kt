@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ListItem
@@ -32,6 +31,7 @@ import kotlinx.collections.immutable.ImmutableList
 import paige.navic.R
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
+import paige.navic.ui.component.dialog.AlertDialog
 
 @Composable
 fun <Choice> SettingsChoiceItem(
