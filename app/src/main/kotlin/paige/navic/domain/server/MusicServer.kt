@@ -40,6 +40,8 @@ interface MusicServer {
 
 	suspend fun getSong(id: String): DomainSong
 
+	suspend fun getArtist(id: String): DomainArtist
+
 	suspend fun getArtists(): List<DomainArtist>
 
 	suspend fun getArtistInfo(id: String): DomainArtistInfo

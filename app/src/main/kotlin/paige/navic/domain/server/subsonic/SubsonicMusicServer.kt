@@ -159,6 +159,9 @@ internal class SubsonicMusicServer(
 	override suspend fun getSong(id: String): DomainSong =
 		call { client.getSong(id) }.toDomainModel()
 
+	override suspend fun getArtist(id: String): DomainArtist =
+		call { client.getArtist(id) }.toDomainModel()
+
 	override suspend fun getArtists(): List<DomainArtist> =
 		call { client.getArtists() }
 			.index

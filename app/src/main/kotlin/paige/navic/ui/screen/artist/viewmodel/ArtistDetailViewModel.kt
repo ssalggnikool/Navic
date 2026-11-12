@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.ArtistDao
 import paige.navic.database.mapper.toDomainModel
+import paige.navic.database.mapper.toEntity
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
@@ -45,6 +47,7 @@ class ArtistDetailViewModel(
 	private val albumRepository: AlbumRepository,
 	private val artistDao: ArtistDao,
 	private val albumDao: AlbumDao,
+	private val sessionManager: SessionManager,
 	reachability: ReachabilityFlow
 ) : ViewModel() {
 	val artistState: StateFlow<UiState<ArtistState>>
@@ -82,8 +85,12 @@ class ArtistDetailViewModel(
 	private fun loadArtistData() {
 		viewModelScope.launch {
 			try {
-				val artistEntity = artistDao.getArtistById(artistId)
-					?: throw Exception("Artist not found in database")
+				var artistEntity = artistDao.getArtistById(artistId)
+				if (artistEntity == null) {
+					val domainArtistModel = sessionManager.api.getArtist(artistId)
+					artistEntity = domainArtistModel.toEntity()
+					artistDao.insertArtist(artistEntity)
+				}
 				val domainArtist = artistEntity.toDomainModel()
 
 				var albumsWithSongs =

@@ -79,6 +79,7 @@ val viewModelModule = module {
 			albumRepository = get(),
 			artistDao = get(),
 			albumDao = get(),
+			sessionManager = get(),
 			reachability = get()
 		)
 	}
