@@ -278,7 +278,6 @@ fun SearchScreen(
 									modifier = Modifier
 										.animateItem(fadeInSpec = null)
 										.width(150.dp),
-									tab = "search",
 									album = album,
 									selected = album == albumListSelection.data?.selected,
 									starred = albumListSelection.data?.selected?.starredAt != null,
@@ -307,7 +306,6 @@ fun SearchScreen(
 									modifier = Modifier
 										.animateItem(fadeInSpec = null)
 										.width(150.dp),
-									tab = "search",
 									artist = artist,
 									selected = artist == artistListSelection.data?.selected,
 									selectedArtistAlbums = emptyList(),

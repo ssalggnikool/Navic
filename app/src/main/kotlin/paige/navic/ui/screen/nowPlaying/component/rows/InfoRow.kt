@@ -90,8 +90,7 @@ fun NowPlayingInfoRow(
 									backStack.add(
 										Screen.CollectionDetail(
 											playerState.currentCollection?.id
-												?: return@dropUnlessResumed,
-											""
+												?: return@dropUnlessResumed
 										)
 									)
 							}

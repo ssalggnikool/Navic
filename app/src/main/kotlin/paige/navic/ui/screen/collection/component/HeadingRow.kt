@@ -40,11 +40,10 @@ import paige.navic.ui.util.EmphasizedDecelerateEasing
 @Composable
 fun CollectionDetailScreenHeadingRow(
 	collection: DomainSongCollection,
-	tab: String,
 	titleAlpha: Float
 ) {
 	val backStack = LocalNavStack.current
-	val sharedTransitionKey = "${tab}-${collection.id}-cover"
+	val sharedTransitionKey = "${collection.id}-cover"
 	with(LocalSharedTransitionScope.current) {
 		CoverArt(
 			coverArtId = collection.coverArtId,

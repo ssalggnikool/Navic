@@ -456,7 +456,6 @@ fun ArtistDetailScreen(
 															Box(modifier = Modifier.weight(1f)) {
 																AlbumListScreenGridItem(
 																	modifier = Modifier.fillMaxWidth(),
-																	tab = "artist",
 																	album = album,
 																	selected = selectedAlbum == album,
 																	starred = selectedAlbumIsStarred,

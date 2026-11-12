@@ -203,7 +203,6 @@ fun PlaylistListScreen(
 						if (selectedViewMode == ListViewMode.Grid) {
 							PlaylistListScreenGridItem(
 								modifier = Modifier.animateItem(),
-								tab = "playlists",
 								playlist = playlist,
 								selected = playlist == state.data?.selected,
 								onSelect = {

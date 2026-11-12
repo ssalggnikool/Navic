@@ -6,8 +6,6 @@
 
 package paige.navic.ui.component.layout
 
-import androidx.compose.animation.BoundsTransform
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -43,17 +41,14 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.core.UiState
-import paige.navic.ui.util.EmphasizedDecelerateEasing
 import paige.navic.ui.util.shimmerLoading
 
 @Composable
@@ -104,75 +99,57 @@ fun ArtGridItem(
 	coverArtId: String?,
 	title: String,
 	subtitle: String? = null,
-	playCount: Int? = null,
-	id: String,
-	// this parameter is a shitty workaround for shared element
-	// transitions being performed when switching between tabs
-	// this can just be an empty string if the tab is unknown
-	tab: String
+	playCount: Int? = null
 ) {
 	val interactionSource = remember { MutableInteractionSource() }
-	with(LocalSharedTransitionScope.current) {
-		Column(
+	Column(
+		modifier = Modifier
+			.fillMaxWidth()
+			.combinedClickable(
+				interactionSource = interactionSource,
+				indication = null,
+				onClick = onClick,
+				onLongClick = onLongClick
+			)
+			.semantics {
+				contentDescription = title
+			}
+			.then(modifier)
+	) {
+		CoverArt(
+			coverArtId = coverArtId,
+			contentDescription = title,
+			modifier = Modifier.fillMaxWidth(),
+			interactionSource = interactionSource
+		)
+		Text(
+			text = title,
+			style = MaterialTheme.typography.titleSmallEmphasized,
 			modifier = Modifier
 				.fillMaxWidth()
-				.combinedClickable(
-					interactionSource = interactionSource,
-					indication = null,
-					onClick = onClick,
-					onLongClick = onLongClick
-				)
-				.semantics {
-					contentDescription = title
-				}
-				.then(modifier)
-		) {
-			CoverArt(
-				coverArtId = coverArtId,
-				contentDescription = title,
-				modifier = Modifier
-					.fillMaxWidth()
-					.sharedElement(
-						sharedContentState = this@with.rememberSharedContentState("${tab}-${id}-cover"),
-						boundsTransform = BoundsTransform { _, _ ->
-							tween(
-								durationMillis = 500,
-								easing = EmphasizedDecelerateEasing
-							)
-						},
-						animatedVisibilityScope = LocalNavAnimatedContentScope.current
-					),
-				interactionSource = interactionSource
-			)
+				.padding(top = 6.dp),
+			maxLines = 2,
+			overflow = TextOverflow.Ellipsis
+		)
+		subtitle?.let {
 			Text(
-				text = title,
-				style = MaterialTheme.typography.titleSmallEmphasized,
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(top = 6.dp),
-				maxLines = 2,
+				text = subtitle,
+				style = MaterialTheme.typography.bodySmall,
+				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				modifier = Modifier.fillMaxWidth(),
+				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
-			subtitle?.let {
-				Text(
-					text = subtitle,
-					style = MaterialTheme.typography.bodySmall,
-					color = MaterialTheme.colorScheme.onSurfaceVariant,
-					modifier = Modifier.fillMaxWidth(),
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
-			}
-			if (playCount != null && playCount > 0) {
-				Text(
-					text = pluralStringResource(R.plurals.count_plays, playCount, playCount),
-					style = MaterialTheme.typography.labelSmall,
-					color = MaterialTheme.colorScheme.primary,
-					modifier = Modifier.fillMaxWidth(),
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
-			}
+		}
+		if (playCount != null && playCount > 0) {
+			Text(
+				text = pluralStringResource(R.plurals.count_plays, playCount, playCount),
+				style = MaterialTheme.typography.labelSmall,
+				color = MaterialTheme.colorScheme.primary,
+				modifier = Modifier.fillMaxWidth(),
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
 		}
 	}
 }

@@ -210,7 +210,6 @@ fun AlbumListScreen(
 									if (selectedViewMode == ListViewMode.Grid) {
 										AlbumListScreenGridItem(
 											modifier = Modifier.animateItem(),
-											tab = "albums",
 											album = album,
 											selected = album == selectedAlbum,
 											starred = selectedAlbum?.starredAt != null,
@@ -287,7 +286,6 @@ fun AlbumListScreen(
 								if (selectedViewMode == ListViewMode.Grid) {
 									AlbumListScreenGridItem(
 										modifier = Modifier.animateItem(),
-										tab = "albums",
 										album = album,
 										selected = album == selectedAlbum,
 										starred = selectedAlbum?.starredAt != null,
