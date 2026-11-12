@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import org.koin.compose.koinInject
@@ -71,7 +72,6 @@ import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
 import paige.navic.ui.screen.queue.component.QueueScreenItem
 import paige.navic.ui.screen.queue.viewmodel.QueueViewModel
 import paige.navic.ui.theme.defaultFont
-import kotlinx.collections.immutable.toPersistentList
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -300,16 +300,28 @@ private fun QueueInfoText(
 		QueueInfoType.Remaining -> stringResource(R.string.info_duration_left, durationText)
 	}
 
-	Text(
-		text = "$songCountText\n$formattedDurationText",
-		style = MaterialTheme.typography.titleMedium,
-		fontWeight = FontWeight.SemiBold,
-		fontFamily = defaultFont(round = 100f),
-		color = MaterialTheme.colorScheme.onSurfaceVariant,
-		textAlign = TextAlign.Start,
-		maxLines = 2,
-		overflow = TextOverflow.Ellipsis
-	)
+	Column {
+		Text(
+			text = songCountText,
+			style = MaterialTheme.typography.titleMedium,
+			fontWeight = FontWeight.SemiBold,
+			fontFamily = defaultFont(round = 100f),
+			color = MaterialTheme.colorScheme.onSurfaceVariant,
+			textAlign = TextAlign.Start,
+			maxLines = 1,
+			overflow = TextOverflow.Ellipsis
+		)
+		Text(
+			text = formattedDurationText,
+			style = MaterialTheme.typography.titleSmall,
+			fontWeight = FontWeight.SemiBold,
+			fontFamily = defaultFont(round = 100f),
+			color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+			textAlign = TextAlign.Start,
+			maxLines = 1,
+			overflow = TextOverflow.Ellipsis
+		)
+	}
 }
 
 private class QueueRecyclerView(context: Context) : RecyclerView(context) {
