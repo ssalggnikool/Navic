@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,7 +43,6 @@ import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import paige.navic.util.toSummaryString
 import kotlin.time.Duration
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun StatisticsOverviewCard(
 	modifier: Modifier = Modifier,

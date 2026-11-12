@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
     <string name="title_library">ライブラリ</string>
     <string name="title_playlists">プレイリスト</string>
@@ -193,8 +199,8 @@
     <string name="option_enable_ratings">評価を有効化</string>
     <string name="option_enable_predictive_back_animations">スワイプ操作のアニメーションを有効にする</string>
     <string name="info_status_idle">待機中</string>
-    <string name="info_status_calculating">計算中...</string>
-    <string name="info_status_downloading">ダウンロード中...</string>
+    <string name="info_status_calculating">計算中…</string>
+    <string name="info_status_downloading">ダウンロード中…</string>
     <string name="info_sync_never">未同期</string>
     <string name="info_sync_just_now">たった今</string>
     <string name="info_bulk_download_warning">本当に%1$sのすべてのアルバムをダウンロードしますか？\nかなりのストレージ容量と通信量が必要になる可能性があります。</string>
@@ -385,7 +391,6 @@
     <string name="info_total_plays">総再生回数</string>
     <string name="info_total_listening_time">総再生時間</string>
     <string name="info_listening_stats_ratio">総再生時間の%1$s</string>
-    <string name="info_track_replay_gain_effective">ReplayGain実効値</string>
     <string name="info_update">バージョン%1$sがリリースされました</string>
     <string name="info_shared_by">%1$sが共有しました</string>
     <string name="info_share_expires_in">有効期限：%1$s</string>
@@ -453,9 +458,7 @@
     <string name="title_delete_radio">ラジオを削除しますか？</string>
     <string name="title_update_radio">ラジオを編集</string>
     <string name="notice_deleted_radio">ラジオを削除しました。</string>
-=======
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; 8524700b (will it work now?)
-<string name="title_delete_download">ダウンロードを削除しますか？</string>
+    <string name="title_delete_download">ダウンロードを削除しますか？</string>
     <string name="title_change_download_location">ダウンロードデータを移動しますか？</string>
     <string name="subtitle_download_location">ダウンロードデータの保存場所</string>
     <string name="subtitle_sd_card_unavailable">SDカードが検出されませんでした。内部ストレージを使用します</string>

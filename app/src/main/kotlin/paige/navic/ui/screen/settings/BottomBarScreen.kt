@@ -134,9 +134,7 @@ fun BottomBarScreen() {
 							{ Text(stringResource(R.string.subtitle_swipe_to_dismiss)) }
 						} else null,
 						enabled = preferenceManager.hideIfIdle,
-						checked = if (preferenceManager.hideIfIdle)
-							preferenceManager.miniPlayerSwipeToDismiss
-						else false,
+						checked = preferenceManager.hideIfIdle && preferenceManager.miniPlayerSwipeToDismiss,
 						onCheckedChange = { preferenceManager.miniPlayerSwipeToDismiss = it },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5)
 					)

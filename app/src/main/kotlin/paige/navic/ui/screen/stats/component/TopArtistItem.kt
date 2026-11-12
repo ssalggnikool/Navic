@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +31,6 @@ import paige.navic.ui.theme.defaultFont
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import paige.navic.util.toSummaryString
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TopArtistItem(
 	stats: ArtistStats,

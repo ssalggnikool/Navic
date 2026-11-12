@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -54,12 +53,12 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
 import paige.navic.domain.manager.session.LoginManager
-import paige.navic.domain.server.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.session.canShare
 import paige.navic.domain.manager.session.getUser
 import paige.navic.domain.manager.session.supportsExtension
+import paige.navic.domain.server.ServerExtension
 import paige.navic.ui.component.common.Monogram
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults

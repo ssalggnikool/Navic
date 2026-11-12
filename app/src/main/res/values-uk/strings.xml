@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
     <string name="title_library">Медіатека</string>
     <string name="title_settings">Налаштування</string>
@@ -376,7 +382,6 @@
     <string name="info_track_replay_gain">ReplayGain треку</string>
     <string name="info_album_replay_gain">ReplayGain альбому</string>
     <string name="info_dynamic_replay_gain">Динамічний ReplayGain</string>
-    <string name="info_track_replay_gain_effective">Фактичне значення ReplayGain</string>
     <string name="info_update">Випущено версію %1$s</string>
     <string name="info_shared_by">Надано користувачем %1$s</string>
     <string name="info_share_expires_in">Термін дії: ще %1$s</string>

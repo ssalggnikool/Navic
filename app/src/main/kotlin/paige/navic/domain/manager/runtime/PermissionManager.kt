@@ -44,13 +44,11 @@ class PermissionManager(
 
 	suspend fun requestLocalNetworkPermission(): Boolean {
 		// this permission is only needed on android 17
-		if (Build.VERSION.SDK_INT < 37) return true
-		return requestPermission(Manifest.permission.ACCESS_LOCAL_NETWORK)
+		return Build.VERSION.SDK_INT < 37 || requestPermission(Manifest.permission.ACCESS_LOCAL_NETWORK)
 	}
 
 	suspend fun requestNotificationsPermission(): Boolean {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
-		return requestPermission(Manifest.permission.POST_NOTIFICATIONS)
+		return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || requestPermission(Manifest.permission.POST_NOTIFICATIONS)
 	}
 
 	private fun isGranted(permission: String): Boolean =

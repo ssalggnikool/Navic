@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="title_library">Biblioteka</string>
 	<string name="title_playlists">Playlisty</string>
@@ -158,8 +164,8 @@
 	<string name="option_explicit_playback_skip_session">Pomijaj utwory z treściami dla dorosłych podczas tej sesji</string>
 	<string name="option_dynamic_theming">Dynamiczne motywy</string>
 	<string name="info_status_idle">Oczekiwanie</string>
-	<string name="info_status_calculating">Obliczanie...</string>
-	<string name="info_status_downloading">Pobieranie w trakcie...</string>
+	<string name="info_status_calculating">Obliczanie…</string>
+	<string name="info_status_downloading">Pobieranie w trakcie…</string>
 	<string name="info_sync_never">Nigdy</string>
 	<string name="info_sync_just_now">Właśnie teraz</string>
 	<string name="info_bulk_download_warning">Czy na pewno chcesz pobrać wszystkie albumy wg %1$s?\nTo może wiązać się ze zużyciem znacznej ilości pamięci masowej i danych.</string>
@@ -302,8 +308,8 @@
 	<string name="notice_download_started">Rozpoczęto pobieranie.</string>
 	<string name="notice_copied">Skopiowano do schowka.</string>
 	<string name="notice_expiry">Wygasa w %1$s</string>
-	<string name="notice_loading_lyrics">Wczytywanie tekstu utworu...\nTo może chwilę zająć.</string>
-	<string name="notice_login_suggestion">Czy masz na myśli...</string>
+	<string name="notice_loading_lyrics">Wczytywanie tekstu utworu…\nTo może chwilę zająć.</string>
+	<string name="notice_login_suggestion">Czy masz na myśli…</string>
 	<string name="notice_queue_duplicate">Ta piosenka jest już w kolejce. Czy chcesz dodać ją ponownie?</string>
 	<string name="notice_local_network_denied">Odmowa dostępu</string>
 	<string name="info_app_version">Navic %1$s</string>
@@ -333,7 +339,6 @@
 	<string name="info_track_path">Ścieżka</string>
 	<string name="info_track_replay_gain">ReplayGain utworu</string>
 	<string name="info_album_replay_gain">ReplayGain albumu</string>
-	<string name="info_track_replay_gain_effective">Efektywna wartość ReplayGain</string>
 	<string name="info_update">Wersja %1$s została opublikowana</string>
 	<string name="info_shared_by">Udostępnione przez %1$s</string>
 	<string name="info_share_expires_in">Wygasa w %1$s</string>
@@ -354,14 +359,14 @@
 	<string name="info_download_failed">Pobieranie nie powiodło się</string>
 	<string name="info_click_to_retry">Kliknij by spróbować ponownie</string>
 	<string name="info_downloaded">Pobrano</string>
-	<string name="info_syncing">Synchronizuję...</string>
+	<string name="info_syncing">Synchronizuję…</string>
 	<string name="info_syncing_saved">Zapisano.</string>
 	<string name="info_syncing_finished">Zakończono.</string>
-	<string name="info_syncing_albums">Synchronizuję albumy...</string>
-	<string name="info_syncing_playlists">Synchronizuję playlisty...</string>
-	<string name="info_syncing_genres">Synchronizuję gatunki...</string>
-	<string name="info_syncing_artists">Synchronizuję artystów...</string>
-	<string name="info_syncing_radios">Synchronizuję radia...</string>
+	<string name="info_syncing_albums">Synchronizuję albumy…</string>
+	<string name="info_syncing_playlists">Synchronizuję playlisty…</string>
+	<string name="info_syncing_genres">Synchronizuję gatunki…</string>
+	<string name="info_syncing_artists">Synchronizuję artystów…</string>
+	<string name="info_syncing_radios">Synchronizuję radia…</string>
 	<string name="info_exception_handler">Aplikacja wyłączy się w wyniku crasha. Jesteś pewien?</string>
 	<string name="info_streaming_quality">Wyższa jakość wiąże się ze zwiększonym zużyciem danych. Transkodowanie może zdesynchronizować teksty utworów i poważnie wpłynąć na czasy ładowania. Wybierz Bezstratna, jeżeli napotkasz jakiekolwiek problemy.</string>
 	<string name="info_download_quality">Wyższa jakość wiąże się ze zwiększonym zużyciem pamięci masowej i danych. Transkodowanie może wydłużyć czasy pobierania. Wybierz Bezstratna, jeżeli napotkasz jakiekolwiek problemy.</string>
@@ -435,5 +440,4 @@
 	<string name="option_equalizer_mode_disabled">Wyłączony</string>
 	<string name="option_equalizer_mode_builtin">Wbudowany</string>
 	<string name="option_equalizer_mode_external">Zewnętrzny</string>
->>>>>>> 88b391d5 (refactor: more settings reorganising)
 </resources>

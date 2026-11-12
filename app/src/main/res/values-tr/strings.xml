@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="app_name" translatable="false">Navic</string>
 	<string name="title_library">Kütüphane</string>
@@ -121,7 +127,7 @@
 	<string name="notice_deleted_share">Paylaşım silindi.</string>
 	<string name="notice_copied">Panoya kopyalandı.</string>
 	<string name="notice_expiry">%1$s içinde süresi dolacak.</string>
-	<string name="notice_loading_lyrics">Şarkı sözleri yükleniyor...\nBu biraz zaman alabilir.</string>
+	<string name="notice_loading_lyrics">Şarkı sözleri yükleniyor…\nBu biraz zaman alabilir.</string>
 	<string name="info_app_version">Navic %1$s</string>
 	<string name="info_action_is_permanent">Bu işlem geri alınamaz</string>
 	<string name="info_error">Bir şeyler ters gitti.</string>
@@ -206,7 +212,7 @@
 	<string name="option_radio_stream_url">Yayın URLsi</string>
 	<string name="option_radio_homepage_url">Anasayfa URLsi</string>
 	<string name="info_status_idle">Boşta</string>
-	<string name="info_status_calculating">Hesaplanıyor...</string>
+	<string name="info_status_calculating">Hesaplanıyor…</string>
 	<string name="info_sync_never">Asla</string>
 	<string name="info_sync_just_now">Az önce</string>
 	<string name="info_bulk_download_warning">%1$s tarafından olan bütün albümleri indirmek istiyor musun?\nBu, önemli miktarda depolama alanı ve veri gerektirebilir.</string>
@@ -234,7 +240,7 @@
 	<string name="action_clear_downloads">İndirilenleri temizle</string>
 	<string name="action_test_exception_handler">Hata işleyicisini test et</string>
 	<string name="action_dont_show_again">Yeniden gösterme</string>
-	<string name="notice_login_suggestion">Şunu mu demek istediniz...</string>
+	<string name="notice_login_suggestion">Şunu mu demek istediniz…</string>
 	<string name="notice_queue_duplicate">Bu şarkı zaten kuyrukta. Gerçekten yeniden eklemek istiyor musun?</string>
 	<string name="info_update">Sürüm %1$s yayınlandı</string>
 	<string name="info_no_songs">Şarkı yok</string>
@@ -243,14 +249,14 @@
 	<string name="info_download_failed">İndirme başarısız</string>
 	<string name="info_click_to_retry">Yeniden denemek için tıklayın</string>
 	<string name="info_downloaded">İndirildi</string>
-	<string name="info_syncing">Eşitleniyor...</string>
+	<string name="info_syncing">Eşitleniyor…</string>
 	<string name="info_syncing_saved">Kaydedildi.</string>
 	<string name="info_syncing_finished">Bitirildi.</string>
-	<string name="info_syncing_albums">Albümler eşitleniyor...</string>
-	<string name="info_syncing_playlists">Oynatma listesi eşitleniyor...</string>
-	<string name="info_syncing_genres">Türler eşitleniyor...</string>
-	<string name="info_syncing_artists">Sanatçılar eşitleniyor...</string>
-	<string name="info_syncing_radios">Radyolar eşitleniyor...</string>
+	<string name="info_syncing_albums">Albümler eşitleniyor…</string>
+	<string name="info_syncing_playlists">Oynatma listesi eşitleniyor…</string>
+	<string name="info_syncing_genres">Türler eşitleniyor…</string>
+	<string name="info_syncing_artists">Sanatçılar eşitleniyor…</string>
+	<string name="info_syncing_radios">Radyolar eşitleniyor…</string>
 	<string name="info_exception_handler">Bu işlem uygulamayı hemen çökertecektir. Emin misiniz?</string>
 	<string name="option_now_playing_slider_style_squiggly">Dalgalı</string>
 	<string name="option_bottom_bar_collapse_mode">Daraltma modu</string>
@@ -354,14 +360,13 @@
 	<string name="subtitle_pending_actions">%1$d item interneti bekliyor</string>
 	<string name="subtitle_streaming_quality">Yayınlanmış müziğin kalitesini ayarlayın</string>
 	<string name="subtitle_download_quality">İndirilmiş müziğin kalitesini ayarlayın</string>
-	<string name="info_track_replay_gain_effective">Tekrar oynatma değerini artırın</string>
 	<string name="option_lyrics_bright_inactive">Sönmüş sözleri aydınlat</string>
 	<string name="option_custom_headers">Özel sunucu başlıkları</string>
 	<string name="option_animation_style_expressive">Anlamlı</string>
 	<string name="option_palette_specification">Palet özellikleri</string>
 	<string name="option_explicit_playback_skip">Müstehcen şarkıları atla</string>
 	<string name="option_explicit_playback_skip_session">Müstehcen şarkıları bu oturum boyunca atla</string>
-	<string name="info_status_downloading">İndirme işlemi ilerlemede...</string>
+	<string name="info_status_downloading">İndirme işlemi ilerlemede…</string>
 	<string name="info_explicit">Müstehcen</string>
 	<string name="option_mini_player_style_detached">Bağımsız</string>
 	<plurals name="count_minutes_ago">

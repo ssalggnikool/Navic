@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="title_library">Koleksi</string>
 	<string name="title_starred">Berbintang</string>
@@ -31,13 +37,13 @@
 	<string name="option_radio_stream_url">URL Streaming</string>
 	<string name="action_clear_downloads">Hapus unduhan</string>
 	<string name="title_cellular">Seluler</string>
-	<string name="info_syncing_albums">Menyinkronkan album...</string>
+	<string name="info_syncing_albums">Menyinkronkan album…</string>
 	<string name="title_bulk_download">Unduh Semua Album</string>
 	<string name="info_progress">Kemajuan</string>
 	<string name="info_click_to_retry">Klik untuk mencoba lagi</string>
 	<string name="subtitle_bottom_app_bar">Sesuaikan bilah bawah &amp; pemutar mini</string>
 	<string name="title_mini_player">Pemutar Mini</string>
-	<string name="info_syncing_radios">Menyinkronkan radio...</string>
+	<string name="info_syncing_radios">Menyinkronkan radio…</string>
 	<string name="info_explicit">Eksplisit</string>
 	<string name="info_track_album">Album</string>
 	<string name="action_view_on_lastfm">Lihat di last.fm</string>
@@ -63,7 +69,7 @@
 	<string name="title_songs">Lagu-lagu</string>
 	<string name="info_lyrics_provider">Lirik disediakan oleh %1$s</string>
 	<string name="action_search_history">Pencarian Terbaru</string>
-	<string name="info_syncing_playlists">Menyinkronkan daftar putar...</string>
+	<string name="info_syncing_playlists">Menyinkronkan daftar putar…</string>
 	<string name="action_remove_from_history">Hapus dari riwayat</string>
 	<string name="option_mini_player_style_unified">Terpadu</string>
 	<string name="action_share">Membagikan</string>
@@ -82,7 +88,7 @@
 	<string name="info_library_download">Simpan semua musik yang disinkronkan untuk diputar secara offline</string>
 	<string name="info_syncing_saved">Tersimpan.</string>
 	<string name="option_audio_offload">Pengalihan audio</string>
-	<string name="info_status_calculating">Menghitung...</string>
+	<string name="info_status_calculating">Menghitung…</string>
 	<string name="action_cancel_download">Batalkan unduhan</string>
 	<string name="subtitle_check_for_updates">Disarankan untuk tetap mengaktifkannya, karena beberapa pembaruan menyediakan perbaikan bug penting</string>
 	<string name="option_playback_speed">Kecepatan pemutaran</string>
@@ -155,7 +161,7 @@
 	<string name="option_account_password">Kata sandi</string>
 	<string name="option_radio_name">Nama</string>
 	<string name="option_radio_homepage_url">URL Beranda</string>
-	<string name="info_status_downloading">Pengunduhan sedang berlangsung...</string>
+	<string name="info_status_downloading">Pengunduhan sedang berlangsung…</string>
 	<string name="info_exception_handler">Ini akan langsung membuat aplikasi macet. Anda yakin?</string>
 	<string name="info_track_number">Nomor trek</string>
 	<string name="action_view_shares">Berbagi</string>
@@ -177,7 +183,7 @@
 	<string name="option_bottom_bar_visibility_mode_all_screens">Semua layar</string>
 	<string name="option_alphabetical_scroll">Pengguliran alfabetis</string>
 	<string name="subtitle_audio_offload">Eksperimental. Membutuhkan restart aplikasi. Dapat bertentangan dengan pemutaran tanpa jeda pada beberapa perangkat</string>
-	<string name="info_syncing">Sinkronisasi...</string>
+	<string name="info_syncing">Sinkronisasi…</string>
 	<string name="title_direction">Arah</string>
 	<string name="title_shares">Berbagi</string>
 	<string name="subtitle_rebuild_database">Menghapus semua metadata lokal dan memaksa sinkronisasi ulang</string>
@@ -223,7 +229,7 @@
 	<string name="title_more_by_artist">Lebih lanjut oleh %1$s</string>
 	<string name="info_no_playlists_short">Tidak ada daftar putar</string>
 	<string name="option_offline_mode">Mode offline</string>
-	<string name="info_syncing_genres">Menyinkronkan genre...</string>
+	<string name="info_syncing_genres">Menyinkronkan genre…</string>
 	<string name="option_now_playing_background_style_static">Statis</string>
 	<string name="option_min_duration_to_scrobble">Durasi minimum untuk melakukan scrobble</string>
 	<string name="option_now_playing_background_style">Gaya latar belakang</string>
@@ -231,7 +237,7 @@
 	<string name="info_unknown_year">Tahun Tidak Diketahui</string>
 	<string name="title_miscellaneous">Aneka ragam</string>
 	<string name="info_track_name">Nama</string>
-	<string name="info_syncing_artists">Menyinkronkan artis...</string>
+	<string name="info_syncing_artists">Menyinkronkan artis…</string>
 	<string name="info_track_disc_number">Nomor cakram</string>
 	<string name="title_update">Pembaruan tersedia</string>
 	<string name="option_sort_newest">Baru ditambahkan</string>
@@ -256,11 +262,10 @@
 	<string name="notice_queue_duplicate">Lagu ini sudah ada dalam antrean. Apakah Anda benar-benar ingin menambahkannya lagi?</string>
 	<string name="option_sort_playlist_duration">Lamanya</string>
 	<string name="subtitle_pending_actions">%1$d item menunggu jaringan</string>
-	<string name="info_track_replay_gain_effective">Nilai efektif ReplayGain</string>
 	<string name="title_artists">Artis</string>
 	<string name="info_shared_by">Dibagikan oleh %1$s</string>
 	<string name="option_sort_frequent">Sering dimainkan</string>
-	<string name="notice_login_suggestion">Apakah maksudmu...</string>
+	<string name="notice_login_suggestion">Apakah maksudmu…</string>
 	<string name="theme_mode_light">Lampu</string>
 	<string name="option_grid_items_per_row">Ukuran kisi</string>
 	<plurals name="count_albums">
@@ -270,7 +275,7 @@
 	<string name="action_star">Bintang</string>
 	<string name="info_bulk_download_warning">Apakah Anda yakin ingin mengunduh setiap album oleh %1$s?\nIni mungkin memerlukan sejumlah besar penyimpanan dan data.</string>
 	<string name="subtitle_about">Info aplikasi, versi, lisensi</string>
-	<string name="notice_loading_lyrics">Sedang memuat lirik...\nIni mungkin akan memakan waktu.</string>
+	<string name="notice_loading_lyrics">Sedang memuat lirik…\nIni mungkin akan memakan waktu.</string>
 	<string name="info_action_is_permanent">Tindakan ini tidak dapat dibatalkan</string>
 	<string name="info_downloaded">Diunduh</string>
 	<string name="option_quality_high">Tinggi</string>

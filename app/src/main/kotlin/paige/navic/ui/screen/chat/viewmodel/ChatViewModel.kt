@@ -29,7 +29,7 @@ class ChatViewModel(
 	private val sessionManager: SessionManager
 ) : ViewModel() {
 	val state: StateFlow<UiState<ImmutableList<DomainChatMessage>>>
-		field = MutableStateFlow<UiState<ImmutableList<DomainChatMessage>>>(UiState.Loading<ImmutableList<DomainChatMessage>>())
+		field = MutableStateFlow<UiState<ImmutableList<DomainChatMessage>>>(UiState.Loading())
 
 	val isSendingMessage: StateFlow<Boolean>
 		field = MutableStateFlow(false)

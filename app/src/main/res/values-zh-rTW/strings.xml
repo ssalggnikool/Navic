@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="title_settings">設定</string>
 	<string name="title_search">搜尋</string>
@@ -54,7 +60,7 @@
 	<string name="option_download_custom_quality">使用自訂下載品質</string>
 	<string name="info_external_song">外部</string>
 	<string name="option_list_view_mode">檢視模式</string>
-	<string name="info_status_calculating">計算中...</string>
+	<string name="info_status_calculating">計算中…</string>
 	<string name="info_progress">進度</string>
 	<string name="option_bottom_bar_collapse_mode">摺疊模式</string>
 	<string name="theme_mode_system">系統</string>
@@ -100,7 +106,7 @@
 	<string name="info_track_sampling_rate">取樣率</string>
 	<string name="info_track_path">路徑</string>
 	<string name="info_no_search_results">無結果</string>
-	<string name="info_syncing">同步中...</string>
+	<string name="info_syncing">同步中…</string>
 	<string name="title_songs">歌曲</string>
 	<string name="option_now_playing_song_info">顯示歌曲技術資訊</string>
 	<string name="subtitle_auto_fill_queue">佇列中僅剩一首歌曲時，自動新增隨機歌曲</string>
@@ -114,7 +120,7 @@
 	<string name="action_lyrics">歌詞</string>
 	<string name="action_share_lyrics">分享歌詞</string>
 	<string name="action_configure_lyric_providers">配置歌詞提供者</string>
-	<string name="notice_loading_lyrics">載入歌詞中...\n這可能需要一點時間。</string>
+	<string name="notice_loading_lyrics">載入歌詞中…\n這可能需要一點時間。</string>
 	<string name="info_no_lyrics">無歌詞</string>
 	<string name="title_albums">專輯</string>
 	<string name="title_bulk_download">下載所有專輯</string>
@@ -124,8 +130,8 @@
 	<string name="action_view_album">檢視專輯</string>
 	<string name="info_track_album">專輯</string>
 	<string name="info_no_albums">無專輯</string>
-	<string name="info_syncing_albums">同步專輯中...</string>
-	<string name="info_syncing_playlists">同步播放清單中...</string>
+	<string name="info_syncing_albums">同步專輯中…</string>
+	<string name="info_syncing_playlists">同步播放清單中…</string>
 	<plurals name="count_songs">
 		<item quantity="other">%1$d 首歌曲</item>
 	</plurals>

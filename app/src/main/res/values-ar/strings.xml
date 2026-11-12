@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="title_library">المكتبة</string>
 	<string name="title_playlists">قوايم التشغيل</string>
@@ -151,7 +157,7 @@
 	<string name="notice_deleted_share">اتحذفت المشاركة.</string>
 	<string name="notice_copied">اتنسخ للحافظة.</string>
 	<string name="notice_expiry">هتنتهي في %1$s.</string>
-	<string name="notice_loading_lyrics">الكلمات بتتحمل...\nممكن تاخد وقت شوية.</string>
+	<string name="notice_loading_lyrics">الكلمات بتتحمل…\nممكن تاخد وقت شوية.</string>
 	<string name="info_app_version">نافيك %1$s</string>
 	<string name="info_action_is_permanent">الإجراء ده مش هيتراجع عنه</string>
 	<string name="info_error">فيه حاجة غلط حصلت.</string>
@@ -179,7 +185,6 @@
 	<string name="info_track_path">المسار</string>
 	<string name="info_track_replay_gain">ReplayGain الأغنية</string>
 	<string name="info_album_replay_gain">ReplayGain الألبوم</string>
-	<string name="info_track_replay_gain_effective">قيمة ReplayGain الفعلية</string>
 	<string name="info_shared_by">اتشارك من %1$s</string>
 	<string name="info_share_expires_in">هتنتهي في %1$s</string>
 	<string name="info_share_expired">خلصت</string>

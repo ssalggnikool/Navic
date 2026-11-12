@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="app_name" translatable="false">Navic</string>
 	<string name="title_library">Bibliothek</string>
@@ -102,7 +108,7 @@
 	<string name="notice_deleted_share">Freigabe gelöscht.</string>
 	<string name="notice_copied">In die Zwischenablage kopiert.</string>
 	<string name="notice_expiry">Läuft in %1$s ab.</string>
-	<string name="notice_loading_lyrics">Songtext wird geladen...\nDies kann eine Weile dauern.</string>
+	<string name="notice_loading_lyrics">Songtext wird geladen…\nDies kann eine Weile dauern.</string>
 	<string name="info_app_version">Navic %1$s</string>
 	<string name="info_action_is_permanent">Dies kann nicht rückgängig gemacht werden!</string>
 	<string name="info_error">Etwas ist schiefgelaufen.</string>

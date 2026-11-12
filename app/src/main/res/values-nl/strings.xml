@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="title_library">Bibliotheek</string>
 	<string name="title_playlists">Playlists</string>
@@ -134,7 +140,7 @@
 	<string name="notice_deleted_share">Verwijderde share.</string>
 	<string name="notice_copied">Naar het klembord gekopieerd.</string>
 	<string name="notice_expiry">Vervalt in %1$s.</string>
-	<string name="notice_loading_lyrics">Lyrics aan het inladen...\nDit kan een tijdje duren.</string>
+	<string name="notice_loading_lyrics">Lyrics aan het inladen…\nDit kan een tijdje duren.</string>
 	<string name="info_action_is_permanent">Deze actie kan niet worden teruggedraaid</string>
 	<string name="info_error">Er ging iets mis.</string>
 	<string name="info_error_show">Toon details</string>
@@ -161,7 +167,6 @@
 	<string name="info_track_path">Pad</string>
 	<string name="info_track_replay_gain">Track ReplayGain</string>
 	<string name="info_album_replay_gain">Album ReplayGain</string>
-	<string name="info_track_replay_gain_effective">ReplayGain effectieve waarde</string>
 	<string name="info_shared_by">Gedeeld door %1$s</string>
 	<string name="info_share_expires_in">Vervalt in %1$s</string>
 	<string name="info_share_expired">Vervallen</string>
@@ -217,7 +222,7 @@
 	<string name="action_rebuild_database">Herbouw de database</string>
 	<string name="action_trigger_sync">Synchroniseer nu</string>
 	<string name="subtitle_rebuild_database">Verwijdert alle lokale metadata en dwingt een nieuwe sync af</string>
-	<string name="notice_login_suggestion">Bedoelde je...</string>
+	<string name="notice_login_suggestion">Bedoelde je…</string>
 	<string name="info_no_songs">Geen liedjes</string>
 	<string name="info_not_available_offline">Niet offline toegankelijk</string>
 	<string name="title_radios">Radios</string>
@@ -298,8 +303,8 @@
 	<string name="option_list_view_mode">Weergave modus</string>
 	<string name="option_list_view_mode_grid">Rooster</string>
 	<string name="option_list_view_mode_list">Lijst</string>
-	<string name="info_status_calculating">Berekenen...</string>
-	<string name="info_status_downloading">Download in behandeling...</string>
+	<string name="info_status_calculating">Berekenen…</string>
+	<string name="info_status_downloading">Download in behandeling…</string>
 	<string name="info_bulk_download_warning">Weet u zeker dat u wenst alle albums tot en met %1$s te downloaden?\nDit kan excessief veel data en opslag in beslag nemen.</string>
 	<string name="info_library_download_warning">Weet u zeker dat u wenst uw gehele bibliotheek te downloaden?\nDit zal inhoud overslaan die u al gedownload hebt, maar het kan alsnog tot excessief gebruik van opslag en data leiden.</string>
 	<string name="info_library_download">Download alle gesynchronizeerde inhoud</string>
@@ -376,14 +381,14 @@
 	<string name="info_download_failed">Fout bij het downloaden</string>
 	<string name="info_click_to_retry">Klik om te herstarten</string>
 	<string name="info_downloaded">Gedownload</string>
-	<string name="info_syncing">Synchroniseren...</string>
+	<string name="info_syncing">Synchroniseren…</string>
 	<string name="info_syncing_saved">Opgeslagen.</string>
 	<string name="info_syncing_finished">Voltooid.</string>
-	<string name="info_syncing_albums">Albums synchroniseren...</string>
-	<string name="info_syncing_playlists">Playlists synchroniseren...</string>
-	<string name="info_syncing_genres">Genres synchroniseren...</string>
-	<string name="info_syncing_artists">Artiesten synchroniseren...</string>
-	<string name="info_syncing_radios">Radios synchroniseren...</string>
+	<string name="info_syncing_albums">Albums synchroniseren…</string>
+	<string name="info_syncing_playlists">Playlists synchroniseren…</string>
+	<string name="info_syncing_genres">Genres synchroniseren…</string>
+	<string name="info_syncing_artists">Artiesten synchroniseren…</string>
+	<string name="info_syncing_radios">Radios synchroniseren…</string>
 	<string name="info_exception_handler">Dit zal de app onmiddelijk crashen. Weet u het zeker?</string>
 	<string name="info_streaming_quality">Hogere qualiteitsinstellingen zullen meer data verbruiken. Transcodering kan tot langere laadtijden lijden en synchronisatieproblemen bij songtexten veroorzaken. Als u zulke problemen ondervind, selecteer a.u.b. lossless qualiteit.</string>
 	<string name="info_download_quality">Hogere qualiteitsinstellingen zullen meer opslag en data gebruiken. Transcodering kan tot langere download tijden lijden. Als u problemen ondervind, selecteer a.u.b. lossless qualiteit.</string>

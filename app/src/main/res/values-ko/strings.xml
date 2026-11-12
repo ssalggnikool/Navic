@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
     <string name="title_library">라이브러리</string>
     <string name="title_playlists">플레이리스트</string>
@@ -118,20 +124,20 @@
     <string name="option_account_password">비밀번호</string>
     <string name="option_offline_mode_auto">자동</string>
     <string name="action_update_app">업데이트</string>
-    <string name="info_syncing_radios">라디오 동기화 중...</string>
-    <string name="info_syncing_artists">아티스트 동기화 중...</string>
+    <string name="info_syncing_radios">라디오 동기화 중…</string>
+    <string name="info_syncing_artists">아티스트 동기화 중…</string>
     <string name="info_no_starred">즐겨찾기 없음</string>
     <string name="info_no_playlists_short">플레이리스트 없음</string>
     <string name="info_lyrics_provider">%1$s 가사 제공</string>
     <string name="info_download_failed">다운로드 실패</string>
     <string name="info_click_to_retry">탭하여 재시도</string>
     <string name="info_downloaded">다운로드됨</string>
-    <string name="info_syncing">동기화 중...</string>
+    <string name="info_syncing">동기화 중…</string>
     <string name="info_syncing_saved">저장됨.</string>
     <string name="info_syncing_finished">완료됨.</string>
-    <string name="info_syncing_albums">앨범 동기화 중...</string>
-    <string name="info_syncing_playlists">플레이리스트 동기화 중...</string>
-    <string name="info_syncing_genres">장르 동기화 중...</string>
+    <string name="info_syncing_albums">앨범 동기화 중…</string>
+    <string name="info_syncing_playlists">플레이리스트 동기화 중…</string>
+    <string name="info_syncing_genres">장르 동기화 중…</string>
     <string name="info_login_description">Subsonic 호환 음악 서버에 로그인하세요.</string>
     <string name="info_exception_handler">이 작업은 애플리케이션을 즉시 크래시해요. 정말 계속할까요?</string>
     <string name="info_streaming_quality">높은 품질 프리셋은 더 많은 데이터를 사용해요. 트랜스코딩은 심한 로딩 지연과 가사 동기화 문제가 발생할 수 있어요. 문제가 발생하면 무손실을 선택해주세요.</string>

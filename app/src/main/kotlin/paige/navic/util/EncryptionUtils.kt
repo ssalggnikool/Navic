@@ -90,11 +90,6 @@ fun Settings.getEncryptedString(key: String, defaultValue: String = ""): String 
 	return decrypted.ifEmpty { defaultValue }
 }
 
-fun Settings.getEncryptedString(key: String): String? {
-	val value = this@getEncryptedString.getEncryptedString(key, "")
-	return value.ifEmpty { null }
-}
-
 fun Settings.insertEncryptedString(key: String, value: String?) {
 	if (value == null) {
 		remove(key)

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
     <string name="app_name" translatable="false">Navic</string>
     <string name="title_library">Biblioteca</string>
@@ -93,7 +99,7 @@
     <string name="notice_deleted_share">Compartición eliminada.</string>
     <string name="notice_copied">Copiado al portapapeles.</string>
     <string name="notice_expiry">Caduca en %1$s</string>
-    <string name="notice_loading_lyrics">Cargando letra...\nEsto puede llevar un tiempo.</string>
+    <string name="notice_loading_lyrics">Cargando letra…\nEsto puede llevar un tiempo.</string>
     <string name="info_app_version">Navic %1$s</string>
     <string name="info_action_is_permanent">Esta acción no se puede deshacer</string>
     <string name="info_error">Algo salió mal.</string>
@@ -190,7 +196,6 @@
     <string name="info_no_genres">Ningún género</string>
     <string name="info_no_playlists_short">Ninguna lista de reproducción</string>
     <string name="subtitle_audio_offload">Experimental. Requiere reiniciar la aplicación. Puede entrar en conflicto con la reproducción sin pausas en algunos dispositivos</string>
-    <string name="info_track_replay_gain_effective">Valor efectivo de ReplayGain</string>
     <string name="option_audio_offload">Relegación de audio</string>
     <string name="subtitle_gapless_playback">Experimental. Requiere reiniciar la aplicación. Puede entrar en conflicto con la relegación de audio en algunos dispositivos</string>
     <string name="subtitle_now_playing_background_style">Elija estático si tiene incidencias de rendimiento</string>
@@ -483,7 +488,7 @@
     <string name="option_enable_discord_integration">Activar integración con Discord</string>
     <string name="option_discord_rpc_status_type_artist_name">Nombre del artista</string>
     <string name="option_discord_rpc_status_type_song_name">Nombre de la canción</string>
-    <string name="info_status_moving_downloads">Moviendo descargas...</string>
+    <string name="info_status_moving_downloads">Moviendo descargas…</string>
     <string name="info_move_downloads">Se moverán las descargas existentes a la nueva ubicación. ¿Continuar?</string>
     <string name="action_move_downloads">Mover descargas</string>
     <string name="action_keep_downloads">Dejar aquí</string>
