@@ -242,7 +242,7 @@ class DbRepository(
 
 					album.songs.forEach { song ->
 						val songEntity = song.toEntity(
-							artistIdOverride = albumEntity.artistId.takeIf { song.artistId.isBlank() },
+							artistIdOverride = albumEntity.artistId.takeIf { song.artistId.isNullOrBlank() },
 							artistNameOverride = albumEntity.artistName.takeIf { song.artistName.isNullOrBlank() }
 						)
 						songBatch.add(songEntity)
@@ -317,7 +317,7 @@ class DbRepository(
 					"could not deserialize playlist $playlistId; skipping it",
 					e
 				)
-				return@runDbOp emptySet()
+				return@runDbOp emptySet<String>()
 			} else {
 				throw e
 			}
