@@ -13,9 +13,10 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,10 +28,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -60,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.materialkolor.dynamiccolor.ColorSpec
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import org.koin.compose.koinInject
@@ -72,6 +72,8 @@ import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
+import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.ArtistAlbumViewMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
@@ -111,10 +113,8 @@ fun ArtistDetailScreen(
 		parameters = { parametersOf(artistId) }
 	)
 	val player = koinInject<MediaPlayer>()
-	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val selection by viewModel.selectedSong.collectAsStateWithLifecycle()
-	val selectedSongIsStarred by viewModel.selectedSongIsStarred.collectAsStateWithLifecycle()
 	val selectedSongRating by viewModel.selectedSongRating.collectAsStateWithLifecycle()
 
 	val selectedAlbum by viewModel.selectedAlbum.collectAsStateWithLifecycle()
@@ -127,11 +127,6 @@ fun ArtistDetailScreen(
 	val layoutDirection = LocalLayoutDirection.current
 	val artistState by viewModel.artistState.collectAsStateWithLifecycle()
 	val starred by viewModel.starred.collectAsStateWithLifecycle()
-	val isReachable by viewModel.isReachable.collectAsStateWithLifecycle()
-	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
-		initialValue = emptyList()
-	)
-	val downloadsMap = remember(allDownloads) { allDownloads.associateBy { it.songId } }
 	val downloadStatus by downloadManager.getCollectionDownloadStatus(
 		artistState.data?.albums.orEmpty().flatMap { album ->
 			album.songs.map { it.id }
@@ -146,8 +141,6 @@ fun ArtistDetailScreen(
 			with(density) { viewModel.scrollState.value.toDp() } >= 200.dp
 		}
 	}
-
-	val gridState = rememberLazyGridState()
 
 	var showDownloadDialog by remember { mutableStateOf(false) }
 	val downloadDeletionHandler = rememberDownloadDeletionHandler()
@@ -285,84 +278,26 @@ fun ArtistDetailScreen(
 								verticalArrangement = Arrangement.spacedBy(12.dp),
 								horizontalAlignment = Alignment.CenterHorizontally
 							) {
-								state.topSongs.takeIf { state.topSongs.isNotEmpty() }
-									?.let { songs ->
-										Row(
-											modifier = Modifier
-												.heightIn(min = 32.dp)
-												.padding(top = 8.dp)
-												.padding(horizontal = 16.dp)
-												.fillMaxWidth(),
-											verticalAlignment = Alignment.CenterVertically,
-											horizontalArrangement = Arrangement.SpaceBetween
-										) {
-											Text(
-												stringResource(R.string.option_sort_frequent),
-												style = MaterialTheme.typography.titleMediumEmphasized,
-												fontWeight = FontWeight(600)
-											)
-											Text(
-												stringResource(R.string.action_see_all),
-												style = MaterialTheme.typography.labelLarge,
-												color = MaterialTheme.colorScheme.primary,
-												modifier = Modifier.clickable(onClick = dropUnlessResumed {
-													backStack.add(
-														Screen.SongList(
-															nested = true,
-															listType = DomainSongListType.ByArtist(
-																state.artist.id
-															)
-														)
-													)
-												})
-											)
-										}
-										LazyHorizontalGrid(
-											rows = GridCells.Fixed(3),
-											state = gridState,
-											flingBehavior = rememberSnapFlingBehavior(lazyGridState = gridState),
-											modifier = Modifier
-												.fillMaxWidth()
-												.height(250.dp)
-										) {
-											itemsIndexed(songs) { index, song ->
-												val download = downloadsMap[song.id]
-												SongRow(
-													modifier = Modifier.weight(1f),
-													song = song,
-													selected = selection == song,
-													onClick = {
-														if (playerState.currentSong?.id != song.id) {
-															player.playNow(songs, index)
-														} else {
-															player.togglePlay()
-														}
-													},
-													onLongClick = {
-														viewModel.selectSong(song)
-													},
-													onDismissRequest = { viewModel.clearSelection() },
-													starredState = if (selection == song) selectedSongIsStarred else song.starredAt != null,
-													onAddStar = { viewModel.starSelectedSong() },
-													onRemoveStar = { viewModel.unstarSelectedSong() },
-													download = download,
-													onDownload = { downloadManager.downloadSong(song.id) },
-													onCancelDownload = {
-														downloadManager.cancelDownload(song.id)
-													},
-													onDeleteDownload = {
-														downloadManager.deleteDownload(song.id)
-													},
-													onPlayNext = { player.playNextSingle(song) },
-													onAddToQueue = { player.addToQueueSingle(song) },
-													onShare = { shareId = song.id },
-													isOnline = isReachable,
-													rating = selectedSongRating,
-													onSetRating = { viewModel.rateSelectedSong(it) }
-												)
+								if (state.topSongs.isNotEmpty()) {
+									TopSongsList(
+										songs = state.topSongs.toImmutableList(),
+										selectedSong = selection,
+										selectedSongRating = selectedSongRating,
+										onSongSelected = {
+											if (it != null) {
+												viewModel.selectSong(it)
+											} else {
+												viewModel.clearSelection()
 											}
-										}
-									}
+										},
+										onStarSong = viewModel::starSelectedSong,
+										onRateSong = viewModel::rateSelectedSong,
+										onUnstarSong = viewModel::unstarSelectedSong,
+										onShareSong = { shareId = it },
+										artistId = state.artist.id
+									)
+								}
+
 								if (state.albums.isNotEmpty()) {
 									val albumList = remember(state.albums) {
 										state.albums.sortedByDescending { album -> album.playCount }
@@ -548,5 +483,112 @@ fun truncateText(text: String, limit: Int): String {
 		text.take(limit) + "..."
 	} else {
 		text
+	}
+}
+
+@Composable
+private fun TopSongsList(
+	songs: ImmutableList<DomainSong>,
+	selectedSong: DomainSong?,
+	selectedSongRating: Int,
+	onSongSelected: (DomainSong?) -> Unit,
+	onStarSong: () -> Unit,
+	onRateSong: (Int) -> Unit,
+	onUnstarSong: () -> Unit,
+	onShareSong: (String) -> Unit,
+	artistId: String
+) {
+	val backStack = LocalNavStack.current
+
+	val reachabilityFlow = koinInject<ReachabilityFlow>()
+	val isReachable by reachabilityFlow.isReachable.collectAsStateWithLifecycle()
+
+	val downloadManager = koinInject<DownloadManager>()
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
+	val downloadsMap = remember(allDownloads) { allDownloads.associateBy { it.songId } }
+
+	val player = koinInject<MediaPlayer>()
+	val playerState by player.uiState.collectAsStateWithLifecycle()
+
+	Row(
+		modifier = Modifier
+			.heightIn(min = 32.dp)
+			.padding(top = 8.dp)
+			.padding(horizontal = 16.dp)
+			.fillMaxWidth(),
+		verticalAlignment = Alignment.CenterVertically,
+		horizontalArrangement = Arrangement.SpaceBetween
+	) {
+		Text(
+			stringResource(R.string.option_sort_frequent),
+			style = MaterialTheme.typography.titleMediumEmphasized,
+			fontWeight = FontWeight(600)
+		)
+		Text(
+			stringResource(R.string.action_see_all),
+			style = MaterialTheme.typography.labelLarge,
+			color = MaterialTheme.colorScheme.primary,
+			modifier = Modifier.clickable(onClick = dropUnlessResumed {
+				backStack.add(
+					Screen.SongList(
+						nested = true,
+						listType = DomainSongListType.ByArtist(artistId)
+					)
+				)
+			})
+		)
+	}
+	BoxWithConstraints(
+		modifier = Modifier.fillMaxWidth()
+	) {
+		val columnWidth = maxWidth.coerceAtMost(600.dp)
+
+		Row(
+			modifier = Modifier
+				.fillMaxWidth()
+				.horizontalScroll(
+					state = rememberScrollState()
+				)
+		) {
+			songs.chunked(3).forEach { chunk ->
+				Column(
+					modifier = Modifier.width(columnWidth)
+				) {
+					chunk.forEach { song ->
+						val index = songs.indexOf(song)
+						val download = downloadsMap[song.id]
+						SongRow(
+							modifier = Modifier.fillMaxWidth(),
+							song = song,
+							selected = selectedSong == song,
+							onClick = {
+								if (playerState.currentSong?.id != song.id) {
+									player.playNow(songs, index)
+								} else {
+									player.togglePlay()
+								}
+							},
+							onLongClick = { onSongSelected(song) },
+							onDismissRequest = { onSongSelected(null) },
+							starredState = song.starredAt != null,
+							onAddStar = onStarSong,
+							onRemoveStar = onUnstarSong,
+							download = download,
+							onDownload = { downloadManager.downloadSong(song.id) },
+							onCancelDownload = { downloadManager.cancelDownload(song.id) },
+							onDeleteDownload = { downloadManager.deleteDownload(song.id) },
+							onPlayNext = { player.playNextSingle(song) },
+							onAddToQueue = { player.addToQueueSingle(song) },
+							onShare = { onShareSong(song.id) },
+							isOnline = isReachable,
+							rating = selectedSongRating,
+							onSetRating = onRateSong
+						)
+					}
+				}
+			}
+		}
 	}
 }
