@@ -11,6 +11,7 @@ import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -28,11 +29,11 @@ fun rememberPredictiveBackState(
 	val state = rememberNavigationEventState(NavigationEventInfo.None)
 
 	var animationActive by rememberSaveable { mutableStateOf(false) }
-	var initialTouchX by rememberSaveable { mutableStateOf(0f) }
-	var initialTouchY by rememberSaveable { mutableStateOf(0f) }
-	var offsetX by rememberSaveable { mutableStateOf(0f) }
-	var offsetY by rememberSaveable { mutableStateOf(0f) }
-	var progress by rememberSaveable { mutableStateOf(0f) }
+	var initialTouchX by rememberSaveable { mutableFloatStateOf(0f) }
+	var initialTouchY by rememberSaveable { mutableFloatStateOf(0f) }
+	var offsetX by rememberSaveable { mutableFloatStateOf(0f) }
+	var offsetY by rememberSaveable { mutableFloatStateOf(0f) }
+	var progress by rememberSaveable { mutableFloatStateOf(0f) }
 	val easedProgress = EaseOutExpo.transform(progress)
 
 	val onBackCancelled = {

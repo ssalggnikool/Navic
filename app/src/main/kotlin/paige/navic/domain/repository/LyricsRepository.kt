@@ -93,11 +93,11 @@ class LyricsRepository(
 		val song = songDao.getSongById(songId)?.toDomainModel() ?: return null
 
 		val currentConfig = getConfig()
-		for (provider in currentConfig.providers.filter { it.enabled }) {
+		for ((id) in currentConfig.providers.filter { it.enabled }) {
 			try {
 				var rawContentToCache: String? = null
 
-				val parsedLyrics = when (provider.id) {
+				val parsedLyrics = when (id) {
 					LyricsProvider.Id.LYRICS_PLUS -> {
 						val raw = fetchRawLyricsPlus(song, currentConfig)
 						rawContentToCache = raw
@@ -147,7 +147,7 @@ class LyricsRepository(
 						rawContentToCache?.let { content ->
 							val entity = LyricEntity(
 								songId = song.id,
-								providerName = provider.id.name,
+								providerName = id.name,
 								rawContent = content
 							)
 							lyricDao.insertLyrics(entity)
@@ -157,12 +157,12 @@ class LyricsRepository(
 					}
 					return LyricsResult(
 						lines = parsedLyrics,
-						providerName = provider.id.name,
+						providerName = id.name,
 						rawContent = rawContentToCache
 					)
 				}
 			} catch (e: Exception) {
-				Logger.e("LyricRepository", "Provider ${provider.id.name} failed!", e)
+				Logger.e("LyricRepository", "Provider ${id.name} failed!", e)
 				continue
 			}
 		}

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import paige.navic.database.dao.SongDao
 import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
-import paige.navic.database.mapper.toEntity
 import paige.navic.database.paging.createPagedFlow
 import paige.navic.database.query.toSqlQuery
 import paige.navic.domain.manager.session.SessionManager

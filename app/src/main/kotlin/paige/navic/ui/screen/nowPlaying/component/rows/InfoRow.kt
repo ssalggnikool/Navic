@@ -79,20 +79,17 @@ fun NowPlayingInfoRow(
 								backStack.removeLastOrNull()
 
 								val lastScreen = backStack.lastOrNull()
+								val isSameAlbum =
+									lastScreen is Screen.CollectionDetail && lastScreen.collectionId == song.albumId
 
-							val isSameAlbum = if (lastScreen is Screen.CollectionDetail) {
-								lastScreen.collectionId == song.albumId
-							} else {
-								false
-							}
-
-								if (!isSameAlbum)
+								if (!isSameAlbum) {
 									backStack.add(
 										Screen.CollectionDetail(
 											playerState.currentCollection?.id
 												?: return@dropUnlessResumed
 										)
 									)
+								}
 							}
 						}),
 						style = MaterialTheme.typography.bodyLarge

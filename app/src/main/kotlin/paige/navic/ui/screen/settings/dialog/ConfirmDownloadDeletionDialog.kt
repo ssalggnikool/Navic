@@ -50,8 +50,6 @@ fun ConfirmDownloadDeletionSheet(
 ) {
 	if (!presented) return
 
-	val preferenceManager = koinInject<PreferenceManager>()
-
 	ModalBottomSheet(
 		onDismissRequest = onDismissRequest,
 		dragHandle = {
@@ -89,10 +87,7 @@ fun ConfirmDownloadDeletionSheet(
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
 				DownloadDeletionType.entries.forEach { type ->
-					DeletionTypeRow(
-						type = type,
-						preferenceManager = preferenceManager
-					)
+					DeletionTypeRow(type = type)
 				}
 			}
 
@@ -103,9 +98,9 @@ fun ConfirmDownloadDeletionSheet(
 
 @Composable
 private fun DeletionTypeRow(
-	type: DownloadDeletionType,
-	preferenceManager: PreferenceManager
+	type: DownloadDeletionType
 ) {
+	val preferenceManager = koinInject<PreferenceManager>()
 	var isChecked by remember(type) {
 		mutableStateOf(preferenceManager.isConfirmDeleteEnabled(type))
 	}

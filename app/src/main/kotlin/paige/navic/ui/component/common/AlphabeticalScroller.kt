@@ -16,8 +16,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -48,7 +48,7 @@ fun AlphabeticalScroller(
 	val scope = rememberCoroutineScope()
 	val offsets = remember { mutableStateMapOf<Int, Float>() }
 
-	var lastSelectedIndex by remember { mutableStateOf(-1) }
+	var lastSelectedIndex by remember { mutableIntStateOf(-1) }
 
 	fun updateSelection(yCoordinate: Float) {
 		val closestEntry = offsets.entries

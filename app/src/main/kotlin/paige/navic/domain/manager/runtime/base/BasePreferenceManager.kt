@@ -15,8 +15,6 @@ import com.russhwolf.settings.set
 import kotlinx.serialization.json.Json
 import kotlin.enums.enumEntries
 import kotlin.reflect.KProperty
-import paige.navic.util.getEncryptedString
-import paige.navic.util.insertEncryptedString
 
 private typealias Getter<T> = (key: String, defaultValue: T) -> T
 private typealias Setter<T> = (key: String, newValue: T) -> Unit
@@ -135,26 +133,6 @@ abstract class BasePreferenceManager(
 
 	protected inline fun <reified T> encryptedJsonPreference(defaultValue: T): PreferenceProvider<T> {
 		return jsonPreference(null, defaultValue)
-	}
-
-	protected inline fun <reified T> encryptedJsonPreference(key: String?, defaultValue: T): PreferenceProvider<T> {
-		val json = Json { ignoreUnknownKeys = true }
-		return PreferenceProvider(
-			key = key,
-			defaultValue = defaultValue,
-			getter = { k, default ->
-				val raw = settings.getEncryptedString(k, "")
-				if (raw.isBlank()) default
-				else try {
-					json.decodeFromString<T>(raw)
-				} catch (_: Exception) {
-					default
-				}
-			},
-			setter = { k, newValue ->
-				settings.insertEncryptedString(k, json.encodeToString(newValue))
-			}
-		)
 	}
 
 	protected class Preferences<T>(

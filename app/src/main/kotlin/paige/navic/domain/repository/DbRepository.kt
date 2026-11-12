@@ -293,7 +293,7 @@ class DbRepository(
 					"could not deserialize playlist $playlistId; skipping it",
 					e
 				)
-				return@runDbOp emptySet<String>()
+				return@runDbOp emptySet()
 			} else {
 				throw e
 			}

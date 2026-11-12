@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
     <string name="action_add_to_another_playlist">Zu einer anderen Playlist hinzufügen</string>
     <string name="action_add_to_playlist">Zur Playlist hinzufügen</string>
@@ -52,7 +58,7 @@
     <string name="notice_deleted_playlist">Playlist gelöscht.</string>
     <string name="notice_deleted_share">Freigabe gelöscht.</string>
     <string name="notice_expiry">Läuft ab in %1$s</string>
-    <string name="notice_loading_lyrics">Lyrics werden geladen...\nDies kann eine Weile dauern.</string>
+    <string name="notice_loading_lyrics">Lyrics werden geladen…\nDies kann eine Weile dauern.</string>
     <string name="option_accent_colour">Akzentfarbe</string>
     <string name="option_account_password">Passwort</string>
     <string name="option_account_username">Benutzername</string>
@@ -155,7 +161,7 @@
     <string name="option_custom_headers">Benutzerdefinierte Server-Header</string>
     <string name="option_check_for_updates">Prüfe nach Updates</string>
     <string name="info_status_idle">Untätig</string>
-    <string name="info_status_calculating">Berechne...</string>
+    <string name="info_status_calculating">Berechne…</string>
     <string name="info_sync_never">Nie</string>
     <string name="info_sync_just_now">Jetzt</string>
     <string name="info_bulk_download_warning">Bist du sicher das du jedes Album bis %1$s herunterladen möchtest?\nDies kann erheblichen Speicher in Anspruch nehmen.</string>
@@ -214,14 +220,13 @@
     <string name="action_test_exception_handler">Ausnahmehandler testen</string>
     <string name="action_dont_show_again">Nicht mehr anzeigen</string>
     <string name="subtitle_rebuild_database">Entfernt alle Meta-Daten und erzwingt eine neue Synchronisation</string>
-    <string name="notice_login_suggestion">Meinst du...</string>
+    <string name="notice_login_suggestion">Meinst du…</string>
     <string name="notice_queue_duplicate">Dieser Titel befindet sich bereits in der Warteschlange. Möchtest du ihn erneut hinzufügen?</string>
     <string name="info_track_album">Album</string>
     <string name="info_track_year">Jahr</string>
     <string name="info_track_number">Lied Nummer</string>
     <string name="info_track_replay_gain">Lied</string>
     <string name="info_album_replay_gain">Album</string>
-    <string name="info_track_replay_gain_effective">Effektivwert der Lautstärke-Normalisierung</string>
     <string name="info_update">Version %1$s wurde veröffentlicht</string>
     <string name="info_shared_by">Geteilt von %1$s</string>
     <string name="info_share_expires_in">Läuft ab in %1$s</string>
@@ -239,13 +244,13 @@
     <string name="info_download_failed">Fehler beim Download</string>
     <string name="info_click_to_retry">Drücke zum Neustarten</string>
     <string name="info_downloaded">Heruntergeladen</string>
-    <string name="info_syncing">Synchronisiere...</string>
+    <string name="info_syncing">Synchronisiere…</string>
     <string name="info_syncing_saved">Gespeichert.</string>
     <string name="info_syncing_finished">Fertiggestellt.</string>
-    <string name="info_syncing_albums">Synchronisiere Alben...</string>
-    <string name="info_syncing_playlists">Synchronisiere Playlisten...</string>
-    <string name="info_syncing_genres">Synchronisiere Genres...</string>
-    <string name="info_syncing_artists">Synchronisiere Interpreten...</string>
+    <string name="info_syncing_albums">Synchronisiere Alben…</string>
+    <string name="info_syncing_playlists">Synchronisiere Playlisten…</string>
+    <string name="info_syncing_genres">Synchronisiere Genres…</string>
+    <string name="info_syncing_artists">Synchronisiere Interpreten…</string>
     <string name="info_exception_handler">Dies wird die App sofort zum Absturz bringen. Bist du Sicher?</string>
     <string name="title_create_radio">Radio hinzufügen</string>
     <string name="title_radios">Radiosender</string>
@@ -278,7 +283,7 @@
     <string name="option_offline_mode_forced">Erzwungen</string>
     <string name="option_offline_mode_no_wifi">Kein WLAN</string>
     <string name="info_library_download">Lade alle synchronisieren Lieder herunter</string>
-    <string name="info_status_downloading">Download läuft...</string>
+    <string name="info_status_downloading">Download läuft…</string>
     <string name="option_radio_stream_url">Stream-URL</string>
     <string name="option_radio_homepage_url">Startseiten URL</string>
     <string name="option_animation_style_expressive">Expressiv</string>
@@ -309,7 +314,7 @@
     <string name="action_play_next">Als nächstes spielen</string>
     <string name="action_clear_queue">Wiedergabeliste leeren</string>
     <string name="info_no_radios">Keine Radios</string>
-    <string name="info_syncing_radios">Synchronisiere Radios...</string>
+    <string name="info_syncing_radios">Synchronisiere Radios…</string>
     <string name="title_starred">Favorit</string>
     <string name="option_cover_art_quality">Cover qualität</string>
     <string name="info_no_starred">Keine Favoriten</string>
@@ -488,7 +493,7 @@
     <string name="title_cover_art_providers">Cover Anbieter</string>
     <string name="subtitle_cover_art_providers">Lade Cover hoch, damit Discord es anzeigen kann</string>
     <string name="subtitle_cover_art_key_required">API-Schlüssel benötigt</string>
-    <string name="info_status_moving_downloads">Verschiebe Downloads...</string>
+    <string name="info_status_moving_downloads">Verschiebe Downloads…</string>
     <string name="info_move_downloads">Deine Downloads werden an den neuen Ort verschoben. Fortsetzen?</string>
     <string name="action_move_downloads">Downloads verschieben</string>
     <string name="action_keep_downloads">An Ort und Stelle lassen</string>

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="title_library">Bibliotecă</string>
 	<string name="title_starred">Cu stea</string>
@@ -171,8 +177,8 @@
 	<string name="option_list_view_mode_grid">Grilă</string>
 	<string name="option_list_view_mode_list">Listă</string>
 	<string name="info_status_idle">Inactiv</string>
-	<string name="info_status_calculating">Calculare...</string>
-	<string name="info_status_downloading">Descărcare in curs...</string>
+	<string name="info_status_calculating">Calculare…</string>
+	<string name="info_status_downloading">Descărcare in curs…</string>
 	<string name="info_sync_never">Niciodată</string>
 	<string name="info_sync_just_now">Acum</string>
 	<string name="info_bulk_download_warning">Sunteți sigur că doriți să descărcați toate albumele lui %1$s?\nAcest lucru ar putea necesita o cantitate semnificativă de spațiu de stocare și date.</string>
@@ -333,8 +339,8 @@
 	<string name="notice_download_started">Descărcare începută.</string>
 	<string name="notice_copied">Copiat la clipboard.</string>
 	<string name="notice_expiry">Expiră în %1$s.</string>
-	<string name="notice_loading_lyrics">Se încarcă versurile...\nS-ar putea să dureze ceva timp.</string>
-	<string name="notice_login_suggestion">Vă refereați la...</string>
+	<string name="notice_loading_lyrics">Se încarcă versurile…\nS-ar putea să dureze ceva timp.</string>
+	<string name="notice_login_suggestion">Vă refereați la…</string>
 	<string name="notice_queue_duplicate">Această melodie este deja în coadă. Chiar doriți să o adăugați din nou?</string>
 	<string name="notice_local_network_denied">Permisiune refuzată</string>
 	<string name="notice_link_confirmation">Acest link vă duce la următorul site:</string>
@@ -365,7 +371,6 @@
 	<string name="info_track_path">Cale</string>
 	<string name="info_track_replay_gain">Piesă ReplayGain</string>
 	<string name="info_album_replay_gain">Album ReplayGain</string>
-	<string name="info_track_replay_gain_effective">Valoare efectivă ReplayGain</string>
 	<string name="info_update">Versiunea %1$s a fost lansată</string>
 	<string name="info_shared_by">Partajat de %1$s</string>
 	<string name="info_share_expires_in">Expiră în %1$s</string>
@@ -386,14 +391,14 @@
 	<string name="info_download_failed">Descărcare nereușită</string>
 	<string name="info_click_to_retry">Faceți clic pentru a încerca din nou</string>
 	<string name="info_downloaded">Descărcat</string>
-	<string name="info_syncing">Sincronizare...</string>
+	<string name="info_syncing">Sincronizare…</string>
 	<string name="info_syncing_saved">Salvat.</string>
 	<string name="info_syncing_finished">Terminat.</string>
-	<string name="info_syncing_albums">Sincronizare albumuri...</string>
-	<string name="info_syncing_playlists">Sincronizare playlisturi...</string>
-	<string name="info_syncing_genres">Sincronizare genuri...</string>
-	<string name="info_syncing_artists">Sincronizare artiști...</string>
-	<string name="info_syncing_radios">Sincronizare radiouri...</string>
+	<string name="info_syncing_albums">Sincronizare albumuri…</string>
+	<string name="info_syncing_playlists">Sincronizare playlisturi…</string>
+	<string name="info_syncing_genres">Sincronizare genuri…</string>
+	<string name="info_syncing_artists">Sincronizare artiști…</string>
+	<string name="info_syncing_radios">Sincronizare radiouri…</string>
 	<string name="info_exception_handler">Această actiune va închide imediat aplicația. Sunteți sigur(ă)?</string>
 	<string name="info_streaming_quality">Presetările de calitate superioară vor consuma mai multe date. Transcodarea poate afecta grav timpii de încărcare și poate determina desincronizarea versurilor. Selectați Lossless dacă întâmpinați probleme.</string>
 	<string name="info_download_quality">Presetările de calitate superioară vor consuma mai mult spațiu de stocare și date. Transcodarea poate crește timpii de descărcare. Selectați Lossless dacă întâmpinați probleme.</string>

@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.cancellation.CancellationException
 
-suspend fun <Entity : Any, Domain : Any> createPagedFlow(
+fun <Entity : Any, Domain : Any> createPagedFlow(
 	isRandom: Boolean,
 	getRandomIds: suspend () -> List<String>,
 	getEntityId: (Entity) -> String,
@@ -42,7 +42,7 @@ suspend fun <Entity : Any, Domain : Any> createPagedFlow(
 	).flow.map { pagingData -> pagingData.map { toDomain(it) } }
 }
 
-suspend fun <Value : Any> createRandomPagingSourceFactory(
+fun <Value : Any> createRandomPagingSourceFactory(
 	getIds: suspend () -> List<String>,
 	getId: (Value) -> String,
 	fetchByIds: suspend (List<String>) -> List<Value>

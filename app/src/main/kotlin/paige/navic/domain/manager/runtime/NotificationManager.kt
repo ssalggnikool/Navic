@@ -156,19 +156,6 @@ class NotificationManager(
 			.build()
 	}
 
-	fun showProgressNotification(
-		id: Int,
-		title: String,
-		message: String,
-		progress: Float,
-		indeterminate: Boolean
-	) {
-		notificationManager.notify(
-			id,
-			createProgressNotification(id, title, message, progress, indeterminate)
-		)
-	}
-
 	fun cancelNotification(id: Int) {
 		notificationManager.cancel(id)
 	}

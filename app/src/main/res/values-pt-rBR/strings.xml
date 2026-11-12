@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
     <string name="app_name" translatable="false">Navic</string>
     <string name="title_library">Biblioteca</string>
@@ -85,7 +91,7 @@
     <string name="notice_deleted_share">Compartilhamento apagado.</string>
     <string name="notice_copied">Copiado para a área de transferência.</string>
     <string name="notice_expiry">Expira em %1$s</string>
-    <string name="notice_loading_lyrics">Carregando letra...\nIsso pode levar algum tempo.</string>
+    <string name="notice_loading_lyrics">Carregando letra…\nIsso pode levar algum tempo.</string>
     <string name="info_app_version">Navic %1$s</string>
     <string name="info_action_is_permanent">Essa ação não pode ser desfeita!</string>
     <string name="info_error">Algo deu errado.</string>
@@ -162,7 +168,6 @@
     <string name="info_track_replay_gain">ReplayGain da faixa</string>
     <string name="info_album_replay_gain">ReplayGain do álbum</string>
     <string name="info_dynamic_replay_gain">ReplayGain dinâmico</string>
-    <string name="info_track_replay_gain_effective">Valor efetivo de ReplayGain</string>
     <string name="info_shared_by">Compartilhado por %1$s</string>
     <string name="info_share_expires_in">Expira em %1$s</string>
     <string name="info_share_expired">Expirado</string>
@@ -189,7 +194,7 @@
     <string name="info_no_radios">Sem rádios</string>
     <string name="subtitle_trigger_sync">Forçar atualização completa da biblioteca</string>
     <string name="subtitle_rebuild_database">Apagar todos os metadados locais e forçar uma sincronização completa</string>
-    <string name="notice_login_suggestion">Você quis dizer...</string>
+    <string name="notice_login_suggestion">Você quis dizer…</string>
     <string name="notice_queue_duplicate">Esta música já está na fila. Deseja adicioná-la novamente?</string>
     <string name="action_trigger_sync">Sincronizar manualmente</string>
     <string name="action_rebuild_database">Reconstruir banco de dados</string>
@@ -199,14 +204,14 @@
     <string name="info_click_to_retry">Clique para tentar novamente</string>
     <string name="info_download_failed">Falha no download</string>
     <string name="info_downloaded">Baixado</string>
-    <string name="info_syncing">Sincronizando...</string>
+    <string name="info_syncing">Sincronizando…</string>
     <string name="info_syncing_saved">Salvo.</string>
     <string name="info_syncing_finished">Finalizado.</string>
-    <string name="info_syncing_albums">Sincronizando álbuns...</string>
-    <string name="info_syncing_playlists">Sincronizando playlists...</string>
-    <string name="info_syncing_genres">Sincronizando gêneros...</string>
-    <string name="info_syncing_artists">Sincronizando artistas...</string>
-    <string name="info_syncing_radios">Sincronizando rádios...</string>
+    <string name="info_syncing_albums">Sincronizando álbuns…</string>
+    <string name="info_syncing_playlists">Sincronizando playlists…</string>
+    <string name="info_syncing_genres">Sincronizando gêneros…</string>
+    <string name="info_syncing_artists">Sincronizando artistas…</string>
+    <string name="info_syncing_radios">Sincronizando rádios…</string>
     <string name="info_exception_handler">Isso fará o aplicativo travar imediatamente. Tem certeza?</string>
     <string name="subtitle_data_storage">Gerenciar sincronização, uso de rede e cache</string>
     <string name="subtitle_pending_actions">%1$d itens aguardando conexão de rede</string>
@@ -215,7 +220,7 @@
     <string name="option_lyrics_blur">Letras borradas</string>
     <string name="option_lyrics_bright_inactive">Letras inativas mais claras</string>
     <string name="option_sort_downloaded">Baixado</string>
-    <string name="info_status_calculating">Calculando...</string>
+    <string name="info_status_calculating">Calculando…</string>
     <string name="info_sync_never">Nunca</string>
     <string name="option_pending_actions">Ações de sincronização pendentes</string>
     <string name="option_radio_homepage_url">URL da página inicial</string>
@@ -246,7 +251,7 @@
     <string name="option_animation_style_expressive">Expressivo</string>
     <string name="option_animation_style_standard">Padrão</string>
     <string name="option_quality_lossless">Lossless (sem transcodificação)</string>
-    <string name="info_status_downloading">Download em andamento...</string>
+    <string name="info_status_downloading">Download em andamento…</string>
     <string name="info_bulk_download_warning">Tem certeza de que deseja baixar todos os álbuns até %1$s?\nIsso pode exigir uma quantidade significativa de armazenamento e dados.</string>
     <string name="info_library_download_warning">Tem certeza de que deseja baixar toda a sua biblioteca?\nIsso ignorará os itens que você já baixou, mas ainda poderá consumir uma quantidade significativa de armazenamento e dados.</string>
     <string name="info_library_download">Salvar todas as músicas sincronizadas para reprodução offline</string>

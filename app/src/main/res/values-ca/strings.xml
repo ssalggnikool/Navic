@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
 	<string name="title_library">Biblioteca</string>
 	<string name="title_starred">Destacats</string>
@@ -161,8 +167,8 @@
 	<string name="option_cover_art_action_disabled">Deshabilitada</string>
 	<string name="option_cover_art_action_show_lyrics">Mostrar lletra</string>
 	<string name="info_status_idle">Inactiu</string>
-	<string name="info_status_calculating">Calculant...</string>
-	<string name="info_status_downloading">Descàrrega en curs...</string>
+	<string name="info_status_calculating">Calculant…</string>
+	<string name="info_status_downloading">Descàrrega en curs…</string>
 	<string name="info_sync_never">Mai</string>
 	<string name="info_sync_just_now">Fa un moment</string>
 	<string name="info_bulk_download_warning">Esteu segurs que voleu descarregar tots els àlbums de l\'artista %1$s?\nPodria requerir una quantitat important d\'emmagatzematge i dades.</string>
@@ -298,8 +304,8 @@
 	<string name="notice_download_started">Descàrrega iniciada.</string>
 	<string name="notice_copied">Copiat al portapapers.</string>
 	<string name="notice_expiry">Caduca en %1$s.</string>
-	<string name="notice_loading_lyrics">Carregant lletra...\nPodria portar una estona.</string>
-	<string name="notice_login_suggestion">Potser volíeu dir...</string>
+	<string name="notice_loading_lyrics">Carregant lletra…\nPodria portar una estona.</string>
+	<string name="notice_login_suggestion">Potser volíeu dir…</string>
 	<string name="notice_queue_duplicate">Aquesta cançó ja està a la cua. La voleu afegir de nou igualment?</string>
 	<string name="notice_local_network_denied">Permís de xarxa denegat</string>
 	<string name="info_app_version">Navic %1$s</string>
@@ -329,7 +335,6 @@
 	<string name="info_track_path">Ruta</string>
 	<string name="info_track_replay_gain">Entre pistes</string>
 	<string name="info_album_replay_gain">Entre àlbums</string>
-	<string name="info_track_replay_gain_effective">Valor efectiu de normalització d\'àudio (ReplayGain)</string>
 	<string name="info_update">S\'ha publicat la nova versió %1$s</string>
 	<string name="info_shared_by">Compartit per %1$s</string>
 	<string name="info_share_expires_in">Expira en %1$s</string>
@@ -350,14 +355,14 @@
 	<string name="info_download_failed">Descàrrega fallida</string>
 	<string name="info_click_to_retry">Premeu per intentar-ho de nou</string>
 	<string name="info_downloaded">Descarregat</string>
-	<string name="info_syncing">Sincronitzant...</string>
+	<string name="info_syncing">Sincronitzant…</string>
 	<string name="info_syncing_saved">Desat.</string>
 	<string name="info_syncing_finished">Finalitzat.</string>
-	<string name="info_syncing_albums">Sincronitzant àlbums...</string>
-	<string name="info_syncing_playlists">Sincronitzant llistes...</string>
-	<string name="info_syncing_genres">Sincronitzant gèneres...</string>
-	<string name="info_syncing_artists">Sincronitzant artistes...</string>
-	<string name="info_syncing_radios">Sincronitzant emissores...</string>
+	<string name="info_syncing_albums">Sincronitzant àlbums…</string>
+	<string name="info_syncing_playlists">Sincronitzant llistes…</string>
+	<string name="info_syncing_genres">Sincronitzant gèneres…</string>
+	<string name="info_syncing_artists">Sincronitzant artistes…</string>
+	<string name="info_syncing_radios">Sincronitzant emissores…</string>
 	<string name="info_exception_handler">Aquesta acció tancarà immediatament l\'aplicació. Esteu segurs?</string>
 	<string name="info_streaming_quality">Una qualitat superior emprarà més dades. La transcodificació pot tenir un impacte gran en els temps de càrrega i causar dessincronització de les lletres. Trieu \'Sense pèrdua\' si hi trobeu problemes.</string>
 	<string name="info_download_quality">Els paràmetres de qualitat més alts empraràn més dades i emmagatzematge. La transcodificació pot augmentar els temps de descàrrega. Trieu \'Sense pèrdua\' si hi trobeu problemes.</string>

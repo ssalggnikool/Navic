@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
     <string name="app_name" translatable="false">Navic</string>
     <string name="title_library">Библиотека</string>
@@ -88,7 +94,7 @@
     <string name="notice_deleted_share">Ссылка удалена.</string>
     <string name="notice_copied">Скопировано в буфер обмена.</string>
     <string name="notice_expiry">Истекает через %1$s</string>
-    <string name="notice_loading_lyrics">Получение текста...\nЭто займет время.</string>
+    <string name="notice_loading_lyrics">Получение текста…\nЭто займет время.</string>
     <string name="info_app_version">Navic %1$s</string>
     <string name="info_action_is_permanent">Это не может быть отменено</string>
     <string name="info_error">Что-то пошло не так.</string>
@@ -197,7 +203,6 @@
     <string name="info_no_playlists_short">Плейлисты отсутствуют</string>
     <string name="info_lyrics_provider">Текст песни предоставлен %1$s</string>
     <string name="theme_spotify">Spotlight</string>
-    <string name="info_track_replay_gain_effective">Текущее значение ReplayGain</string>
     <string name="title_data_storage">Данные и хранилище</string>
     <string name="title_sync_control">Управление синхронизацией</string>
     <string name="title_danger_zone">Опасная зона</string>
@@ -229,7 +234,7 @@
     <string name="action_rebuild_database">Пересобрать базу данных</string>
     <string name="action_trigger_sync">Запустить ручную синхронизацию</string>
     <string name="subtitle_rebuild_database">Очищает локальные метаданные и запускает полную синхронизацию</string>
-    <string name="notice_login_suggestion">Вы имели ввиду...</string>
+    <string name="notice_login_suggestion">Вы имели ввиду…</string>
     <string name="notice_queue_duplicate">Этот трек уже есть в очереди. Хотите добавить его повторно?</string>
     <string name="info_no_songs">Треки отсутствуют</string>
     <string name="info_not_available_offline">Не доступно в оффлайн режиме</string>
@@ -240,17 +245,17 @@
     <string name="title_update">Доступно обновление</string>
     <string name="subtitle_check_for_updates">Проверять обновления на Codeberg, когда приложение открывается</string>
     <string name="option_check_for_updates">Проверять наличие обновлений</string>
-    <string name="info_status_calculating">Расчет...</string>
+    <string name="info_status_calculating">Расчет…</string>
     <string name="action_test_exception_handler">Тест обработки исключений</string>
     <string name="action_dont_show_again">Больше не показывать</string>
     <string name="info_update">Выпущена версия %1$s</string>
-    <string name="info_syncing">Синхронизация...</string>
+    <string name="info_syncing">Синхронизация…</string>
     <string name="info_syncing_saved">Сохранено.</string>
     <string name="info_syncing_finished">Завершено.</string>
-    <string name="info_syncing_albums">Синхронизируем альбомы...</string>
-    <string name="info_syncing_playlists">Синхронизируем плейлисты...</string>
-    <string name="info_syncing_genres">Синхронизируем жанры...</string>
-    <string name="info_syncing_artists">Синхронизируем исполнителей...</string>
+    <string name="info_syncing_albums">Синхронизируем альбомы…</string>
+    <string name="info_syncing_playlists">Синхронизируем плейлисты…</string>
+    <string name="info_syncing_genres">Синхронизируем жанры…</string>
+    <string name="info_syncing_artists">Синхронизируем исполнителей…</string>
     <string name="info_exception_handler">Это приведет к немедленному сбою приложения. Вы уверены в том, что хотите продолжить?</string>
     <string name="option_lyrics_blur">Размытие краев</string>
     <string name="title_create_radio">Создать радио</string>
@@ -275,9 +280,9 @@
     <string name="action_sleep_timer_enabled">Таймер сна - осталось %1$s</string>
     <string name="action_disable_sleep_timer">Выключить таймер</string>
     <string name="info_no_radios">Радио отсутствуют</string>
-    <string name="info_syncing_radios">Синхронизируем радио...</string>
+    <string name="info_syncing_radios">Синхронизируем радио…</string>
     <string name="title_library_download">Скачать всю библиотеку</string>
-    <string name="info_status_downloading">Скачивание...</string>
+    <string name="info_status_downloading">Скачивание…</string>
     <string name="info_library_download_warning">Вы уверены, что хотите скачать всю свою библиотеку?\nУже скачанные элементы будут пропущены, однако этот процесс все еще может использовать значительный объем хранилища и трафика.</string>
     <string name="info_library_download">Сохранить всю синхронизированную музыку для оффлайн воспроизведения</string>
     <string name="info_progress">Прогресс</string>
@@ -512,7 +517,7 @@
     <string name="title_cover_art_providers">Поставщики обложек</string>
     <string name="subtitle_cover_art_providers">Загрузка обложки, чтобы Discord мог её отобразить</string>
     <string name="subtitle_cover_art_key_required">Требуется ключ API</string>
-    <string name="info_status_moving_downloads">Перемещение скачанного...</string>
+    <string name="info_status_moving_downloads">Перемещение скачанного…</string>
     <string name="info_move_downloads">Это переместит всё скачанное в новое место. Продолжить?</string>
     <string name="action_move_downloads">Переместить скачанное</string>
     <string name="action_keep_downloads">Оставить на месте</string>

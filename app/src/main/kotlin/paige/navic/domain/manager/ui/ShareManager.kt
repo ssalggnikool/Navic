@@ -80,7 +80,7 @@ class ShareManager(
 		}
 	}
 
-	suspend fun shareString(string: String) {
+	fun shareString(string: String) {
 		val intent = Intent(Intent.ACTION_SEND).apply {
 			type = "text/plain"
 			putExtra(Intent.EXTRA_TEXT, string)

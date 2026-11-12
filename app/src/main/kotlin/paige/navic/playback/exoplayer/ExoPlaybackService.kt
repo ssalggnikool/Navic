@@ -25,7 +25,7 @@ class ExoPlaybackService : MediaLibraryService(), KoinComponent {
 	override fun onCreate() {
 		super.onCreate()
 		stateHolder.onSessionReleased = { session ->
-			if (session in getSessions()) removeSession(session)
+			if (session in sessions) removeSession(session)
 		}
 		stateHolder.initState()
 

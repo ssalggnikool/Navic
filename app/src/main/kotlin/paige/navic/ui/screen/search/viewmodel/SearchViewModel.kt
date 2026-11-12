@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
-import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.repository.SearchRepository
 import paige.navic.domain.repository.SongRepository
@@ -30,8 +29,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class SearchViewModel(
 	private val repository: SearchRepository,
 	private val songRepository: SongRepository,
-	reachability: ReachabilityFlow,
-	downloadManager: DownloadManager
+	reachability: ReachabilityFlow
 ) : ViewModel() {
 	val searchState: StateFlow<UiState<List<Any>>>
 		field = MutableStateFlow<UiState<List<Any>>>(UiState.Success(emptyList()))
@@ -51,7 +49,6 @@ class SearchViewModel(
 	val searchQuery = TextFieldState()
 
 	val isReachable = reachability.isReachable
-	val downloadedSongs = downloadManager.downloadedSongs
 
 	val gridState = LazyGridState()
 

@@ -250,9 +250,9 @@
 	<string name="subtitle_cover_art_key_required">API key required</string>
 
 	<string name="info_status_idle">Idle</string>
-	<string name="info_status_calculating">Calculating...</string>
-	<string name="info_status_downloading">Download in progress...</string>
-	<string name="info_status_moving_downloads">Moving downloads...</string>
+	<string name="info_status_calculating">Calculating…</string>
+	<string name="info_status_downloading">Download in progress…</string>
+	<string name="info_status_moving_downloads">Moving downloads…</string>
 	<string name="info_move_downloads">This will move your existing downloads to the new location. Continue?</string>
 	<string name="action_move_downloads">Move downloads</string>
 	<string name="action_keep_downloads">Leave in place</string>
@@ -466,8 +466,8 @@
 	<string name="notice_copied">Copied to clipboard.</string>
 	<string name="notice_expiry">Expires in %1$s</string>
 	<string name="notice_image_saved">Image saved.</string>
-	<string name="notice_loading_lyrics">Loading lyrics...\nThis might take a while.</string>
-	<string name="notice_login_suggestion">Did you mean...</string>
+	<string name="notice_loading_lyrics">Loading lyrics…\nThis might take a while.</string>
+	<string name="notice_login_suggestion">Did you mean…</string>
 	<string name="notice_queue_duplicate">This song is already in the queue. Do you want to add it again?</string>
 	<string name="notice_local_network_denied">Permission denied</string>
 	<string name="notice_notifications_denied">Permission denied</string>
@@ -506,7 +506,6 @@
 	<string name="info_total_plays">Total plays</string>
 	<string name="info_total_listening_time">Total listening time</string>
 	<string name="info_listening_stats_ratio">%1$s%% of total listening time</string>
-	<string name="info_track_replay_gain_effective">ReplayGain effective value</string>
 	<string name="info_update">Version "%1$s" has been released</string>
 	<string name="info_shared_by">Shared by %1$s</string>
 	<string name="info_share_expires_in">Expires in %1$s</string>
@@ -530,14 +529,14 @@
 	<string name="info_delete_download_single">Are you sure you want to delete the downloaded file for %1$s?</string>
 	<string name="info_delete_download_collection">Are you sure you want to delete downloaded songs for %1$s?</string>
 	<string name="info_delete_download_library">Are you sure you want to delete all downloaded songs from your device?</string>
-	<string name="info_syncing">Syncing...</string>
+	<string name="info_syncing">Syncing…</string>
 	<string name="info_syncing_saved">Saved.</string>
 	<string name="info_syncing_finished">Finished.</string>
-	<string name="info_syncing_albums">Syncing albums...</string>
-	<string name="info_syncing_playlists">Syncing playlists...</string>
-	<string name="info_syncing_genres">Syncing genres...</string>
-	<string name="info_syncing_artists">Syncing artists...</string>
-	<string name="info_syncing_radios">Syncing radios...</string>
+	<string name="info_syncing_albums">Syncing albums…</string>
+	<string name="info_syncing_playlists">Syncing playlists…</string>
+	<string name="info_syncing_genres">Syncing genres…</string>
+	<string name="info_syncing_artists">Syncing artists…</string>
+	<string name="info_syncing_radios">Syncing radios…</string>
 	<string name="info_login_description">Log into a Subsonic compatible music server.</string>
 	<string name="info_exception_handler">This will immediately crash the application. Are you sure?</string>
 	<string name="info_streaming_quality">Higher quality presets will use more data. Transcoding can severely impact load times and cause lyrics to become unsynced. Select Lossless if you encounter any issues.</string>

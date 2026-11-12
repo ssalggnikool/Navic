@@ -15,7 +15,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
-@Suppress("unused")
 class Converters {
 	// Duration
 	@ColumnTypeConverter

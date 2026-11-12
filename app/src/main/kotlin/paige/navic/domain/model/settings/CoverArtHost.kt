@@ -7,7 +7,6 @@
 package paige.navic.domain.model.settings
 
 import kotlinx.serialization.Serializable
-import paige.navic.R
 
 @Serializable
 enum class CoverArtHost(val displayName: String, val needsApiKey: Boolean = false) {
