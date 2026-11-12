@@ -135,7 +135,6 @@ fun LibraryScreenContent(
 		) { album ->
 			AlbumListScreenGridItem(
 				modifier = Modifier.animateItem().width(150.dp),
-				tab = "library",
 				album = album,
 				selected = album == selectedAlbum,
 				starred = selectedAlbumIsStarred,
@@ -158,7 +157,6 @@ fun LibraryScreenContent(
 		) { playlist ->
 			PlaylistListScreenGridItem(
 				modifier = Modifier.animateItem().width(150.dp),
-				tab = "library",
 				playlist = playlist,
 				selected = playlist == selectedPlaylist,
 				onSelect = { onSelectPlaylist(playlist) },
@@ -178,7 +176,6 @@ fun LibraryScreenContent(
 		) { artist ->
 			ArtistListScreenGridItem(
 				modifier = Modifier.animateItem().width(150.dp),
-				tab = "library",
 				artist = artist,
 				selected = artist == selectedArtist,
 				selectedArtistAlbums = selectedArtistAlbums,

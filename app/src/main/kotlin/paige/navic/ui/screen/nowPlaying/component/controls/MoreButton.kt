@@ -78,7 +78,7 @@ fun NowPlayingMoreButton(
 				onViewAlbum = dropUnlessResumed {
 					playerState.currentCollection?.let { collection ->
 						backStack.remove(Screen.NowPlaying)
-						backStack.add(Screen.CollectionDetail(collection.id, ""))
+						backStack.add(Screen.CollectionDetail(collection.id))
 					}
 				},
 				onViewArtist = dropUnlessResumed {

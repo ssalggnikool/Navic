@@ -240,8 +240,7 @@ fun SongRow(
 			onViewAlbum = dropUnlessResumed {
 				backStack.add(
 					Screen.CollectionDetail(
-						collectionId = song.albumId as String,
-						tab = "library"
+						collectionId = song.albumId as String
 					)
 				)
 			},

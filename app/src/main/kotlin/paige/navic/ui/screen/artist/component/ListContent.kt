@@ -138,7 +138,6 @@ fun ArtistListScreenContent(
 							if (selectedViewMode == ListViewMode.Grid) {
 								ArtistListScreenGridItem(
 									modifier = Modifier.animateItem(),
-									tab = "artists",
 									artist = artist,
 									selected = artist == selectedArtist,
 									selectedArtistAlbums = selectedArtistAlbums,
@@ -173,7 +172,6 @@ fun ArtistListScreenContent(
 						if (selectedViewMode == ListViewMode.Grid) {
 							ArtistListScreenGridItem(
 								modifier = Modifier.animateItem(),
-								tab = "artists",
 								artist = artist,
 								selected = artist == selectedArtist,
 								selectedArtistAlbums = selectedArtistAlbums,

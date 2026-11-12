@@ -174,7 +174,6 @@ fun ArtistListScreen(
 @Composable
 fun ArtistListScreenGridItem(
 	modifier: Modifier = Modifier,
-	tab: String,
 	artist: DomainArtist,
 	selected: Boolean,
 	selectedArtistAlbums: List<DomainAlbum>?,
@@ -201,9 +200,7 @@ fun ArtistListScreenGridItem(
 				R.plurals.count_albums,
 				artist.albumCount,
 				artist.albumCount
-			),
-			id = artist.id,
-			tab = tab
+			)
 		)
 		if (selected) {
 			ArtistSheet(

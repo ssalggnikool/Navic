@@ -399,7 +399,7 @@ private fun entryProvider(
 			PlaybackSpeedScreen()
 		}
 		entry<Screen.CollectionDetail>(metadata = detailPane("root")) { key ->
-			CollectionDetailScreen(key.collectionId, key.tab)
+			CollectionDetailScreen(key.collectionId)
 		}
 		entry<Screen.SongDetailScreen> { key ->
 			SongDetailScreen(

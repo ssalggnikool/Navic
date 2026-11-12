@@ -248,7 +248,7 @@ fun StatisticsScreen(
 								duration = album.listeningTime,
 								contentDescription = null,
 								onClick = {
-									backStack.add(Screen.CollectionDetail(album.album.id, "stats"))
+									backStack.add(Screen.CollectionDetail(album.album.id))
 								}
 							)
 						}

@@ -85,8 +85,7 @@ import paige.navic.ui.util.withoutTop
 
 @Composable
 fun CollectionDetailScreen(
-	collectionId: String,
-	tab: String
+	collectionId: String
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 
@@ -191,7 +190,6 @@ fun CollectionDetailScreen(
 					item {
 						CollectionDetailScreenHeadingRow(
 							collection = collection,
-							tab = tab,
 							titleAlpha = 1f - titleAlpha
 						)
 					}
@@ -397,7 +395,7 @@ fun CollectionDetailScreen(
 										viewModel.selectAlbum(album)
 									},
 									onClick = dropUnlessResumed {
-										backStack.add(CollectionDetail(album.id, tab = tab))
+										backStack.add(CollectionDetail(album.id))
 									}
 								)
 								if (selectedAlbum != null && selectedAlbum == album) {

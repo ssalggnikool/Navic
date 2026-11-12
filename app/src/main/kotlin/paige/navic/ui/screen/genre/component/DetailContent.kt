@@ -144,7 +144,6 @@ fun GenreDetailScreenContent(
 				modifier = Modifier
 					.animateItem()
 					.width(150.dp),
-				tab = "genre",
 				album = album,
 				selected = album == selectedAlbum,
 				starred = selectedAlbumIsStarred,

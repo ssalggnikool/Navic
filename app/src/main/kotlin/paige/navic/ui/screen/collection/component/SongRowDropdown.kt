@@ -84,8 +84,7 @@ fun CollectionDetailScreenSongRowDropdown(
 				dropUnlessResumed {
 					backStack.add(
 						Screen.CollectionDetail(
-							collectionId = song.albumId,
-							tab = "library"
+							collectionId = song.albumId
 						)
 					)
 				}

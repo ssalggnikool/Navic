@@ -220,8 +220,7 @@ fun SongListScreenItem(
 						dropUnlessResumed {
 							backStack.add(
 								Screen.CollectionDetail(
-									collectionId = albumId,
-									tab = "library"
+									collectionId = albumId
 								)
 							)
 						}

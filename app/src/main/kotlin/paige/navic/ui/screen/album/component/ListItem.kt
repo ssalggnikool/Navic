@@ -76,7 +76,7 @@ fun AlbumListScreenListItem(
 			},
 			onClick = dropUnlessResumed {
 				scope.launch {
-					backStack.add(Screen.CollectionDetail(album.id, ""))
+					backStack.add(Screen.CollectionDetail(album.id))
 				}
 			},
 			onLongClick = onSelect

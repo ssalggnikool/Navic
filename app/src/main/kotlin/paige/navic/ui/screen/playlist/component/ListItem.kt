@@ -81,7 +81,7 @@ fun PlaylistListScreenListItem(
 			},
 			onClick = dropUnlessResumed {
 				scope.launch {
-					backStack.add(Screen.CollectionDetail(playlist.id, ""))
+					backStack.add(Screen.CollectionDetail(playlist.id))
 				}
 			},
 			onLongClick = onSelect
