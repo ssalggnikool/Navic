@@ -187,11 +187,10 @@ internal class SubsonicMusicServer(
 
 	override suspend fun getSimilarSongs(id: String, count: Int): List<DomainSong> =
 		call {
-			if (supportsID3()) {
-				client.getSimilarSongsID3(id, count)
-			} else {
-				client.getSimilarSongs(id, count)
-			}
+			// the ID3 equivalent for this only accepts an artist ID for some reason.
+			// https://www.subsonic.org/pages/api.jsp#getSimilarSongs2
+			// I'm hoping this won't break compatibility with LMS. if it does, feel free to fix this, I won't :)
+			client.getSimilarSongs(id, count)
 		}.map { it.toDomainModel() }
 
 	override suspend fun search(query: String): DomainSearchResult =
