@@ -78,7 +78,7 @@ jobs:
           mv app/build/outputs/apk/**/**/*.apk ./
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v7
+        uses: https://data.forgejo.org/forgejo/upload-artifact@v4
         with:
           name: navic-release-android
           path: ./*.apk
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v8
+        uses: https://data.forgejo.org/forgejo/download-artifact@v4
 
       - name: Post artifacts to Discord webhook
         shell: bash
@@ -134,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v8
+        uses: https://data.forgejo.org/forgejo/download-artifact@v4
         with:
           path: release
 
