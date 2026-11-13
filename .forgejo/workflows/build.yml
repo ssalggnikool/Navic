@@ -41,13 +41,14 @@ jobs:
 
       - name: Restore cache
         id: cache
-        uses: https://data.forgejo.org/actions/cache/restore@v6
+        uses: actions/cache/restore@v6
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            ./**/build
-          key: cache
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Setup JDK
         uses: actions/setup-java@v6
@@ -92,12 +93,12 @@ jobs:
           if-no-files-found: error
 
       - name: Save cache
-        uses: https://data.forgejo.org/actions/cache/save@v6
+        uses: actions/cache/save@v6
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            ./**/build
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
   upload-artifacts-to-discord:
