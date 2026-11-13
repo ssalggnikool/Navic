@@ -26,6 +26,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -39,6 +43,7 @@ import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
 import paige.navic.di.LocalNavStack
+import paige.navic.di.LocalSetSheetGesturesEnabled
 import paige.navic.di.LocalSheetState
 import paige.navic.ui.component.sheet.ModalBottomSheet
 import paige.navic.ui.theme.NavicTheme
@@ -77,8 +82,11 @@ class BottomSheetScene<T : Any>(
 		}
 
 		NavicTheme(colorScheme) {
+			var isGesturesEnabled by remember{ mutableStateOf(true) }
 			val currentColorScheme = MaterialTheme.colorScheme
+
 			ModalBottomSheet(
+				sheetGesturesEnabled = isGesturesEnabled,
 				onDismissRequest = onBack,
 				sheetState = sheetState,
 				properties = properties,
@@ -96,7 +104,8 @@ class BottomSheetScene<T : Any>(
 			) {
 				CompositionLocalProvider(
 					LocalLifecycleOwner provides lifecycleOwner,
-					LocalSheetState provides sheetState
+					LocalSheetState provides sheetState,
+					LocalSetSheetGesturesEnabled provides { isGesturesEnabled = it }
 				) {
 					entry.Content()
 				}

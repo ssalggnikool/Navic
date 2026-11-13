@@ -47,3 +47,7 @@ val LocalSizeClass = staticCompositionLocalOf<WindowSizeClass> {
 val LocalSheetState = staticCompositionLocalOf<SheetState> {
 	error("LocalSheetState used outside of a sheet")
 }
+
+val LocalSetSheetGesturesEnabled = staticCompositionLocalOf<(Boolean) -> Unit> {
+	error("????")
+}
