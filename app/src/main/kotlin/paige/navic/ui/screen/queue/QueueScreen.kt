@@ -4,12 +4,15 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package paige.navic.ui.screen.queue
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,11 +27,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,6 +65,8 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalNavStack
+import paige.navic.di.LocalSetSheetGesturesEnabled
+import paige.navic.di.LocalSheetState
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.QueueInfoType
 import paige.navic.playback.MediaPlayer
@@ -87,6 +94,8 @@ fun QueueScreen() {
 	}.collectAsStateWithLifecycle(
 		initialValue = state.value.copy(progress = 0f)
 	)
+	val sheetState = LocalSheetState.current
+	val setSheetGesturesEnabled = LocalSetSheetGesturesEnabled.current
 
 	val isReachable by viewModel.isReachable.collectAsStateWithLifecycle()
 	val downloadedSongs by viewModel.downloadedSongs.collectAsStateWithLifecycle()
@@ -171,13 +180,15 @@ fun QueueScreen() {
 					)
 				},
 			factory = { context ->
-				QueueRecyclerView(context).apply {
+				QueueRecyclerView(context, sheetState, setSheetGesturesEnabled).apply {
+					overScrollMode = View.OVER_SCROLL_NEVER
 					layoutManager = LinearLayoutManager(context)
+					isNestedScrollingEnabled = true
 					clipToOutline = true
 					addItemDecoration(object : RecyclerView.ItemDecoration() {
 						override fun getItemOffsets(
 							outRect: Rect,
-							view: android.view.View,
+							view: View,
 							parent: RecyclerView,
 							state: RecyclerView.State
 						) {
@@ -324,19 +335,43 @@ private fun QueueInfoText(
 	}
 }
 
-private class QueueRecyclerView(context: Context) : RecyclerView(context) {
+// this almost helped me, almost...
+// https://stackoverflow.com/questions/56012918/recyclerview-in-bottomsheet-not-working-as-expected
+@SuppressLint("ViewConstructor")
+private class QueueRecyclerView(
+	context: Context,
+	private val sheetState: SheetState,
+	private val setSheetGesturesEnabled: (Boolean) -> Unit
+) : RecyclerView(context) {
+	private var lastY = 0f
+
 	override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
 		when (event.actionMasked) {
-			MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> parent?.requestDisallowInterceptTouchEvent(
-				true
-			)
+			MotionEvent.ACTION_DOWN -> {
+				lastY = event.y
+				parent?.requestDisallowInterceptTouchEvent(
+					canScrollVertically(-1) || canScrollVertically(1)
+				)
+			}
+			MotionEvent.ACTION_MOVE -> {
+				val draggingDown = event.y - lastY > 0
+				lastY = event.y
 
-			MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> parent?.requestDisallowInterceptTouchEvent(
-				false
-			)
+				if (draggingDown && !canScrollVertically(-1)) {
+					parent?.requestDisallowInterceptTouchEvent(false)
+					setSheetGesturesEnabled(true)
+				} else {
+					setSheetGesturesEnabled(false)
+				}
+			}
+			MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->
+				parent?.requestDisallowInterceptTouchEvent(false)
 		}
 		return super.onInterceptTouchEvent(event)
 	}
+
+	override fun startNestedScroll(axes: Int, type: Int): Boolean =
+		!sheetState.isAnimationRunning && super.startNestedScroll(axes, type)
 }
 
 private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.ViewHolder>() {
