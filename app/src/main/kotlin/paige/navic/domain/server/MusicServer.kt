@@ -124,7 +124,8 @@ interface ShareServer {
 	suspend fun createShare(
 		ids: List<String>,
 		description: String? = null,
-		expiresAt: Instant? = null
+		expiresAt: Instant? = null,
+		downloadable: Boolean = false
 	): DomainShare
 
 	suspend fun deleteShare(id: String)

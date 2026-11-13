@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,9 +36,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalSnackBarState
+import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.getServerInfo
 import paige.navic.ui.component.common.DurationPicker
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
@@ -57,6 +61,9 @@ fun ShareDialog(
 	onDismissRequest: () -> Unit
 ) {
 	val viewModel = koinViewModel<ShareDialogViewModel>()
+	val sessionManager = koinInject<SessionManager>()
+
+	val isNavidrome = sessionManager.getServerInfo()?.type.equals("navidrome", ignoreCase = true)
 
 	// There is not an elegant cross-platform way of making a ClipEntry yet this is deprecated lmao
 	@Suppress("DEPRECATION")
@@ -67,6 +74,8 @@ fun ShareDialog(
 	val state by viewModel.state.collectAsStateWithLifecycle()
 
 	var expiry by remember(id) { mutableStateOf<Duration?>(null) }
+	var description by remember(id) { mutableStateOf("") }
+	var downloadable by remember(id) { mutableStateOf(false) }
 
 	LaunchedEffect(state) {
 		if (state is UiState.Success && id != null) {
@@ -98,7 +107,14 @@ fun ShareDialog(
 			buttons = {
 				SegmentedListButton(
 					modifier = Modifier.fillMaxWidth(),
-					onClick = { viewModel.share(id, expiry) },
+					onClick = {
+						viewModel.share(
+							id = id,
+							expiry = expiry,
+							description = description.trim().ifBlank { null },
+							downloadable = downloadable
+						)
+					},
 					enabled = state !is UiState.Loading,
 					shapes = SegmentedListButtonDefaults.shapes(index = 0, count = 2),
 					colors = SegmentedListButtonDefaults.primaryColors()
@@ -133,6 +149,40 @@ fun ShareDialog(
 				modifier = Modifier.fillMaxWidth(),
 				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
 			) {
+				OutlinedTextField(
+					value = description,
+					onValueChange = { description = it },
+					modifier = Modifier.fillMaxWidth(),
+					enabled = state !is UiState.Loading,
+					label = { Text(stringResource(R.string.option_share_description)) },
+					singleLine = true
+				)
+
+				if (isNavidrome) {
+					val downloadableInteractionSource = remember { MutableInteractionSource() }
+
+					SegmentedListItem(
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 0,
+							count = 1
+						),
+						onClick = { downloadable = !downloadable },
+						enabled = state !is UiState.Loading,
+						interactionSource = downloadableInteractionSource,
+						content = { Text(stringResource(R.string.option_share_downloadable)) },
+						contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+						trailingContent = {
+							Switch(
+								modifier = Modifier.padding(start = 4.dp),
+								checked = downloadable,
+								onCheckedChange = null,
+								enabled = state !is UiState.Loading,
+								interactionSource = downloadableInteractionSource
+							)
+						}
+					)
+				}
+
 				val checked = expiry != null
 				val interactionSource = remember { MutableInteractionSource() }
 

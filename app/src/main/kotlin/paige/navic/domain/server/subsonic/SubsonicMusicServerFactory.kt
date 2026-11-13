@@ -20,7 +20,7 @@ import paige.navic.util.network.buildKtorEngine
 import paige.navic.util.network.createOkHttpClient
 import paige.navic.util.network.getProxyUrlOrNull
 
-class SubsonicMusicServerFactory(
+open class SubsonicMusicServerFactory(
 	private val preferenceManager: PreferenceManager,
 	private val dnsResolver: NavicDnsResolver
 ) : MusicServerFactory {
