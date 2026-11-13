@@ -39,6 +39,7 @@
 	<string name="title_similar_artists">Similar artists</string>
 	<string name="title_discord_server">Discord server</string>
 	<string name="title_matrix_space">Matrix space</string>
+	<string name="title_wiki">Wiki</string>
 	<string name="title_shares">Shares</string>
 	<string name="title_choose_font">Application font</string>
 	<string name="title_fonts_inbuilt">Built-in</string>
@@ -73,6 +74,8 @@
 	<string name="title_top_albums">Top albums</string>
 	<string name="title_lyric_providers">Lyric providers</string>
 	<string name="title_codeberg" translatable="false">Codeberg</string>
+	<string name="title_website">Website</string>
+	<string name="title_links">Links</string>
 	<string name="title_link_confirmation">Leaving Navic</string>
 	<string name="title_audio_effects">Audio effects</string>
 	<string name="title_chat">Chat</string>
@@ -563,6 +566,7 @@
 	<string name="alt_addresses_edit_address">Edit address</string>
 	<string name="alt_addresses_dialog_hint">Insert a bare IP or hostname (specifying the port is allowed):</string>
 	<string name="alt_addresses_text_field_placeholder">Eg. 192.168.1.6</string>
+	<string name="title_build_info">Build Info</string>
 	<string name="title_commit_hash">Commit hash</string>
 	<string name="title_commit_message">Commit message</string>
 	<string name="title_branch_name">Branch name</string>
