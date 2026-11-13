@@ -146,7 +146,10 @@ interface RadioServer {
 	suspend fun deleteRadioStation(id: String)
 }
 
+// this is probably very subject to change later
 interface PlaylistCoverServer {
+	suspend fun isImageAbsent(playlistId: String): Boolean
+
 	suspend fun uploadPlaylistCover(id: String, bytes: ByteArray)
 
 	suspend fun removePlaylistCover(id: String)
