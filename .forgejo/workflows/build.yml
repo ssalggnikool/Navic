@@ -34,26 +34,26 @@ jobs:
     name: Android
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          submodules: 'recursive'
+
       - name: Restore cache
         id: cache
         uses: https://data.forgejo.org/actions/cache/restore@v6
         with:
           path: |
-            ~/.gradle
+            ~/.gradle/caches
+            ~/.gradle/wrapper
             ./**/build
           key: cache
-
-      - name: Checkout repository
-        uses: actions/checkout@v7
-        with:
-          submodules: 'recursive'
 
       - name: Setup JDK
         uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 21
-          cache: gradle
 
       - name: Setup Android SDK
         uses: https://github.com/android-actions/setup-android@v4
@@ -95,7 +95,8 @@ jobs:
         uses: https://data.forgejo.org/actions/cache/save@v6
         with:
           path: |
-            ~/.gradle
+            ~/.gradle/caches
+            ~/.gradle/wrapper
             ./**/build
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
