@@ -32,6 +32,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.server.ServerException
 import paige.navic.domain.server.navidrome.api.domain.NavidromeAuthResponse
@@ -79,6 +80,16 @@ class NavidromeClient(
 		return json.decodeFromString<List<NavidromeSong>>(
 			response.bodyAsText()
 		).associate { it.id to it.absolutePath }
+	}
+
+	suspend fun getPlaylistInfo(id: String): NavidromePlaylist {
+		val response = authorizedRequest {
+			method = HttpMethod.Get
+			url("$baseUrl/api/playlist/$id")
+			accept(ContentType.Application.Json)
+		}
+
+		return json.decodeFromString<NavidromePlaylist>(response.bodyAsText())
 	}
 
 	suspend fun uploadPlaylistCover(id: String, bytes: ByteArray) {
@@ -196,3 +207,24 @@ private data class NavidromeSong(
 			return libraryPath.trimEnd('/', '\\') + separator + path.trimStart('/', '\\')
 		}
 }
+
+@Serializable
+data class NavidromePlaylist(
+	val imageAbsent: Boolean,
+	val id: String,
+	val name: String,
+	val comment: String,
+	val duration: Long,
+	val size: Long,
+	val songCount: Int,
+	val ownerName: String,
+	val ownerId: String,
+	val public: Boolean,
+	val path: String,
+	val sync: Boolean,
+	val uploadedImage: String,
+	val createdAt: String,
+	val updatedAt: String,
+	val rules: JsonElement? = null,
+	val evaluatedAt: String? = null
+)

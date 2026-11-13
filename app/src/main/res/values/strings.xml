@@ -590,4 +590,5 @@
 	<string name="info_server_is_opensubsonic">Is OpenSubsonic?</string>
 	<string name="info_server_info">Server information</string>
 	<string name="info_server_extensions">Server extensions</string>
+    <string name="action_replace_cover">Replace cover</string>
 </resources>

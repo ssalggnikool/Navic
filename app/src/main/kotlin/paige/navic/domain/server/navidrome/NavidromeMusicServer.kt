@@ -86,6 +86,12 @@ internal class NavidromeMusicServer(
 
 	override suspend fun deleteShare(id: String) = subsonicShares.deleteShare(id)
 
+	override suspend fun isImageAbsent(playlistId: String): Boolean {
+		val client = navidromeOrNull() ?: throw ServerException("Only implemented for Navidrome servers")
+
+		return client.getPlaylistInfo(playlistId).imageAbsent
+	}
+
 	override suspend fun uploadPlaylistCover(id: String, bytes: ByteArray) {
 		val client = navidromeOrNull()
 			?: throw ServerException(

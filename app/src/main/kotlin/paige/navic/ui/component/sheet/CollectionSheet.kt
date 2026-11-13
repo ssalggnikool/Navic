@@ -53,8 +53,8 @@ import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.RatingRow
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
-import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.brand.LastFM
 import paige.navic.ui.icons.brand.MusicBrainz
@@ -64,7 +64,6 @@ import paige.navic.ui.icons.outlined.Close
 import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Edit
 import paige.navic.ui.icons.outlined.ImageArrowUp
 import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.icons.outlined.PlaylistRemove
@@ -90,7 +89,8 @@ fun CollectionSheet(
 	onSetStarred: ((Boolean) -> Unit)? = null,
 	onDelete: (() -> Unit)? = null,
 	rating: Int? = null,
-	onSetRating: ((Int) -> Unit)? = null
+	onSetRating: ((Int) -> Unit)? = null,
+	isImageAbsent: Boolean = false
 ) {
 	val downloadManager = koinInject<DownloadManager>()
 	val preferenceManager = koinInject<PreferenceManager>()
@@ -204,7 +204,17 @@ fun CollectionSheet(
 
 			if (canEditCover && onUploadCover != null) {
 				ListItem(
-					content = { Text(stringResource(R.string.action_upload_cover)) },
+					content = {
+						Text(
+							stringResource(
+								if (isImageAbsent) {
+									R.string.action_upload_cover
+								} else {
+									R.string.action_replace_cover
+								}
+							)
+						)
+					},
 					leadingContent = { Icon(Icons.Outlined.ImageArrowUp, null) },
 					onClick = {
 						onUploadCover()
@@ -215,7 +225,7 @@ fun CollectionSheet(
 				)
 			}
 
-			if (canEditCover && onRemoveCover != null) {
+			if (canEditCover && onRemoveCover != null && !isImageAbsent) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_remove_cover)) },
 					leadingContent = { Icon(Icons.Outlined.Delete, null) },

@@ -34,6 +34,7 @@ import paige.navic.ui.viewmodel.AsyncViewModel
 
 data class CollectionViewState(
 	val collection: DomainSongCollection? = null,
+	val isCoverAbsent: Boolean = false,
 	val starred: Boolean = false,
 	val rating: Int = 0,
 	val albumInfo: DomainAlbumInfo? = null,
@@ -88,9 +89,14 @@ class CollectionDetailViewModel(
 
 	fun refreshCollection(fullRefresh: Boolean) = launch {
 		val collection = repository.getCollection(fullRefresh, collectionId)
+		val isCoverAbsent = runCatching {
+			sessionManager.playlistCovers?.isImageAbsent(playlistId = collectionId)
+		}.getOrNull() ?: false
+
 		val state = if (collection is DomainAlbum) {
 			CollectionViewState(
 				collection = collection,
+				isCoverAbsent,
 				starred = albumRepository.isAlbumStarred(collection.id),
 				rating = albumRepository.getAlbumRating(collection.id),
 				albumInfo = repository.getAlbumInfo(collectionId)

@@ -450,7 +450,8 @@ fun CollectionDetailScreen(
 										starred = isStarred,
 										onSetStarred = {
 											viewModel.starSelectedAlbum(!isStarred)
-										}
+										},
+										isImageAbsent = state.data?.isCoverAbsent ?: false
 									)
 								}
 							}
