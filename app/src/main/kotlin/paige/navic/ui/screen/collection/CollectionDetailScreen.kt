@@ -6,6 +6,9 @@
 
 package paige.navic.ui.screen.collection
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -31,9 +34,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,6 +48,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.materialkolor.dynamiccolor.ColorSpec
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -106,6 +114,22 @@ fun CollectionDetailScreen(
 
 	var shareId by remember { mutableStateOf<String?>(null) }
 
+	val context = LocalContext.current
+	val scope = rememberCoroutineScope()
+	val coverPicker = rememberLauncherForActivityResult(
+		ActivityResultContracts.PickVisualMedia()
+	) { uri ->
+		if (uri == null) return@rememberLauncherForActivityResult
+		scope.launch {
+			val bytes = runCatching {
+				withContext(Dispatchers.IO) {
+					context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+				}
+			}.getOrNull() ?: return@launch
+			viewModel.uploadPlaylistCover(bytes)
+		}
+	}
+
 	val otherAlbums by viewModel.otherAlbums.collectAsStateWithLifecycle()
 	val downloadManager = koinInject<DownloadManager>()
 	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(emptyList())
@@ -146,6 +170,12 @@ fun CollectionDetailScreen(
 					collection = collection,
 					titleAlpha = titleAlpha,
 					onSetShareId = { shareId = it },
+					onUploadCover = {
+						coverPicker.launch(
+							PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+						)
+					},
+					onRemoveCover = viewModel::removePlaylistCover,
 					onPlayNext = { if (collection != null) player.playNext(collection) },
 					onAddToQueue = { if (collection != null) player.appendQueue(collection) },
 					rating = state.data?.rating,

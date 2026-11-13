@@ -52,6 +52,7 @@ fun PlaylistListScreenGridItem(
 			},
 			onLongClick = onSelect,
 			coverArtId = playlist.coverArtId,
+			coverVersion = playlist.modifiedAt.toEpochMilliseconds().toString(),
 			title = playlist.name ?: "[unknown playlist]",
 			subtitle = buildString {
 				append(

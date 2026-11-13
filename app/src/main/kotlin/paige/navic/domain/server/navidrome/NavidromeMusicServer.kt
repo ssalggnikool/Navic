@@ -11,6 +11,8 @@ import paige.navic.domain.model.DomainShare
 import paige.navic.domain.model.DomainShareItem
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.server.MusicServer
+import paige.navic.domain.server.PlaylistCoverServer
+import paige.navic.domain.server.ServerException
 import paige.navic.domain.server.ShareServer
 import paige.navic.domain.server.navidrome.api.NavidromeClient
 import kotlin.time.Clock
@@ -22,7 +24,7 @@ internal class NavidromeMusicServer(
 	private val navidrome: NavidromeClient,
 	private val baseUrl: String,
 	private val username: String
-) : MusicServer by delegate, ShareServer {
+) : MusicServer by delegate, ShareServer, PlaylistCoverServer {
 	@Volatile
 	private var isNavidrome: Boolean? = null
 
@@ -83,4 +85,22 @@ internal class NavidromeMusicServer(
 	}
 
 	override suspend fun deleteShare(id: String) = subsonicShares.deleteShare(id)
+
+	override suspend fun uploadPlaylistCover(id: String, bytes: ByteArray) {
+		val client = navidromeOrNull()
+			?: throw ServerException(
+				"Playlist cover upload only works for Navidrome servers for now. Sorry."
+			)
+
+		client.uploadPlaylistCover(id, bytes)
+	}
+
+	override suspend fun removePlaylistCover(id: String) {
+		val client = navidromeOrNull()
+			?: throw ServerException(
+				"Playlist cover removal only works for Navidrome servers for now. Sorry."
+			)
+
+		client.removePlaylistCover(id)
+	}
 }

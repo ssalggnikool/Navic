@@ -97,6 +97,7 @@ fun ArtGridItem(
 	onClick: () -> Unit,
 	onLongClick: (() -> Unit)? = null,
 	coverArtId: String?,
+	coverVersion: String? = null,
 	title: String,
 	subtitle: String? = null,
 	playCount: Int? = null
@@ -118,6 +119,7 @@ fun ArtGridItem(
 	) {
 		CoverArt(
 			coverArtId = coverArtId,
+			coverVersion = coverVersion,
 			contentDescription = title,
 			modifier = Modifier.fillMaxWidth(),
 			interactionSource = interactionSource

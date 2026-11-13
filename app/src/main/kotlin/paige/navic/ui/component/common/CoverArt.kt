@@ -38,6 +38,7 @@ import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 fun CoverArt(
 	modifier: Modifier = Modifier,
 	coverArtId: String?,
+	coverVersion: String? = null,
 	contentScale: ContentScale = if (coverArtId?.startsWith("ar-") == true) ContentScale.Crop else ContentScale.Fit,
 	contentDescription: String? = null,
 	onClick: (() -> Unit)? = null,
@@ -63,11 +64,12 @@ fun CoverArt(
 		preferenceManager.artistImageShape.shape
 	}
 
-	val model = remember(coverArtId) {
+	val model = remember(coverArtId, coverVersion) {
+		val cacheKey = listOfNotNull(coverArtId, coverVersion).joinToString("_")
 		ImageRequest.Builder(coilPlatformContext)
 			.data(coverArtId?.let { sessionManager.getCoverArtUrl(it) })
-			.memoryCacheKey(coverArtId)
-			.diskCacheKey(coverArtId)
+			.memoryCacheKey(cacheKey)
+			.diskCacheKey(cacheKey)
 			.diskCachePolicy(CachePolicy.ENABLED)
 			.memoryCachePolicy(CachePolicy.ENABLED)
 			.crossfade(crossfadeMs)

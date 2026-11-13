@@ -24,6 +24,7 @@ import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
+import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.repository.AlbumRepository
@@ -115,6 +116,36 @@ class CollectionDetailViewModel(
 
 	fun clearSelection() = updateData {
 		it.copy(selectedSong = null, selectedAlbum = null)
+	}
+
+	fun uploadPlaylistCover(bytes: ByteArray) {
+		val playlist = data?.collection as? DomainPlaylist ?: return
+		launch {
+			runCatching {
+				sessionManager.playlistCovers?.uploadPlaylistCover(playlist.id, bytes)
+					?: error("Playlist cover upload is not supported")
+			}.onSuccess {
+				snackBarManager.notify(R.string.notice_cover_uploaded)
+				refreshCollection(true)
+			}.onFailure {
+				snackBarManager.notify(R.string.notice_cover_upload_failed)
+			}
+		}
+	}
+
+	fun removePlaylistCover() {
+		val playlist = data?.collection as? DomainPlaylist ?: return
+		launch {
+			runCatching {
+				sessionManager.playlistCovers?.removePlaylistCover(playlist.id)
+					?: error("Playlist cover removal is not supported")
+			}.onSuccess {
+				snackBarManager.notify(R.string.notice_cover_removed)
+				refreshCollection(true)
+			}.onFailure {
+				snackBarManager.notify(R.string.notice_cover_removal_failed)
+			}
+		}
 	}
 
 	fun removeFromPlaylist() {

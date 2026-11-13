@@ -22,6 +22,7 @@ import paige.navic.domain.server.ChatServer
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
+import paige.navic.domain.server.PlaylistCoverServer
 import paige.navic.domain.server.RadioServer
 import paige.navic.domain.server.ServerCredentials
 import paige.navic.domain.server.ServerExtension
@@ -121,6 +122,9 @@ class SessionManager(
 
 	val radio: RadioServer?
 		get() = api as? RadioServer
+
+	val playlistCovers: PlaylistCoverServer?
+		get() = api as? PlaylistCoverServer
 
 	init {
 		if (hasStoredCredentials) {

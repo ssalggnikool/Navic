@@ -387,6 +387,8 @@
 	<string name="action_refresh">Refresh</string>
 	<string name="action_restart">Restart</string>
 	<string name="action_share">Share</string>
+	<string name="action_upload_cover">Upload cover</string>
+	<string name="action_remove_cover">Remove cover</string>
 	<string name="action_save">Save</string>
 	<string name="action_track_info">View track info</string>
 	<string name="action_view_album">View album</string>
@@ -459,6 +461,10 @@
 	<string name="notice_deleted_download">Download deleted.</string>
 	<string name="notice_deleted_downloads">Downloads deleted.</string>
 	<string name="notice_removed_from_playlist">Removed from playlist.</string>
+	<string name="notice_cover_uploaded">Cover updated.</string>
+	<string name="notice_cover_removed">Cover removed.</string>
+	<string name="notice_cover_upload_failed">Couldn\'t upload cover.</string>
+	<string name="notice_cover_removal_failed">Couldn\'t remove cover.</string>
 	<string name="notice_created_radio">Radio %1$s added.</string>
 	<string name="notice_added_to_queue">Added to queue.</string>
 	<string name="notice_play_next">Playing next.</string>

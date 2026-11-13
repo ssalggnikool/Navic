@@ -57,6 +57,7 @@ fun PlaylistListScreenListItem(
 			leadingContent = {
 				CoverArt(
 					coverArtId = playlist.coverArtId,
+					coverVersion = playlist.modifiedAt.toEpochMilliseconds().toString(),
 					modifier = Modifier.size(50.dp),
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)

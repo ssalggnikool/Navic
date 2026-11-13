@@ -47,6 +47,10 @@ fun CollectionDetailScreenHeadingRow(
 	with(LocalSharedTransitionScope.current) {
 		CoverArt(
 			coverArtId = collection.coverArtId,
+			coverVersion = (collection as? DomainPlaylist)
+				?.modifiedAt
+				?.toEpochMilliseconds()
+				?.toString(),
 			contentDescription = collection.name,
 			modifier = Modifier
 				.widthIn(0.dp, 420.dp)
