@@ -59,7 +59,7 @@ import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -444,7 +444,7 @@ fun CollectionDetailScreen(
 			onClearError = { viewModel.clearError() }
 		)
 
-		ShareDialog(
+		ShareSheet(
 			id = shareId,
 			onDismissRequest = {
 				shareId = null

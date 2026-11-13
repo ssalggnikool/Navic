@@ -49,7 +49,7 @@ import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.layout.ArtGridPlaceholder
 import paige.navic.ui.component.layout.NestedTopBar
@@ -238,7 +238,7 @@ fun SongListScreen(
 		}
 	}
 
-	ShareDialog(
+	ShareSheet(
 		id = shareId,
 		onDismissRequest = { shareId = null }
 	)

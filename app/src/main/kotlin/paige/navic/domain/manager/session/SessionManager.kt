@@ -252,6 +252,10 @@ fun SessionManager.getServerInfo(): ServerInfo? {
 	return (sessionState.value as? SessionState.Authenticated)?.serverInfo
 }
 
+fun SessionManager.isNavidrome(): Boolean {
+	return this.getServerInfo()?.type.equals("navidrome", ignoreCase = true)
+}
+
 fun SessionManager.supportsExtension(extension: ServerExtension): Boolean {
 	return this.getServerInfo()?.extensions?.contains(extension) == true
 }
