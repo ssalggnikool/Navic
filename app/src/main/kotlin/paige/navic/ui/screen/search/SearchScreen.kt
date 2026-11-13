@@ -61,7 +61,7 @@ import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.RootBottomBar
@@ -377,7 +377,7 @@ fun SearchScreen(
 		onDismissRequest = { songToQueue = null }
 	)
 
-	ShareDialog(
+	ShareSheet(
 		id = shareId,
 		onDismissRequest = {
 			shareId = null

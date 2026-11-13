@@ -39,7 +39,7 @@ import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.SyncProgressBar
 import paige.navic.ui.component.dialog.DeletionDialog
 import paige.navic.ui.component.dialog.DeletionTarget
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.layout.PullToRefreshBox
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
@@ -250,7 +250,7 @@ fun LibraryScreen() {
 		}
 	)
 
-	ShareDialog(
+	ShareSheet(
 		id = shareId,
 		onDismissRequest = { shareId = null }
 	)

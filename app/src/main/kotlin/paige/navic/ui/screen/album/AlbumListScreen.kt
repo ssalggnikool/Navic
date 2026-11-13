@@ -50,7 +50,7 @@ import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.playback.MediaPlayer
 import paige.navic.ui.component.common.AlphabeticalScroller
 import paige.navic.ui.component.common.ContentUnavailable
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -376,7 +376,7 @@ fun AlbumListScreen(
 		onClearError = { viewModel.clearError() }
 	)
 
-	ShareDialog(
+	ShareSheet(
 		id = shareId,
 		onDismissRequest = { shareId = null }
 	)

@@ -27,7 +27,7 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.playback.MediaPlayer
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.sheet.SleepTimerSheet
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.icons.Icons
@@ -129,7 +129,7 @@ fun NowPlayingMoreButton(
 	}
 
 	NavicTheme(colorScheme) {
-		ShareDialog(
+		ShareSheet(
 			id = shareId,
 			onDismissRequest = { shareId = null }
 		)
