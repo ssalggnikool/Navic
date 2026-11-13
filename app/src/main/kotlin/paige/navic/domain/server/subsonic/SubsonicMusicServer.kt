@@ -363,7 +363,8 @@ internal class SubsonicMusicServer(
 	override suspend fun createShare(
 		ids: List<String>,
 		description: String?,
-		expiresAt: Instant?
+		expiresAt: Instant?,
+		downloadable: Boolean
 	): DomainShare = call {
 		client.createShare(ids, description = description, expiresAt = expiresAt)
 	}.toDomainModel()

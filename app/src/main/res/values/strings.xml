@@ -139,6 +139,8 @@
 	<string name="option_lyrics_keep_alive">Keep screen on in lyrics view</string>
 	<string name="option_lyrics_blur">Blur the edges</string>
 	<string name="option_lyrics_bright_inactive">Brighter inactive lines</string>
+	<string name="option_share_description">Description</string>
+	<string name="option_share_downloadable">Allow downloads</string>
 	<string name="option_share_expires">Expires</string>
 	<string name="option_account_instance">Instance URL</string>
 	<string name="option_account_username">Username</string>
