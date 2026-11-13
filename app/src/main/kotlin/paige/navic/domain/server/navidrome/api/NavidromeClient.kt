@@ -10,7 +10,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.accept
 import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -48,6 +50,31 @@ class NavidromeClient(
 
 	@Volatile
 	private var authToken: String? = null
+
+	suspend fun getSongFilePath(id: String): String {
+		val response = authorizedRequest {
+			method = HttpMethod.Get
+			url("$baseUrl/api/song/$id")
+			accept(ContentType.Application.Json)
+		}
+
+		return json.decodeFromString<NavidromeSong>(
+			response.bodyAsText()
+		).absolutePath
+	}
+
+	suspend fun getAlbumSongPaths(albumId: String): Map<String, String> {
+		val response = authorizedRequest {
+			method = HttpMethod.Get
+			url("$baseUrl/api/song")
+			parameter("_filters", """{"album_id":"$albumId"}""")
+			accept(ContentType.Application.Json)
+		}
+
+		return json.decodeFromString<List<NavidromeSong>>(
+			response.bodyAsText()
+		).associate { it.id to it.absolutePath }
+	}
 
 	suspend fun createShare(
 		resourceIds: List<String>,
@@ -118,3 +145,16 @@ private data class CreateShareRequest(
 
 @Serializable
 private data class NavidromeShareResponse(val id: String)
+
+@Serializable
+private data class NavidromeSong(
+	val id: String,
+	val path: String,
+	val libraryPath: String
+) {
+	val absolutePath: String
+		get() {
+			val separator = if (libraryPath.contains('\\')) "\\" else "/"
+			return libraryPath.trimEnd('/', '\\') + separator + path.trimStart('/', '\\')
+		}
+}
