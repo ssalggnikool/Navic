@@ -11,6 +11,7 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.accept
+import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -20,11 +21,15 @@ import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.PartData
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import paige.navic.domain.server.InvalidCredentialsException
@@ -74,6 +79,39 @@ class NavidromeClient(
 		return json.decodeFromString<List<NavidromeSong>>(
 			response.bodyAsText()
 		).associate { it.id to it.absolutePath }
+	}
+
+	suspend fun uploadPlaylistCover(id: String, bytes: ByteArray) {
+		val part = PartData.BinaryChannelItem(
+			provider = { ByteReadChannel(bytes) },
+			partHeaders = Headers.build {
+				append(
+					HttpHeaders.ContentDisposition,
+					"form-data; name=\"image\"; filename=\"cover.jpg\""
+				)
+			}
+		)
+
+		val response = authorizedRequest {
+			method = HttpMethod.Post
+			url("$baseUrl/api/playlist/$id/image")
+			setBody(MultiPartFormDataContent(listOf(part)))
+		}
+
+		if (!response.status.isSuccess()) {
+			throw ServerException("Failed to upload playlist cover (${response.status})")
+		}
+	}
+
+	suspend fun removePlaylistCover(id: String) {
+		val response = authorizedRequest {
+			method = HttpMethod.Delete
+			url("$baseUrl/api/playlist/$id/image")
+		}
+
+		if (!response.status.isSuccess()) {
+			throw ServerException("Failed to remove playlist cover (${response.status})")
+		}
 	}
 
 	suspend fun createShare(

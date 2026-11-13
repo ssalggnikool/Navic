@@ -44,6 +44,7 @@ import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.canUserShare
+import paige.navic.domain.manager.session.isNavidrome
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
 import paige.navic.domain.model.DomainPlaylist
@@ -63,6 +64,7 @@ import paige.navic.ui.icons.outlined.Close
 import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.DownloadOff
+import paige.navic.ui.icons.outlined.Edit
 import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.icons.outlined.PlaylistRemove
 import paige.navic.ui.icons.outlined.Queue
@@ -77,6 +79,8 @@ fun CollectionSheet(
 	collection: DomainSongCollection,
 	albumInfo: DomainAlbumInfo? = null,
 	onShare: (() -> Unit)? = null,
+	onUploadCover: (() -> Unit)? = null,
+	onRemoveCover: (() -> Unit)? = null,
 	onPlayNext: (() -> Unit)? = null,
 	onAddToQueue: (() -> Unit)? = null,
 	onAddAllToPlaylist: (() -> Unit)? = null,
@@ -102,6 +106,9 @@ fun CollectionSheet(
 		headlineColor = MaterialTheme.colorScheme.onSurface
 	)
 	var linkToOpen by rememberSaveable { mutableStateOf<String?>(null) }
+	val canEditCover = collection is DomainPlaylist &&
+		collection.readOnly != true &&
+		sessionManager.isNavidrome()
 	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 
 	ModalBottomSheet(
@@ -122,6 +129,10 @@ fun CollectionSheet(
 			leadingContent = {
 				CoverArt(
 					coverArtId = collection.coverArtId,
+					coverVersion = (collection as? DomainPlaylist)
+						?.modifiedAt
+						?.toEpochMilliseconds()
+						?.toString(),
 					modifier = Modifier.size(50.dp),
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
@@ -183,6 +194,32 @@ fun CollectionSheet(
 					leadingContent = { Icon(Icons.Outlined.Share, null) },
 					onClick = {
 						onShare()
+						onDismissRequest()
+					},
+					colors = colors,
+					contentPadding = contentPadding
+				)
+			}
+
+			if (canEditCover && onUploadCover != null) {
+				ListItem(
+					content = { Text(stringResource(R.string.action_upload_cover)) },
+					leadingContent = { Icon(Icons.Outlined.Edit, null) },
+					onClick = {
+						onUploadCover()
+						onDismissRequest()
+					},
+					colors = colors,
+					contentPadding = contentPadding
+				)
+			}
+
+			if (canEditCover && onRemoveCover != null) {
+				ListItem(
+					content = { Text(stringResource(R.string.action_remove_cover)) },
+					leadingContent = { Icon(Icons.Outlined.Delete, null) },
+					onClick = {
+						onRemoveCover()
 						onDismissRequest()
 					},
 					colors = colors,
