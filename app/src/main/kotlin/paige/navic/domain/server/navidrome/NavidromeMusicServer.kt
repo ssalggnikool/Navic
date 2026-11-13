@@ -6,8 +6,10 @@
 
 package paige.navic.domain.server.navidrome
 
+import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainShare
 import paige.navic.domain.model.DomainShareItem
+import paige.navic.domain.model.DomainSong
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.ShareServer
 import paige.navic.domain.server.navidrome.api.NavidromeClient
@@ -31,6 +33,27 @@ internal class NavidromeMusicServer(
 			.also { isNavidrome = it }
 
 		return this.navidrome.takeIf { navidrome }
+	}
+
+	override suspend fun getAlbum(id: String): DomainAlbum {
+		val album = delegate.getAlbum(id)
+		val paths = navidromeOrNull()?.getAlbumSongPaths(id).orEmpty()
+
+		return album.copy(
+			songs = album.songs.map { song ->
+				paths[song.id]?.let { song.copy(filePath = it) } ?: song
+			}
+		)
+	}
+
+	override suspend fun getSong(id: String): DomainSong {
+		val subsonicSong = delegate.getSong(id)
+		val realFilePath = navidromeOrNull()?.getSongFilePath(id)
+			?: return subsonicSong
+
+		return subsonicSong.copy(
+			filePath = realFilePath
+		)
 	}
 
 	override suspend fun getShares(): List<DomainShare> = subsonicShares.getShares()
