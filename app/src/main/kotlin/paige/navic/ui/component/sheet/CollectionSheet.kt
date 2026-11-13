@@ -65,6 +65,7 @@ import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.DownloadOff
 import paige.navic.ui.icons.outlined.Edit
+import paige.navic.ui.icons.outlined.ImageArrowUp
 import paige.navic.ui.icons.outlined.PlaylistAdd
 import paige.navic.ui.icons.outlined.PlaylistRemove
 import paige.navic.ui.icons.outlined.Queue
@@ -204,7 +205,7 @@ fun CollectionSheet(
 			if (canEditCover && onUploadCover != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_upload_cover)) },
-					leadingContent = { Icon(Icons.Outlined.Edit, null) },
+					leadingContent = { Icon(Icons.Outlined.ImageArrowUp, null) },
 					onClick = {
 						onUploadCover()
 						onDismissRequest()
