@@ -109,6 +109,9 @@ internal class SubsonicMusicServer(
 					if (extension.name == "transcoding" && extension.versions.contains(1)) {
 						add(ServerExtension.TRANSCODE_DECISION)
 					}
+					if (extension.name == "transcodeOffset" && extension.versions.contains(1)) {
+						add(ServerExtension.TRANSCODE_OFFSET)
+					}
 				}
 
 				if (runCatching { client.getChatMessages() }.isSuccess) {

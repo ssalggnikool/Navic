@@ -67,6 +67,8 @@ class NavicDataSource(
 		const val NAVIC_SONG_HOST = "song"
 		const val ARTWORK_SIZE = 512
 		const val HQ_ARTWORK_SIZE = 1024
+		const val PARAM_TRANSCODE = "transcode"
+		const val PARAM_TIME_OFFSET = "timeOffset"
 		private const val TAG = "NavicDataSource"
 
 		fun String.buildSongUri(): Uri {
@@ -118,6 +120,10 @@ class NavicDataSource(
 			null
 		}
 
+		// set by TranscodeDataSource for streams that must be requested with a time offset
+		val isTranscode = uri.getQueryParameter(PARAM_TRANSCODE) == "1"
+		val timeOffsetSeconds = uri.getQueryParameter(PARAM_TIME_OFFSET)?.toIntOrNull()
+
 		var cacheKey: String? = null
 
 		val targetUri = songId?.let {
@@ -128,8 +134,10 @@ class NavicDataSource(
 						Uri.fromFile(File(localPath))
 					} else {
 						val (bitrateKbps, format) = getCurrentQuality(preferenceManager, connectivityManager)
-						cacheKey = streamCacheManager.keyFor(it, bitrateKbps, format)
-						resolveStreamUrl(it)
+						if (!isTranscode) {
+							cacheKey = streamCacheManager.keyFor(it, bitrateKbps, format)
+						}
+						resolveStreamUrl(it).withTimeOffset(timeOffsetSeconds)
 					}
 				}
 			}
@@ -202,5 +210,13 @@ class NavicDataSource(
 
 		ttlLruCache.put(cacheKey, streamUrl)
 		return streamUrl.toUri()
+	}
+
+	private fun Uri.withTimeOffset(seconds: Int?): Uri {
+		return if (seconds == null || seconds <= 0) {
+			this
+		} else {
+			buildUpon().appendQueryParameter(PARAM_TIME_OFFSET, seconds.toString()).build()
+		}
 	}
 }

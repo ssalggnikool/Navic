@@ -8,6 +8,7 @@ package paige.navic.domain.server
 
 enum class ServerExtension {
 	TRANSCODE_DECISION,
+	TRANSCODE_OFFSET,
 	CHAT
 }
 

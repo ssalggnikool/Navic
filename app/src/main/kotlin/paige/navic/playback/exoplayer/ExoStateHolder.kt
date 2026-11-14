@@ -63,8 +63,10 @@ import kotlinx.coroutines.sync.withLock
 import paige.navic.R
 import paige.navic.domain.manager.playback.EqualizerManager
 import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
+import paige.navic.domain.manager.session.connectivity.ConnectivityManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
@@ -76,6 +78,7 @@ import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
 import paige.navic.playback.exoplayer.impl.listeners.ScrobbleExoListener
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
 import paige.navic.playback.exoplayer.impl.playback.ExoEqualizerManager
+import paige.navic.playback.exoplayer.impl.source.TranscodeMediaSourceFactory
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
@@ -89,7 +92,9 @@ class ExoStateHolder(
 	private val equalizerManager: EqualizerManager,
 	private val reachability: ReachabilityFlow,
 	private val syncManager: SyncManager,
-	private val sessionManager: SessionManager
+	private val sessionManager: SessionManager,
+	private val connectivityManager: ConnectivityManager,
+	private val downloadManager: DownloadManager
 ) {
 	private val mutex = Mutex()
 	private val listenerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -281,7 +286,16 @@ class ExoStateHolder(
 	}.build()
 
 	private suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
-		val mediaSourceFactory = DefaultMediaSourceFactory(dataSource, extractorsFactory)
+		val mediaSourceFactory =
+			TranscodeMediaSourceFactory(
+				delegate = DefaultMediaSourceFactory(dataSource, extractorsFactory),
+				dataSourceFactory = dataSource,
+				extractorsFactory = extractorsFactory,
+				preferenceManager = preferenceManager,
+				connectivityManager = connectivityManager,
+				downloadManager = downloadManager,
+				sessionManager = sessionManager
+			)
 
 		player = ExoPlayer.Builder(
 			context,
