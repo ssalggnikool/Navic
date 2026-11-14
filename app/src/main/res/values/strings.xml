@@ -551,7 +551,7 @@
 	<string name="info_login_description">Log into a Subsonic compatible music server.</string>
 	<string name="info_exception_handler">This will immediately crash the application. Are you sure?</string>
 	<string name="info_streaming_quality">Higher quality presets will use more data. Transcoding can severely impact load times and cause lyrics to become unsynced. Select Lossless if you encounter any issues.</string>
-	<string name="info_transcoding_unsupported">Your server does not support transcoding, so these options are unavailable.</string>
+	<string name="info_transcode_streaming_unsupported">Your server does not support the "transcodeOffset" server extension for transcode streaming, so these options are unavailable.</string>
 	<string name="info_download_quality">Higher quality presets will use more storage and data. Transcoding can increase download times. Select Lossless if you encounter any issues.</string>
 	<string name="info_repeat_off">Repeat off</string>
 	<string name="info_repeat_one">Repeat one</string>

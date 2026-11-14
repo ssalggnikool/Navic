@@ -504,7 +504,7 @@
     <string name="info_delete_download_single">Möchtest du den Download für %1$s wirklich löschen?</string>
     <string name="info_delete_download_collection">Möchtest du die für %1$s heruntergeladenen Songs wirklich löschen?</string>
     <string name="info_delete_download_library">Möchtest du wirklich alle heruntergeladenen Songs von deinem Gerät löschen?</string>
-    <string name="info_transcoding_unsupported">Dein Server unterstützt keine Transkodierung, weshalb diese Optionen nicht verfügbar sind.</string>
+    <string name="info_transcode_streaming_unsupported">Dein Server unterstützt keine Transkodierung, weshalb diese Optionen nicht verfügbar sind.</string>
     <string name="info_incorrect_instance_url_format">Instanz-URL darf nicht leer sein</string>
     <string name="option_alternate_addresses">Alternative Adressen</string>
     <string name="subtitle_alternative_addresses">Rückfall-Adressen um den Musikserver zu erreichen</string>

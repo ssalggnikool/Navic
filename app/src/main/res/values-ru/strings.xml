@@ -528,7 +528,7 @@
     <string name="info_delete_download_single">Вы уверены, что хотите удалить скачанный файл %1$s?</string>
     <string name="info_delete_download_collection">Вы уверены, что хотите удалить скачанные треки %1$s?</string>
     <string name="info_delete_download_library">Вы уверены, что хотите удалить все скачанные треки со своего устройства?</string>
-    <string name="info_transcoding_unsupported">Ваш сервер не поддерживает транскодирование, поэтому эти параметры недоступны.</string>
+    <string name="info_transcode_streaming_unsupported">Ваш сервер не поддерживает транскодирование, поэтому эти параметры недоступны.</string>
     <string name="info_incorrect_instance_url_format">URL-адрес экземпляра не может быть пустым</string>
     <string name="option_alternate_addresses">Альтернативные адреса</string>
     <string name="subtitle_alternative_addresses">Резервные адреса для связи с сервером с музыкой</string>

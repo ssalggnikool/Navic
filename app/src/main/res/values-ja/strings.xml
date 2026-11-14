@@ -486,7 +486,7 @@
     <string name="action_keep_downloads">そのままにする</string>
     <string name="info_delete_download_collection">本当に%1$sのダウンロード済み楽曲を削除しますか？</string>
     <string name="info_delete_download_library">本当にこのデバイスの全てのダウンロード楽曲を削除しますか？</string>
-    <string name="info_transcoding_unsupported">このサーバーはトランスコーディングをサポートしていないため、この設定は利用できません。</string>
+    <string name="info_transcode_streaming_unsupported">このサーバーはトランスコーディングをサポートしていないため、この設定は利用できません。</string>
     <string name="info_incorrect_instance_url_format">サーバーURLは空欄にできません</string>
     <string name="option_alternate_addresses">代替アドレス</string>
     <string name="subtitle_alternative_addresses">音楽サーバーにアクセスするための代替アドレス</string>

@@ -58,7 +58,7 @@ fun SettingsStreamingQualityScreen() {
 	val reachability = koinInject<ReachabilityFlow>()
 	val isReachable by reachability.isReachable.collectAsStateWithLifecycle()
 	val isMetered by reachability.isMetered.collectAsStateWithLifecycle()
-	val supportsTranscoding = sessionManager.supportsExtension(ServerExtension.TRANSCODE_DECISION)
+	val supportsTranscodeOffset = sessionManager.supportsExtension(ServerExtension.TRANSCODE_OFFSET)
 
 	Scaffold(
 		topBar = { NestedTopBar({ Text(stringResource(R.string.title_streaming_quality)) }) }
@@ -72,7 +72,7 @@ fun SettingsStreamingQualityScreen() {
 					.verticalScroll(rememberScrollState())
 					.padding(horizontal = 16.dp)
 			) {
-				AnimatedVisibility(visible = !supportsTranscoding) {
+				AnimatedVisibility(visible = !supportsTranscodeOffset) {
 					Row(
 						modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
 						horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -83,7 +83,7 @@ fun SettingsStreamingQualityScreen() {
 							tint = MaterialTheme.colorScheme.onSurfaceVariant
 						)
 						Text(
-							stringResource(R.string.info_transcoding_unsupported),
+							stringResource(R.string.info_transcode_streaming_unsupported),
 							color = MaterialTheme.colorScheme.onSurfaceVariant,
 							style = MaterialTheme.typography.bodyMedium
 						)
@@ -107,7 +107,7 @@ fun SettingsStreamingQualityScreen() {
 						RadioButtons(
 							value = preferenceManager.streamingQualityWifi,
 							onChangeValue = { preferenceManager.streamingQualityWifi = it },
-							enabled = supportsTranscoding
+							enabled = supportsTranscodeOffset
 						)
 					}
 				}
@@ -129,7 +129,7 @@ fun SettingsStreamingQualityScreen() {
 						RadioButtons(
 							value = preferenceManager.streamingQualityCellular,
 							onChangeValue = { preferenceManager.streamingQualityCellular = it },
-							enabled = supportsTranscoding
+							enabled = supportsTranscodeOffset
 						)
 					}
 				}
@@ -140,14 +140,14 @@ fun SettingsStreamingQualityScreen() {
 				) {
 					SettingsToggleItem(
 						checked = preferenceManager.isAdvancedTranscodingActive,
-						enabled = supportsTranscoding,
+						enabled = supportsTranscodeOffset,
 						onCheckedChange = { preferenceManager.isAdvancedTranscodingActive = it },
 						content = { Text(stringResource(R.string.option_stream_custom_quality)) }
 					)
 				}
 
 				AnimatedVisibility(visible = preferenceManager.isAdvancedTranscodingActive) {
-					CustomOptions(enabled = supportsTranscoding)
+					CustomOptions(enabled = supportsTranscodeOffset)
 				}
 
 				Row(

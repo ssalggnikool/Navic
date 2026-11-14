@@ -528,7 +528,7 @@
     <string name="info_delete_download_collection">¿Seguro que desea borrar las canciones descargadas por %1$s?</string>
     <string name="info_delete_download_library">¿Seguro que desea borrar todas las canciones descargadas de su dispositivo?</string>
     <string name="info_login_description">Inicia sesión en un servidor de música compatible con Subsonic.</string>
-    <string name="info_transcoding_unsupported">Su servidor no soporta transcodificación, por lo que estas opciones no están disponibles.</string>
+    <string name="info_transcode_streaming_unsupported">Su servidor no soporta transcodificación, por lo que estas opciones no están disponibles.</string>
     <string name="info_equalizer_unsupported">Su dispositivo no soporta esta característica.</string>
     <string name="info_equalizer_mode_not_builtin">Por favor ajuste el ecualizador externo con su aplicación dedicada.</string>
     <string name="info_starred_songs">Canciones favoritas</string>
