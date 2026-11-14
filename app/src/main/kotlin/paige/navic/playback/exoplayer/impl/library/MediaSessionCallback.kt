@@ -19,17 +19,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import paige.navic.domain.repository.PlayerStateRepository
 import paige.navic.playback.exoplayer.ExoStateHolder.Companion.COMMAND_REPEAT
 import paige.navic.playback.exoplayer.ExoStateHolder.Companion.COMMAND_SHUFFLE
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.withContext
-import paige.navic.playback.PlayerRepository
 import paige.navic.playback.exoplayer.toMediaItem
 
 @OptIn(UnstableApi::class)
 internal class MediaSessionCallback(
-	private val playerRepository: PlayerRepository,
+	private val stateRepository: PlayerStateRepository,
 	private val instance: ExoPlayer,
 	private val library: AndroidAutoLibrary,
 ) : MediaLibraryService.MediaLibrarySession.Callback {
@@ -72,7 +72,7 @@ internal class MediaSessionCallback(
 		controller: MediaSession.ControllerInfo,
 		isForPlayback: Boolean
 	): ListenableFuture<MediaSession.MediaItemsWithStartPosition> = scope.future {
-		val state = playerRepository.retrievePersistedState()
+		val state = stateRepository.getState()
 
 		MediaSession.MediaItemsWithStartPosition(
 			/* mediaItems = */ withContext(Dispatchers.Default) {
@@ -235,7 +235,11 @@ internal class MediaSessionCallback(
 		params: MediaLibraryService.LibraryParams?
 	): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> =
 		if (page > 0) {
-			Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params))
+			Futures.immediateFuture(
+				LibraryResult.ofItemList(
+					ImmutableList.of(), params
+				)
+			)
 		} else {
 			scope.future {
 				LibraryResult.ofItemList(

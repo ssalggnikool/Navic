@@ -56,7 +56,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -68,7 +67,6 @@ import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.repository.PlayerStateRepository
-import paige.navic.playback.PlayerRepository
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.library.AndroidAutoLibrary
@@ -84,7 +82,6 @@ import kotlin.time.DurationUnit
 @OptIn(UnstableApi::class)
 class ExoStateHolder(
 	private val context: Context,
-	private val mediaPlayer: PlayerRepository,
 	private val preferenceManager: PreferenceManager,
 	private val dataSource: NavicDataSource.NavicDataSourceFactory,
 	private val androidAutoLibrary: AndroidAutoLibrary,
@@ -386,7 +383,7 @@ class ExoStateHolder(
 
 			this.player.let {
 				val callback = MediaSessionCallback(
-					mediaPlayer,
+					stateRepository,
 					instance = it,
 					library = androidAutoLibrary
 				)
@@ -412,7 +409,7 @@ class ExoStateHolder(
 		createMediaSession()
 
 		// the service can start without the UI, so restore the last mode here too
-		val savedState = stateRepository.state.first()
+		val savedState = stateRepository.getState()
 		player.shuffleModeEnabled = savedState.isShuffleEnabled
 		player.repeatMode = savedState.repeatMode
 		// auto builds the queue before any order is pushed, so seed ours to keep the chosen song first

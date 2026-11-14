@@ -14,7 +14,6 @@ import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
-import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,8 +70,18 @@ class PlayerRepository(
 	val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 	private val scope = CoroutineScope(Dispatchers.Main)
 
-	private var controllerFuture: ListenableFuture<MediaController>? = null
-	private var controller: MediaController? = null
+	private val controllerFuture by lazy {
+		MediaController.Builder(
+			application,
+			ExoStateHolder.newSessionToken(application)
+		).buildAsync()
+	}
+
+	private val controller: MediaController?
+		get() = controllerFuture
+			.takeIf { it.isDone }
+			?.let { runCatching { it.get() }.getOrNull() }
+
 	private var controllerHandler: ExoControllerHandler? = null
 
 	private val queueSongsById = WeakHashMap<String, QueueSong>()
@@ -184,8 +193,8 @@ class PlayerRepository(
 		return !preferenceManager.shushQueueDuplicateDialog && uiState.value.queue.any { it.id == songId }
 	}
 
-	suspend fun retrievePersistedState(): PlayerUiState {
-		val savedState = stateRepository.state.first().copy(isPaused = true, isLoading = false)
+	private suspend fun retrievePersistedState(): PlayerUiState {
+		val savedState = stateRepository.getState().copy(isPaused = true, isLoading = false)
 		savedState.queue.forEach { queueSongsById[it.id] = it }
 		savedState.currentSong?.let(::rememberCurrentSong)
 		_uiState.value = savedState
@@ -250,13 +259,11 @@ class PlayerRepository(
 			}
 	}
 
-	private fun connectService() = launch {
-		val sessionToken = ExoStateHolder.newSessionToken(application)
-		controllerFuture = MediaController.Builder(application, sessionToken).buildAsync()
-		controllerFuture?.addListener({
-			controller = controllerFuture?.get()
-			setupController()
-		}, MoreExecutors.directExecutor())
+	private fun connectService() {
+		controllerFuture.addListener(
+			{ setupController() },
+			MoreExecutors.directExecutor()
+		)
 	}
 
 	private fun setupController() = launch {
