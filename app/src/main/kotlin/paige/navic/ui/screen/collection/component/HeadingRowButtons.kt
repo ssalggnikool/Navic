@@ -38,7 +38,7 @@ import paige.navic.database.entity.DownloadStatus
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.icons.Icons
@@ -54,7 +54,7 @@ import paige.navic.ui.theme.defaultFont
 fun CollectionDetailScreenHeadingRowButtons(
 	collection: DomainSongCollection
 ) {
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val snackBarManager = koinInject<SnackBarManager>()
 	val downloadManager = koinInject<DownloadManager>()
 	val downloadDeletionHandler = rememberDownloadDeletionHandler()

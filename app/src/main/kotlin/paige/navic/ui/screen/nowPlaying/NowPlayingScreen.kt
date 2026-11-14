@@ -40,7 +40,7 @@ import paige.navic.di.LocalSheetState
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingBackgroundStyle
 import paige.navic.domain.model.settings.ToolbarPosition
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.BlendBackground
 import paige.navic.ui.component.layout.SheetScaffold
 import paige.navic.ui.component.layout.TopBarButton
@@ -59,7 +59,7 @@ import paige.navic.ui.screen.nowPlaying.viewmodel.NowPlayingViewModel
 @Composable
 fun NowPlayingScreen() {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val backStack = LocalNavStack.current
 
 	val currentScreen = backStack.lastOrNull()

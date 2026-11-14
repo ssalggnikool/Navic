@@ -82,7 +82,7 @@ import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.manager.ui.BottomBarScrollManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.layout.SideBar
 import paige.navic.ui.component.sheet.ChangelogSheet
 import paige.navic.ui.component.snackbar.NavicSnackBar
@@ -387,7 +387,7 @@ private fun entryProvider(
 			NowPlayingScreen()
 		}
 		entry<Screen.Lyrics>(metadata = NowPlayingSceneStrategy.bottomSheet(isTransparent = true)) {
-			val player = koinInject<MediaPlayer>()
+			val player = koinInject<PlayerRepository>()
 			val playerState by player.uiState.collectAsStateWithLifecycle()
 			val song = playerState.currentSong
 			LyricsScreen(song)

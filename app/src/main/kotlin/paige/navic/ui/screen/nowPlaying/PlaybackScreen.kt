@@ -45,13 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.util.rememberDraggableListState
 import kotlin.math.round
 
 @Composable
 fun PlaybackSpeedScreen() {
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val lazyListState = rememberLazyListState()
 	val haptic = LocalHapticFeedback.current
 	val playerState by player.uiState.collectAsStateWithLifecycle()

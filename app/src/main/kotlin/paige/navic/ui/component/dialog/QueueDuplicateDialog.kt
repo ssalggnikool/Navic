@@ -28,7 +28,7 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainSong
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.icons.Icons
@@ -42,7 +42,7 @@ fun QueueDuplicateDialog(
 	onConfirm: (() -> Unit)? = null
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 
 	if (showDialog) {
 		FormDialog(

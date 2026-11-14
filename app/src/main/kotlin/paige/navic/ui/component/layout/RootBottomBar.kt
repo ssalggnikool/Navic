@@ -34,7 +34,7 @@ import paige.navic.di.LocalSizeClass
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.MiniPlayerStyle
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.util.easedVerticalGradient
 
 @Composable
@@ -63,7 +63,7 @@ fun RootBottomBar(
 		animationSpec = tween(durationMillis = 600)
 	)
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val hasSong = playerState.currentSong != null
 

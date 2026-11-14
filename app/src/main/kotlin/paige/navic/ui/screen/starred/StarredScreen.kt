@@ -38,7 +38,7 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.dialog.ShareSheet
@@ -103,7 +103,7 @@ fun StarredScreen() {
 
 	var shareId by rememberSaveable { mutableStateOf<String?>(null) }
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
 	val downloadDeletionHandler = rememberDownloadDeletionHandler()

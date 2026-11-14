@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import paige.navic.domain.repository.SongRepository
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 
 class NowPlayingViewModel(
-    private val player: MediaPlayer,
+    private val player: PlayerRepository,
     private val songRepository: SongRepository
 ) : ViewModel(), KoinComponent {
 	val songIsStarred: StateFlow<Boolean>

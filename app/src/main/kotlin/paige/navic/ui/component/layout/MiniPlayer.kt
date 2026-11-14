@@ -52,7 +52,7 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
 import paige.navic.domain.model.settings.MiniPlayerStyle
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.icons.Icons
@@ -131,7 +131,7 @@ fun MiniPlayer(
 ) {
 	val backStack = LocalNavStack.current
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val song = playerState.currentSong
 	val isInteractive = enabled && song != null

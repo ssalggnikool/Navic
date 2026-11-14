@@ -25,7 +25,7 @@ import paige.navic.domain.repository.AlbumRepository
 import paige.navic.domain.repository.ArtistRepository
 import paige.navic.domain.repository.DbRepository
 import paige.navic.domain.repository.SongRepository
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.core.UiState
 import paige.navic.util.Logger
 
@@ -238,7 +238,7 @@ class ArtistDetailViewModel(
 		}
 	}
 
-	fun playArtistAlbums(player: MediaPlayer) {
+	fun playArtistAlbums(player: PlayerRepository) {
 		val songs = (artistState.value as? UiState.Success)?.data
 			?.albums?.flatMap { it.songs }
 			?: return
@@ -247,7 +247,7 @@ class ArtistDetailViewModel(
 		player.playNow(songs)
 	}
 
-	fun playArtistAlbumsShuffled(player: MediaPlayer) {
+	fun playArtistAlbumsShuffled(player: PlayerRepository) {
 		val songs = (artistState.value as? UiState.Success)?.data
 			?.albums?.flatMap { it.songs }
 			?: return

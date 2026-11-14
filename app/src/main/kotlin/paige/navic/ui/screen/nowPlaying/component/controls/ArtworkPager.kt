@@ -24,7 +24,7 @@ import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.CoverArtTapAction
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.nowPlaying.component.NowPlayingArtwork
 
@@ -35,7 +35,7 @@ fun NowPlayingArtworkPager(
 ) {
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val pagerState = rememberPagerState(

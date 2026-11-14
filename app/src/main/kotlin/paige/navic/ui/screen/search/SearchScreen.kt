@@ -56,7 +56,7 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
@@ -125,7 +125,7 @@ fun SearchScreen(
 	val state by viewModel.searchState.collectAsStateWithLifecycle()
 	val searchHistory by viewModel.searchHistory.collectAsStateWithLifecycle()
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 
 	var selectedCategory by remember { mutableStateOf(SearchCategory.ALL) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }

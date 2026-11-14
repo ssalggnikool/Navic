@@ -23,14 +23,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.domain.manager.runtime.PreferenceManager
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.util.toHoursMinutesSeconds
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun NowPlayingDurationsRow() {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val duration = playerState.currentSong?.duration
 	val style = MaterialTheme.typography.bodyMedium

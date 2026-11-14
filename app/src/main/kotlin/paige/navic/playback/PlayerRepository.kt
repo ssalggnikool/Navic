@@ -54,7 +54,7 @@ import kotlin.time.Duration
 
 
 @androidx.annotation.OptIn(UnstableApi::class)
-class MediaPlayer(
+class PlayerRepository(
 	private val stateRepository: PlayerStateRepository,
 	private val songRepository: SongRepository,
 	private val downloadManager: DownloadManager,
@@ -92,8 +92,6 @@ class MediaPlayer(
 		queueSongsById.keys.retainAll(ids.toSet())
 	}
 
-	private var pendingSyncState: PlayerUiState? = null
-
 	// just because I hate writing boilerplate every single line
 	private fun launch(
 		context: CoroutineContext = Dispatchers.Main,
@@ -107,10 +105,6 @@ class MediaPlayer(
 
 	init {
 		connectService()
-		launch {
-			restoreState()
-		}
-		observeAndSaveState()
 	}
 
 	fun playNow(song: DomainSong) {
@@ -190,12 +184,54 @@ class MediaPlayer(
 		return !preferenceManager.shushQueueDuplicateDialog && uiState.value.queue.any { it.id == songId }
 	}
 
-	private suspend fun restoreState() {
+	suspend fun retrievePersistedState(): PlayerUiState {
 		val savedState = stateRepository.state.first().copy(isPaused = true, isLoading = false)
 		savedState.queue.forEach { queueSongsById[it.id] = it }
 		savedState.currentSong?.let(::rememberCurrentSong)
 		_uiState.value = savedState
-		syncPlayerWithState(savedState)
+		return savedState
+	}
+
+	suspend fun restoreState(controller: MediaController) {
+		val savedState = retrievePersistedState()
+
+		if (savedState.queue.isEmpty() || controller.mediaItemCount > 0) {
+			controllerHandler?.updatePlaybackState()
+			return
+		}
+
+		val mediaItems = withContext(Dispatchers.Default) {
+			savedState.queue.map { it.toMediaItem() }
+		}
+
+		val index =
+			if (savedState.currentIndex in mediaItems.indices) savedState.currentIndex else 0
+
+		controllerHandler?.startOrder(mediaItems.size, index)
+
+		controller.apply {
+			setMediaItems(mediaItems)
+
+			this.shuffleModeEnabled = savedState.isShuffleEnabled
+			this.repeatMode = savedState.repeatMode
+			this.playbackParameters = PlaybackParameters(savedState.playbackSpeed)
+		}
+		controllerHandler?.pushOrder()
+
+		val songDurationMs =
+			savedState.queue.getOrNull(index)?.duration?.inWholeMilliseconds ?: 0L
+
+		val position = if (songDurationMs > 0) {
+			(savedState.progress * songDurationMs).toLong()
+		} else {
+			0L
+		}
+
+		controller.seekTo(index, position)
+		controller.prepare()
+		if (!savedState.isPaused) {
+			controller.play()
+		}
 		checkAndAutoFillQueue()
 	}
 
@@ -212,7 +248,6 @@ class MediaPlayer(
 			.collect { state ->
 				stateRepository.setState(state)
 			}
-
 	}
 
 	private fun connectService() = launch {
@@ -245,59 +280,13 @@ class MediaPlayer(
 					albumDao = albumDao,
 					songRepository = songRepository,
 					requestAutoFill = ::checkAndAutoFillQueue
-				).also { handler -> controllerHandler = handler }
+				).also {
+					handler -> controllerHandler = handler
+					restoreState(controller)
+					observeAndSaveState()
+				}
 			)
-		}
-		downloadManager.allDownloads.first()
-		pendingSyncState?.let { state ->
-			syncPlayerWithState(state)
-			pendingSyncState = null
-		}
-		checkAndAutoFillQueue()
-	}
-
-	fun syncPlayerWithState(state: PlayerUiState) = launch {
-		val player = controller
-
-		if (player == null) {
-			pendingSyncState = state
-			return@launch
-		}
-
-		if (state.queue.isEmpty() || player.mediaItemCount > 0) {
-			controllerHandler?.updatePlaybackState()
-			return@launch
-		}
-
-		val mediaItems = withContext(Dispatchers.Default) {
-			state.queue.map { it.toMediaItem() }
-		}
-
-		val index = if (state.currentIndex in mediaItems.indices) state.currentIndex else 0
-
-		controllerHandler?.startOrder(mediaItems.size, index)
-
-		player.apply {
-			setMediaItems(mediaItems)
-
-			shuffleModeEnabled = state.isShuffleEnabled
-			repeatMode = state.repeatMode
-			playbackParameters = PlaybackParameters(state.playbackSpeed)
-		}
-		controllerHandler?.pushOrder()
-
-		val songDurationMs = state.queue.getOrNull(index)?.duration?.inWholeMilliseconds ?: 0L
-
-		val position = if (songDurationMs > 0) {
-			(state.progress * songDurationMs).toLong()
-		} else {
-			0L
-		}
-
-		player.seekTo(index, position)
-		player.prepare()
-		if (!state.isPaused) {
-			player.play()
+			downloadManager.allDownloads.first()
 		}
 	}
 
@@ -415,7 +404,7 @@ class MediaPlayer(
 		return if (next == C.INDEX_UNSET) mediaItemCount else next
 	}
 
-	fun playInstantMix(seed: DomainSong) = this@MediaPlayer.launch {
+	fun playInstantMix(seed: DomainSong) = this@PlayerRepository.launch {
 		val similar = songRepository.getSimilarSongs(seed.id).getOrElse {
 			Logger.e("MediaPlayer", "Failed to fetch similar songs: ${it.message}")
 			snackBarManager.notify(R.string.notice_instant_mix_failed)
