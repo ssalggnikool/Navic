@@ -23,10 +23,14 @@ import paige.navic.playback.exoplayer.ExoStateHolder.Companion.COMMAND_REPEAT
 import paige.navic.playback.exoplayer.ExoStateHolder.Companion.COMMAND_SHUFFLE
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import kotlinx.coroutines.guava.future
+import kotlinx.coroutines.withContext
+import paige.navic.playback.PlayerRepository
+import paige.navic.playback.exoplayer.toMediaItem
 
 @OptIn(UnstableApi::class)
 internal class MediaSessionCallback(
-	private val player: ExoPlayer,
+	private val playerRepository: PlayerRepository,
+	private val instance: ExoPlayer,
 	private val library: AndroidAutoLibrary,
 ) : MediaLibraryService.MediaLibrarySession.Callback {
 	private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -63,6 +67,22 @@ internal class MediaSessionCallback(
 		)
 	}
 
+	override fun onPlaybackResumption(
+		mediaSession: MediaSession,
+		controller: MediaSession.ControllerInfo,
+		isForPlayback: Boolean
+	): ListenableFuture<MediaSession.MediaItemsWithStartPosition> = scope.future {
+		val state = playerRepository.retrievePersistedState()
+
+		MediaSession.MediaItemsWithStartPosition(
+			/* mediaItems = */ withContext(Dispatchers.Default) {
+				state.queue.map { it.toMediaItem() }
+			},
+			/* startIndex = */ state.currentIndex,
+			/* startPositionMs = */ 0
+		)
+	}
+
 	override fun onCustomCommand(
 		session: MediaSession,
 		controller: MediaSession.ControllerInfo,
@@ -74,26 +94,26 @@ internal class MediaSessionCallback(
 		when (customCommand.customAction) {
 			COMMAND_SHUFFLE -> {
 				val enabled = args.getBoolean(
-					SHUFFLE_ENABLED_KEY, !player.shuffleModeEnabled
+					SHUFFLE_ENABLED_KEY, !instance.shuffleModeEnabled
 				)
 
 				args.getIntArray(SHUFFLE_ORDER_KEY)
-					?.takeIf { it.size == player.mediaItemCount }
-					?.let { player.shuffleOrder = BetterShuffleOrder(it) }
+					?.takeIf { it.size == instance.mediaItemCount }
+					?.let { instance.shuffleOrder = BetterShuffleOrder(it) }
 
-				player.shuffleModeEnabled = enabled
+				instance.shuffleModeEnabled = enabled
 
 				session.broadcastCustomCommand(
 					SessionCommand(COMMAND_SHUFFLE_STATE, Bundle.EMPTY),
 					Bundle().apply {
 						putBoolean(SHUFFLE_ENABLED_KEY, enabled)
-						putIntArray(SHUFFLE_ORDER_KEY, player.shuffleOrder.toIntArray())
+						putIntArray(SHUFFLE_ORDER_KEY, instance.shuffleOrder.toIntArray())
 					}
 				)
 			}
 
 			COMMAND_REPEAT -> {
-				player.repeatMode = when (player.repeatMode) {
+				instance.repeatMode = when (instance.repeatMode) {
 					Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
 					Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
 					else -> Player.REPEAT_MODE_OFF

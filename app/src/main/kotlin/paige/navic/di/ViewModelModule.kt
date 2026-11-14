@@ -14,7 +14,7 @@ import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSongListType
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.dialog.DeletionViewModel
 import paige.navic.ui.component.sheet.ChangelogViewModel
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
@@ -46,8 +46,8 @@ import paige.navic.ui.viewmodel.RootViewModel
 import paige.navic.util.network.NavicDnsResolver
 
 val viewModelModule = module {
-	single<MediaPlayer> {
-		MediaPlayer(
+	single<PlayerRepository> {
+		PlayerRepository(
 			application = androidApplication(),
 			stateRepository = get(),
 			songRepository = get(),

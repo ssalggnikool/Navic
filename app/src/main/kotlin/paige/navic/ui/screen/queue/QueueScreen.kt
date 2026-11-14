@@ -69,7 +69,7 @@ import paige.navic.di.LocalSetSheetGesturesEnabled
 import paige.navic.di.LocalSheetState
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.QueueInfoType
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.core.QueueSong
 import paige.navic.ui.icons.Icons
@@ -84,7 +84,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun QueueScreen() {
 	val viewModel = koinViewModel<QueueViewModel>()
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val state = player.uiState.collectAsStateWithLifecycle()
 
 	val playerState by remember(player) {
@@ -243,7 +243,7 @@ fun QueueScreen() {
 
 @Composable
 private fun QueueInfoText(
-	player: MediaPlayer,
+	player: PlayerRepository,
 	queue: List<QueueSong>,
 	currentIndex: Int
 ) {

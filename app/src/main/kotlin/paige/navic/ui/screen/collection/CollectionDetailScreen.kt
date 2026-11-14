@@ -65,7 +65,7 @@ import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.layout.ArtCarousel
@@ -102,7 +102,7 @@ fun CollectionDetailScreen(
 		parameters = { parametersOf(collectionId) }
 	)
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val state by viewModel.uiState.collectAsStateWithLifecycle()

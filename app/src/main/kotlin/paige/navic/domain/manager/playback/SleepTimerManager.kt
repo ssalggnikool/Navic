@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -30,7 +30,7 @@ sealed interface SleepTimerMode {
 }
 
 class SleepTimerManager(
-	private val player: MediaPlayer
+	private val player: PlayerRepository
 ) {
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 	private var job: Job? = null

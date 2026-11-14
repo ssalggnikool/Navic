@@ -68,6 +68,7 @@ import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.repository.PlayerStateRepository
+import paige.navic.playback.PlayerRepository
 import paige.navic.playback.exoplayer.impl.BetterShuffleOrder
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 import paige.navic.playback.exoplayer.impl.library.AndroidAutoLibrary
@@ -83,6 +84,7 @@ import kotlin.time.DurationUnit
 @OptIn(UnstableApi::class)
 class ExoStateHolder(
 	private val context: Context,
+	private val mediaPlayer: PlayerRepository,
 	private val preferenceManager: PreferenceManager,
 	private val dataSource: NavicDataSource.NavicDataSourceFactory,
 	private val androidAutoLibrary: AndroidAutoLibrary,
@@ -383,7 +385,11 @@ class ExoStateHolder(
 			)
 
 			this.player.let {
-				val callback = MediaSessionCallback(it, androidAutoLibrary)
+				val callback = MediaSessionCallback(
+					mediaPlayer,
+					instance = it,
+					library = androidAutoLibrary
+				)
 				mediaSessionCallback = callback
 				mediaSession = MediaLibraryService.MediaLibrarySession.Builder(
 					context,
