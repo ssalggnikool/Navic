@@ -9,5 +9,6 @@ package paige.navic.domain.model.settings
 enum class FontOption(val displayName: String) {
 	System("System"),
 	GoogleSans("Google Sans"),
+	OneUISans("One UI Sans"),
 	Custom("Custom")
 }

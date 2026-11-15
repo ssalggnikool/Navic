@@ -15,4 +15,6 @@ object PlatformSupport {
 	val SUPPORTS_COMPOSE_BLUR: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 	@ChecksSdkIntAtLeast(Build.VERSION_CODES.O)
 	val IS_BITMAP_HARDWARE_RENDERING_BROKEN = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+
+	val SUPPORTS_ONE_UI_SANS = Build.VERSION.SDK_INT >= 34 && Build.MANUFACTURER.equals("samsung", ignoreCase = true)
 }

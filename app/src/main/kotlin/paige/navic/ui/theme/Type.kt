@@ -9,15 +9,32 @@ package paige.navic.ui.theme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.text.font.FontWeight
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.FontOption
+import paige.navic.util.PlatformSupport
 
 private val defaultTypography = Typography()
+
+// https://github.com/tribalfs/oneui-design/blob/1befedd193025f2271f741e10fd12bc0f101b17e/lib/src/main/java/dev/oneuiproject/oneui/utils/TypefaceUtils.kt
+@Composable
+fun oneUiSans(): FontFamily {
+	return remember {
+		FontFamily(
+			Font(DeviceFontFamilyName("sec"), weight = FontWeight.Light),
+			Font(DeviceFontFamilyName("sec"), weight = FontWeight.Normal),
+			Font(DeviceFontFamilyName("sec"), weight = FontWeight.Medium),
+			Font(DeviceFontFamilyName("sec"), weight = FontWeight.SemiBold),
+			Font(DeviceFontFamilyName("sec"), weight = FontWeight.Bold)
+		)
+	}
+}
 
 @Composable
 fun googleSans(
@@ -44,10 +61,12 @@ fun defaultFont(
 ): FontFamily {
 	val preferenceManager = koinInject<PreferenceManager>()
 	val googleSans = googleSans(grade, width, round)
+	val oneUiSans = oneUiSans()
 	return remember(preferenceManager.font, preferenceManager.fontPath) {
 		when (preferenceManager.font) {
 			FontOption.System -> FontFamily.Default
 			FontOption.GoogleSans -> googleSans
+			FontOption.OneUISans -> if (PlatformSupport.SUPPORTS_ONE_UI_SANS) oneUiSans else FontFamily.Default
 			FontOption.Custom -> FontFamily.Default
 		}
 	}
