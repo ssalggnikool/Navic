@@ -18,6 +18,10 @@ enum class ServerExtension(
 		prettyName = "Transcode time offset",
 		serverType = ServerType.SUBSONIC
 	),
+	OPENSUBSONIC_PLAYBACK_RERPORT(
+		prettyName = "Playback report",
+		serverType = ServerType.SUBSONIC
+	),
 	SUBSONIC_CHAT(
 		prettyName = "Chat",
 		serverType = ServerType.SUBSONIC

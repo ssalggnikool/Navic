@@ -99,33 +99,31 @@ class SubsonicMusicServer(
 
 	override suspend fun serverInfo(): ServerInfo {
 		val response = call { client.ping() }
-		val supportedExtensions = runCatching {
-			client.getOpenSubsonicExtensions()
-		}.getOrDefault(emptyList())
+		val subsonicExtensions = if (response.openSubsonic) {
+			runCatching {
+				client.getOpenSubsonicExtensions()
+			}.getOrDefault(emptyList())
+		} else {
+			emptyList()
+		}
 
-		val detected = if (response.openSubsonic) {
-			buildSet {
-				supportedExtensions.forEach { extension ->
-					if (extension.name == "transcoding" && extension.versions.contains(1)) {
-						add(ServerExtension.OPENSUBSONIC_TRANSCODE_DECISION)
-					}
-					if (extension.name == "transcodeOffset" && extension.versions.contains(1)) {
-						add(ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET)
-					}
-				}
+		return ServerInfo(
+			extensions = buildSet {
+				subsonicExtensions
+					.map { it.name to it.versions }
+					.mapNotNull { (name, version) ->
+						when (name) {
+							"transcoding" if version.contains(1) -> ServerExtension.OPENSUBSONIC_TRANSCODE_DECISION
+							"transcodeOffset" if version.contains(1) -> ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET
+							"reportPlayback" if version.contains(1) -> ServerExtension.OPENSUBSONIC_PLAYBACK_RERPORT
+							else -> null
+						}
+					}.forEach(::add)
 
 				if (runCatching { client.getChatMessages() }.isSuccess) {
 					add(ServerExtension.SUBSONIC_CHAT)
 				}
-			}
-		} else {
-			emptySet()
-		}
-
-		extensions = detected
-
-		return ServerInfo(
-			extensions = detected,
+			},
 			serverVersion = response.serverVersion,
 			version = response.version,
 			type = response.type,

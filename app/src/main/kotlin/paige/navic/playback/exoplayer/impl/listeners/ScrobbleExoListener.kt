@@ -14,7 +14,9 @@ import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
+import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.domain.model.DomainPlaybackState
+import paige.navic.domain.server.ServerExtension
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
@@ -50,33 +52,31 @@ class ScrobbleExoListener(
 		state: DomainPlaybackState,
 		playbackRate: Float = player.playbackParameters.speed
 	) {
-		if (songId == null || !reachability.isReachable.value) return
+		if (songId == null
+			|| !reachability.isReachable.value
+			|| !sessionManager.supportsExtension(ServerExtension.OPENSUBSONIC_PLAYBACK_RERPORT)
+			) return
 
-		scope.launch(Dispatchers.IO) {
-			try {
+		scope.launch {
+			runCatching {
 				sessionManager.api.reportPlayback(
 					id = songId,
 					positionMs = positionMs,
 					state = state,
 					playbackRate = playbackRate
 				)
-			} catch (_: Exception) {
-				if (state == DomainPlaybackState.PLAYING || state == DomainPlaybackState.STARTING) {
-					scrobbleNowPlaying(songId)
-				}
 			}
 		}
 	}
 
-	private fun scrobbleNowPlaying(songId: String?) {
+	private fun submitNowPlayingScrobble(songId: String?) {
 		if (!preferenceManager.enableScrobbling || songId == null) return
 
 		if (!reachability.isReachable.value) return
 
-		scope.launch(Dispatchers.IO) {
-			try {
+		scope.launch {
+			runCatching {
 				sessionManager.api.scrobble(songId, submission = false)
-			} catch (_: Exception) {
 			}
 		}
 	}
@@ -84,18 +84,16 @@ class ScrobbleExoListener(
 	private fun scrobbleSubmission(songId: String?) {
 		if (!preferenceManager.enableScrobbling || songId == null) return
 
-		scope.launch(Dispatchers.IO) {
+		scope.launch {
 			val currentTime = Clock.System.now()
 
 			if (reachability.isReachable.value) {
-				try {
+				runCatching {
 					sessionManager.api.scrobble(songId, submission = true, time = currentTime)
-				} catch (_: Exception) {
-					syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
+					return@launch
 				}
-			} else {
-				syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
 			}
+			syncManager.enqueueAction(SyncActionType.SCROBBLE, songId, currentTime)
 		}
 	}
 
@@ -115,7 +113,7 @@ class ScrobbleExoListener(
 				positionMs = pos,
 				state = state
 			)
-			scrobbleNowPlaying(songId)
+			submitNowPlayingScrobble(songId)
 			hasSentNowPlaying = true
 
 			if (player.isPlaying) {
@@ -214,7 +212,7 @@ class ScrobbleExoListener(
 					state = DomainPlaybackState.PLAYING
 				)
 				if (!hasSentNowPlaying) {
-					scrobbleNowPlaying(songId)
+					submitNowPlayingScrobble(songId)
 					hasSentNowPlaying = true
 				}
 			}
