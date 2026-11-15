@@ -54,7 +54,7 @@ class ScrobbleExoListener(
 	) {
 		if (songId == null
 			|| !reachability.isReachable.value
-			|| !sessionManager.supportsExtension(ServerExtension.OPENSUBSONIC_PLAYBACK_RERPORT)
+			|| !sessionManager.supportsExtension(ServerExtension.OPENSUBSONIC_PLAYBACK_REPORT)
 			) return
 
 		scope.launch {

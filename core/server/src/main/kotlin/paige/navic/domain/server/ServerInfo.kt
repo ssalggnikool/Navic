@@ -18,7 +18,7 @@ enum class ServerExtension(
 		prettyName = "Transcode time offset",
 		serverType = ServerType.SUBSONIC
 	),
-	OPENSUBSONIC_PLAYBACK_RERPORT(
+	OPENSUBSONIC_PLAYBACK_REPORT(
 		prettyName = "Playback report",
 		serverType = ServerType.SUBSONIC
 	),

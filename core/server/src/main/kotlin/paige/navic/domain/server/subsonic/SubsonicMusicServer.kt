@@ -115,7 +115,7 @@ class SubsonicMusicServer(
 						when (name) {
 							"transcoding" if version.contains(1) -> ServerExtension.OPENSUBSONIC_TRANSCODE_DECISION
 							"transcodeOffset" if version.contains(1) -> ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET
-							"reportPlayback" if version.contains(1) -> ServerExtension.OPENSUBSONIC_PLAYBACK_RERPORT
+							"playbackReport" if version.contains(1) -> ServerExtension.OPENSUBSONIC_PLAYBACK_REPORT
 							else -> null
 						}
 					}.forEach(::add)
