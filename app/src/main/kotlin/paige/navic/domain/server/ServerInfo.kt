@@ -6,10 +6,28 @@
 
 package paige.navic.domain.server
 
-enum class ServerExtension {
-	TRANSCODE_DECISION,
-	TRANSCODE_OFFSET,
-	CHAT
+enum class ServerExtension(
+	val prettyName: String,
+	val serverType: ServerType
+) {
+	OPENSUBSONIC_TRANSCODE_DECISION(
+		prettyName = "Transcode decision",
+		serverType = ServerType.SUBSONIC
+	),
+	OPENSUBSONIC_TRANSCODE_OFFSET(
+		prettyName = "Transcode time offset",
+		serverType = ServerType.SUBSONIC
+	),
+	SUBSONIC_CHAT(
+		prettyName = "Chat",
+		serverType = ServerType.SUBSONIC
+	)
+}
+
+enum class ServerType(
+	val prettyName: String
+) {
+	SUBSONIC("Subsonic")
 }
 
 data class ServerStatus(

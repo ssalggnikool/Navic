@@ -203,7 +203,7 @@ fun AccountSheet(
 				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
 			) {
 				val isSharingAllowed = sessionManager.getUser()?.canShare() == true
-				val supportsChat = sessionManager.supportsExtension(ServerExtension.CHAT)
+				val supportsChat = sessionManager.supportsExtension(ServerExtension.SUBSONIC_CHAT)
 
 				var count = 1
 

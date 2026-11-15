@@ -107,15 +107,15 @@ internal class SubsonicMusicServer(
 			buildSet {
 				supportedExtensions.forEach { extension ->
 					if (extension.name == "transcoding" && extension.versions.contains(1)) {
-						add(ServerExtension.TRANSCODE_DECISION)
+						add(ServerExtension.OPENSUBSONIC_TRANSCODE_DECISION)
 					}
 					if (extension.name == "transcodeOffset" && extension.versions.contains(1)) {
-						add(ServerExtension.TRANSCODE_OFFSET)
+						add(ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET)
 					}
 				}
 
 				if (runCatching { client.getChatMessages() }.isSuccess) {
-					add(ServerExtension.CHAT)
+					add(ServerExtension.SUBSONIC_CHAT)
 				}
 			}
 		} else {
@@ -303,7 +303,7 @@ internal class SubsonicMusicServer(
 			format
 		)
 		val supportedExtensions = extensions ?: serverInfo().extensions
-		if (ServerExtension.TRANSCODE_DECISION !in supportedExtensions) return directUrl
+		if (ServerExtension.OPENSUBSONIC_TRANSCODE_DECISION !in supportedExtensions) return directUrl
 
 		val decision = call {
 			client.getTranscodeDecision(

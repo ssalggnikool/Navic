@@ -59,7 +59,7 @@ internal class TranscodeMediaSourceFactory(
 			durationMs != null &&
 			durationMs > 0L &&
 			isTranscodingActive() &&
-			sessionManager.supportsExtension(ServerExtension.TRANSCODE_OFFSET)
+			sessionManager.supportsExtension(ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET)
 		) {
 			TimeOffsetMediaSource(
 				mediaItem = mediaItem,

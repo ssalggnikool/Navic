@@ -210,9 +210,9 @@ fun SettingsConnectionOptionsScreen() {
 				}
 				serverInfo?.let {
 					val count = if (it.extensions.isNotEmpty()) {
-						4
+						6
 					} else {
-						3
+						5
 					}
 
 					SettingsGroup(
@@ -234,9 +234,20 @@ fun SettingsConnectionOptionsScreen() {
 							colors = ListItemDefaults.segmentedColors(
 								containerColor = MaterialTheme.colorScheme.surfaceContainer
 							),
+							supportingContent = { Text(it.version ?: "Unknown") },
+							shapes = SegmentedListItemDefaults.segmentedShapes(
+								index = 2,
+								count = count
+							),
+						)
+						SegmentedListItem(
+							content = { Text(stringResource(R.string.info_subsonic_server_version)) },
+							colors = ListItemDefaults.segmentedColors(
+								containerColor = MaterialTheme.colorScheme.surfaceContainer
+							),
 							supportingContent = { Text(it.serverVersion ?: "Unknown") },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 1,
+								index = 3,
 								count = count
 							),
 						)
@@ -247,17 +258,22 @@ fun SettingsConnectionOptionsScreen() {
 							),
 							supportingContent = { Text(it.isOpenSubsonic.toString()) },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
-								index = 2,
+								index = 4,
 								count = count
 							),
 						)
 						if (it.extensions.isNotEmpty()) {
 							SegmentedListItem(
-								content = { Text(stringResource(R.string.info_server_extensions)) },
+								content = { Text(stringResource(R.string.info_supported_server_extensions)) },
 								colors = ListItemDefaults.segmentedColors(
 									containerColor = MaterialTheme.colorScheme.surfaceContainer
 								),
-								supportingContent = { Text(it.extensions.joinToString(", ")) },
+								supportingContent = {
+									Text(
+										it.extensions.joinToString(", ")
+										{ extension -> extension.prettyName }
+									)
+								},
 								shapes = SegmentedListItemDefaults.segmentedShapes(
 									index = count - 1,
 									count = count
