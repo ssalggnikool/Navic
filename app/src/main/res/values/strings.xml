@@ -592,4 +592,5 @@
 	<string name="info_supported_server_extensions">Supported server extensions</string>
     <string name="action_replace_cover">Replace cover</string>
 	<string name="info_server_version">Server version</string>
+	<string name="action_restart_application">Restart application</string>
 </resources>

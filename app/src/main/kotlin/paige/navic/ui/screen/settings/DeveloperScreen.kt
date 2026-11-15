@@ -6,6 +6,7 @@
 
 package paige.navic.ui.screen.settings
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.glance.LocalContext
 import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
@@ -43,6 +45,7 @@ import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsNavItem
+import paige.navic.util.MiscUtils
 
 @Composable
 fun SettingsDeveloperScreen() {
@@ -75,6 +78,8 @@ fun SettingsDeveloperScreen() {
 					.padding(horizontal = 16.dp),
 				verticalArrangement = Arrangement.spacedBy(SettingsGroupDefaults.GapBetweenGroups)
 			) {
+				val context = koinInject<Context>()
+
 				SettingsGroup {
 					SettingsNavItem(
 						onClick = {
@@ -101,13 +106,20 @@ fun SettingsDeveloperScreen() {
 					SegmentedListItem(
 						onClick = { snackBarManager.notify(R.string.action_test_snack_bar) },
 						content = { Text(stringResource(R.string.action_test_snack_bar)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 					SegmentedListItem(
 						onClick = { exceptionConfirmationShown = true },
 						content = { Text(stringResource(R.string.action_test_exception_handler)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2),
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3),
 						colors = SegmentedListItemDefaults.segmentedErrorColors()
+					)
+					SegmentedListItem(
+						onClick = {
+							MiscUtils.triggerRebirth(context)
+						},
+						content = { Text(stringResource(R.string.action_restart_application)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
 			}
