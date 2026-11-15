@@ -40,9 +40,7 @@ fun buildKtorEngine(
 	okHttpClient: OkHttpClient
 ): HttpClientEngine {
 	return OkHttp.create {
-		config {
-			preconfigured = okHttpClient
-		}
+		preconfigured = okHttpClient
 	}
 }
 
