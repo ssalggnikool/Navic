@@ -153,11 +153,12 @@ class DownloadProcessor(
 		Logger.i("DownloadProcessor", "caching lyrics for $songId")
 		try {
 			val lyricsResult = lyricsRepository.fetchLyrics(songId)
-			if (lyricsResult?.rawContent != null) {
+			val rawContent = lyricsResult?.rawContent
+			if (rawContent != null) {
 				lyricDao.insertLyrics(
 					LyricEntity(
 						songId = songId,
-						rawContent = lyricsResult.rawContent,
+						rawContent = rawContent,
 						providerName = lyricsResult.providerName
 					)
 				)

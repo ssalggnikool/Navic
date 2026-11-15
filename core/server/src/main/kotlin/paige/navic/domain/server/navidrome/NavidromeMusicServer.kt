@@ -18,7 +18,7 @@ import paige.navic.domain.server.navidrome.api.NavidromeClient
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-internal class NavidromeMusicServer(
+class NavidromeMusicServer(
 	private val delegate: MusicServer,
 	private val subsonicShares: ShareServer,
 	private val navidrome: NavidromeClient,

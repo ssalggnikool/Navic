@@ -8,8 +8,6 @@ plugins {
 	alias(libs.plugins.android.application)
 	alias(libs.plugins.compose.compiler)
 	alias(libs.plugins.kotlin.serialization)
-	alias(libs.plugins.ksp)
-	alias(libs.plugins.androidx.room3)
 }
 
 configurations.all {
@@ -176,11 +174,12 @@ androidComponents {
 	}
 }
 
-room3 {
-	schemaDirectory("$projectDir/schemas")
-}
-
 dependencies {
+	implementation(project(":core:common"))
+	implementation(project(":core:model"))
+	implementation(project(":core:database"))
+	implementation(project(":core:server"))
+
 	// Compose
 	implementation(libs.compose.runtime)
 	implementation(libs.compose.foundation)
@@ -245,7 +244,6 @@ dependencies {
 	implementation(libs.koin.androidx.workmanager)
 	implementation(libs.subsonicKotlin)
 	"defaultImplementation"(libs.antisocialcord)
-	ksp(libs.androidx.room3.compiler)
 	implementation(libs.cryptohash)
 	implementation(libs.mimetypes)
 	implementation(libs.kotlinx.coroutines.guava)

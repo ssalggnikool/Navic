@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.persistentListOf
+import paige.navic.R
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.settings.ListViewMode
@@ -61,7 +62,14 @@ fun ArtistListScreenSortButton(
 		SortSheet(
 			entries = entries,
 			selectedSorting = selectedSorting,
-			label = { stringResource(it.displayName) },
+			label = {
+				stringResource(
+					when (it) {
+						DomainArtistListType.AlphabeticalByName -> R.string.option_sort_alphabetical_by_name
+						DomainArtistListType.Random -> R.string.option_sort_random
+					}
+				)
+			},
 			onSetSorting = onSetSorting,
 			onDismissRequest = { expanded = false },
 			selectedViewMode = selectedViewMode,

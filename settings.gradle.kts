@@ -58,5 +58,9 @@ dependencyResolutionManagement {
 }
 
 include(":app")
+include(":core:common")
+include(":core:model")
+include(":core:database")
+include(":core:server")
 includeMedia3(file("vendor/androidx-media"))
 includeBuild("vendor/subsonic-kotlin")

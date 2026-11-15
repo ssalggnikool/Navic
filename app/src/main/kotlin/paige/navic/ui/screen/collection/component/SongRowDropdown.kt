@@ -53,6 +53,7 @@ fun CollectionDetailScreenSongRowDropdown(
 	var isPlayNextPending by rememberSaveable { mutableStateOf<Boolean?>(null) }
 
 	if (expanded) {
+		val albumId = song.albumId
 		SongSheet(
 			onDismissRequest = onDismissRequest,
 			song = song,
@@ -80,11 +81,11 @@ fun CollectionDetailScreenSongRowDropdown(
 			onTrackInfo = dropUnlessResumed {
 				backStack.add(Screen.SongDetailScreen(song.id, song.coverArtId))
 			},
-			onViewAlbum = if (isPlaylist && song.albumId != null) {
+			onViewAlbum = if (isPlaylist && albumId != null) {
 				dropUnlessResumed {
 					backStack.add(
 						Screen.CollectionDetail(
-							collectionId = song.albumId
+							collectionId = albumId
 						)
 					)
 				}

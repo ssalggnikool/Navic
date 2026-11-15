@@ -121,8 +121,9 @@ fun SongRow(
 						showPlayCount = true
 					)
 				)
-				if (song.userRating != null && song.userRating != 0) {
-					SmallRatingRow(rating = song.userRating)
+				val userRating = song.userRating
+				if (userRating != null && userRating != 0) {
+					SmallRatingRow(rating = userRating)
 				}
 			}
 		},

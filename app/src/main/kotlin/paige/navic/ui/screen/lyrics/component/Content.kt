@@ -77,7 +77,8 @@ fun LyricsScreenContent(
 	val anticipationOffset = 250.milliseconds
 	val activeIndex = if (isSynced) {
 		lyrics.indexOfLast { line ->
-			line.time != null && (currentDuration + anticipationOffset) >= line.time
+			val time = line.time
+			time != null && (currentDuration + anticipationOffset) >= time
 		}
 	} else -1
 
@@ -242,10 +243,13 @@ fun LyricsScreenContent(
 								}
 							}
 						}
-					} else if (line.time != null) {
-						player.seek((line.time / duration).toFloat())
-						if (player.uiState.value.isPaused) {
-							player.resume()
+					} else {
+						val time = line.time
+						if (time != null) {
+							player.seek((time / duration).toFloat())
+							if (player.uiState.value.isPaused) {
+								player.resume()
+							}
 						}
 					}
 				},

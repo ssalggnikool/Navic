@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - app/**
+      - core/**
       - gradle/**
       - androidx-media
       - build.gradle.kts
@@ -17,6 +18,7 @@ on:
   pull_request:
     paths:
       - app/**
+      - core/**
       - gradle/**
       - androidx-media
       - build.gradle.kts

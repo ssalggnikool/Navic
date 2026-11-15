@@ -118,25 +118,27 @@ fun ArtistSheet(
 
 		HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
 
+		val lastFmUrl = artist.lastFmUrl
+		val musicBrainzId = artist.musicBrainzId
 		Column(Modifier.verticalScroll(rememberScrollState())) {
-			if (artist.lastFmUrl != null) {
+			if (lastFmUrl != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_view_on_lastfm)) },
 					leadingContent = { Icon(Icons.Brand.LastFM, null) },
 					onClick = {
-						linkToOpen = artist.lastFmUrl
+						linkToOpen = lastFmUrl
 					},
 					colors = colors,
 					contentPadding = contentPadding
 				)
 			}
 
-			if (artist.musicBrainzId != null) {
+			if (musicBrainzId != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_view_on_musicbrainz)) },
 					leadingContent = { Icon(Icons.Brand.MusicBrainz, null) },
 					onClick = {
-						linkToOpen = "https://musicbrainz.org/artist/${artist.musicBrainzId}"
+						linkToOpen = "https://musicbrainz.org/artist/$musicBrainzId"
 					},
 					colors = colors,
 					contentPadding = contentPadding

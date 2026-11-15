@@ -164,25 +164,27 @@ fun CollectionSheet(
 
 		HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
 
+		val lastFmUrl = albumInfo?.lastFmUrl
+		val musicBrainzId = albumInfo?.musicBrainzId
 		Column(Modifier.verticalScroll(rememberScrollState())) {
-			if (albumInfo?.lastFmUrl != null) {
+			if (lastFmUrl != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_view_on_lastfm)) },
 					leadingContent = { Icon(Icons.Brand.LastFM, null) },
 					onClick = {
-						linkToOpen = albumInfo.lastFmUrl
+						linkToOpen = lastFmUrl
 					},
 					colors = colors,
 					contentPadding = contentPadding
 				)
 			}
 
-			if (albumInfo?.musicBrainzId != null) {
+			if (musicBrainzId != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_view_on_musicbrainz)) },
 					leadingContent = { Icon(Icons.Brand.MusicBrainz, null) },
 					onClick = {
-						linkToOpen = "https://musicbrainz.org/release/${albumInfo.musicBrainzId}"
+						linkToOpen = "https://musicbrainz.org/release/$musicBrainzId"
 					},
 					colors = colors,
 					contentPadding = contentPadding

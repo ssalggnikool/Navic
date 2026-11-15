@@ -41,7 +41,7 @@ import paige.navic.domain.server.ShareServer
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-internal class SubsonicMusicServer(
+class SubsonicMusicServer(
 	private val client: SubsonicClient,
 	private val username: String?
 ) : MusicServer, ChatServer, ShareServer, RadioServer {
