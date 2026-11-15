@@ -75,7 +75,7 @@ androidx-browser = { module = "androidx.browser:browser", version = "1.10.0" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
 
 # Kotlinx
-cryptohash = { module = "com.appmattus.crypto:cryptohash", version = "2.0.0" }
+cryptohash = { module = "com.appmattus.crypto:cryptohash", version = "1.0.2" } # R8 fails to minify this on 2.0.0 for some reason, might kang the xxhash stuff latter
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.8.0" }
