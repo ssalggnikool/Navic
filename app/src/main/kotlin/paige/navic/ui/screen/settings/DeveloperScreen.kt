@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.glance.LocalContext
 import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
