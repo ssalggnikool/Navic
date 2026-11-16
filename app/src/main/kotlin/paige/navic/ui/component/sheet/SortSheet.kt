@@ -40,12 +40,12 @@ import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.settings.ListViewMode
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Download
-import paige.navic.ui.icons.outlined.Grid
-import paige.navic.ui.icons.outlined.List
-import paige.navic.ui.icons.outlined.ListArrow
-import paige.navic.ui.icons.outlined.Star
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Download
+import paige.navic.icons.outlined.Grid
+import paige.navic.icons.outlined.List
+import paige.navic.icons.outlined.ListArrow
+import paige.navic.icons.outlined.Star
 import paige.navic.ui.util.label
 
 @OptIn(ExperimentalMaterial3Api::class)

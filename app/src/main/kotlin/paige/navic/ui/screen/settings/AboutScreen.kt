@@ -46,14 +46,14 @@ import paige.navic.BuildConfig
 import paige.navic.R
 import paige.navic.designsystem.theme.defaultFont
 import paige.navic.di.LocalSizeClass
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Code
+import paige.navic.icons.outlined.Globe
 import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Code
-import paige.navic.ui.icons.outlined.Globe
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsLinkItem

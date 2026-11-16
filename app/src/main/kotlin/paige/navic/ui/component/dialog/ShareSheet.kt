@@ -56,8 +56,8 @@ import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.sheet.ModalBottomSheet
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Share
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Share
 import paige.navic.ui.screen.share.viewmodel.ShareDialogViewModel
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours

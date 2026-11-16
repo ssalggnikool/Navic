@@ -33,13 +33,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainRadio
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.Edit
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.Edit
 
 @Composable
 fun RadioSheet(

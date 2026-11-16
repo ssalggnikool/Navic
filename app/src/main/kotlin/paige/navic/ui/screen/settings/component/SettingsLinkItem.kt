@@ -17,8 +17,8 @@ import androidx.compose.runtime.setValue
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.External
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.External
 
 @Composable
 fun SettingsLinkItem(

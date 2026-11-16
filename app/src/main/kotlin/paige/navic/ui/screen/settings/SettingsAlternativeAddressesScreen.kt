@@ -45,10 +45,10 @@ import paige.navic.domain.manager.session.SessionManager
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.AlertDialog
 import paige.navic.ui.component.layout.NestedTopBar
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Add
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.Edit
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Add
+import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.Edit
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 

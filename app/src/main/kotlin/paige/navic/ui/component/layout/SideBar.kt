@@ -50,10 +50,10 @@ import paige.navic.domain.model.settings.NavbarConfig
 import paige.navic.domain.model.settings.NavbarTab
 import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.CoverArt
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Note
-import paige.navic.ui.icons.outlined.Menu
-import paige.navic.ui.icons.outlined.MenuOpen
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Note
+import paige.navic.icons.outlined.Menu
+import paige.navic.icons.outlined.MenuOpen
 import paige.navic.ui.navigation.NavigationTab
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel

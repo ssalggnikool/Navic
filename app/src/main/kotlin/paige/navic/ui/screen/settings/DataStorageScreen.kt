@@ -62,6 +62,8 @@ import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.OfflineMode
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Offline
 import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
 import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.HelpButton
@@ -76,8 +78,6 @@ import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.component.SettingsChoiceItem
 import paige.navic.ui.screen.settings.component.SettingsGroup

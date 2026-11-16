@@ -44,8 +44,8 @@ import paige.navic.domain.server.ServerExtension
 import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Info
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Info
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsRadioItem

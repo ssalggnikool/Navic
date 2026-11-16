@@ -55,22 +55,22 @@ import paige.navic.ui.component.common.RatingRow
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.brand.LastFM
-import paige.navic.ui.icons.brand.MusicBrainz
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Artist
-import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.Download
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.ImageArrowUp
-import paige.navic.ui.icons.outlined.PlaylistAdd
-import paige.navic.ui.icons.outlined.PlaylistRemove
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.ui.icons.outlined.QueuePlayNext
-import paige.navic.ui.icons.outlined.Share
-import paige.navic.ui.icons.outlined.Star
+import paige.navic.icons.Icons
+import paige.navic.icons.brand.LastFM
+import paige.navic.icons.brand.MusicBrainz
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Artist
+import paige.navic.icons.outlined.Close
+import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.Download
+import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.ImageArrowUp
+import paige.navic.icons.outlined.PlaylistAdd
+import paige.navic.icons.outlined.PlaylistRemove
+import paige.navic.icons.outlined.Queue
+import paige.navic.icons.outlined.QueuePlayNext
+import paige.navic.icons.outlined.Share
+import paige.navic.icons.outlined.Star
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

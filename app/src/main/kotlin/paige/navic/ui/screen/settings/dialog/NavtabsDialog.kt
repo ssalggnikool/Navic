@@ -32,11 +32,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.domain.model.settings.NavbarTab
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.DragHandle
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.dialog.AlertDialog
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.DragHandle
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
 import paige.navic.ui.util.DraggableListState
 import paige.navic.ui.util.dragHandle

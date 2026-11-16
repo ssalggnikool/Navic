@@ -68,9 +68,9 @@ import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.artGridPlaceholder
 import paige.navic.ui.component.layout.horizontalSection
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.icons.outlined.History
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Close
+import paige.navic.icons.outlined.History
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.album.component.AlbumListScreenGridItem

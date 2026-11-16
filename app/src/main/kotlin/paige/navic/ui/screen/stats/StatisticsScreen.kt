@@ -55,6 +55,10 @@ import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Headphones
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Note
 import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
@@ -62,10 +66,6 @@ import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.sheet.ArtistSheet
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Headphones
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Note
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.stats.component.StatSummaryCard
 import paige.navic.ui.screen.stats.component.TopArtistItem

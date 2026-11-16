@@ -51,14 +51,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.playback.PlayerRepository
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.RepeatOn
-import paige.navic.ui.icons.filled.RepeatOneOn
-import paige.navic.ui.icons.filled.ShuffleOn
-import paige.navic.ui.icons.filled.SkipNext
-import paige.navic.ui.icons.filled.SkipPrevious
-import paige.navic.ui.icons.outlined.Repeat
-import paige.navic.ui.icons.outlined.Shuffle
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.RepeatOn
+import paige.navic.icons.filled.RepeatOneOn
+import paige.navic.icons.filled.ShuffleOn
+import paige.navic.icons.filled.SkipNext
+import paige.navic.icons.filled.SkipPrevious
+import paige.navic.icons.outlined.Repeat
+import paige.navic.icons.outlined.Shuffle
 import paige.navic.ui.util.playPauseIconPainter
 
 @Composable

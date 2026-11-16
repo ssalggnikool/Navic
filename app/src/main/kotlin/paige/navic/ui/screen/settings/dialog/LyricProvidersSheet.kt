@@ -43,8 +43,8 @@ import paige.navic.domain.model.lyrics.LyricsProvider
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.sheet.ModalBottomSheet
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.DragHandle
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.DragHandle
 import paige.navic.ui.screen.settings.viewmodel.LyricsPriorityViewModel
 import paige.navic.ui.util.DraggableListState
 import paige.navic.ui.util.dragHandle

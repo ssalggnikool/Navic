@@ -44,11 +44,11 @@ import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.SwipeToDismissBox
 import paige.navic.ui.component.common.Waveform
 import paige.navic.ui.core.QueueSong
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.DragHandle
-import paige.navic.ui.icons.outlined.Lock
-import paige.navic.ui.icons.outlined.Offline
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.DragHandle
+import paige.navic.icons.outlined.Lock
+import paige.navic.icons.outlined.Offline
 import paige.navic.ui.util.buildSongInfoString
 
 @Composable

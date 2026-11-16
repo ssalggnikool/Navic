@@ -72,8 +72,8 @@ import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.TooltipBox
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.sheet.ColorPickerSheet
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Picker
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Picker
 import paige.navic.ui.screen.settings.component.SettingsChoiceItem
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults

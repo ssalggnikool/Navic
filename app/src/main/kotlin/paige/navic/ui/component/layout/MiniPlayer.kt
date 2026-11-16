@@ -55,9 +55,9 @@ import paige.navic.domain.model.settings.MiniPlayerStyle
 import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Note
-import paige.navic.ui.icons.filled.SkipNext
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Note
+import paige.navic.icons.filled.SkipNext
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.util.appendArtists
 import paige.navic.ui.util.playPauseIconPainter

@@ -61,8 +61,8 @@ import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.layout.artGridPlaceholder
 import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Add
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Add
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screen.playlist.component.PlaylistListScreenGridItem
 import paige.navic.ui.screen.playlist.component.PlaylistListScreenListItem

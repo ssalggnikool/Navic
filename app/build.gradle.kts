@@ -157,6 +157,7 @@ dependencies {
 	implementation(project(":core:common"))
 	implementation(project(":core:database"))
 	implementation(project(":core:designsystem"))
+	implementation(project(":core:icons"))
 	implementation(project(":core:model"))
 	implementation(project(":core:preferences"))
 	implementation(project(":core:server"))

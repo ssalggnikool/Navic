@@ -12,9 +12,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import paige.navic.R
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Help
 import paige.navic.ui.component.dialog.AlertDialog
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Help
 
 @Composable
 fun HelpButton(

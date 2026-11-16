@@ -65,6 +65,8 @@ import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Album
 import paige.navic.playback.PlayerRepository
 import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.ContentUnavailable
@@ -76,8 +78,6 @@ import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.sheet.CollectionSheet
 import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Album
 import paige.navic.ui.navigation.Screen.ArtistDetail
 import paige.navic.ui.navigation.Screen.CollectionDetail
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenFooterRow

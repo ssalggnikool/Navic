@@ -46,9 +46,9 @@ import paige.navic.domain.model.settings.CoverArtHost
 import paige.navic.domain.model.settings.CoverArtProvider
 import paige.navic.ui.component.dialog.AlertDialog
 import paige.navic.ui.component.sheet.ModalBottomSheet
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.DragHandle
-import paige.navic.ui.icons.outlined.Edit
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.DragHandle
+import paige.navic.icons.outlined.Edit
 import paige.navic.ui.screen.settings.viewmodel.CoverArtProvidersViewModel
 import paige.navic.ui.util.DraggableListState
 import paige.navic.ui.util.dragHandle

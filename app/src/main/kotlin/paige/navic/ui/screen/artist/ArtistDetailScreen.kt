@@ -78,6 +78,9 @@ import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.ArtistAlbumViewMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.DownloadDeletionType
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Grid
+import paige.navic.icons.outlined.List
 import paige.navic.playback.PlayerRepository
 import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.ErrorBox
@@ -91,9 +94,6 @@ import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Grid
-import paige.navic.ui.icons.outlined.List
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
 import paige.navic.ui.screen.album.component.AlbumListScreenListItem

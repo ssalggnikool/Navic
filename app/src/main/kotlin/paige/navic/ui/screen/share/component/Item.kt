@@ -37,8 +37,8 @@ import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainShare
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.SwipeToDismissBox
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Delete
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Delete
 import paige.navic.util.toHoursMinutesSeconds
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds

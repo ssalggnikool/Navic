@@ -19,8 +19,8 @@ import paige.navic.R
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainPlaylistListType
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Sort
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Sort
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.SortSheet
 

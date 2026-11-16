@@ -20,8 +20,8 @@ import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Download
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Download
 
 sealed interface BulkDownloadTarget {
 	data class Artist(

@@ -25,8 +25,8 @@ import org.koin.compose.koinInject
 import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.core.QueueSong
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Note
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Note
 
 @Composable
 fun NowPlayingArtwork(

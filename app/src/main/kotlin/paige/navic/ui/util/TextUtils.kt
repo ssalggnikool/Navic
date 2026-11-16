@@ -31,8 +31,8 @@ import paige.navic.designsystem.theme.warning
 import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.model.DomainSongArtist
 import paige.navic.domain.model.SongInfo
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Explicit
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Explicit
 
 val InlineExplicitIcon = persistentMapOf(
 	"InlineExplicitIcon" to InlineTextContent(

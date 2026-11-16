@@ -55,21 +55,21 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.runtime.PermissionManager
 import paige.navic.domain.manager.session.LoginManager
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Error
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Error
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.navigation.Screen.Library
-import paige.navic.designsystem.theme.defaultFont
 
 @Composable
 fun LoginScreenContent(innerPadding: PaddingValues) {

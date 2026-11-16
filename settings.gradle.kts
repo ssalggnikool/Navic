@@ -65,6 +65,7 @@ include(
 	":core:common",
 	":core:database",
 	":core:designsystem",
+	":core:icons",
 	":core:model",
 	":core:preferences",
 	":core:server"

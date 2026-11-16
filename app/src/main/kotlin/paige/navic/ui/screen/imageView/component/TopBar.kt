@@ -27,12 +27,12 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.ui.ShareManager
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.MoreVert
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarButtonDefaults
 import paige.navic.ui.component.layout.NestedTopBarDefaults
 import paige.navic.ui.component.layout.TopBarButton
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.MoreVert
 import paige.navic.util.Logger
 
 @Composable

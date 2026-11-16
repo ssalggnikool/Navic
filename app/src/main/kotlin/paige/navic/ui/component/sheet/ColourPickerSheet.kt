@@ -55,8 +55,8 @@ import dev.zt64.compose.pipette.HsvColor
 import dev.zt64.compose.pipette.SquareColorPicker
 import kotlinx.coroutines.launch
 import paige.navic.R
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Copy
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Copy
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

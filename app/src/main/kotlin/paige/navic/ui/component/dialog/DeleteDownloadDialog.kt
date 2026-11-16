@@ -27,8 +27,8 @@ import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Delete
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Delete
 
 sealed interface DeleteDownloadTarget {
 	data class Single(val id: String, val title: String) : DeleteDownloadTarget

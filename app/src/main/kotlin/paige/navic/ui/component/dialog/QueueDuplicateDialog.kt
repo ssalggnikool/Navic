@@ -31,8 +31,8 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.PlaylistAdd
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.PlaylistAdd
 
 @Composable
 fun QueueDuplicateDialog(

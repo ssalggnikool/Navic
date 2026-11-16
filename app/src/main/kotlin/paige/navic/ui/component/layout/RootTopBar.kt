@@ -28,12 +28,12 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.settings.NavbarConfig
 import paige.navic.domain.model.settings.NavbarTab
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.AccountCircle
+import paige.navic.icons.outlined.Search
 import paige.navic.ui.component.common.TooltipBox
 import paige.navic.ui.component.sheet.AccountSheet
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.AccountCircle
-import paige.navic.ui.icons.outlined.Search
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.viewmodel.NavtabsViewModel
 

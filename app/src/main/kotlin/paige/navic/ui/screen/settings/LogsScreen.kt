@@ -49,11 +49,11 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.ui.LogManager
 import paige.navic.domain.parser.LogLine
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.ArrowDown
+import paige.navic.icons.outlined.Delete
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.ArrowDown
-import paige.navic.ui.icons.outlined.Delete
 
 @Composable
 fun SettingsLogsScreen() {
