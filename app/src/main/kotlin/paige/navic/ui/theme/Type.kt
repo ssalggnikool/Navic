@@ -9,11 +9,13 @@ package paige.navic.ui.theme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.runtime.PreferenceManager
@@ -72,43 +74,51 @@ fun defaultFont(
 	}
 }
 
+private fun TextStyle.withFontFamily(fontFamily: FontFamily, useOneUiSans: Boolean) = copy(
+	fontFamily = fontFamily,
+	letterSpacing = if (useOneUiSans && letterSpacing > 0.sp) 0.2.sp else letterSpacing
+)
+
 @Composable
 fun typography(): Typography {
+	val preferenceManager = koinInject<PreferenceManager>()
 	val fontFamily = defaultFont()
+
+	val useOneUiSans = preferenceManager.font == FontOption.OneUISans && PlatformSupport.SUPPORTS_ONE_UI_SANS
 	return Typography(
-		displayLarge = defaultTypography.displayLarge.copy(fontFamily = fontFamily),
-		displayLargeEmphasized = defaultTypography.displayLargeEmphasized.copy(fontFamily = fontFamily),
-		displayMedium = defaultTypography.displayMedium.copy(fontFamily = fontFamily),
-		displayMediumEmphasized = defaultTypography.displayMediumEmphasized.copy(fontFamily = fontFamily),
-		displaySmall = defaultTypography.displaySmall.copy(fontFamily = fontFamily),
-		displaySmallEmphasized = defaultTypography.displaySmallEmphasized.copy(fontFamily = fontFamily),
+		displayLarge = defaultTypography.displayLarge.withFontFamily(fontFamily, useOneUiSans),
+		displayLargeEmphasized = defaultTypography.displayLargeEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		displayMedium = defaultTypography.displayMedium.withFontFamily(fontFamily, useOneUiSans),
+		displayMediumEmphasized = defaultTypography.displayMediumEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		displaySmall = defaultTypography.displaySmall.withFontFamily(fontFamily, useOneUiSans),
+		displaySmallEmphasized = defaultTypography.displaySmallEmphasized.withFontFamily(fontFamily, useOneUiSans),
 
-		headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = fontFamily),
-		headlineLargeEmphasized = defaultTypography.headlineLargeEmphasized.copy(fontFamily = fontFamily),
-		headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = fontFamily),
-		headlineMediumEmphasized = defaultTypography.headlineMediumEmphasized.copy(fontFamily = fontFamily),
-		headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = fontFamily),
-		headlineSmallEmphasized = defaultTypography.headlineSmallEmphasized.copy(fontFamily = fontFamily),
+		headlineLarge = defaultTypography.headlineLarge.withFontFamily(fontFamily, useOneUiSans),
+		headlineLargeEmphasized = defaultTypography.headlineLargeEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		headlineMedium = defaultTypography.headlineMedium.withFontFamily(fontFamily, useOneUiSans),
+		headlineMediumEmphasized = defaultTypography.headlineMediumEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		headlineSmall = defaultTypography.headlineSmall.withFontFamily(fontFamily, useOneUiSans),
+		headlineSmallEmphasized = defaultTypography.headlineSmallEmphasized.withFontFamily(fontFamily, useOneUiSans),
 
-		titleLarge = defaultTypography.titleLarge.copy(fontFamily = fontFamily),
-		titleLargeEmphasized = defaultTypography.titleLargeEmphasized.copy(fontFamily = fontFamily),
-		titleMedium = defaultTypography.titleMedium.copy(fontFamily = fontFamily),
-		titleMediumEmphasized = defaultTypography.titleMediumEmphasized.copy(fontFamily = fontFamily),
-		titleSmall = defaultTypography.titleSmall.copy(fontFamily = fontFamily),
-		titleSmallEmphasized = defaultTypography.titleSmallEmphasized.copy(fontFamily = fontFamily),
+		titleLarge = defaultTypography.titleLarge.withFontFamily(fontFamily, useOneUiSans),
+		titleLargeEmphasized = defaultTypography.titleLargeEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		titleMedium = defaultTypography.titleMedium.withFontFamily(fontFamily, useOneUiSans),
+		titleMediumEmphasized = defaultTypography.titleMediumEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		titleSmall = defaultTypography.titleSmall.withFontFamily(fontFamily, useOneUiSans),
+		titleSmallEmphasized = defaultTypography.titleSmallEmphasized.withFontFamily(fontFamily, useOneUiSans),
 
-		bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = fontFamily),
-		bodyLargeEmphasized = defaultTypography.bodyLargeEmphasized.copy(fontFamily = fontFamily),
-		bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = fontFamily),
-		bodyMediumEmphasized = defaultTypography.bodyMediumEmphasized.copy(fontFamily = fontFamily),
-		bodySmall = defaultTypography.bodySmall.copy(fontFamily = fontFamily),
-		bodySmallEmphasized = defaultTypography.bodySmallEmphasized.copy(fontFamily = fontFamily),
+		bodyLarge = defaultTypography.bodyLarge.withFontFamily(fontFamily, useOneUiSans),
+		bodyLargeEmphasized = defaultTypography.bodyLargeEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		bodyMedium = defaultTypography.bodyMedium.withFontFamily(fontFamily, useOneUiSans),
+		bodyMediumEmphasized = defaultTypography.bodyMediumEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		bodySmall = defaultTypography.bodySmall.withFontFamily(fontFamily, useOneUiSans),
+		bodySmallEmphasized = defaultTypography.bodySmallEmphasized.withFontFamily(fontFamily, useOneUiSans),
 
-		labelLarge = defaultTypography.labelLarge.copy(fontFamily = fontFamily),
-		labelLargeEmphasized = defaultTypography.labelLargeEmphasized.copy(fontFamily = fontFamily),
-		labelMedium = defaultTypography.labelMedium.copy(fontFamily = fontFamily),
-		labelMediumEmphasized = defaultTypography.labelMediumEmphasized.copy(fontFamily = fontFamily),
-		labelSmall = defaultTypography.labelSmall.copy(fontFamily = fontFamily),
-		labelSmallEmphasized = defaultTypography.labelSmallEmphasized.copy(fontFamily = fontFamily)
+		labelLarge = defaultTypography.labelLarge.withFontFamily(fontFamily, useOneUiSans),
+		labelLargeEmphasized = defaultTypography.labelLargeEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		labelMedium = defaultTypography.labelMedium.withFontFamily(fontFamily, useOneUiSans),
+		labelMediumEmphasized = defaultTypography.labelMediumEmphasized.withFontFamily(fontFamily, useOneUiSans),
+		labelSmall = defaultTypography.labelSmall.withFontFamily(fontFamily, useOneUiSans),
+		labelSmallEmphasized = defaultTypography.labelSmallEmphasized.withFontFamily(fontFamily, useOneUiSans)
 	)
 }
