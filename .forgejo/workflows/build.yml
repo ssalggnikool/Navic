@@ -49,7 +49,6 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
             ~/.android/sdk
-            ./**/build/**
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
@@ -104,7 +103,6 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
             ~/.android/sdk
-            ./**/build/**
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
   upload-artifacts-to-discord:
