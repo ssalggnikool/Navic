@@ -85,6 +85,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.collectLatest
 import paige.navic.domain.manager.ui.SnackBarManager
@@ -92,6 +93,7 @@ import paige.navic.ui.component.snackbar.NavicSnackBar
 import paige.navic.ui.component.snackbar.SwipeableSnackBarHost
 import kotlin.time.Duration.Companion.milliseconds
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun QueueScreen() {
 	val viewModel = koinViewModel<QueueViewModel>()
@@ -130,7 +132,7 @@ fun QueueScreen() {
 				SnackbarDuration.Short
 			}
 			val result = snackBarState.showSnackbar(
-				message = context.resources.getString(event.resource, *event.args.toTypedArray()),
+				message = with(context) { resources.getString(event.resource, *event.args.toTypedArray()) },
 				actionLabel = actionLabel,
 				duration = duration
 			)
@@ -236,7 +238,13 @@ fun QueueScreen() {
 								}
 							}
 						})
-						val adapter = QueueRecyclerAdapter()
+						val adapter = QueueRecyclerAdapter(
+							onDragStateChanged = { dragging ->
+								isItemDragging = dragging
+								parent?.requestDisallowInterceptTouchEvent(dragging)
+								setSheetGesturesEnabled(!dragging)
+							}
+						)
 						this.adapter = adapter
 						val touchHelper = ItemTouchHelper(adapter.touchCallback)
 						touchHelper.attachToRecyclerView(this)
@@ -400,8 +408,15 @@ private class QueueRecyclerView(
 	private val setSheetGesturesEnabled: (Boolean) -> Unit
 ) : RecyclerView(context) {
 	private var lastY = 0f
+	var isItemDragging = false
 
 	override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+		if (isItemDragging) {
+			parent?.requestDisallowInterceptTouchEvent(true)
+			setSheetGesturesEnabled(false)
+			return super.onInterceptTouchEvent(event)
+		}
+
 		when (event.actionMasked) {
 			MotionEvent.ACTION_DOWN -> {
 				lastY = event.y
@@ -427,12 +442,13 @@ private class QueueRecyclerView(
 	}
 
 	override fun startNestedScroll(axes: Int, type: Int): Boolean =
-		!sheetState.isAnimationRunning && super.startNestedScroll(axes, type)
+		!isItemDragging && !sheetState.isAnimationRunning && super.startNestedScroll(axes, type)
 }
 
-private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.ViewHolder>() {
+private class QueueRecyclerAdapter(
+	private val onDragStateChanged: (Boolean) -> Unit
+) : RecyclerView.Adapter<QueueRecyclerAdapter.ViewHolder>() {
 	private var queue = emptyList<QueueSong>()
-	private var requestedQueue = emptyList<QueueSong>()
 	private var currentIndex = 0
 	private var isPaused = true
 	private var isOnline = true
@@ -440,13 +456,11 @@ private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.V
 	private var onPlay: (Int) -> Unit = {}
 	private var onRemove: (Int) -> Unit = {}
 	private var onMove: (Int, Int) -> Unit = { _, _ -> }
+	private var dragStartPosition = RecyclerView.NO_POSITION
 	private var draggingPosition = RecyclerView.NO_POSITION
 	private var touchHelper: ItemTouchHelper? = null
 	var shouldScrollToCurrentIndex = false
 
-	init {
-		setHasStableIds(true)
-	}
 
 	val touchCallback = object : ItemTouchHelper.SimpleCallback(
 		ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
@@ -458,36 +472,64 @@ private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.V
 		): Boolean {
 			val from = viewHolder.bindingAdapterPosition
 			val to = target.bindingAdapterPosition
-			if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) {
+			if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION || from == to) {
 				return false
 			}
 
 			val mutableQueue = queue.toMutableList()
 			mutableQueue.add(to, mutableQueue.removeAt(from))
 			queue = mutableQueue
-			requestedQueue = mutableQueue
 
+			currentIndex = when (currentIndex) {
+				from -> to
+				in (from + 1)..to -> currentIndex - 1
+				in to..<from -> currentIndex + 1
+				else -> currentIndex
+			}
+
+			draggingPosition = to
 			notifyItemMoved(from, to)
-			onMove(from, to)
+
+			(viewHolder as? ViewHolder)?.boundIndex = to
+			(target as? ViewHolder)?.boundIndex = from
+
 			return true
 		}
 
 		override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
 			super.onSelectedChanged(viewHolder, actionState)
-			draggingPosition =
-				if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewHolder != null) {
-					viewHolder.bindingAdapterPosition
-				} else {
-					RecyclerView.NO_POSITION
-				}
-			viewHolder?.itemView?.elevation =
-				if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) 8f else 0f
+			if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewHolder != null) {
+				onDragStateChanged(true)
+				dragStartPosition = viewHolder.bindingAdapterPosition
+				draggingPosition = dragStartPosition
+				(viewHolder as? ViewHolder)?.isItemDragging = true
+				viewHolder.itemView.elevation = 8f
+			}
 		}
 
 		override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
 			super.clearView(recyclerView, viewHolder)
-			draggingPosition = RecyclerView.NO_POSITION
+			onDragStateChanged(false)
 			viewHolder.itemView.elevation = 0f
+			(viewHolder as? ViewHolder)?.isItemDragging = false
+
+			val from = dragStartPosition
+			val to = viewHolder.bindingAdapterPosition
+
+			dragStartPosition = RecyclerView.NO_POSITION
+			draggingPosition = RecyclerView.NO_POSITION
+
+			for (i in 0 until recyclerView.childCount) {
+				val child = recyclerView.getChildAt(i)
+				val holder = recyclerView.getChildViewHolder(child) as? ViewHolder
+				if (holder != null && holder.bindingAdapterPosition != RecyclerView.NO_POSITION) {
+					holder.boundIndex = holder.bindingAdapterPosition
+				}
+			}
+
+			if (from != RecyclerView.NO_POSITION && to != RecyclerView.NO_POSITION && from != to) {
+				onMove(from, to)
+			}
 		}
 
 		override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) = Unit
@@ -508,18 +550,25 @@ private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.V
 		onRemove: (Int) -> Unit,
 		onMove: (Int, Int) -> Unit
 	) {
-		val queueChanged = requestedQueue != queue
+		this.onPlay = onPlay
+		this.onRemove = onRemove
+		this.onMove = onMove
+
+		if (draggingPosition != RecyclerView.NO_POSITION) return
+
+		val queueChanged = this.queue != queue
 		val itemStateChanged =
-			this.currentIndex != currentIndex || this.isPaused != isPaused || this.isOnline != isOnline || this.downloadedSongs != downloadedSongs
+			this.currentIndex != currentIndex ||
+				this.isPaused != isPaused ||
+				this.isOnline != isOnline ||
+				this.downloadedSongs != downloadedSongs
+
 		shouldScrollToCurrentIndex = this.currentIndex != currentIndex
-		requestedQueue = queue
 		this.currentIndex = currentIndex
 		this.isPaused = isPaused
 		this.isOnline = isOnline
 		this.downloadedSongs = downloadedSongs
-		this.onPlay = onPlay
-		this.onRemove = onRemove
-		this.onMove = onMove
+
 		if (queueChanged) {
 			this.queue = queue
 			notifyDataSetChanged()
@@ -529,9 +578,6 @@ private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.V
 	}
 
 	override fun getItemCount() = if (queue.isEmpty()) 1 else queue.size
-
-	override fun getItemId(position: Int) =
-		if (queue.isEmpty()) 0L else queue[position].id.hashCode().toLong()
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 		val composeView = ComposeView(parent.context)
@@ -545,16 +591,22 @@ private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.V
 			}
 			return
 		}
+		holder.boundIndex = position
+		holder.isItemDragging = draggingPosition == position
 		val song = queue[position]
 		holder.view.setContent {
+			val liveIndex = holder.boundIndex.takeIf { it != RecyclerView.NO_POSITION } ?: position
 			QueueScreenItem(
-				index = position,
+				index = liveIndex,
 				count = queue.size,
 				song = song,
-				isPlaying = currentIndex == position && !isPaused,
-				isSelected = currentIndex == position,
-				isDragging = draggingPosition == position,
-				onDrag = { touchHelper?.startDrag(holder) },
+				isPlaying = currentIndex == liveIndex && !isPaused,
+				isSelected = currentIndex == liveIndex,
+				isDragging = holder.isItemDragging,
+				onDrag = {
+					onDragStateChanged(true)
+					touchHelper?.startDrag(holder)
+				},
 				onClick = {
 					holder.bindingAdapterPosition.takeIf { it != RecyclerView.NO_POSITION }
 						?.let(onPlay)
@@ -569,5 +621,8 @@ private class QueueRecyclerAdapter : RecyclerView.Adapter<QueueRecyclerAdapter.V
 		}
 	}
 
-	class ViewHolder(val view: ComposeView) : RecyclerView.ViewHolder(view)
+	class ViewHolder(val view: ComposeView) : RecyclerView.ViewHolder(view) {
+		var boundIndex by mutableIntStateOf(RecyclerView.NO_POSITION)
+		var isItemDragging by mutableStateOf(false)
+	}
 }
