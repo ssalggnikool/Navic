@@ -71,7 +71,7 @@ import paige.navic.ui.icons.outlined.Logout
 import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.theme.positive
+import paige.navic.designsystem.theme.positive
 import paige.navic.ui.util.label
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -37,7 +37,7 @@ import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType

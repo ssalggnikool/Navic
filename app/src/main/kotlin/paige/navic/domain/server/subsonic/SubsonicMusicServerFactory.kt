@@ -11,7 +11,7 @@ import dev.zt64.subsonic.client.SubsonicClient
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
 import paige.navic.domain.server.ServerCredentials

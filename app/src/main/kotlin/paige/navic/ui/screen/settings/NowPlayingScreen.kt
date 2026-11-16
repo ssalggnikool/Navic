@@ -28,10 +28,10 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.CoverArtTapAction
 import paige.navic.domain.model.settings.NowPlayingBackgroundStyle
 import paige.navic.domain.model.settings.ToolbarPosition
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
@@ -43,6 +43,7 @@ import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
 import paige.navic.ui.screen.settings.dialog.LyricsPrioritySheet
 import paige.navic.ui.screen.settings.dialog.NowPlayingSliderStyleDialog
+import paige.navic.ui.util.label
 
 @Composable
 fun SettingsNowPlayingScreen() {
@@ -86,7 +87,7 @@ fun SettingsNowPlayingScreen() {
 						choices = CoverArtTapAction.entries.toImmutableList(),
 						selectedChoice = preferenceManager.nowPlayingCoverArtAction,
 						onChoiceSelected = { preferenceManager.nowPlayingCoverArtAction = it },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
 					)
 					SettingsChoiceItem(
@@ -95,13 +96,13 @@ fun SettingsNowPlayingScreen() {
 						choices = NowPlayingBackgroundStyle.entries.toImmutableList(),
 						selectedChoice = preferenceManager.nowPlayingBackgroundStyle,
 						onChoiceSelected = { preferenceManager.nowPlayingBackgroundStyle = it },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
 					)
 					SegmentedListItem(
 						onClick = { sliderStyleDialogOpen = true },
 						content = { Text(stringResource(R.string.option_now_playing_slider_style)) },
-						supportingContent = { Text(stringResource(preferenceManager.nowPlayingSliderStyle.displayName)) },
+						supportingContent = { Text(preferenceManager.nowPlayingSliderStyle.label()) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
 					)
 				}
@@ -164,7 +165,7 @@ fun SettingsNowPlayingScreen() {
 						choices = ToolbarPosition.entries.toImmutableList(),
 						selectedChoice = preferenceManager.nowPlayingToolbarPosition,
 						onChoiceSelected = { preferenceManager.nowPlayingToolbarPosition = it },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)
 					)
 				}

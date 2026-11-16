@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.DomainAlbum

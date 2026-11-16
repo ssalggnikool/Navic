@@ -17,7 +17,7 @@ import androidx.media3.exoplayer.upstream.CmcdConfiguration
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.text.SubtitleParser
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager

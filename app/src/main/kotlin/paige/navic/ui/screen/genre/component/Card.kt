@@ -36,13 +36,13 @@ import com.materialkolor.ktx.DynamicScheme
 import dev.zt64.compose.pipette.HsvColor
 import org.koin.compose.koinInject
 import paige.navic.R
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainGenre
 import paige.navic.domain.model.settings.ThemeMode
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.theme.defaultFont
 import kotlin.math.abs
 
 @Composable

@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText

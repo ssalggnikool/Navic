@@ -32,10 +32,10 @@ import paige.navic.BuildConfig
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.DiscordStatusType
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegration
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
@@ -48,6 +48,7 @@ import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.component.SettingsSliderItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
 import paige.navic.ui.screen.settings.dialog.CoverArtProvidersSheet
+import paige.navic.ui.util.label
 import kotlin.math.roundToInt
 
 @Composable
@@ -92,7 +93,7 @@ fun SettingsPlaybackScreen() {
 						selectedChoice = preferenceManager.explicitContentPlayback,
 						onChoiceSelected = { preferenceManager.explicitContentPlayback = it },
 						content = { Text(stringResource(R.string.option_explicit_playback)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
 					)
 					SettingsNavItem(
@@ -137,7 +138,7 @@ fun SettingsPlaybackScreen() {
 								choices = DiscordStatusType.entries.toImmutableList(),
 								selectedChoice = preferenceManager.discordStatusType,
 								onChoiceSelected = { preferenceManager.discordStatusType = it },
-								label = { stringResource(it.displayName) },
+								label = { it.label() },
 								shapes = SegmentedListItemDefaults.segmentedShapes(
 									index = 1,
 									count = count

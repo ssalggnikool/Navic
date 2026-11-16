@@ -21,7 +21,7 @@ import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
 import paige.navic.domain.manager.runtime.NotificationManager
 import paige.navic.domain.manager.runtime.PermissionManager
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow

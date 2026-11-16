@@ -35,13 +35,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
-import paige.navic.domain.server.ServerExtension
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.domain.model.settings.StreamingQuality
 import paige.navic.domain.model.settings.description
+import paige.navic.domain.server.ServerExtension
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.icons.Icons
@@ -50,6 +50,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsRadioItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
+import paige.navic.ui.util.label
 
 @Composable
 fun SettingsStreamingQualityScreen() {
@@ -183,7 +184,7 @@ private fun RadioButtons(
 			selected = selected,
 			onClick = { onChangeValue(quality) },
 			enabled = enabled,
-			content = { Text(stringResource(quality.displayName)) },
+			content = { Text(quality.label()) },
 			supportingContent = {
 				quality.description()?.let { description ->
 					AnimatedVisibility(visible = selected) {

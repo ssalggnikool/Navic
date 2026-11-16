@@ -67,7 +67,7 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSetSheetGesturesEnabled
 import paige.navic.di.LocalSheetState
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.QueueInfoType
 import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.ContentUnavailable
@@ -78,7 +78,7 @@ import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
 import paige.navic.ui.screen.queue.component.QueueScreenItem
 import paige.navic.ui.screen.queue.viewmodel.QueueViewModel
-import paige.navic.ui.theme.defaultFont
+import paige.navic.designsystem.theme.defaultFont
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.SnackbarDuration

@@ -34,9 +34,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.StreamingQuality
 import paige.navic.domain.model.settings.description
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.icons.Icons
@@ -45,6 +45,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsRadioItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
+import paige.navic.ui.util.label
 
 @Composable
 fun SettingsDownloadQualityScreen() {
@@ -123,7 +124,7 @@ private fun RadioButtons(
 		SettingsRadioItem(
 			selected = selected,
 			onClick = { onChangeValue(quality) },
-			content = { Text(stringResource(quality.displayName)) },
+			content = { Text(quality.label()) },
 			supportingContent = {
 				quality.description()?.let { description ->
 					AnimatedVisibility(visible = selected) {

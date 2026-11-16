@@ -38,7 +38,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.MarqueeSpeed
 import kotlin.time.Duration.Companion.seconds
 

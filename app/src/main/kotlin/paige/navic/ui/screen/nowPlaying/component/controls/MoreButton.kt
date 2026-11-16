@@ -34,7 +34,7 @@ import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.MoreHoriz
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.theme.NavicTheme
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 
 @Composable

@@ -34,7 +34,7 @@ import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.SyncActionDao
 import paige.navic.database.entity.SyncActionEntity
 import paige.navic.database.entity.SyncActionType
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.core.SyncUiState
 import paige.navic.util.Logger
 import paige.navic.domain.work.LibrarySyncWorker

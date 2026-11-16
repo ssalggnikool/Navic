@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import paige.navic.ui.theme.defaultFont
+import paige.navic.designsystem.theme.defaultFont
 
 @Composable
 fun ChatInputBar(

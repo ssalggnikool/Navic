@@ -57,13 +57,13 @@ import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.OfflineMode
+import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.HelpButton
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
@@ -85,6 +85,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.dialog.ConfirmDownloadDeletionSheet
 import paige.navic.ui.screen.settings.viewmodel.SettingsDataStorageViewModel
+import paige.navic.ui.util.label
 import paige.navic.util.toFileSize
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -254,7 +255,7 @@ fun SettingsDataStorageScreen() {
 						onChoiceSelected = { preferenceManager.offlineMode = it },
 						description = stringResource(R.string.subtitle_offline_mode),
 						content = { Text(stringResource(R.string.option_offline_mode)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
 					)
 
@@ -270,7 +271,7 @@ fun SettingsDataStorageScreen() {
 							}
 						},
 						content = { Text(stringResource(R.string.option_cover_art_quality)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
@@ -365,7 +366,7 @@ fun SettingsDataStorageScreen() {
 							it != DownloadStorage.External || hasExternalStorage
 						},
 						content = { Text(stringResource(R.string.option_download_location)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 

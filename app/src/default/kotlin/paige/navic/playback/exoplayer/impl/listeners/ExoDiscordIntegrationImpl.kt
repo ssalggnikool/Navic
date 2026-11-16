@@ -28,7 +28,7 @@ import night.milkyway.antisocialcord.model.ActivityType
 import night.milkyway.antisocialcord.model.StatusDisplayType
 import org.koin.core.component.inject
 import paige.navic.discord.CoverArtUploadManager
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.DiscordStatusType

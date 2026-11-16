@@ -38,7 +38,7 @@ import paige.navic.di.LocalNavStack
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.ArrowBack
 import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.theme.defaultFont
+import paige.navic.designsystem.theme.defaultFont
 
 @Composable
 fun SearchScreenTopBar(

@@ -35,12 +35,12 @@ import com.materialkolor.rememberDynamicColorScheme
 import dev.zt64.compose.pipette.HsvColor
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.domain.model.DomainRadio
 import paige.navic.domain.model.settings.ThemeMode
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Radio
-import paige.navic.ui.theme.defaultFont
 import kotlin.math.abs
 
 @Composable

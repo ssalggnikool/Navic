@@ -64,7 +64,9 @@ include(
 	// Core
 	":core:common",
 	":core:database",
+	":core:designsystem",
 	":core:model",
+	":core:preferences",
 	":core:server"
 )
 includeMedia3(file("vendor/androidx-media"))

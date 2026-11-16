@@ -28,11 +28,11 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
 import paige.navic.domain.model.settings.MiniPlayerStyle
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
@@ -42,6 +42,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
 import paige.navic.ui.screen.settings.dialog.NavtabsDialog
+import paige.navic.ui.util.label
 
 @Composable
 fun BottomBarScreen() {
@@ -79,7 +80,7 @@ fun BottomBarScreen() {
 						selectedChoice = preferenceManager.bottomBarCollapseMode,
 						onChoiceSelected = { preferenceManager.bottomBarCollapseMode = it },
 						content = { Text(stringResource(R.string.option_bottom_bar_collapse_mode)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = count)
 					)
 
@@ -89,7 +90,7 @@ fun BottomBarScreen() {
 							selectedChoice = preferenceManager.bottomBarVisibilityMode,
 							onChoiceSelected = { preferenceManager.bottomBarVisibilityMode = it },
 							content = { Text(stringResource(R.string.option_bottom_bar_visibility_mode)) },
-							label = { stringResource(it.displayName) },
+							label = { it.label() },
 							shapes = SegmentedListItemDefaults.segmentedShapes(
 								index = 1,
 								count = count
@@ -111,7 +112,7 @@ fun BottomBarScreen() {
 						selectedChoice = preferenceManager.miniPlayerStyle,
 						onChoiceSelected = { preferenceManager.miniPlayerStyle = it },
 						content = { Text(stringResource(R.string.option_mini_player_style)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 5)
 					)
 					SettingsChoiceItem(
@@ -119,7 +120,7 @@ fun BottomBarScreen() {
 						selectedChoice = preferenceManager.miniPlayerProgressStyle,
 						onChoiceSelected = { preferenceManager.miniPlayerProgressStyle = it },
 						content = { Text(stringResource(R.string.option_mini_player_progress_style)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 5)
 					)
 					SettingsToggleItem(

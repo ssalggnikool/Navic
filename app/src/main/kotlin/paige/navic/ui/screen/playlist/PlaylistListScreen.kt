@@ -43,7 +43,7 @@ import paige.navic.R
 import paige.navic.R.string.info_no_playlists_short
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode

@@ -34,12 +34,13 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingSliderStyle
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SlimSlider
 import paige.navic.ui.component.common.SpermSlider
 import paige.navic.ui.component.common.SpermSliderDefaults
 import paige.navic.ui.component.dialog.AlertDialog
+import paige.navic.ui.util.label
 
 @Composable
 fun NowPlayingSliderStyleDialog(
@@ -76,7 +77,7 @@ fun NowPlayingSliderStyleDialog(
 								preferenceManager.nowPlayingSliderStyle = style
 							},
 							selected = preferenceManager.nowPlayingSliderStyle == style,
-							label = stringResource(style.displayName)
+							label = style.label()
 						) {
 							when (style) {
 								NowPlayingSliderStyle.Flat -> {

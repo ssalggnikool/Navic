@@ -42,7 +42,7 @@ import paige.navic.ui.icons.outlined.Delete
 import paige.navic.ui.icons.outlined.Download
 import paige.navic.ui.icons.outlined.DownloadOff
 import paige.navic.ui.icons.outlined.Shuffle
-import paige.navic.ui.theme.defaultFont
+import paige.navic.designsystem.theme.defaultFont
 
 @Composable
 fun ArtistActionButtons(

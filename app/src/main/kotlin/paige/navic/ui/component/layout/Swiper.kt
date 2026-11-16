@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.SkipNext
 import paige.navic.ui.icons.filled.SkipPrevious

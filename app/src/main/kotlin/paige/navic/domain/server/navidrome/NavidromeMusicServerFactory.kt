@@ -6,7 +6,7 @@
 
 package paige.navic.domain.server.navidrome
 
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.ServerCredentials
 import paige.navic.domain.server.ShareServer

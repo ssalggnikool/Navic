@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.database.entity.DownloadStatus
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.ui.component.common.CoverArt

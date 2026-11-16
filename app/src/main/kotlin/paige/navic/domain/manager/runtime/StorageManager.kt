@@ -15,6 +15,7 @@ import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import paige.navic.domain.model.settings.DownloadStorage
+import paige.navic.preferences.PreferenceManager
 import paige.navic.util.xxHash32
 import java.io.File
 import java.io.FileOutputStream

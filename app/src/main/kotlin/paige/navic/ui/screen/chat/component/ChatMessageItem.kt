@@ -22,7 +22,7 @@ import coil3.network.httpHeaders
 import coil3.request.ImageRequest
 import paige.navic.domain.model.DomainChatMessage
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 

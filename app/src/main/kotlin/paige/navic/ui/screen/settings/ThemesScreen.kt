@@ -63,9 +63,10 @@ import dev.zt64.compose.pipette.HsvColor
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.Theme
 import paige.navic.domain.model.settings.ThemeMode
+import paige.navic.preferences.PreferenceManager
+import paige.navic.preferences.colorScheme
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.common.TooltipBox
@@ -105,7 +106,7 @@ fun SettingsThemesScreen() {
 						selectedChoice = preferenceManager.themeMode,
 						onChoiceSelected = { preferenceManager.themeMode = it },
 						content = { Text(stringResource(R.string.title_theme_mode)) },
-						label = { stringResource(it.title) }
+						label = { it.label() }
 					)
 				}
 
@@ -255,7 +256,7 @@ private fun ThemeCard(
 	onSelect: () -> Unit
 ) {
 	val colorScheme = theme.colorScheme()
-	val title = stringResource(theme.title)
+	val title = theme.label()
 
 	TooltipBox(title) {
 		BaseCard(

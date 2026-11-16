@@ -35,15 +35,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.designsystem.theme.googleSans
+import paige.navic.designsystem.theme.oneUiSans
 import paige.navic.domain.model.settings.FontOption
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Check
-import paige.navic.ui.theme.googleSans
-import paige.navic.ui.theme.oneUiSans
 import paige.navic.util.PlatformSupport
 
 @Composable

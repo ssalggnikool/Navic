@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 import paige.navic.R
 import paige.navic.database.dao.AlbumDao
 import paige.navic.domain.manager.playback.AudioGainManager
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager

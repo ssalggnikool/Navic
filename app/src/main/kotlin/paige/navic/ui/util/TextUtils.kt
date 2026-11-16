@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.sp
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 import paige.navic.R
+import paige.navic.designsystem.theme.warning
 import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.model.DomainSongArtist
 import paige.navic.domain.model.SongInfo
 import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.filled.Explicit
-import paige.navic.ui.theme.warning
 
 val InlineExplicitIcon = persistentMapOf(
 	"InlineExplicitIcon" to InlineTextContent(

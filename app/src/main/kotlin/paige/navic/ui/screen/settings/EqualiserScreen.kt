@@ -45,6 +45,7 @@ import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.screen.settings.component.SettingsChoiceItem
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
+import paige.navic.ui.util.label
 
 @Composable
 fun SettingsEqualizerScreen() {
@@ -97,7 +98,7 @@ fun SettingsEqualizerScreen() {
 							}
 						},
 						content = { Text(stringResource(R.string.option_equalizer_mode)) },
-						label = { stringResource(it.displayName) }
+						label = { it.label() }
 					)
 				}
 

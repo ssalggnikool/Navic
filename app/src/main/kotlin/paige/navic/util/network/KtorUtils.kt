@@ -17,7 +17,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import okhttp3.Dns
 import okhttp3.OkHttpClient
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext

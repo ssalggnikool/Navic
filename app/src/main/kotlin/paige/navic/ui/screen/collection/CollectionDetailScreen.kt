@@ -56,16 +56,17 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.R.string.title_more_by_artist
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.playback.PlayerRepository
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.layout.ArtCarousel
@@ -87,7 +88,6 @@ import paige.navic.ui.screen.collection.component.CollectionDetailScreenSongRowD
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenTopBar
 import paige.navic.ui.screen.collection.viewmodel.CollectionDetailViewModel
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import paige.navic.ui.util.withoutTop
 

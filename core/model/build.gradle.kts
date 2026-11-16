@@ -15,7 +15,12 @@ android {
 }
 
 dependencies {
+	implementation(project(":core:common"))
+
+	implementation(libs.compose.ui)
 	implementation(libs.compose.runtime)
+	implementation(libs.compose.foundation)
+	implementation(libs.compose.material3)
 	implementation(libs.androidx.annotation)
 	implementation(libs.kotlinx.serialization.json)
 }

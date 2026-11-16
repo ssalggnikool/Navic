@@ -71,18 +71,19 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.koinInject
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.di.LocalSizeClass
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.manager.ui.BottomBarScrollManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.settings.ExplicitContentPlayback
 import paige.navic.playback.PlayerRepository
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.layout.SideBar
 import paige.navic.ui.component.sheet.ChangelogSheet
 import paige.navic.ui.component.snackbar.NavicSnackBar
@@ -132,7 +133,6 @@ import paige.navic.ui.screen.song.SongDetailSheet
 import paige.navic.ui.screen.song.SongListScreen
 import paige.navic.ui.screen.starred.StarredScreen
 import paige.navic.ui.screen.stats.StatisticsScreen
-import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.Material3Transitions
 
 @OptIn(ExperimentalSerializationApi::class)

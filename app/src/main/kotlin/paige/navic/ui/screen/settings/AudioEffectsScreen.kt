@@ -31,9 +31,9 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.AudioGainManager
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.settings.ReplayGainMode
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
@@ -45,6 +45,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.component.SettingsSliderItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
+import paige.navic.ui.util.label
 import kotlin.math.absoluteValue
 import kotlin.math.round
 
@@ -163,7 +164,7 @@ fun AudioEffectsScreen() {
 									onClick = null
 								)
 							},
-							content = { Text(stringResource(mode.displayName)) }
+							content = { Text(mode.label()) }
 						)
 					}
 				}

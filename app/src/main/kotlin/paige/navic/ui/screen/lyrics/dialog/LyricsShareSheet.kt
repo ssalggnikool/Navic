@@ -85,13 +85,13 @@ import paige.navic.ui.icons.brand.Navic
 import paige.navic.ui.icons.outlined.Check
 import paige.navic.ui.icons.outlined.Picker
 import paige.navic.ui.icons.outlined.Share
-import paige.navic.ui.theme.blue
-import paige.navic.ui.theme.defaultFont
-import paige.navic.ui.theme.pink
-import paige.navic.ui.theme.positive
-import paige.navic.ui.theme.purple
-import paige.navic.ui.theme.red
-import paige.navic.ui.theme.warning
+import paige.navic.designsystem.theme.blue
+import paige.navic.designsystem.theme.defaultFont
+import paige.navic.designsystem.theme.pink
+import paige.navic.designsystem.theme.positive
+import paige.navic.designsystem.theme.purple
+import paige.navic.designsystem.theme.red
+import paige.navic.designsystem.theme.warning
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @OptIn(ExperimentalMaterial3Api::class)

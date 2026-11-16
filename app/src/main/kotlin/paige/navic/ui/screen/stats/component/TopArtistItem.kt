@@ -24,10 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.designsystem.theme.defaultFont
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.screen.stats.viewmodel.ArtistStats
-import paige.navic.ui.theme.defaultFont
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import paige.navic.util.toSummaryString
 

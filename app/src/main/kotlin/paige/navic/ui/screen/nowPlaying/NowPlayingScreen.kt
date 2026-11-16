@@ -37,7 +37,7 @@ import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSheetState
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingBackgroundStyle
 import paige.navic.domain.model.settings.ToolbarPosition
 import paige.navic.playback.PlayerRepository

@@ -32,7 +32,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSheetState
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ToolbarPosition
 import paige.navic.playback.PlayerRepository

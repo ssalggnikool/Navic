@@ -27,7 +27,7 @@ import paige.navic.database.entity.DownloadStatus
 import paige.navic.database.entity.LyricEntity
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.DomainSong

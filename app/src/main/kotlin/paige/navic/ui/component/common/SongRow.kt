@@ -37,7 +37,7 @@ import paige.navic.R
 import paige.navic.database.entity.DownloadEntity
 import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback

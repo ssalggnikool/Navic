@@ -10,7 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import paige.navic.database.entity.SyncActionType
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow

@@ -29,7 +29,7 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.ui.util.fakeShadow
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext

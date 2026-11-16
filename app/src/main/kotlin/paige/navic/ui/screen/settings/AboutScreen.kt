@@ -44,8 +44,9 @@ import androidx.core.graphics.drawable.toBitmap
 import org.koin.compose.koinInject
 import paige.navic.BuildConfig
 import paige.navic.R
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
 import paige.navic.ui.component.layout.NestedTopBar
@@ -57,7 +58,6 @@ import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsLinkItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
-import paige.navic.ui.theme.defaultFont
 
 private const val CODEBERG_BASE_URL = "https://codeberg.org/paige/Navic/"
 

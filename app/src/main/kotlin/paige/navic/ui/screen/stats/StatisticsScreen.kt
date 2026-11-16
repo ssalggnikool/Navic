@@ -47,14 +47,15 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.NestedTopBar
@@ -69,7 +70,6 @@ import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.stats.component.StatSummaryCard
 import paige.navic.ui.screen.stats.component.TopArtistItem
 import paige.navic.ui.screen.stats.viewmodel.StatisticsViewModel
-import paige.navic.ui.theme.NavicTheme
 import paige.navic.util.toSummaryString
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

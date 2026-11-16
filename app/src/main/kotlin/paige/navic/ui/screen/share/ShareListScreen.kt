@@ -34,7 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.ui.ShareManager
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.ui.component.common.ContentUnavailable

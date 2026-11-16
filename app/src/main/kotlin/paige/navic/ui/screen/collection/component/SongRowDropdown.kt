@@ -16,7 +16,7 @@ import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
 import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.dialog.QueueDuplicateDialog

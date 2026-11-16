@@ -67,10 +67,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.database.entity.DownloadStatus
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.model.DomainSong
@@ -79,6 +79,7 @@ import paige.navic.domain.model.settings.ArtistAlbumViewMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.playback.PlayerRepository
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SongRow
 import paige.navic.ui.component.dialog.BulkDownloadDialog
@@ -90,6 +91,9 @@ import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.core.UiState
+import paige.navic.ui.icons.Icons
+import paige.navic.ui.icons.outlined.Grid
+import paige.navic.ui.icons.outlined.List
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
 import paige.navic.ui.screen.album.component.AlbumListScreenListItem
@@ -98,7 +102,7 @@ import paige.navic.ui.screen.artist.component.ArtistDetailScreenHeading
 import paige.navic.ui.screen.artist.component.ArtistDetailScreenTopBar
 import paige.navic.ui.screen.artist.viewmodel.ArtistDetailViewModel
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.theme.NavicTheme
+import paige.navic.ui.util.label
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -331,9 +335,13 @@ fun ArtistDetailScreen(
 													},
 													selected = artistAlbumViewMode == mode,
 													label = {
+														val icon = when (mode) {
+															ArtistAlbumViewMode.Grid -> Icons.Outlined.Grid
+															ArtistAlbumViewMode.List -> Icons.Outlined.List
+														}
 														Icon(
-															imageVector = mode.icon,
-															contentDescription = stringResource(mode.displayName)
+															imageVector = icon,
+															contentDescription = mode.label()
 														)
 													}
 												)

@@ -11,3 +11,7 @@ plugins {
 android {
 	namespace = "paige.navic.core.common"
 }
+
+dependencies {
+	implementation(libs.androidx.annotation)
+}

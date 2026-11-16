@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingSliderStyle
 import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.SlimSlider

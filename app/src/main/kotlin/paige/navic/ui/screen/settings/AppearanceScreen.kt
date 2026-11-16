@@ -38,9 +38,9 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.AnimationStyle
 import paige.navic.domain.model.settings.MarqueeSpeed
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
@@ -54,6 +54,7 @@ import paige.navic.ui.screen.settings.component.SettingsToggleItem
 import paige.navic.ui.screen.settings.dialog.ArtworkShapeDialog
 import paige.navic.ui.screen.settings.dialog.GridSizeDialog
 import paige.navic.ui.screen.settings.dialog.GridSizePreview
+import paige.navic.ui.util.label
 import java.util.Locale
 
 @Composable
@@ -137,7 +138,7 @@ fun SettingsAppearanceScreen() {
 							backStack.add(Screen.Settings.Themes)
 						},
 						content = { Text(stringResource(R.string.option_choose_theme)) },
-						supportingContent = { Text(stringResource(preferenceManager.theme.title)) }
+						supportingContent = { Text(preferenceManager.theme.label()) }
 					)
 					SegmentedListItem(
 						shapes = SegmentedListItemDefaults.segmentedShapes(

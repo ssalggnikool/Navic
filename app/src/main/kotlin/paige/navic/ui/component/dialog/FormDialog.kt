@@ -40,10 +40,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.dropUnlessResumed
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.navigation.PredictiveBackState
 import paige.navic.ui.navigation.rememberPredictiveBackState
-import paige.navic.ui.theme.defaultFont
 
 @Composable
 fun FormDialog(

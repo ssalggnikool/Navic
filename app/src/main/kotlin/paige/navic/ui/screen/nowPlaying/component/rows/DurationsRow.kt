@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.playback.PlayerRepository
 import paige.navic.util.toHoursMinutesSeconds
 import kotlin.time.Duration.Companion.seconds

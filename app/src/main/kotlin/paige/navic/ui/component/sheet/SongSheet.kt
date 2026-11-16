@@ -39,15 +39,17 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.database.entity.DownloadStatus
+import paige.navic.designsystem.theme.NavicTheme
+import paige.navic.designsystem.theme.positive
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.canUserShare
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.RatingRow
@@ -72,8 +74,6 @@ import paige.navic.ui.icons.outlined.Share
 import paige.navic.ui.icons.outlined.Speed
 import paige.navic.ui.icons.outlined.Star
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.theme.NavicTheme
-import paige.navic.ui.theme.positive
 import paige.navic.ui.util.InlineExplicitIcon
 import paige.navic.ui.util.buildSongInfoString
 import paige.navic.ui.util.label

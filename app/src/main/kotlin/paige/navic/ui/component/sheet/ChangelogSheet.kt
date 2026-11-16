@@ -51,10 +51,10 @@ import kotlinx.serialization.json.Json
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.designsystem.theme.defaultFont
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.Markdown
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
-import paige.navic.ui.theme.defaultFont
 import paige.navic.util.Logger
 
 @Serializable

@@ -22,7 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.CoverArtTapAction
 import paige.navic.playback.PlayerRepository
 import paige.navic.ui.navigation.Screen

@@ -69,7 +69,7 @@ import paige.navic.ui.icons.Icons
 import paige.navic.ui.icons.outlined.Error
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.navigation.Screen.Library
-import paige.navic.ui.theme.defaultFont
+import paige.navic.designsystem.theme.defaultFont
 
 @Composable
 fun LoginScreenContent(innerPadding: PaddingValues) {
