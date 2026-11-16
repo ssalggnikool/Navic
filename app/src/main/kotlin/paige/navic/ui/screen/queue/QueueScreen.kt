@@ -79,6 +79,17 @@ import paige.navic.ui.screen.playlist.dialog.PlaylistCreateDialog
 import paige.navic.ui.screen.queue.component.QueueScreenItem
 import paige.navic.ui.screen.queue.viewmodel.QueueViewModel
 import paige.navic.ui.theme.defaultFont
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.flow.collectLatest
+import paige.navic.domain.manager.ui.SnackBarManager
+import paige.navic.ui.component.snackbar.NavicSnackBar
+import paige.navic.ui.component.snackbar.SwipeableSnackBarHost
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -105,131 +116,176 @@ fun QueueScreen() {
 	val backStack = LocalNavStack.current
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 
-	Column(modifier = Modifier.fillMaxSize()) {
-		if (queue.isNotEmpty()) {
-			Row(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(horizontal = 24.dp, vertical = 8.dp),
-				horizontalArrangement = Arrangement.SpaceBetween,
-				verticalAlignment = Alignment.CenterVertically
-			) {
+	val snackBarState = remember { SnackbarHostState() }
+	val snackBarManager = koinInject<SnackBarManager>()
+	val context = LocalContext.current
+
+	LaunchedEffect(Unit) {
+		snackBarManager.events.collectLatest { event ->
+			val actionLabelRes = event.actionLabelRes
+			val actionLabel = actionLabelRes?.let { context.getString(it) }
+			val duration = if (actionLabelRes != null) {
+				SnackbarDuration.Long
+			} else {
+				SnackbarDuration.Short
+			}
+			val result = snackBarState.showSnackbar(
+				message = context.resources.getString(event.resource, *event.args.toTypedArray()),
+				actionLabel = actionLabel,
+				duration = duration
+			)
+			if (result == SnackbarResult.ActionPerformed) {
+				event.onAction?.invoke(context)
+			}
+		}
+	}
+
+	Box(modifier = Modifier.fillMaxSize()) {
+		Column(modifier = Modifier.fillMaxSize()) {
+			if (queue.isNotEmpty()) {
 				Row(
 					modifier = Modifier
-						.weight(1f)
-						.clickable {
-							preferenceManager.queueInfoType =
-								when (preferenceManager.queueInfoType) {
-									QueueInfoType.Full -> QueueInfoType.Remaining
-									QueueInfoType.Remaining -> QueueInfoType.Full
-								}
-						},
+						.fillMaxWidth()
+						.padding(horizontal = 24.dp, vertical = 8.dp),
+					horizontalArrangement = Arrangement.SpaceBetween,
 					verticalAlignment = Alignment.CenterVertically
 				) {
-					QueueInfoText(
-						player = player,
-						queue = queue,
-						currentIndex = playerState.activeIndex
-					)
-				}
-				Row(
-					modifier = Modifier.padding(start = 8.dp),
-					horizontalArrangement = Arrangement.spacedBy(8.dp),
-					verticalAlignment = Alignment.CenterVertically
-				) {
-					IconButton(
-						onClick = { playlistDialogShown = true },
-						colors = IconButtonDefaults.filledTonalIconButtonColors(),
-						modifier = Modifier.height(36.dp)
+					Row(
+						modifier = Modifier
+							.weight(1f)
+							.clickable {
+								preferenceManager.queueInfoType =
+									when (preferenceManager.queueInfoType) {
+										QueueInfoType.Full -> QueueInfoType.Remaining
+										QueueInfoType.Remaining -> QueueInfoType.Full
+									}
+							},
+						verticalAlignment = Alignment.CenterVertically
 					) {
-						Icon(
-							Icons.Outlined.PlaylistAdd,
-							contentDescription = stringResource(R.string.action_save_as_playlist),
-							modifier = Modifier.size(20.dp)
+						QueueInfoText(
+							player = player,
+							queue = queue,
+							currentIndex = playerState.activeIndex
 						)
 					}
-					FilledTonalButton(
-						onClick = {
-							haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-							player.clearQueue()
-							backStack.remove(Screen.Queue)
-							backStack.remove(Screen.NowPlaying)
-						},
-						colors = ButtonDefaults.filledTonalButtonColors(),
-						contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-						modifier = Modifier.height(36.dp)
+					Row(
+						modifier = Modifier.padding(start = 8.dp),
+						horizontalArrangement = Arrangement.spacedBy(8.dp),
+						verticalAlignment = Alignment.CenterVertically
 					) {
-						Text(stringResource(R.string.action_clear_queue))
+						IconButton(
+							onClick = { playlistDialogShown = true },
+							colors = IconButtonDefaults.filledTonalIconButtonColors(),
+							modifier = Modifier.height(36.dp)
+						) {
+							Icon(
+								Icons.Outlined.PlaylistAdd,
+								contentDescription = stringResource(R.string.action_save_as_playlist),
+								modifier = Modifier.size(20.dp)
+							)
+						}
+						FilledTonalButton(
+							onClick = {
+								haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+								val currentSize = queue.size
+								player.clearQueue()
+								if (currentSize <= 1) {
+									backStack.remove(Screen.Queue)
+									backStack.remove(Screen.NowPlaying)
+								}
+							},
+							colors = ButtonDefaults.filledTonalButtonColors(),
+							contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+							modifier = Modifier.height(36.dp)
+						) {
+							Text(stringResource(R.string.action_clear_queue))
+						}
 					}
 				}
 			}
+
+			AndroidView(
+				modifier = Modifier
+					.padding(horizontal = 12.dp)
+					.fillMaxSize()
+					.navigationBarsPadding()
+					.clipToBounds()
+					.systemGestureExclusion {
+						androidx.compose.ui.geometry.Rect(
+							left = 5f,
+							top = 0f,
+							right = 5f,
+							bottom = 0f
+						)
+					},
+				factory = { context ->
+					QueueRecyclerView(context, sheetState, setSheetGesturesEnabled).apply {
+						overScrollMode = View.OVER_SCROLL_NEVER
+						layoutManager = LinearLayoutManager(context)
+						isNestedScrollingEnabled = true
+						clipToOutline = true
+						addItemDecoration(object : RecyclerView.ItemDecoration() {
+							override fun getItemOffsets(
+								outRect: Rect,
+								view: View,
+								parent: RecyclerView,
+								state: RecyclerView.State
+							) {
+								if (parent.getChildAdapterPosition(view) > 0) {
+									outRect.top = (3 * resources.displayMetrics.density).toInt()
+								}
+							}
+						})
+						val adapter = QueueRecyclerAdapter()
+						this.adapter = adapter
+						val touchHelper = ItemTouchHelper(adapter.touchCallback)
+						touchHelper.attachToRecyclerView(this)
+						adapter.attachTouchHelper(touchHelper)
+					}
+				},
+				update = { recyclerView ->
+					val adapter = recyclerView.adapter as QueueRecyclerAdapter
+					adapter.update(
+						queue = queue,
+						currentIndex = playerState.activeIndex,
+						isPaused = playerState.isPaused,
+						isOnline = isReachable,
+						downloadedSongs = downloadedSongs,
+						onPlay = { index ->
+							if (playerState.activeIndex != index) {
+								player.playAt(playerState.normalIndex(index))
+							}
+						},
+						onRemove = { index ->
+							haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+							player.removeFromQueue(index)
+						},
+						onMove = { from, to ->
+							haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+							player.moveQueueItem(from, to)
+						})
+					if (adapter.shouldScrollToCurrentIndex) {
+						recyclerView.scrollToPosition(playerState.activeIndex.coerceAtLeast(0))
+						adapter.shouldScrollToCurrentIndex = false
+					}
+				})
 		}
 
-		AndroidView(
+		Box(
 			modifier = Modifier
-				.padding(horizontal = 12.dp)
-				.fillMaxSize()
+				.align(Alignment.BottomCenter)
 				.navigationBarsPadding()
-				.clipToBounds()
-				.systemGestureExclusion {
-					androidx.compose.ui.geometry.Rect(
-						left = 5f,
-						top = 0f,
-						right = 5f,
-						bottom = 0f
-					)
-				},
-			factory = { context ->
-				QueueRecyclerView(context, sheetState, setSheetGesturesEnabled).apply {
-					overScrollMode = View.OVER_SCROLL_NEVER
-					layoutManager = LinearLayoutManager(context)
-					isNestedScrollingEnabled = true
-					clipToOutline = true
-					addItemDecoration(object : RecyclerView.ItemDecoration() {
-						override fun getItemOffsets(
-							outRect: Rect,
-							view: View,
-							parent: RecyclerView,
-							state: RecyclerView.State
-						) {
-							if (parent.getChildAdapterPosition(view) > 0) {
-								outRect.top = (3 * resources.displayMetrics.density).toInt()
-							}
-						}
-					})
-					val adapter = QueueRecyclerAdapter()
-					this.adapter = adapter
-					val touchHelper = ItemTouchHelper(adapter.touchCallback)
-					touchHelper.attachToRecyclerView(this)
-					adapter.attachTouchHelper(touchHelper)
-				}
-			},
-			update = { recyclerView ->
-				val adapter = recyclerView.adapter as QueueRecyclerAdapter
-				adapter.update(
-					queue = queue,
-					currentIndex = playerState.activeIndex,
-					isPaused = playerState.isPaused,
-					isOnline = isReachable,
-					downloadedSongs = downloadedSongs,
-					onPlay = { index ->
-						if (playerState.activeIndex != index) {
-							player.playAt(playerState.normalIndex(index))
-						}
-					},
-					onRemove = { index ->
-						haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-						player.removeFromQueue(index)
-					},
-					onMove = { from, to ->
-						haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-						player.moveQueueItem(from, to)
-					})
-				if (adapter.shouldScrollToCurrentIndex) {
-					recyclerView.scrollToPosition(playerState.activeIndex.coerceAtLeast(0))
-					adapter.shouldScrollToCurrentIndex = false
-				}
-			})
+				.padding(bottom = 16.dp)
+		) {
+			SwipeableSnackBarHost(
+				hostState = snackBarState
+			) { snackBarData, offset ->
+				NavicSnackBar(
+					snackBarData = snackBarData,
+					modifier = Modifier.offset(x = offset)
+				)
+			}
+		}
 	}
 
 	if (playlistDialogShown) {

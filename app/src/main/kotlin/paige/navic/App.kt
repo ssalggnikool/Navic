@@ -134,7 +134,6 @@ import paige.navic.ui.screen.starred.StarredScreen
 import paige.navic.ui.screen.stats.StatisticsScreen
 import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.Material3Transitions
-import paige.navic.util.MiscUtils
 
 @OptIn(ExperimentalSerializationApi::class)
 private val config = SavedStateConfiguration {
@@ -191,21 +190,20 @@ fun App() {
 
 	LaunchedEffect(Unit) {
 		snackBarManager.events.collectLatest { event ->
+			val actionLabelRes = event.actionLabelRes
+			val actionLabel = actionLabelRes?.let { resources.getString(it) }
+			val duration = if (actionLabelRes != null) {
+				SnackbarDuration.Long
+			} else {
+				SnackbarDuration.Short
+			}
 			val result = snackBarState.showSnackbar(
 				message = resources.getString(event.resource, *event.args.toTypedArray()),
-				actionLabel = if (event.restartRequired) {
-					resources.getString(R.string.action_restart)
-				} else {
-					null
-				},
-				duration = if (event.restartRequired) {
-					SnackbarDuration.Long
-				} else {
-					SnackbarDuration.Short
-				}
+				actionLabel = actionLabel,
+				duration = duration
 			)
 			if (result == SnackbarResult.ActionPerformed) {
-				MiscUtils.triggerRebirth(context)
+				event.onAction?.invoke(context)
 			}
 		}
 	}

@@ -45,6 +45,8 @@ import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
 import paige.navic.playback.exoplayer.toMediaItem
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.ui.core.QueueSong
+import paige.navic.ui.core.SavedQueueSnapshot
+import paige.navic.ui.core.toDomainSong
 import paige.navic.ui.core.toQueueSong
 import paige.navic.util.Logger
 import java.util.WeakHashMap
@@ -136,8 +138,11 @@ class PlayerRepository(
 		playNowInternal(songs, startIndex)
 	}
 
+	private var lastQueueSnapshot: SavedQueueSnapshot? = null
+
 	private fun playNowInternal(songs: List<DomainSong>, startIndex: Int) =
 		launch {
+			lastQueueSnapshot = null
 			val index = startIndex.coerceIn(0, (songs.size - 1).coerceAtLeast(0))
 			val items = withContext(Dispatchers.Default) { songs.map { it.toMediaItem() } }
 			rememberSongs(songs)
@@ -352,10 +357,98 @@ class PlayerRepository(
 	}
 
 	fun clearQueue() {
-		controllerHandler?.clearOrder()
-		controller?.clearMediaItems()
-		queueSongsById.clear()
-		currentSongsById.clear()
+		val currentState = uiState.value
+		val activeQueue = currentState.activeQueue
+		if (activeQueue.isEmpty()) return
+
+		val cappedSongs = if (activeQueue.size > 500) activeQueue.take(500) else activeQueue
+		val cappedIndex = currentState.activeIndex.coerceIn(0, (cappedSongs.size - 1).coerceAtLeast(0))
+
+		val snapshot = SavedQueueSnapshot(
+			songs = cappedSongs,
+			activeIndex = cappedIndex,
+			progress = currentState.progress,
+			isPaused = currentState.isPaused,
+			shuffleOrder = currentState.shuffleOrder,
+			isShuffleEnabled = currentState.isShuffleEnabled,
+			currentSong = currentState.currentSong
+		)
+		lastQueueSnapshot = snapshot
+
+		if (activeQueue.size > 1) {
+			val activeIndex = currentState.activeIndex.coerceIn(0, activeQueue.size - 1)
+			val activeQueueSong = activeQueue[activeIndex]
+			val activeDomainSong = activeQueueSong.toDomainSong()
+
+			rememberCurrentSong(activeDomainSong)
+			retainQueueSongs(listOf(activeQueueSong.id))
+
+			val player = controller
+			if (player != null) {
+				val currentMediaIdx = player.currentMediaItemIndex
+				val totalCount = player.mediaItemCount
+				if (totalCount > 1 && currentMediaIdx in 0 until totalCount) {
+					controllerHandler?.clearOrder()
+					if (currentMediaIdx + 1 < totalCount) {
+						player.removeMediaItems(currentMediaIdx + 1, totalCount)
+					}
+					if (currentMediaIdx > 0) {
+						player.removeMediaItems(0, currentMediaIdx)
+					}
+					controllerHandler?.pushOrder()
+				}
+			}
+		} else {
+			controllerHandler?.clearOrder()
+			controller?.clearMediaItems()
+			queueSongsById.clear()
+			currentSongsById.clear()
+		}
+
+		snackBarManager.notifyWithAction(
+			resource = R.string.notice_cleared_queue,
+			actionLabelRes = R.string.action_undo,
+			onAction = { _ -> restoreQueueState() }
+		)
+	}
+
+	private fun restoreQueueState() = launch {
+		val snapshot = lastQueueSnapshot ?: return@launch
+		lastQueueSnapshot = null
+
+		val player = controller ?: return@launch
+		val domainSongs = snapshot.songs.map { it.toDomainSong() }
+		rememberSongs(domainSongs)
+		snapshot.currentSong?.let(::rememberCurrentSong)
+
+		val items = withContext(Dispatchers.Default) {
+			snapshot.songs.map { it.toMediaItem() }
+		}
+
+		val index = snapshot.activeIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0))
+
+		controllerHandler?.startOrder(items.size, index)
+
+		player.apply {
+			setMediaItems(items, index, 0L)
+			this.shuffleModeEnabled = snapshot.isShuffleEnabled
+		}
+
+		controllerHandler?.pushOrder()
+
+		val songDurationMs = snapshot.songs.getOrNull(index)?.duration?.inWholeMilliseconds ?: 0L
+		val positionMs = if (songDurationMs > 0) {
+			(snapshot.progress * songDurationMs).toLong()
+		} else {
+			0L
+		}
+
+		player.seekTo(index, positionMs)
+		player.prepare()
+		if (!snapshot.isPaused) {
+			player.play()
+		}
+		checkAndAutoFillQueue()
 	}
 
 	fun playAt(index: Int) {
