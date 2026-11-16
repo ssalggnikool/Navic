@@ -201,13 +201,15 @@ class SyncManager(
 	fun enqueueAction(
 		actionType: SyncActionType,
 		itemId: String,
-		time: Instant = Clock.System.now()
+		time: Instant = Clock.System.now(),
+		content: String? = null
 	) {
 		scope.launch {
 			syncDao.enqueue(
 				action = SyncActionEntity(
 					actionType = actionType,
 					itemId = itemId,
+					content = content,
 					time = time
 				)
 			)

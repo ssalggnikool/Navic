@@ -24,6 +24,9 @@ interface SyncActionDao {
 	@Query("DELETE FROM SyncActionEntity WHERE id = :id")
 	suspend fun removeAction(id: Int)
 
+	@Query("UPDATE SyncActionEntity SET itemId = :newItemId WHERE itemId = :oldItemId")
+	suspend fun updateItemId(oldItemId: String, newItemId: String)
+
 	@Query("DELETE FROM SyncActionEntity")
 	suspend fun clearAllActions()
 }

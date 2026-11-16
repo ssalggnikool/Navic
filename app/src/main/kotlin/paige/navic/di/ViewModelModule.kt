@@ -146,6 +146,8 @@ val viewModelModule = module {
 		PlaylistCreateDialogViewModel(
 			songIds = songIds,
 			playlistDao = get(),
+			songDao = get(),
+			syncManager = get(),
 			sessionManager = get(),
 			snackBarManager = get()
 		)
