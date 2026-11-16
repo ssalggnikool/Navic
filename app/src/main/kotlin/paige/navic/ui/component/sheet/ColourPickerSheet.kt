@@ -6,6 +6,7 @@
 
 package paige.navic.ui.component.sheet
 
+import android.content.ClipData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -44,9 +45,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.materialkolor.ktx.toHex
@@ -68,7 +69,7 @@ fun ColorPickerSheet(
 	val hex = remember(color) {
 		color.toColor().toHex()
 	}
-	val clipboard = LocalClipboardManager.current
+	val clipboard = LocalClipboard.current
 	val sheetState = rememberBottomSheetState(SheetValue.Hidden)
 	val closeScope = rememberCoroutineScope()
 	val animateToDismiss: () -> Unit = {
@@ -106,7 +107,13 @@ fun ColorPickerSheet(
 							contentAlignment = Alignment.Center
 						) {
 							IconButton(
-								onClick = { clipboard.setText(AnnotatedString(hex)) }
+								onClick = {
+									closeScope.launch {
+										clipboard.setClipEntry(
+											ClipEntry(ClipData.newPlainText("Navic", hex))
+										)
+									}
+								}
 							) {
 								Icon(
 									imageVector = Icons.Outlined.Copy,

@@ -20,6 +20,10 @@ configurations.all {
 
 kotlin {
 	jvmToolchain(21)
+	compilerOptions {
+		// sheet motion specs and expand progress have no public Material3 API yet
+		freeCompilerArgs.add("-Xwarning-level=ERROR_SUPPRESSION:disabled")
+	}
 }
 
 val isTaskRelease =
@@ -45,7 +49,6 @@ android {
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
 		versionCode = 61
 		versionName = "v1.0.0-beta02"
-		multiDexEnabled = true
 
 		ndk {
 			abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
@@ -87,22 +90,16 @@ android {
 			"\"$escaped\""
 		} ?: "null"
 
-		fun executeCommand(vararg args: String): String? {
-			val command = Runtime.getRuntime().exec(args)
-			val result = command.waitFor()
-			return if (result == 0) {
-				command.inputStream.readBytes()
-					.toString(Charsets.UTF_8)
-					.takeIf { it.isNotBlank() }
-			} else {
-				null
-			}
-		}
+		fun git(vararg args: String): String? = runCatching {
+			providers.exec {
+				commandLine("git", *args)
+			}.standardOutput.asText.get().takeIf { it.isNotBlank() }
+		}.getOrNull()
 
-		val commitHash = executeCommand("git", "rev-parse", "HEAD")
-		val commitMessage = executeCommand("git", "log", "-1", "--pretty=%B")
-		val commitAuthor = executeCommand("git", "log", "-1", "--pretty=%an")
-		val commitBranchName = executeCommand("git", "branch", "--show-current")
+		val commitHash = git("rev-parse", "HEAD")
+		val commitMessage = git("log", "-1", "--pretty=%B")
+		val commitAuthor = git("log", "-1", "--pretty=%an")
+		val commitBranchName = git("branch", "--show-current")
 
 		buildConfigField("String", "GIT_COMMIT_HASH", commitHash?.wrapString() ?: "\"unknown\"")
 		buildConfigField("String", "GIT_COMMIT_MESSAGE", commitMessage?.wrapString() ?: "\"unknown\"")

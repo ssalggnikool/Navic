@@ -31,7 +31,9 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -62,6 +64,7 @@ fun PlaybackSpeedScreen() {
 	}
 
 	val selectedSpeed = playerState.playbackSpeed
+	val speedSliderState = rememberSliderState(value = selectedSpeed, trackRange = 0.5f..2.0f)
 	val playbackSpeeds = listOf(
 		1.0f,
 		1.25f,
@@ -69,6 +72,10 @@ fun PlaybackSpeedScreen() {
 		1.75f,
 		2.0f
 	)
+
+	LaunchedEffect(selectedSpeed) {
+		speedSliderState.value = selectedSpeed
+	}
 
 	LazyColumn(
 		modifier = Modifier
@@ -88,12 +95,12 @@ fun PlaybackSpeedScreen() {
 				verticalAlignment = Alignment.CenterVertically
 			) {
 				Slider(
-					value = selectedSpeed,
+					state = speedSliderState,
 					onValueChange = { newValue ->
 						val snappedValue = round(newValue * 100) / 100f
+						speedSliderState.value = snappedValue
 						player.setPlaybackSpeed(snappedValue)
 					},
-					valueRange = 0.5f..2.0f,
 					modifier = Modifier.weight(1f),
 					colors = SliderDefaults.colors(
 						thumbColor = MaterialTheme.colorScheme.primary,
