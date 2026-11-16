@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.widget.turntable
+package paige.navic.widgets.turntable
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -31,8 +31,8 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import paige.navic.R
-import paige.navic.widget.nowplaying.NowPlayingWidget
+import paige.navic.core.widgets.R
+import paige.navic.widgets.nowplaying.NowPlayingWidget
 
 class TurnTableWidget : NowPlayingWidget() {
 

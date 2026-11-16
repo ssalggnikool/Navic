@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.widget.nowplaying
+package paige.navic.widgets.nowplaying
 
 import android.content.ComponentName
 import android.content.Context
@@ -26,7 +26,6 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import coil3.toBitmap
-import paige.navic.MainActivity
 
 /**
  * Base widgets class which widgets will inherit from. Used with `NowPlayingReceiver`
@@ -79,7 +78,8 @@ abstract class NowPlayingWidget : GlanceAppWidget() {
 			component = ComponentName(context, "androidx.media3.session.MediaButtonReceiver")
 		}
 
-	protected fun launchIntent(context: Context) = Intent(context, MainActivity::class.java).apply {
+	protected fun launchIntent(context: Context) = Intent().apply {
+		setClassName(context, "MainActivity")
 		action = Intent.ACTION_MAIN
 		addCategory(Intent.CATEGORY_LAUNCHER)
 		addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)

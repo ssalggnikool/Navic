@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.widget.miniplayer
+package paige.navic.widgets.miniplayer
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -37,9 +37,9 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import paige.navic.R
-import paige.navic.util.appWidgetInnerCornerRadius
-import paige.navic.widget.nowplaying.NowPlayingWidget
+import paige.navic.core.widgets.R
+import paige.navic.widgets.nowplaying.NowPlayingWidget
+import paige.navic.widgets.util.appWidgetInnerCornerRadius
 
 class MiniPlayerWidget : NowPlayingWidget() {
 

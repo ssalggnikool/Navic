@@ -68,7 +68,8 @@ include(
 	":core:icons",
 	":core:model",
 	":core:preferences",
-	":core:server"
+	":core:server",
+	":core:widgets"
 )
 includeMedia3(file("vendor/androidx-media"))
 includeBuild("vendor/subsonic-kotlin")

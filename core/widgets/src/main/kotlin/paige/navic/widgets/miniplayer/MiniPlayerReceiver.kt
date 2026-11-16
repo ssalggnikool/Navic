@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.widget.miniplayer
+package paige.navic.widgets.miniplayer
 
-import paige.navic.widget.nowplaying.NowPlayingReceiver
+import paige.navic.widgets.nowplaying.NowPlayingReceiver
 
 class MiniPlayerReceiver : NowPlayingReceiver(MiniPlayerWidget::class.java)

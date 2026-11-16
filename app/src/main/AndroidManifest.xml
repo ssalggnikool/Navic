@@ -141,7 +141,7 @@
 
 		<!-- miniplayer receiver -->
 		<receiver
-			android:name=".widget.miniplayer.MiniPlayerReceiver"
+			android:name=".widgets.miniplayer.MiniPlayerReceiver"
 			android:exported="false"
 			android:label="Mini Player">
 			<intent-filter>
@@ -155,7 +155,7 @@
 
 		<!-- turn table receiver -->
 		<receiver
-			android:name=".widget.turntable.TurnTableReceiver"
+			android:name=".widgets.turntable.TurnTableReceiver"
 			android:exported="false"
 			android:label="Turn Table">
 			<intent-filter>

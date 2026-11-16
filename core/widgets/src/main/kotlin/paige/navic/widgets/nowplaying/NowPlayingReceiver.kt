@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.widget.nowplaying
+package paige.navic.widgets.nowplaying
 
 import android.content.Context
 import android.content.Intent

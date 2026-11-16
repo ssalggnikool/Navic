@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.widget.turntable
+package paige.navic.widgets.turntable
 
-import paige.navic.widget.nowplaying.NowPlayingReceiver
+import paige.navic.widgets.nowplaying.NowPlayingReceiver
 
 class TurnTableReceiver : NowPlayingReceiver(TurnTableWidget::class.java)

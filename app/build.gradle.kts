@@ -161,6 +161,7 @@ dependencies {
 	implementation(project(":core:model"))
 	implementation(project(":core:preferences"))
 	implementation(project(":core:server"))
+	implementation(project(":core:widgets"))
 
 	// Compose
 	implementation(libs.compose.runtime)
@@ -187,8 +188,6 @@ dependencies {
 	implementation(libs.androidx.media3.decoder.ffmpeg)
 	implementation(libs.androidx.annotation)
 	implementation(libs.androidx.recyclerview)
-	implementation(libs.androidx.glance.appwidget)
-	implementation(libs.androidx.glance.material3)
 	implementation(libs.androidx.browser)
 	implementation(libs.androidx.work.runtime.ktx)
 

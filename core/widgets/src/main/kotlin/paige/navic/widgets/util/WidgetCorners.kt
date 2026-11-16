@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.util
+package paige.navic.widgets.util
 
+import android.R
 import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
@@ -26,7 +27,7 @@ fun GlanceModifier.appWidgetInnerCornerRadius(widgetPadding: Dp): GlanceModifier
 
 	val resources = LocalContext.current.resources
 	// get dimension in float (without rounding).
-	val px = resources.getDimension(android.R.dimen.system_app_widget_background_radius)
+	val px = resources.getDimension(R.dimen.system_app_widget_background_radius)
 	val widgetBackgroundRadiusDpValue = px / resources.displayMetrics.density
 	if (widgetBackgroundRadiusDpValue < widgetPadding.value) {
 		return this
