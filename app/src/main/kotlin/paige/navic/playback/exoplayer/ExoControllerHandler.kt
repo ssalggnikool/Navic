@@ -255,7 +255,9 @@ class ExoControllerHandler(
 				currentSong = currentSong,
 				currentCollection = derivedCollection ?: current.currentCollection,
 				progress = if (index == C.INDEX_UNSET) 0f else current.progress,
-				isPaused = (!controller.playWhenReady || controller.playbackState == Player.STATE_ENDED),
+				isPaused = (!controller.playWhenReady ||
+					controller.playbackState == Player.STATE_ENDED ||
+					controller.playbackSuppressionReason != Player.PLAYBACK_SUPPRESSION_REASON_NONE),
 				isShuffleEnabled = controller.shuffleModeEnabled,
 				repeatMode = controller.repeatMode
 			)
@@ -483,6 +485,14 @@ class ExoControllerHandler(
 
 	override fun onPlaybackStateChanged(playbackState: Int) {
 		state.update { it.copy(isLoading = playbackState == Player.STATE_BUFFERING) }
+		updatePlaybackState()
+	}
+
+	override fun onPlaybackSuppressionReasonChanged(playbackSuppressionReason: Int) {
+		updatePlaybackState()
+	}
+
+	override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
 		updatePlaybackState()
 	}
 
