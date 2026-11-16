@@ -41,15 +41,32 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Restore cache
+      - name: Restore SDK cache
+        id: sdk
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.android/sdk
+          key: ${{ runner.os }}-sdk-${{ hashFiles('gradle/libs.versions.toml', 'vendor/androidx-media/libraries/decoder_ffmpeg/build.gradle.kts') }}
+
+      - name: Resolve FFmpeg cache key
+        id: ffmpeg-key
+        run: |
+          echo "key=ffmpeg-$(git -C vendor/androidx-media rev-parse HEAD)-$(git -C vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore FFmpeg build
+        id: ffmpeg
+        uses: actions/cache/restore@v6
+        with:
+          path: vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/android-libs
+          key: ${{ steps.ffmpeg-key.outputs.key }}
+
+      - name: Restore project cache
         id: cache
         uses: actions/cache/restore@v6
         with:
-          # ok
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            ~/.android/sdk
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
@@ -60,6 +77,8 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # TODO: check if it's possible to remove this by replacing with something faster for accepting licenses
+      # this only seems to accept the licenses and nothing else, Gradle will download the SDK anyway (afaik)
       - name: Setup Android SDK
         uses: https://github.com/android-actions/setup-android@v4
 
@@ -96,15 +115,28 @@ jobs:
           compression-level: 0
           if-no-files-found: error
 
-      - name: Save cache
+      - name: Save project cache
         uses: actions/cache/save@v6
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            ~/.android/sdk
           key: ${{ steps.cache.outputs.cache-primary-key }}
+
+      - name: Save FFmpeg build
+        uses: actions/cache/save@v6
+        if: steps.ffmpeg.outputs.cache-hit != 'true'
+        with:
+          path: vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/android-libs
+          key: ${{ steps.ffmpeg.outputs.cache-primary-key }}
+
+      - name: Save SDK cache
+        uses: actions/cache/save@v6
+        if: steps.sdk.outputs.cache-hit != 'true'
+        with:
+          path: ~/.android/sdk
+          key: ${{ steps.sdk.outputs.cache-primary-key }}
 
   upload-artifacts-to-discord:
     name: Upload Artifacts to Discord
