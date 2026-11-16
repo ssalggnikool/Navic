@@ -49,5 +49,5 @@ val LocalSheetState = staticCompositionLocalOf<SheetState> {
 }
 
 val LocalSetSheetGesturesEnabled = staticCompositionLocalOf<(Boolean) -> Unit> {
-	error("????")
+	error("No SetSheetGestures provided")
 }
