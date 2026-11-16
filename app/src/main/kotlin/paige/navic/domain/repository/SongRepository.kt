@@ -28,6 +28,15 @@ class SongRepository(
 ) {
 	suspend fun getSongById(id: String) = songDao.getSongById(id)?.toDomainModel()
 
+	suspend fun getAppearsOnSongsForArtist(
+		artistId: String,
+		artistName: String,
+		excludedAlbumIds: List<String>
+	): List<DomainSong> {
+		return songDao.getAppearsOnSongsForArtist(artistId, artistName, excludedAlbumIds)
+			.map { it.toDomainModel() }
+	}
+
 	suspend fun getSimilarSongs(songId: String, count: Int = 50): Result<List<DomainSong>> =
 		runCatching {
 			sessionManager.api.getSimilarSongs(songId, count)
@@ -41,7 +50,7 @@ class SongRepository(
 		return songDao.getRandomSongsList(count).map { it.toDomainModel() }
 	}
 
-	private suspend fun getLocalData(
+	private fun getLocalData(
 		listType: DomainSongListType,
 		reversed: Boolean = false,
 		filters: Set<DomainFilter> = emptySet()

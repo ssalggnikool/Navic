@@ -34,6 +34,7 @@ data class ArtistState(
 	val artist: DomainArtist,
 	val albums: List<DomainAlbum>,
 	val topSongs: List<DomainSong>,
+	val appearsOnSongs: List<DomainSong> = emptyList(),
 	val similarArtists: List<DomainArtist> = emptyList()
 )
 
@@ -96,9 +97,18 @@ class ArtistDetailViewModel(
 				}
 
 				val domainAlbums = albumsWithSongs.map { it.toDomainModel() }
+				val mainAlbumIds = domainAlbums.map { it.id }
 
-				val domainSongs = albumsWithSongs.flatMap { it.songs }
-					.map { it.toDomainModel() }
+				val appearsOnSongs = songRepository.getAppearsOnSongsForArtist(
+					artistId = artistId,
+					artistName = domainArtist.name,
+					excludedAlbumIds = mainAlbumIds
+				)
+
+				val allArtistSongs = (albumsWithSongs.flatMap { it.songs }.map { it.toDomainModel() } + appearsOnSongs)
+					.distinctBy { it.id }
+
+				val domainSongs = allArtistSongs
 					.sortedByDescending { it.playCount }
 					.take(12)
 
@@ -113,6 +123,7 @@ class ArtistDetailViewModel(
 						artist = domainArtist,
 						albums = domainAlbums,
 						topSongs = domainSongs,
+						appearsOnSongs = appearsOnSongs,
 						similarArtists = initialSimilarArtists
 					)
 				)

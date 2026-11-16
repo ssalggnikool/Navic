@@ -92,6 +92,7 @@
 	<string name="title_commit_author">Commit author</string>
 	<string name="title_download_management">Download management</string>
 	<string name="title_integrations">Integrations</string>
+	<string name="title_appears_on">Appears on</string>
 
 	<!-- Subtitles -->
 
@@ -305,6 +306,8 @@
 
 	<string name="option_proxy_url">Proxy URL</string>
 	<string name="option_ignore_ssl_certificates">Ignore SSL certificates</string>
+
+	<!-- Actions -->
 
 	<string name="action_ok">OK</string>
 	<string name="action_copy">Copy</string>

@@ -434,6 +434,24 @@ fun ArtistDetailScreen(
 										}
 									}
 								}
+								if (state.appearsOnSongs.isNotEmpty()) {
+									AppearsOnList(
+										songs = state.appearsOnSongs.toImmutableList(),
+										selectedSong = selection,
+										selectedSongRating = selectedSongRating,
+										onSongSelected = {
+											if (it != null) {
+												viewModel.selectSong(it)
+											} else {
+												viewModel.clearSelection()
+											}
+										},
+										onStarSong = viewModel::starSelectedSong,
+										onRateSong = viewModel::rateSelectedSong,
+										onUnstarSong = viewModel::unstarSelectedSong,
+										onShareSong = { shareId = it }
+									)
+								}
 								if (state.similarArtists.isEmpty()) return@Column
 								ArtCarousel(
 									stringResource(R.string.title_similar_artists),
@@ -589,6 +607,84 @@ private fun TopSongsList(
 					}
 				}
 			}
+		}
+	}
+}
+
+@Composable
+private fun AppearsOnList(
+	songs: ImmutableList<DomainSong>,
+	selectedSong: DomainSong?,
+	selectedSongRating: Int,
+	onSongSelected: (DomainSong?) -> Unit,
+	onStarSong: () -> Unit,
+	onRateSong: (Int) -> Unit,
+	onUnstarSong: () -> Unit,
+	onShareSong: (String) -> Unit
+) {
+	val reachabilityFlow = koinInject<ReachabilityFlow>()
+	val isReachable by reachabilityFlow.isReachable.collectAsStateWithLifecycle()
+
+	val downloadManager = koinInject<DownloadManager>()
+	val allDownloads by downloadManager.allDownloads.collectAsStateWithLifecycle(
+		initialValue = emptyList()
+	)
+	val downloadsMap = remember(allDownloads) { allDownloads.associateBy { it.songId } }
+
+	val player = koinInject<PlayerRepository>()
+	val playerState by player.uiState.collectAsStateWithLifecycle()
+
+	Row(
+		modifier = Modifier
+			.heightIn(min = 32.dp)
+			.padding(top = 12.dp)
+			.padding(horizontal = 16.dp)
+			.fillMaxWidth(),
+		verticalAlignment = Alignment.CenterVertically,
+		horizontalArrangement = Arrangement.SpaceBetween
+	) {
+		Text(
+			stringResource(R.string.title_appears_on),
+			style = MaterialTheme.typography.titleMediumEmphasized,
+			fontWeight = FontWeight(600)
+		)
+	}
+
+	Column(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(vertical = 4.dp),
+		verticalArrangement = Arrangement.spacedBy(0.dp)
+	) {
+		songs.forEach { song ->
+			val download = downloadsMap[song.id]
+			SongRow(
+				modifier = Modifier.fillMaxWidth(),
+				song = song,
+				selected = selectedSong == song,
+				onClick = {
+					if (playerState.currentSong?.id != song.id) {
+						player.playNow(songs, songs.indexOf(song))
+					} else {
+						player.togglePlay()
+					}
+				},
+				onLongClick = { onSongSelected(song) },
+				onDismissRequest = { onSongSelected(null) },
+				starredState = song.starredAt != null,
+				onAddStar = onStarSong,
+				onRemoveStar = onUnstarSong,
+				download = download,
+				onDownload = { downloadManager.downloadSong(song.id) },
+				onCancelDownload = { downloadManager.cancelDownload(song.id) },
+				onDeleteDownload = { downloadManager.deleteDownload(song.id) },
+				onPlayNext = { player.playNextSingle(song) },
+				onAddToQueue = { player.addToQueueSingle(song) },
+				onShare = { onShareSong(song.id) },
+				isOnline = isReachable,
+				rating = if (selectedSong == song) selectedSongRating else (song.userRating ?: 0),
+				onSetRating = onRateSong
+			)
 		}
 	}
 }

@@ -97,6 +97,41 @@ interface SongDao {
 	@Query("SELECT * FROM SongEntity WHERE belongsToAlbumId = :albumId")
 	suspend fun getSongsByAlbumId(albumId: String): List<SongEntity>
 
+	@Query("""
+		SELECT * FROM SongEntity 
+		WHERE (artistId = :artistId OR (artistName IS NOT NULL AND LOWER(artistName) = LOWER(:artistName)) OR artists LIKE '%' || :artistId || '%' OR artists LIKE '%' || :artistName || '%')
+		AND (belongsToAlbumId IS NULL OR belongsToAlbumId NOT IN (:excludedAlbumIds))
+		ORDER BY playCount DESC, LOWER(title) ASC
+	""")
+	suspend fun getAppearsOnSongsForArtistInternal(
+		artistId: String,
+		artistName: String,
+		excludedAlbumIds: List<String>
+	): List<SongEntity>
+
+	@Query("""
+		SELECT * FROM SongEntity 
+		WHERE (artistId = :artistId OR (artistName IS NOT NULL AND LOWER(artistName) = LOWER(:artistName)) OR artists LIKE '%' || :artistId || '%' OR artists LIKE '%' || :artistName || '%')
+		ORDER BY playCount DESC, LOWER(title) ASC
+	""")
+	suspend fun getAppearsOnSongsForArtistAll(
+		artistId: String,
+		artistName: String
+	): List<SongEntity>
+
+	@Transaction
+	suspend fun getAppearsOnSongsForArtist(
+		artistId: String,
+		artistName: String,
+		excludedAlbumIds: List<String>
+	): List<SongEntity> {
+		return if (excludedAlbumIds.isEmpty()) {
+			getAppearsOnSongsForArtistAll(artistId, artistName)
+		} else {
+			getAppearsOnSongsForArtistInternal(artistId, artistName, excludedAlbumIds)
+		}
+	}
+
 	@Query("DELETE FROM SongEntity WHERE songId = :songId")
 	suspend fun deleteSong(songId: String)
 
