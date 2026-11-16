@@ -51,13 +51,18 @@ jobs:
       - name: Resolve FFmpeg cache key
         id: ffmpeg-key
         run: |
-          echo "key=ffmpeg-$(git -C vendor/androidx-media rev-parse HEAD)-$(git -C vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "key=ffmpeg-v2-$(git -C vendor/androidx-media rev-parse HEAD)-$(git -C vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Restore FFmpeg build
         id: ffmpeg
         uses: actions/cache/restore@v6
         with:
-          path: vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/android-libs
+          path: |
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/android-libs
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/config.h
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/config_components.h
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/libavutil/avconfig.h
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/libavutil/ffversion.h
           key: ${{ steps.ffmpeg-key.outputs.key }}
 
       - name: Restore project cache
@@ -128,7 +133,12 @@ jobs:
         uses: actions/cache/save@v6
         if: steps.ffmpeg.outputs.cache-hit != 'true'
         with:
-          path: vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/android-libs
+          path: |
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/android-libs
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/config.h
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/config_components.h
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/libavutil/avconfig.h
+            vendor/androidx-media/libraries/decoder_ffmpeg/src/main/jni/ffmpeg/libavutil/ffversion.h
           key: ${{ steps.ffmpeg.outputs.cache-primary-key }}
 
       - name: Save SDK cache
