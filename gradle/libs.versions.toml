@@ -1,7 +1,6 @@
 [versions]
 agp = "9.5.1"
-android-compileSdk = "37"
-android-compileSdkMinor = "2"
+android-sdk = "37.2"
 android-minSdk = "24"
 android-targetSdk = "37"
 kotlin = "2.4.21"
@@ -116,3 +115,10 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version = "2.3.14" }
 androidx-room3 = { id = "androidx.room3", version.ref = "androidx-room3" }
+
+# Convention Plugins
+navic-application = { id = "navic.application" }
+navic-application-compose = { id = "navic.application.compose" }
+navic-library = { id = "navic.library" }
+navic-library-compose = { id = "navic.library.compose" }
+navic-feature = { id = "navic.feature" } # for the future

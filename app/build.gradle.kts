@@ -5,8 +5,8 @@
  */
 
 plugins {
-	alias(libs.plugins.android.application)
-	alias(libs.plugins.compose.compiler)
+	alias(libs.plugins.navic.application)
+	alias(libs.plugins.navic.application.compose)
 	alias(libs.plugins.kotlin.serialization)
 }
 
@@ -18,21 +18,11 @@ configurations.all {
 	resolutionStrategy.cacheChangingModulesFor(1, "hours")
 }
 
-kotlin {
-	jvmToolchain(21)
-	compilerOptions {
-		// sheet motion specs and expand progress have no public Material3 API yet
-		freeCompilerArgs.add("-Xwarning-level=ERROR_SUPPRESSION:disabled")
-	}
-}
-
 val isTaskRelease =
 	gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
 
 android {
 	namespace = "paige.navic"
-	compileSdk = libs.versions.android.compileSdk.get().toInt()
-	compileSdkMinor = libs.versions.android.compileSdkMinor.get().toInt()
 
 	buildFeatures {
 		resValues = true
@@ -45,7 +35,6 @@ android {
 
 	defaultConfig {
 		applicationId = "paige.navic"
-		minSdk = libs.versions.android.minSdk.get().toInt()
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
 		versionCode = 61
 		versionName = "v1.0.0-beta02"
@@ -136,13 +125,6 @@ android {
 		jniLibs {
 			keepDebugSymbols.add("**/*.so")
 		}
-	}
-
-	compileOptions {
-		isCoreLibraryDesugaringEnabled = true
-
-		sourceCompatibility = JavaVersion.VERSION_21
-		targetCompatibility = JavaVersion.VERSION_21
 	}
 
 	dependenciesInfo {
@@ -244,5 +226,4 @@ dependencies {
 	implementation(libs.cryptohash)
 	implementation(libs.mimetypes)
 	implementation(libs.kotlinx.coroutines.guava)
-	coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
