@@ -233,7 +233,7 @@ class DbRepository(
 
 					album.songs.forEach { song ->
 						val songEntity = song.toEntity(
-							artistIdOverride = albumEntity.artistId.takeIf { song.artistId.isNullOrBlank() },
+							artistIdOverride = albumEntity.artistId.takeIf { song.artistId.isBlank() },
 							artistNameOverride = albumEntity.artistName.takeIf { song.artistName.isNullOrBlank() }
 						)
 						songBatch.add(songEntity)
@@ -260,7 +260,7 @@ class DbRepository(
 
 		Logger.i(
 			"DbRepository",
-			"- Songs Synced: $totalAlbums albums, $finalSongsSynced songs"
+			"- Sync result: $totalAlbums albums, $finalSongsSynced songs"
 		)
 
 		onProgress(1.0f, R.string.info_syncing_saved)
@@ -278,7 +278,7 @@ class DbRepository(
 
 		playlistDao.deleteObsoletePlaylists(validPlaylistIds)
 
-		Logger.i("DbRepository", "- Playlists Synced: ${playlistEntities.size} playlists found")
+		Logger.i("DbRepository", "- Playlist sync result: ${playlistEntities.size} playlists found")
 
 		playlistEntities
 	}
