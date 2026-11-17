@@ -26,7 +26,7 @@ private val defaultTypography = Typography()
 
 // https://github.com/tribalfs/oneui-design/blob/1befedd193025f2271f741e10fd12bc0f101b17e/lib/src/main/java/dev/oneuiproject/oneui/utils/TypefaceUtils.kt
 @Composable
-public fun oneUiSans(): FontFamily {
+fun oneUiSans(): FontFamily {
 	return remember {
 		FontFamily(
 			Font(DeviceFontFamilyName("sec"), weight = FontWeight.Light),
@@ -39,7 +39,7 @@ public fun oneUiSans(): FontFamily {
 }
 
 @Composable
-public fun googleSans(
+fun googleSans(
 	grade: Int = 0,
 	width: Float = 100f,
 	round: Float = 0f
@@ -56,7 +56,7 @@ public fun googleSans(
 }
 
 @Composable
-public fun defaultFont(
+fun defaultFont(
 	grade: Int = 0,
 	width: Float = 100f,
 	round: Float = 0f
@@ -76,11 +76,11 @@ public fun defaultFont(
 
 private fun TextStyle.withFontFamily(fontFamily: FontFamily, useOneUiSans: Boolean) = copy(
 	fontFamily = fontFamily,
-	letterSpacing = if (useOneUiSans && letterSpacing > 0.sp) 0.2.sp else letterSpacing
+	letterSpacing = if (useOneUiSans) 0.sp else letterSpacing
 )
 
 @Composable
-public fun typography(): Typography {
+fun typography(): Typography {
 	val preferenceManager = koinInject<PreferenceManager>()
 	val fontFamily = defaultFont()
 
