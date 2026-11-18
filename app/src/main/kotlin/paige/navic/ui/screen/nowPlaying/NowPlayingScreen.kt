@@ -107,7 +107,8 @@ fun NowPlayingScreen() {
 								imageVector = Icons.Outlined.KeyboardArrowDown,
 								contentDescription = stringResource(R.string.action_navigate_back)
 							)
-						}
+						},
+						shadowElevation = 4.dp
 					)
 				},
 				actions = {

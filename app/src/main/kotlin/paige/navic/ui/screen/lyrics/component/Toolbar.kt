@@ -58,7 +58,8 @@ fun LyricsScreenToolbar(
 						else Icons.Outlined.ArrowBack,
 						contentDescription = stringResource(R.string.action_navigate_back)
 					)
-				}
+				},
+				shadowElevation = 4.dp
 			)
 			NavigationBackHandler(
 				state = rememberNavigationEventState(NavigationEventInfo.None),
@@ -75,7 +76,8 @@ fun LyricsScreenToolbar(
 					} else {
 						toggleIsSelecting()
 					}
-				}
+				},
+				shadowElevation = 4.dp
 			) {
 				Icon(
 					imageVector = if (!isSelecting)
