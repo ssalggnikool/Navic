@@ -119,28 +119,27 @@ class ExoControllerHandler(
 		if (audioGroups != null) {
 			for (i in 0 until audioGroups.length) {
 				if (audioGroups.isTrackSelected(i)) {
+					val currentItem = controller.currentMediaItem ?: return
+
 					val format = audioGroups.getTrackFormat(i)
 					Logger.i("MediaPlayer", "active track format: $format")
 
 					scope.launch(Dispatchers.IO) {
-						// i don't like this but oh well
 						val currentSong = state.value.currentSong
-						val songMimeType = currentSong?.mimeType
-						val matchesMime = format.sampleMimeType == songMimeType ||
-							format.containerMimeType == songMimeType
-						val isOriginalFile = currentSong != null && matchesMime
-						val fallbackBitrate = if (isOriginalFile) {
-							currentSong.bitRate?.times(1000)
-						} else {
-							withContext(Dispatchers.Main) {
-								getEstimateBitrate()
-							}
-						}
+						val isOriginalFormat = currentItem.requestMetadata
+							.mediaUri
+							?.getQueryParameter(
+								NavicDataSource.PARAM_TRANSCODE
+							) == "1"
 
 						state.update { current ->
 							current.copy(
 								playbackBitrate = format.bitrate.takeIf { it != Format.NO_VALUE }
-									?: fallbackBitrate,
+									?: if (isOriginalFormat) {
+										currentSong?.bitRate?.times(1000)
+									} else {
+										getEstimateBitrate()
+									},
 								playbackSampleRate = format.sampleRate.takeIf { it != Format.NO_VALUE },
 								playbackMimeType = format.sampleMimeType,
 								playbackBitDepth = when (format.pcmEncoding) {
@@ -608,25 +607,28 @@ class ExoControllerHandler(
 	}
 
 	private suspend fun getEstimateBitrate(): Int? {
-		val duration = (controller.currentMediaItem?.mediaMetadata?.durationMs?.div(1000))
-			?: return null
+		return withContext(Dispatchers.Main) {
+			val currentItem = controller.currentMediaItem ?: return@withContext null
 
-		state.value.currentSong?.let { song ->
-			val fileSize = runCatching {
-				downloadManager.getDownloadedFilePath(song.id)?.toFile()
-					?.length()
-					?.takeIf { it > 0L }
-			}.getOrNull()
-				?: streamCacheManager.getSongFileSize(song.id)
-				?: return NavicDataSource.getCurrentQuality(
-					preferenceManager,
-					connectivityManager
-				).first.takeIf { it > 0 }?.times(1000)
+			val duration = (currentItem.mediaMetadata.durationMs?.div(1000))
+					?: return@withContext null
 
-			if (duration <= 0 || fileSize <= 0) return null
-			return ((fileSize * 8) / duration).toInt()
+			return@withContext state.value.currentSong?.let { song ->
+				val fileSize = runCatching {
+					downloadManager.getDownloadedFilePath(song.id)?.toFile()
+						?.length()
+						?.takeIf { it > 0L }
+				}.getOrNull()
+					?: streamCacheManager.getSongFileSize(song.id)
+					?: return@let NavicDataSource.getCurrentQuality(
+						preferenceManager,
+						connectivityManager
+					).first.takeIf { it > 0 }?.times(1000)
+
+				if (duration <= 0 || fileSize <= 0) return@let null
+				((fileSize * 8) / duration).toInt()
+			}
 		}
-		return null
 	}
 
 	private fun String.toFile() = File(this)
