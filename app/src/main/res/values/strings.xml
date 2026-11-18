@@ -494,6 +494,7 @@
 	<string name="info_syncing_artists">Syncing artists…</string>
 	<string name="info_syncing_radios">Syncing radios…</string>
 	<string name="info_login_description">Log into a Subsonic compatible music server.</string>
+	<string name="info_login_description_jellyfin">Log into a Jellyfin server.</string>
 	<string name="info_exception_handler">This will immediately crash the application. Are you sure?</string>
 	<string name="info_streaming_quality">Higher quality presets will use more data. Transcoding can severely impact load times and cause lyrics to become unsynced. Select Lossless if you encounter any issues.</string>
 	<string name="info_transcode_streaming_unsupported">Your server does not support the "transcodeOffset" server extension for transcode streaming, so these options are unavailable.</string>

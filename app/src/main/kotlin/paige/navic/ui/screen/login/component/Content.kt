@@ -7,6 +7,7 @@
 package paige.navic.ui.screen.login.component
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -60,6 +61,7 @@ import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.runtime.PermissionManager
 import paige.navic.domain.manager.session.LoginManager
+import paige.navic.domain.server.AuthMethod
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Error
 import paige.navic.ui.component.common.ErrorBox
@@ -172,10 +174,17 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 					fontFamily = defaultFont(round = 100f),
 					modifier = Modifier.padding(horizontal = 16.dp)
 				)
-				Text(
-					text = stringResource(R.string.info_login_description),
-					modifier = Modifier.padding(horizontal = 16.dp)
-				)
+
+				Crossfade(targetState = viewModel.authMethod) { state ->
+					val loginDescription = when (state) {
+						AuthMethod.Jellyfin -> stringResource(R.string.info_login_description_jellyfin)
+						else -> stringResource(R.string.info_login_description)
+					}
+					Text(
+						text = loginDescription,
+						modifier = Modifier.padding(horizontal = 16.dp)
+					)
+				}
 
 				Spacer(Modifier.height(8.dp))
 
