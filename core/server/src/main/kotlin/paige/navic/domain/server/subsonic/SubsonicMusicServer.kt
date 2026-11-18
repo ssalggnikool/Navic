@@ -29,6 +29,8 @@ import paige.navic.domain.model.DomainShare
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainUser
 import paige.navic.domain.model.ServerLyrics
+import paige.navic.domain.server.subsonic.mapper.toApi
+import paige.navic.domain.server.subsonic.mapper.toDomainModel
 import paige.navic.domain.server.ChatServer
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.server.MusicServer

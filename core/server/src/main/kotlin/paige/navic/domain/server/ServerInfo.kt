@@ -31,7 +31,9 @@ enum class ServerExtension(
 enum class ServerType(
 	val prettyName: String
 ) {
-	SUBSONIC("Subsonic")
+	SUBSONIC("Subsonic"),
+	NAVIDROME("Navidrome"),
+	JELLYFIN("Jellyfin")
 }
 
 data class ServerStatus(

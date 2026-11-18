@@ -6,11 +6,6 @@
 
 package paige.navic.ui.screen.login.component
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -78,7 +73,7 @@ fun LoginScreenFields(
 				showKeyboardOnFocus = true
 			),
 			onKeyboardAction = KeyboardActionHandler {
-				if (authMethod == AuthMethod.Token) {
+				if (authMethod == AuthMethod.Token || authMethod == AuthMethod.Jellyfin) {
 					usernameFocusRequester.requestFocus()
 				} else {
 					passwordFocusRequester.requestFocus()
@@ -88,34 +83,39 @@ fun LoginScreenFields(
 
 		LoginScreenSuggestionChips(instanceState = instanceState)
 
-		AnimatedVisibility(
-			visible = supportsApiKeyAuthentication,
-			enter = expandVertically() + fadeIn(),
-			exit = shrinkVertically() + fadeOut()
+		val availableMethods = if (supportsApiKeyAuthentication) {
+			listOf(AuthMethod.Token, AuthMethod.ApiKey, AuthMethod.Jellyfin)
+		} else {
+			listOf(AuthMethod.Token, AuthMethod.Jellyfin)
+		}
+
+		SingleChoiceSegmentedButtonRow(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(horizontal = 16.dp)
 		) {
-			SingleChoiceSegmentedButtonRow(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(horizontal = 16.dp)
-			) {
+			availableMethods.forEachIndexed { index, method ->
 				SegmentedButton(
-					shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-					onClick = { onAuthMethodChange(AuthMethod.Token) },
-					selected = authMethod == AuthMethod.Token,
+					shape = SegmentedButtonDefaults.itemShape(index = index, count = availableMethods.size),
+					onClick = { onAuthMethodChange(method) },
+					selected = authMethod == method,
 					enabled = !isBusy,
-					label = { Text(stringResource(R.string.option_account_password)) }
-				)
-				SegmentedButton(
-					shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-					onClick = { onAuthMethodChange(AuthMethod.ApiKey) },
-					selected = authMethod == AuthMethod.ApiKey,
-					enabled = !isBusy,
-					label = { Text(stringResource(R.string.option_account_api_key)) }
+					label = {
+						Text(
+							text = stringResource(
+								when (method) {
+									AuthMethod.Token -> R.string.option_account_subsonic
+									AuthMethod.ApiKey -> R.string.option_account_api_key
+									AuthMethod.Jellyfin -> R.string.option_account_jellyfin
+								}
+							)
+						)
+					}
 				)
 			}
 		}
 
-		if (authMethod == AuthMethod.Token) {
+		if (authMethod == AuthMethod.Token || authMethod == AuthMethod.Jellyfin) {
 			OutlinedTextField(
 				modifier = Modifier
 					.heightIn(min = 60.dp)

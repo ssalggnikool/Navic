@@ -19,6 +19,8 @@ dependencies {
 	implementation(project(":core:database"))
 
 	implementation(libs.subsonicKotlin)
+	api(libs.jellyfin.core)
+	api(libs.jellyfin.model)
 	implementation(libs.ktor.client.core)
 	implementation(libs.ktor.client.contentNegotiation)
 	implementation(libs.ktor.serialization.json)

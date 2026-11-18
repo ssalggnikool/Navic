@@ -62,6 +62,7 @@ class SessionManager(
 		get() = instanceUrl.isNotBlank() && when (authMethod) {
 			AuthMethod.Token -> username.isNotBlank() && password.isNotBlank()
 			AuthMethod.ApiKey -> apiKey.isNotBlank()
+			AuthMethod.Jellyfin -> jellyfinToken.isNotBlank() && jellyfinUserId.isNotBlank()
 		}
 
 	private val _state = MutableStateFlow(
@@ -103,9 +104,26 @@ class SessionManager(
 			settings.insertEncryptedString("apiKey", value)
 		}
 
+	var jellyfinToken: String
+		get() = settings.getEncryptedString("jellyfinToken", "")
+		private set(value) {
+			settings.insertEncryptedString("jellyfinToken", value)
+		}
+
+	var jellyfinUserId: String
+		get() = settings.getString("jellyfinUserId", "")
+		private set(value) {
+			settings["jellyfinUserId"] = value
+		}
+
 	private fun storedCredentials(): ServerCredentials = when (authMethod) {
 		AuthMethod.Token -> ServerCredentials.Token(username = username, password = password)
 		AuthMethod.ApiKey -> ServerCredentials.ApiKey(apiKey = apiKey)
+		AuthMethod.Jellyfin -> ServerCredentials.Jellyfin(
+			username = username,
+			accessToken = jellyfinToken,
+			userId = jellyfinUserId
+		)
 	}
 
 	var api: MusicServer = serverFactory.create(
@@ -164,6 +182,14 @@ class SessionManager(
 		credentials = ServerCredentials.ApiKey(apiKey = apiKey)
 	)
 
+	suspend fun loginJellyfin(
+		instanceUrl: String,
+		credentials: ServerCredentials.Jellyfin
+	) = login(
+		instanceUrl = instanceUrl,
+		credentials = credentials
+	)
+
 	private suspend fun login(instanceUrl: String, credentials: ServerCredentials) {
 		val server = serverFactory.create(
 			baseUrl = instanceUrl,
@@ -182,6 +208,8 @@ class SessionManager(
 				username = credentials.username
 				password = credentials.password
 				settings.remove("apiKey")
+				settings.remove("jellyfinToken")
+				settings.remove("jellyfinUserId")
 			}
 
 			is ServerCredentials.ApiKey -> {
@@ -189,6 +217,17 @@ class SessionManager(
 				username = user.username
 				settings.remove("password")
 				apiKey = credentials.apiKey
+				settings.remove("jellyfinToken")
+				settings.remove("jellyfinUserId")
+			}
+
+			is ServerCredentials.Jellyfin -> {
+				authMethod = AuthMethod.Jellyfin
+				username = credentials.username
+				jellyfinToken = credentials.accessToken
+				jellyfinUserId = credentials.userId
+				settings.remove("password")
+				settings.remove("apiKey")
 			}
 		}
 
@@ -203,6 +242,8 @@ class SessionManager(
 		settings["username"] = null
 		settings.remove("password")
 		settings.remove("apiKey")
+		settings.remove("jellyfinToken")
+		settings.remove("jellyfinUserId")
 		ttlLruCache.clear()
 		_state.value = SessionState.Unauthenticated
 	}
