@@ -2,7 +2,7 @@
 
 <img title="Navic" alt="Navic" height="140" src="https://codeberg.org/Navic/Branding/raw/branch/main/assets/wordmark.png">
 
-A modern (Open)Subsonic music streaming app for Android.
+A modern **(Open)Subsonic/Jellyfin** music streaming app for Android.
 
 [![APK download](https://codeberg.org/Navic/Branding/raw/branch/main/assets/direct_download.svg)][LATEST_RELEASE]
 [![IzzyOnDroid](https://codeberg.org/Navic/Branding/raw/branch/main/assets/izzyondroid.svg)](https://apt.izzysoft.de/fdroid/index/apk/paige.navic)
@@ -36,16 +36,16 @@ A modern (Open)Subsonic music streaming app for Android.
 
 ## Installation & usage
 
-1. Install Navic through one of [the many supported methods](https://navic.app/downloads).
+1. Install Navic through one
+   of [the many supported methods](https://codeberg.org/paige/Navic/wiki/Installation).
 
    Play Protect may falsely flag Navic,
    see [this page](https://codeberg.org/paige/Navic/wiki/Play-Protect).
-2. After opening Navic, log into a supported (Open)Subsonic music server.
+2. After opening Navic, log into a supported (Open)Subsonic/Jellyfin music server.
 
-   If you don't already have one, there are countless guides online for setting one up. Some servers
-   that support (Open)Subsonic
-   are [LMS](https://github.com/epoupon/lms), [gonic](https://github.com/sentriz/gonic), [Navidrome](https://navidrome.org),
-   and of course, [Subsonic](https://subsonic.org) itself.
+   See [the wiki](https://codeberg.org/paige/Navic/wiki/Server-Setup) for details.
+3. For more information on features and known issues,
+   see [the wiki](https://codeberg.org/paige/Navic/wiki).
 
 ## Screenshots
 

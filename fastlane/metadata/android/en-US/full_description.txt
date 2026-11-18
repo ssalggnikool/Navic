@@ -1,13 +1,20 @@
-<p>Navic is a modern Subsonic music streaming app for Android.</p>
+<p>Navic is a modern Subsonic/Jellyfin music streaming app for Android.</p>
 
 <h2>Features</h2>
 <ul>
-	<li>Customisable: large selection of settings and tweaks</li>
-	<li>Secure & private: minimal permissions, zero telemetry, and zero analytics</li>
-	<li>Integrated: shows up on the lock screen + quick settings</li>
-	<li>Lightweight & fast: zero bloat</li>
-	<li>Feature rich: covers almost the entirety of the Subsonic API</li>
-	<li>Works offline: syncs your entire library locally, and allows you to download songs</li>
+	<li><b>Modern</b>: modern UI styled with the Material 3 Expressive design language</li>
+	<li><b>Highly customisable</b>: almost everything is a setting!</li>
+	<li><b>Works everywhere</b>: access library offline & scrobble offline</li>
+	<li><b>Downloads</b>: download your music, supports download transcoding\* and saving to SD card</li>
+	<li><b>Powerful playback</b>: equaliser, ReplayGain\*, transcoding\*, ALAC support & more</li>
+	<li><b>Discord RPC</b>: show off what you're listening to on Discord, no configuration required <i>(requires up to date Discord app)</i></li>
+	<li><b>Lyrics support</b>: multiple lyric providers & word-by-word lyrics\*</li>
+	<li><b>Radio stations</b>: stream & add internet radio stations</li>
+	<li><b>Home widgets</b>: a couple of home screen widgets are inbuilt</li>
+	<li><b>Share music</b>: share links to music to your friends\*</li>
+	<li><b>Android Auto</b>: control music playback through Android Auto</li>
+	<li><b>Lightweight</b>: Navic is fast, small (~15MB), and uses minimal resources (~150-300MB RAM)</li>
+	<li><b>Compatible</b>: supports older devices and most Subsonic servers</li>
 </ul>
 
 <h2>Links</h2>
