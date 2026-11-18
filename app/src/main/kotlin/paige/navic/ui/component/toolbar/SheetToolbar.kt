@@ -10,6 +10,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,10 +19,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -97,7 +97,7 @@ fun SheetActionButton(
 	val isPressed by interactionSource.collectIsPressedAsState()
 	val startRadius by animateDpAsState(if (isStartRounded || isPressed) 12.dp else 4.dp)
 	val endRadius by animateDpAsState(if (isEndRounded || isPressed) 12.dp else 4.dp)
-	IconButton(
+	Surface(
 		onClick = onClick,
 		shape = RoundedCornerShape(
 			topStart = startRadius,
@@ -105,14 +105,18 @@ fun SheetActionButton(
 			topEnd = endRadius,
 			bottomEnd = endRadius
 		),
-		colors = IconButtonDefaults.filledTonalIconButtonColors(),
+		color = MaterialTheme.colorScheme.surfaceContainer,
+		contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
 		modifier = Modifier.size(45.dp, 40.dp),
-		interactionSource = interactionSource
+		interactionSource = interactionSource,
+		shadowElevation = 4.dp
 	) {
-		Icon(
-			imageVector = icon,
-			contentDescription = contentDescription,
-			modifier = Modifier.size(20.dp)
-		)
+		Box(contentAlignment = Alignment.Center) {
+			Icon(
+				imageVector = icon,
+				contentDescription = contentDescription,
+				modifier = Modifier.size(20.dp)
+			)
+		}
 	}
 }
