@@ -1,7 +1,12 @@
 name: Checks
 
 on:
-  workflow_dispatch:
+  push:
+    paths:
+      - "**/gradle-wrapper.jar"
+  pull_request:
+    paths:
+      - "**/gradle-wrapper.jar"
 
 jobs:
   validation:
