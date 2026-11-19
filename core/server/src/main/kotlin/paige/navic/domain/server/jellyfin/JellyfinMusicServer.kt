@@ -26,7 +26,6 @@ import org.jellyfin.sdk.model.api.MediaType
 import org.jellyfin.sdk.model.api.PlayMethod
 import org.jellyfin.sdk.model.api.PlaybackOrder
 import org.jellyfin.sdk.model.api.PlaybackProgressInfo
-import org.jellyfin.sdk.model.api.PlaybackStartInfo
 import org.jellyfin.sdk.model.api.PlaybackStopInfo
 import org.jellyfin.sdk.model.api.RepeatMode
 import org.jellyfin.sdk.model.api.SortOrder
@@ -344,27 +343,7 @@ class JellyfinMusicServer(
 	}
 
 	override suspend fun scrobble(id: String, submission: Boolean, time: Instant?) {
-		val uuid = id.toUuid()
-		if (submission) {
-			sessionApi.reportPlaybackStopped(
-				PlaybackStopInfo(
-					itemId = uuid,
-					failed = false
-				)
-			)
-		} else {
-			sessionApi.reportPlaybackStart(
-				PlaybackStartInfo(
-					itemId = uuid,
-					canSeek = true,
-					isPaused = false,
-					isMuted = false,
-					playMethod = PlayMethod.DIRECT_PLAY,
-					repeatMode = RepeatMode.REPEAT_NONE,
-					playbackOrder = PlaybackOrder.DEFAULT
-				)
-			)
-		}
+		//doesn't support scrobble
 	}
 
 	override suspend fun reportPlayback(
