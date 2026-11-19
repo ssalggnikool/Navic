@@ -7,12 +7,13 @@
 package paige.navic.domain.server.jellyfin
 
 import android.content.Context
-import org.jellyfin.sdk.createJellyfin
 import org.jellyfin.sdk.api.client.exception.ApiClientException
 import org.jellyfin.sdk.api.client.exception.InvalidContentException
 import org.jellyfin.sdk.api.client.exception.InvalidStatusException
 import org.jellyfin.sdk.api.operations.AuthenticationApi
+import org.jellyfin.sdk.createJellyfin
 import org.jellyfin.sdk.model.ClientInfo
+import paige.navic.BuildConfig
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
@@ -26,8 +27,8 @@ class JellyfinMusicServerFactory(
 
 	private val jellyfin by lazy {
 		createJellyfin {
-			this.context = this@JellyfinMusicServerFactory.context
-			clientInfo = ClientInfo(name = "Navic", version = "1.0.0")
+			context = this@JellyfinMusicServerFactory.context
+			clientInfo = ClientInfo(name = "Navic", version = BuildConfig.VERSION_NAME)
 		}
 	}
 
