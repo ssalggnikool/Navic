@@ -365,18 +365,18 @@
     <string name="subtitle_audio_effects">音效</string>
     <string name="subtitle_enable_ratings">评分</string>
     <string name="subtitle_ignore_ssl_certificates">只有在你清楚自己在做什么时才启用此功能。如果你使用代理来检查请求，这会很有用。</string>
-	<string name="option_hide_bottom_bar_if_idle">自动隐藏</string>
-	<string name="subtitle_auto_fill_queue">队列里只剩一首歌时自动添加一首随机歌曲</string>
-	<string name="option_auto_fill_queue">自动添加</string>
-	<string name="option_account_instance">服务器地址</string>
-	<string name="option_lyrics_fake_beat_by_beat">假逐拍歌词</string>
-	<string name="subtitle_lyrics_fake_beat_by_beat">普通歌词模拟逐拍歌词显示</string>
-	<string name="option_replaygain_mode">回放增益模式</string>
-	<string name="option_dynamic_replaygain_tip">将回放增益设置为动态时，如果正在播放整张专辑，将使用专辑增益。否则，将使用单曲增益。</string>
-	<string name="option_title_preamp">前置放大器</string>
-	<string name="option_preamp_with_rg">带回放增益标签</string>
-	<string name="option_preamp_without_rg">不带回放增益标签</string>
-	<string name="option_preamp_tip">把任一前置放大选项调得很高可能会导致音频失真。</string>
+    <string name="option_hide_bottom_bar_if_idle">自动隐藏</string>
+    <string name="subtitle_auto_fill_queue">队列里只剩一首歌时自动添加一首随机歌曲</string>
+    <string name="option_auto_fill_queue">自动添加</string>
+    <string name="option_account_instance">服务器地址</string>
+    <string name="option_lyrics_fake_beat_by_beat">假逐拍歌词</string>
+    <string name="subtitle_lyrics_fake_beat_by_beat">普通歌词模拟逐拍歌词显示</string>
+    <string name="option_replaygain_mode">回放增益模式</string>
+    <string name="option_dynamic_replaygain_tip">将回放增益设置为动态时，如果正在播放整张专辑，将使用专辑增益。否则，将使用单曲增益。</string>
+    <string name="option_title_preamp">前置放大器</string>
+    <string name="option_preamp_with_rg">带回放增益标签</string>
+    <string name="option_preamp_without_rg">不带回放增益标签</string>
+    <string name="option_preamp_tip">把任一前置放大选项调得很高可能会导致音频失真。</string>
     <string name="title_delete_radio">是否删除广播？</string>
     <string name="title_update_radio">更新广播</string>
     <string name="title_discord_server">Discord 服务器</string>
@@ -396,4 +396,16 @@
     <string name="subtitle_enable_discord_integration">在 Discord 上展示你正在听的音乐</string>
     <string name="option_connection_options">连接选项</string>
     <string name="option_list_view_mode_grid">网格</string>
+    <plurals name="count_minutes_ago">
+        <item quantity="other">%1$d分钟前</item>
+    </plurals>
+    <plurals name="count_hours_ago">
+        <item quantity="other">%1$d个小时前</item>
+    </plurals>
+    <plurals name="count_days_ago">
+        <item quantity="other">%1$d天前</item>
+    </plurals>
+    <string name="action_save">保存</string>
+    <string name="notice_deleted_radio">已删除电台。</string>
+    <string name="notice_deleted_downloads">已删除下载。</string>
 </resources>

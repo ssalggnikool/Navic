@@ -532,4 +532,7 @@
     <string name="info_incorrect_credentials">Identifiants incorrects. Veuillez vérifier vos identifiants et réessayer.</string>
     <string name="title_integrations">Intégrations</string>
     <string name="action_edit_api_key">Modifier la clé API %1$s</string>
+    <string name="option_mini_player_progress_style_line">Ligne</string>
+    <string name="option_mini_player_progress_style_overlay">Superposé</string>
+    <string name="notice_app_icon_changed">Changement de l\'icône de l\'application, fermeture de l\'application !</string>
 </resources>
