@@ -66,6 +66,7 @@
 	<string name="title_select_lyrics">Select lyrics</string>
 	<string name="title_advanced">Advanced transcoding</string>
 	<string name="title_logs">Logs</string>
+	<string name="title_authentication_method">Auth method</string>
 	<string name="title_palette">Palette</string>
 	<string name="title_theme_mode">Theme mode</string>
 	<string name="title_account">Account</string>
@@ -93,9 +94,11 @@
 	<string name="title_download_management">Download management</string>
 	<string name="title_integrations">Integrations</string>
 	<string name="title_appears_on">Appears on</string>
+	<string name="title_welcome">Welcome to Navic</string>
 
 	<!-- Subtitles -->
 
+	<string name="subtitle_welcome">Select your server type</string>
 	<string name="subtitle_appearance">Themes, colors, layout, app icon</string>
 	<string name="subtitle_now_playing">Customize the now playing &amp; lyrics views</string>
 	<string name="subtitle_bottom_app_bar">Customize the bottom bar &amp; mini player</string>
@@ -174,6 +177,7 @@
 	<string name="option_account_username">Username</string>
 	<string name="option_account_password">Password</string>
 	<string name="option_account_api_key">API key</string>
+	<string name="option_account_use_api_key">Use API key authentication</string>
 	<string name="option_account_subsonic">Subsonic</string>
 	<string name="option_account_jellyfin">Jellyfin</string>
 	<string name="option_lyrics_autoscroll">Auto-scrolling view</string>
@@ -312,6 +316,7 @@
 	<!-- Actions -->
 
 	<string name="action_ok">OK</string>
+	<string name="action_continue">Continue</string>
 	<string name="action_copy">Copy</string>
 	<string name="action_play">Play</string>
 	<string name="action_next_song">Next song</string>
