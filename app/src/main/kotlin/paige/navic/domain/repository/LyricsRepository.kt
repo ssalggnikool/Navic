@@ -110,7 +110,7 @@ class LyricsRepository(
 						raw?.let { LyricsContentParser.parse(it) }
 					}
 
-					LyricsProvider.Id.SUBSONIC -> {
+					LyricsProvider.Id.SERVER_PROVIDED -> {
 						val subsonicLyrics = sessionManager.api.getLyrics(song.id)
 
 						val lines = subsonicLyrics?.lines?.flatMap { line ->

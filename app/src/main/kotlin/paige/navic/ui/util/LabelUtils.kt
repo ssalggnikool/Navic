@@ -107,7 +107,7 @@ fun ColorSpec.SpecVersion.label() = when (this) {
 }
 
 fun LyricsProvider.Id.label() = when (this) {
-	LyricsProvider.Id.SUBSONIC -> "Subsonic"
+	LyricsProvider.Id.SERVER_PROVIDED -> "Server-provided"
 	LyricsProvider.Id.LYRICS_PLUS -> "LyricsPlus"
 	LyricsProvider.Id.LRCLIB -> "LRCLIB"
 }

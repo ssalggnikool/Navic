@@ -17,10 +17,10 @@ data class LyricsConfig(
 ) {
 	companion object {
 		const val KEY = "lyricsConfig"
-		const val VERSION = 1
+		const val VERSION = 2
 		val Default = LyricsConfig(
 			providers = listOf(
-				LyricsProvider(LyricsProvider.Id.SUBSONIC, true),
+				LyricsProvider(LyricsProvider.Id.SERVER_PROVIDED, true),
 				LyricsProvider(LyricsProvider.Id.LRCLIB, false),
 				LyricsProvider(LyricsProvider.Id.LYRICS_PLUS, false)
 			),
