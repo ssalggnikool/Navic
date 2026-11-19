@@ -42,14 +42,14 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainUser
 import paige.navic.domain.model.ServerLyricLine
 import paige.navic.domain.model.ServerLyrics
-import paige.navic.domain.server.jellyfin.mapper.toDomainAlbum
-import paige.navic.domain.server.jellyfin.mapper.toDomainArtist
-import paige.navic.domain.server.jellyfin.mapper.toDomainPlaylist
-import paige.navic.domain.server.jellyfin.mapper.toDomainSong
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.ServerException
 import paige.navic.domain.server.ServerInfo
 import paige.navic.domain.server.ServerStatus
+import paige.navic.domain.server.jellyfin.mapper.toDomainAlbum
+import paige.navic.domain.server.jellyfin.mapper.toDomainArtist
+import paige.navic.domain.server.jellyfin.mapper.toDomainPlaylist
+import paige.navic.domain.server.jellyfin.mapper.toDomainSong
 import java.util.UUID
 import kotlin.time.Instant
 
@@ -85,7 +85,7 @@ class JellyfinMusicServer(
 		val info = systemApi.getPublicSystemInfo().content
 		return ServerInfo(
 			serverVersion = info.version,
-			version = info.version,
+			version = null,
 			type = "jellyfin",
 			isOpenSubsonic = false
 		)
