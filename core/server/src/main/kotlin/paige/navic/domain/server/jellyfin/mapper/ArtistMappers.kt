@@ -18,7 +18,7 @@ fun BaseItemDto.toDomainArtist(): DomainArtist {
 	return DomainArtist(
 		id = artistId,
 		name = name ?: "Unknown Artist",
-		albumCount = childCount ?: 0,
+		albumCount = albumCount ?: childCount ?: 0,
 		coverArtId = artistId,
 		artistImageUrl = null,
 		starredAt = starredInstant,

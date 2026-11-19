@@ -6,18 +6,23 @@
 
 package paige.navic.domain.server.jellyfin
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.operations.InstantMixApi
+import org.jellyfin.sdk.api.operations.ItemUpdateApi
 import org.jellyfin.sdk.api.operations.LibraryApi
+import org.jellyfin.sdk.api.operations.LyricApi
 import org.jellyfin.sdk.api.operations.PlaylistApi
-import org.jellyfin.sdk.api.operations.SearchApi
 import org.jellyfin.sdk.api.operations.SessionApi
 import org.jellyfin.sdk.api.operations.SystemApi
 import org.jellyfin.sdk.api.operations.UserApi
 import org.jellyfin.sdk.api.operations.UserDataApi
 import org.jellyfin.sdk.model.api.BaseItemKind
+import org.jellyfin.sdk.model.api.CreatePlaylistDto
 import org.jellyfin.sdk.model.api.ItemFields
 import org.jellyfin.sdk.model.api.ItemSortBy
+import org.jellyfin.sdk.model.api.MediaType
 import org.jellyfin.sdk.model.api.PlayMethod
 import org.jellyfin.sdk.model.api.PlaybackOrder
 import org.jellyfin.sdk.model.api.PlaybackProgressInfo
@@ -36,6 +41,7 @@ import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSearchResult
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainUser
+import paige.navic.domain.model.ServerLyricLine
 import paige.navic.domain.model.ServerLyrics
 import paige.navic.domain.server.jellyfin.mapper.toDomainAlbum
 import paige.navic.domain.server.jellyfin.mapper.toDomainArtist
@@ -62,9 +68,11 @@ class JellyfinMusicServer(
 	private val instantMixApi = InstantMixApi(api)
 	private val playlistApi = PlaylistApi(api)
 	private val sessionApi = SessionApi(api)
-	private val searchApi = SearchApi(api)
+	private val lyricApi = LyricApi(api)
+	private val itemUpdateApi = ItemUpdateApi(api)
 
 	override suspend fun ping(): ServerStatus {
+		//systemApi.getPingSystem()
 		val info = systemApi.getPublicSystemInfo().content
 		return ServerStatus(
 			serverVersion = info.version,
@@ -102,16 +110,22 @@ class JellyfinMusicServer(
 			is DomainAlbumListType.Random -> listOf(ItemSortBy.RANDOM)
 			is DomainAlbumListType.Frequent -> listOf(ItemSortBy.PLAY_COUNT)
 			is DomainAlbumListType.Recent -> listOf(ItemSortBy.DATE_PLAYED)
-			is DomainAlbumListType.AlphabeticalByArtist -> listOf(ItemSortBy.ALBUM_ARTIST)
+			is DomainAlbumListType.Highest -> listOf(ItemSortBy.COMMUNITY_RATING)
+			is DomainAlbumListType.AlphabeticalByName -> listOf(ItemSortBy.NAME)
+			is DomainAlbumListType.AlphabeticalByArtist -> listOf(ItemSortBy.ALBUM_ARTIST, ItemSortBy.NAME)
 			is DomainAlbumListType.Year -> listOf(ItemSortBy.PRODUCTION_YEAR)
+			is DomainAlbumListType.ByYear -> listOf(ItemSortBy.PRODUCTION_YEAR)
 			else -> listOf(ItemSortBy.SORT_NAME)
 		}
 
-		val sortOrder = if (type is DomainAlbumListType.Newest || type is DomainAlbumListType.Recent) {
+		val sortOrder = if (type is DomainAlbumListType.Newest || type is DomainAlbumListType.Recent || type is DomainAlbumListType.Frequent || type is DomainAlbumListType.Highest || type is DomainAlbumListType.Year) {
 			SortOrder.DESCENDING
 		} else {
 			SortOrder.ASCENDING
 		}
+
+		val genres = if (type is DomainAlbumListType.ByGenre) listOf(type.genre) else emptyList()
+		val years = if (type is DomainAlbumListType.ByYear) (type.fromYear..type.toYear).toList() else emptyList()
 
 		val result = libraryApi.getItems(
 			userId = userId,
@@ -121,6 +135,8 @@ class JellyfinMusicServer(
 			recursive = true,
 			sortBy = sortByList,
 			sortOrder = listOf(sortOrder),
+			genres = genres,
+			years = years,
 			fields = listOf(ItemFields.PRIMARY_IMAGE_ASPECT_RATIO, ItemFields.ITEM_COUNTS)
 		).content
 
@@ -128,11 +144,13 @@ class JellyfinMusicServer(
 	}
 
 	override suspend fun getAlbum(id: String): DomainAlbum {
-		val albumDto = libraryApi.getItem(userId = userId, itemId = UUID.fromString(id)).content
+		val albumUuid = id.toUuid()
+		val albumDto = libraryApi.getItem(userId = userId, itemId = albumUuid).content
 		val songsResult = libraryApi.getItems(
 			userId = userId,
-			parentId = UUID.fromString(id),
+			parentId = albumUuid,
 			includeItemTypes = listOf(BaseItemKind.AUDIO),
+			recursive = true,
 			sortBy = listOf(ItemSortBy.PARENT_INDEX_NUMBER, ItemSortBy.INDEX_NUMBER),
 			sortOrder = listOf(SortOrder.ASCENDING),
 			fields = listOf(ItemFields.MEDIA_STREAMS, ItemFields.PRIMARY_IMAGE_ASPECT_RATIO)
@@ -143,7 +161,7 @@ class JellyfinMusicServer(
 	}
 
 	override suspend fun getSong(id: String): DomainSong {
-		val item = libraryApi.getItem(userId = userId, itemId = UUID.fromString(id)).content
+		val item = libraryApi.getItem(userId = userId, itemId = id.toUuid()).content
 		return item.toDomainSong()
 	}
 
@@ -152,14 +170,25 @@ class JellyfinMusicServer(
 			userId = userId,
 			includeItemTypes = listOf(BaseItemKind.MUSIC_ARTIST),
 			recursive = true,
+			sortBy = listOf(ItemSortBy.SORT_NAME),
+			sortOrder = listOf(SortOrder.ASCENDING),
 			fields = listOf(ItemFields.PRIMARY_IMAGE_ASPECT_RATIO, ItemFields.ITEM_COUNTS)
 		).content
 		return result.items.map { it.toDomainArtist() }
 	}
 
 	override suspend fun getArtistInfo(id: String): DomainArtistInfo {
-		val artist = libraryApi.getItem(userId = userId, itemId = UUID.fromString(id)).content
+		val artistUuid = id.toUuid()
+		val artist = libraryApi.getItem(userId = userId, itemId = artistUuid).content
 		val musicBrainzId = artist.providerIds?.entries?.find { it.key.equals("MusicBrainzArtist", ignoreCase = true) }?.value
+		val similar = runCatching {
+			libraryApi.getSimilarArtists(
+				itemId = artistUuid,
+				userId = userId,
+				limit = 5
+			).content.items.map { it.toDomainArtist() }
+		}.getOrDefault(emptyList())
+
 		return DomainArtistInfo(
 			biography = artist.overview,
 			musicBrainzId = musicBrainzId,
@@ -167,12 +196,12 @@ class JellyfinMusicServer(
 			smallImageUrl = getCoverArtUrl(id, "300"),
 			mediumImageUrl = getCoverArtUrl(id, "600"),
 			largeImageUrl = getCoverArtUrl(id, "1000"),
-			similarArtists = emptyList()
+			similarArtists = similar
 		)
 	}
 
 	override suspend fun getAlbumInfo(id: String): DomainAlbumInfo {
-		val album = libraryApi.getItem(userId = userId, itemId = UUID.fromString(id)).content
+		val album = libraryApi.getItem(userId = userId, itemId = id.toUuid()).content
 		val musicBrainzId = album.providerIds?.entries?.find { it.key.equals("MusicBrainzAlbum", ignoreCase = true) }?.value
 		return DomainAlbumInfo(
 			notes = album.overview,
@@ -188,14 +217,17 @@ class JellyfinMusicServer(
 		val result = libraryApi.getItems(
 			userId = userId,
 			includeItemTypes = listOf(BaseItemKind.MUSIC_GENRE),
-			recursive = true
+			recursive = true,
+			sortBy = listOf(ItemSortBy.SORT_NAME),
+			sortOrder = listOf(SortOrder.ASCENDING),
+			fields = listOf(ItemFields.PRIMARY_IMAGE_ASPECT_RATIO, ItemFields.ITEM_COUNTS)
 		).content
 
 		return result.items.map { dto ->
 			DomainGenre(
 				name = dto.name ?: "Unknown",
-				albumCount = 0,
-				songCount = dto.childCount ?: 0,
+				albumCount = dto.albumCount ?: dto.childCount ?: 0,
+				songCount = dto.songCount ?: dto.recursiveItemCount ?: 0,
 				coverArtIds = emptyList()
 			)
 		}
@@ -206,19 +238,32 @@ class JellyfinMusicServer(
 			userId = userId,
 			includeItemTypes = listOf(BaseItemKind.PLAYLIST),
 			recursive = true,
+			sortBy = listOf(ItemSortBy.SORT_NAME),
+			sortOrder = listOf(SortOrder.ASCENDING),
 			fields = listOf(ItemFields.PRIMARY_IMAGE_ASPECT_RATIO, ItemFields.ITEM_COUNTS)
 		).content
 		return result.items.map { it.toDomainPlaylist() }
 	}
 
 	override suspend fun getPlaylist(id: String): DomainPlaylist {
-		val playlistDto = libraryApi.getItem(userId = userId, itemId = UUID.fromString(id)).content
-		val songsResult = libraryApi.getItems(
-			userId = userId,
-			parentId = UUID.fromString(id),
-			includeItemTypes = listOf(BaseItemKind.AUDIO),
-			fields = listOf(ItemFields.MEDIA_STREAMS)
-		).content
+		val playlistUuid = id.toUuid()
+		val playlistDto = libraryApi.getItem(userId = userId, itemId = playlistUuid).content
+		val songsResult = runCatching {
+			playlistApi.getPlaylistItems(
+				playlistId = playlistUuid,
+				userId = userId,
+				limit = 10000,
+				fields = listOf(ItemFields.MEDIA_STREAMS, ItemFields.PRIMARY_IMAGE_ASPECT_RATIO)
+			).content
+		}.getOrElse {
+			libraryApi.getItems(
+				userId = userId,
+				parentId = playlistUuid,
+				includeItemTypes = listOf(BaseItemKind.AUDIO),
+				limit = 10000,
+				fields = listOf(ItemFields.MEDIA_STREAMS, ItemFields.PRIMARY_IMAGE_ASPECT_RATIO)
+			).content
+		}
 
 		val songs = songsResult.items.map { it.toDomainSong() }
 		return playlistDto.toDomainPlaylist(songs)
@@ -226,7 +271,7 @@ class JellyfinMusicServer(
 
 	override suspend fun getSimilarSongs(id: String, count: Int): List<DomainSong> {
 		val result = instantMixApi.getInstantMixFromItem(
-			itemId = UUID.fromString(id),
+			itemId = id.toUuid(),
 			userId = userId,
 			limit = count,
 			fields = listOf(ItemFields.MEDIA_STREAMS)
@@ -235,20 +280,17 @@ class JellyfinMusicServer(
 	}
 
 	override suspend fun search(query: String): DomainSearchResult {
-		val result = searchApi.getSearchHints(
-			searchTerm = query,
+		val result = libraryApi.getItems(
 			userId = userId,
-			includeItemTypes = listOf(BaseItemKind.AUDIO, BaseItemKind.MUSIC_ALBUM, BaseItemKind.MUSIC_ARTIST)
+			searchTerm = query,
+			recursive = true,
+			includeItemTypes = listOf(BaseItemKind.AUDIO, BaseItemKind.MUSIC_ALBUM, BaseItemKind.MUSIC_ARTIST),
+			fields = listOf(ItemFields.MEDIA_STREAMS, ItemFields.PRIMARY_IMAGE_ASPECT_RATIO, ItemFields.ITEM_COUNTS)
 		).content
 
-		val hints = result.searchHints
-		val songIds = hints.filter { it.type == BaseItemKind.AUDIO }.map { it.id }
-		val albumIds = hints.filter { it.type == BaseItemKind.MUSIC_ALBUM }.map { it.id }
-		val artistIds = hints.filter { it.type == BaseItemKind.MUSIC_ARTIST }.map { it.id }
-
-		val songs = songIds.mapNotNull { id -> runCatching { getSong(id.toString()) }.getOrNull() }
-		val albums = albumIds.mapNotNull { id -> runCatching { libraryApi.getItem(userId = userId, itemId = id).content.toDomainAlbum() }.getOrNull() }
-		val artists = artistIds.mapNotNull { id -> runCatching { libraryApi.getItem(userId = userId, itemId = id).content.toDomainArtist() }.getOrNull() }
+		val artists = result.items.filter { it.type == BaseItemKind.MUSIC_ARTIST }.map { it.toDomainArtist() }
+		val albums = result.items.filter { it.type == BaseItemKind.MUSIC_ALBUM }.map { it.toDomainAlbum() }
+		val songs = result.items.filter { it.type == BaseItemKind.AUDIO }.map { it.toDomainSong() }
 
 		return DomainSearchResult(
 			artists = artists,
@@ -258,27 +300,51 @@ class JellyfinMusicServer(
 	}
 
 	override suspend fun getLyrics(songId: String): ServerLyrics? {
-		return null
+		return try {
+			val response = lyricApi.getLyrics(songId.toUuid()).content
+			val lines = response.lyrics.map { line ->
+				ServerLyricLine(
+					startMillis = line.start?.let { it / 10_000L },
+					text = line.text
+				)
+			}
+			ServerLyrics(
+				lang = null,
+				synced = lines.any { it.startMillis != null },
+				offsetMillis = 0,
+				lines = lines
+			)
+		} catch (_: Exception) {
+			null
+		}
 	}
 
 	override suspend fun star(id: String) {
-		userDataApi.markFavoriteItem(userId = userId, itemId = UUID.fromString(id))
+		userDataApi.markFavoriteItem(userId = userId, itemId = id.toUuid())
 	}
 
 	override suspend fun unstar(id: String) {
-		userDataApi.unmarkFavoriteItem(userId = userId, itemId = UUID.fromString(id))
+		userDataApi.unmarkFavoriteItem(userId = userId, itemId = id.toUuid())
 	}
 
 	override suspend fun setRating(id: String, rating: Int) {
-		userDataApi.updateUserItemRating(
-			userId = userId,
-			itemId = UUID.fromString(id),
-			likes = rating > 3
-		)
+		val uuid = id.toUuid()
+		if (rating > 0) {
+			userDataApi.updateUserItemRating(
+				userId = userId,
+				itemId = uuid,
+				likes = rating > 3
+			)
+		} else {
+			userDataApi.deleteUserItemRating(
+				userId = userId,
+				itemId = uuid
+			)
+		}
 	}
 
 	override suspend fun scrobble(id: String, submission: Boolean, time: Instant?) {
-		val uuid = UUID.fromString(id)
+		val uuid = id.toUuid()
 		if (submission) {
 			sessionApi.reportPlaybackStopped(
 				PlaybackStopInfo(
@@ -307,7 +373,7 @@ class JellyfinMusicServer(
 		state: DomainPlaybackState,
 		playbackRate: Float
 	) {
-		val uuid = UUID.fromString(id)
+		val uuid = id.toUuid()
 		val positionTicks = positionMs * 10_000L
 
 		when (state) {
@@ -353,17 +419,22 @@ class JellyfinMusicServer(
 
 	override suspend fun createPlaylist(name: String, songIds: List<String>): DomainPlaylist {
 		val playlistDto = playlistApi.createPlaylist(
-			data = org.jellyfin.sdk.model.api.CreatePlaylistDto(
+			data = CreatePlaylistDto(
 				name = name,
-				ids = songIds.map { UUID.fromString(it) },
+				ids = songIds.map { it.toUuid() },
 				userId = userId,
-				users = emptyList(),
+				mediaType = MediaType.AUDIO,
+				users = listOf(
+					org.jellyfin.sdk.model.api.PlaylistUserPermissions(
+						userId = userId,
+						canEdit = true
+					)
+				),
 				isPublic = true
 			)
 		).content
 
-		val createdId = playlistDto.id
-		return getPlaylist(createdId)
+		return getPlaylist(playlistDto.id)
 	}
 
 	override suspend fun updatePlaylist(
@@ -374,18 +445,57 @@ class JellyfinMusicServer(
 		songIdsToAdd: List<String>,
 		songIndicesToRemove: List<Int>
 	) {
-		val playlistUuid = UUID.fromString(id)
+		if (id.startsWith("local_")) return
+		val playlistUuid = id.toUuid()
+
+		if (name != null || comment != null) {
+			runCatching {
+				val currentItem = libraryApi.getItem(userId = userId, itemId = playlistUuid).content
+				itemUpdateApi.updateItem(
+					itemId = playlistUuid,
+					data = currentItem.copy(
+						name = name ?: currentItem.name,
+						overview = comment ?: currentItem.overview
+					)
+				)
+			}
+		}
+
 		if (songIdsToAdd.isNotEmpty()) {
 			playlistApi.addItemToPlaylist(
 				playlistId = playlistUuid,
-				ids = songIdsToAdd.map { UUID.fromString(it) },
+				ids = songIdsToAdd.map { it.toUuid() },
 				userId = userId
 			)
+		}
+
+		if (songIndicesToRemove.isNotEmpty()) {
+			runCatching {
+				val currentItems = playlistApi.getPlaylistItems(
+					playlistId = playlistUuid,
+					userId = userId,
+					limit = 10000
+				).content.items
+
+				val entryIdsToRemove = songIndicesToRemove
+					.filter { it in currentItems.indices }
+					.mapNotNull { currentItems[it].playlistItemId }
+
+				if (entryIdsToRemove.isNotEmpty()) {
+					playlistApi.removeItemFromPlaylist(
+						playlistId = id,
+						entryIds = entryIdsToRemove
+					)
+				}
+			}
 		}
 	}
 
 	override suspend fun deletePlaylist(id: String) {
-		libraryApi.deleteItem(itemId = UUID.fromString(id))
+		if (id.startsWith("local_")) return
+		runCatching {
+			libraryApi.deleteItem(itemId = id.toUuid())
+		}
 	}
 
 	override fun getStreamUrl(
@@ -394,7 +504,16 @@ class JellyfinMusicServer(
 		format: String?,
 		estimateContentLength: Boolean
 	): String {
-		return "$baseUrl/Audio/$id/stream?static=true&api_key=$accessToken"
+		val params = mutableListOf("api_key=$accessToken")
+		if (maxBitRate > 0) {
+			params.add("maxStreamingBitrate=${maxBitRate * 1000}")
+		} else {
+			params.add("static=true")
+		}
+		if (!format.isNullOrBlank()) {
+			params.add("container=$format")
+		}
+		return "$baseUrl/Audio/$id/stream?${params.joinToString("&")}"
 	}
 
 	override suspend fun getPlaybackStreamUrl(
@@ -412,20 +531,32 @@ class JellyfinMusicServer(
 	}
 
 	override fun getCoverArtUrl(id: String, size: String?): String {
-		val query = size?.let { "?fillWidth=$it&fillHeight=$it&quality=90" } ?: ""
+		val query = size?.let { "?fillWidth=$it&fillHeight=$it&quality=90&api_key=$accessToken" } ?: "?api_key=$accessToken"
 		return "$baseUrl/Items/$id/Images/Primary$query"
 	}
 
-	override suspend fun getCoverArt(id: String, size: String?): ByteArray {
+	override suspend fun getCoverArt(id: String, size: String?): ByteArray = withContext(Dispatchers.IO) {
 		val url = getCoverArtUrl(id, size)
-		return java.net.URL(url).readBytes()
+		java.net.URL(url).readBytes()
 	}
 
 	override fun getAvatarUrl(username: String): String {
-		return "$baseUrl/Users/$userId/Images/Primary"
+		return "$baseUrl/Users/$userId/Images/Primary?api_key=$accessToken"
 	}
 
 	override fun parseResponseError(contentType: String?, body: String): ServerException? {
 		return null
+	}
+}
+
+private fun String.toUuid(): UUID {
+	val clean = replace("-", "")
+	if (clean.length == 32) {
+		val formatted = "${clean.substring(0, 8)}-${clean.substring(8, 12)}-${clean.substring(12, 16)}-${clean.substring(16, 20)}-${clean.substring(20)}"
+		val parsed = runCatching { UUID.fromString(formatted) }.getOrNull()
+		if (parsed != null) return parsed
+	}
+	return runCatching { UUID.fromString(this) }.getOrElse {
+		UUID.nameUUIDFromBytes(toByteArray())
 	}
 }
