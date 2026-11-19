@@ -269,12 +269,22 @@ class JellyfinMusicServer(
 	}
 
 	override suspend fun getSimilarSongs(id: String, count: Int): List<DomainSong> {
-		val result = instantMixApi.getInstantMixFromItem(
-			itemId = id.toUuid(),
-			userId = userId,
-			limit = count,
-			fields = listOf(ItemFields.MEDIA_STREAMS)
-		).content
+		val uuid = id.toUuid()
+		val result = runCatching {
+			instantMixApi.getInstantMixFromSong(
+				itemId = uuid,
+				userId = userId,
+				limit = count,
+				fields = listOf(ItemFields.MEDIA_STREAMS, ItemFields.PRIMARY_IMAGE_ASPECT_RATIO)
+			).content
+		}.getOrElse {
+			instantMixApi.getInstantMixFromItem(
+				itemId = uuid,
+				userId = userId,
+				limit = count,
+				fields = listOf(ItemFields.MEDIA_STREAMS, ItemFields.PRIMARY_IMAGE_ASPECT_RATIO)
+			).content
+		}
 		return result.items.map { it.toDomainSong() }
 	}
 
