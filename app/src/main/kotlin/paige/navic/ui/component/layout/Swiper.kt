@@ -54,6 +54,7 @@ import kotlin.math.roundToInt
 fun Swiper(
 	onSwipeLeft: () -> Unit,
 	onSwipeRight: () -> Unit,
+	onSwipeUp: () -> Unit,
 	onSwipeDown: () -> Unit,
 	swipeLeftAccessibilityLabel: String,
 	swipeRightAccessibilityLabel: String,
@@ -104,6 +105,9 @@ fun Swiper(
 			if (offsetY.value > swipeThresholdY) {
 				offsetY.animateTo(offsetY.value * 5)
 				onSwipeDown()
+			} else if (offsetY.value < -swipeThresholdY) {
+				onSwipeUp()
+				offsetY.animateTo(0f)
 			} else {
 				offsetY.animateTo(0f)
 			}
@@ -164,7 +168,7 @@ fun Swiper(
 					orientation = Orientation.Vertical,
 					state = rememberDraggableState { delta ->
 						coroutineScope.launch {
-							offsetY.snapTo((offsetY.value + delta).coerceAtLeast(0f))
+							offsetY.snapTo(offsetY.value + delta)
 						}
 					},
 					onDragStopped = { handleSwipeYRelease() }

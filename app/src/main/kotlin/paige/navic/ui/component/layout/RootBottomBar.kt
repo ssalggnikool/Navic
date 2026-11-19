@@ -28,13 +28,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
+import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.MiniPlayerStyle
 import paige.navic.playback.PlayerRepository
+import paige.navic.preferences.PreferenceManager
+import paige.navic.ui.navigation.Screen
 import paige.navic.ui.util.easedVerticalGradient
 
 @Composable
@@ -67,6 +70,8 @@ fun RootBottomBar(
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val hasSong = playerState.currentSong != null
 
+	val backStack = LocalNavStack.current
+
 	Column(
 		modifier = modifier.then(
 			if (detached)
@@ -78,16 +83,23 @@ fun RootBottomBar(
 	) {
 		AnimatedVisibility(
 			visible = hasSong || !preferenceManager.hideIfIdle,
-			modifier = Modifier.fillMaxWidth().graphicsLayer {
-				alpha = progress.coerceIn(0f..1f)
-				translationY = ((1f - progress) * (size.height * 2)).coerceAtLeast(
-					if (detached) -2048f else 0f
-				)
-			}
+			modifier = Modifier
+				.fillMaxWidth()
+				.graphicsLayer {
+					alpha = progress.coerceIn(0f..1f)
+					translationY = ((1f - progress) * (size.height * 2)).coerceAtLeast(
+						if (detached) -2048f else 0f
+					)
+				}
 		) {
 			Swiper(
 				onSwipeLeft = { if (hasSong) player.previous() },
 				onSwipeRight = { if (hasSong) player.next() },
+				onSwipeUp = dropUnlessResumed {
+					if (Screen.NowPlaying !in backStack) {
+						backStack.add(Screen.NowPlaying)
+					}
+				},
 				onSwipeDown = { player.clearQueue() },
 				swipeLeftAccessibilityLabel = stringResource(R.string.action_previous_song),
 				swipeRightAccessibilityLabel = stringResource(R.string.action_next_song),
