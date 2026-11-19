@@ -24,6 +24,18 @@ cd Navic
 git submodule update --remote --merge --recursive
 ```
 
+### local.properties
+
+Create `local.properties` in *both* Navic's folder and `vendor/androidx-media`. Point it
+to the location of the Android SDK, for example:
+
+```properties
+sdk.dir=/home/foob/Android/Sdk
+```
+
+If you opened Navic in Android Studio, `local.properties` will likely already be in Navic's
+folder, but it will not be in `vendor/androidx-media`.
+
 ### Building
 
 You can either build from the command line or from within Android
