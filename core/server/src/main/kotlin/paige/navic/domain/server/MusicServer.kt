@@ -97,6 +97,8 @@ interface MusicServer {
 		skipTranscodeDecisions: Boolean = false
 	): String
 
+	fun getHlsStreamUrl(id: String, bitrateKbps: Int, format: String?): String? = null
+
 	fun getCoverArtUrl(id: String, size: String? = null): String
 
 	suspend fun getCoverArt(id: String, size: String? = null): ByteArray

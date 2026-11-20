@@ -498,21 +498,38 @@ class JellyfinMusicServer(
 		format: String?,
 		skipTranscodeDecisions: Boolean
 	): String {
-		val params = mutableListOf("api_key=$accessToken")
+		val params = mutableListOf("ApiKey=$accessToken")
+
+		if (format != null) {
+			params.add("container=$format")
+		}
+
 		if (bitrateKbps > 0) {
 			params.add("maxStreamingBitrate=${bitrateKbps * 1000}")
 		} else {
 			params.add("static=true")
 		}
-		return if (!format.isNullOrBlank()) {
-			"$baseUrl/Audio/$id/stream.$format?${params.joinToString("&")}"
-		} else {
-			"$baseUrl/Audio/$id/stream?${params.joinToString("&")}"
+		return "$baseUrl/Audio/$id/stream?${params.joinToString("&")}"
+	}
+
+	override fun getHlsStreamUrl(id: String, bitrateKbps: Int, format: String?): String? {
+		if (bitrateKbps <= 0 || format == null) return null
+
+		val params = mutableListOf(
+			"ApiKey=$accessToken",
+			"mediaSourceId=$id",
+			"audioCodec=$format",
+			"maxStreamingBitrate=${bitrateKbps * 1000}"
+		)
+		// opus/flac aren't valid in mpeg-ts segments
+		if (format.equals("opus", ignoreCase = true) || format.equals("flac", ignoreCase = true)) {
+			params.add("segmentContainer=mp4")
 		}
+		return "$baseUrl/Audio/$id/master.m3u8?${params.joinToString("&")}"
 	}
 
 	override fun getCoverArtUrl(id: String, size: String?): String {
-		val query = size?.let { "?fillWidth=$it&fillHeight=$it&quality=90&api_key=$accessToken" } ?: "?api_key=$accessToken"
+		val query = size?.let { "?fillWidth=$it&fillHeight=$it&quality=90&ApiKey=$accessToken" } ?: "?ApiKey=$accessToken"
 		return "$baseUrl/Items/$id/Images/Primary$query"
 	}
 
@@ -522,7 +539,7 @@ class JellyfinMusicServer(
 	}
 
 	override fun getAvatarUrl(username: String): String {
-		return "$baseUrl/Users/$userId/Images/Primary?api_key=$accessToken"
+		return "$baseUrl/Users/$userId/Images/Primary?ApiKey=$accessToken"
 	}
 
 	override fun parseResponseError(contentType: String?, body: String): ServerException? {
