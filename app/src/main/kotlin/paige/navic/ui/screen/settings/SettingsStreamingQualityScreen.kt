@@ -37,15 +37,16 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
+import paige.navic.domain.manager.session.getServerInfo
 import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.domain.model.settings.StreamingQuality
 import paige.navic.domain.model.settings.description
 import paige.navic.domain.server.ServerExtension
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Info
 import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
-import paige.navic.icons.Icons
-import paige.navic.icons.outlined.Info
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsRadioItem
@@ -59,7 +60,8 @@ fun SettingsStreamingQualityScreen() {
 	val reachability = koinInject<ReachabilityFlow>()
 	val isReachable by reachability.isReachable.collectAsStateWithLifecycle()
 	val isMetered by reachability.isMetered.collectAsStateWithLifecycle()
-	val supportsTranscodeOffset = sessionManager.supportsExtension(ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET)
+	val supportsTranscodeOffset = sessionManager.getServerInfo()?.type == "jellyfin"
+		|| sessionManager.supportsExtension(ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET)
 
 	Scaffold(
 		topBar = { NestedTopBar({ Text(stringResource(R.string.title_streaming_quality)) }) }
