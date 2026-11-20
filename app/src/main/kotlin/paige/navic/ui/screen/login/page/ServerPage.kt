@@ -43,16 +43,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.designsystem.theme.defaultFont
-import paige.navic.domain.manager.session.account.Account
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.domain.manager.session.account.Account
 import paige.navic.domain.server.ServerType
 import paige.navic.icons.Icons
-import paige.navic.icons.brand.Jellyfin
-import paige.navic.icons.brand.Navidrome
-import paige.navic.icons.brand.Subsonic
 import paige.navic.icons.outlined.ChevronForward
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
+import paige.navic.ui.component.common.ServerTypeIcon
 
 @Composable
 fun ServerPage(
@@ -134,19 +132,15 @@ private fun SavedServers(
 			modifier = Modifier.padding(start = 4.dp)
 		)
 		accounts.forEachIndexed { index, account ->
-			val icon = when (account.serverType) {
-				ServerType.JELLYFIN -> Icons.Brand.Jellyfin
-				ServerType.NAVIDROME -> Icons.Brand.Navidrome
-				else -> Icons.Brand.Subsonic
-			}
-
 			SegmentedListItem(
 				onClick = { onAccountSelected(account) },
 				shapes = SegmentedListItemDefaults.segmentedShapes(
 					index = index,
 					count = accounts.size
 				),
-				leadingContent = { Icon(icon, null) },
+				leadingContent = {
+					account.serverType?.let { ServerTypeIcon(it) }
+				},
 				trailingContent = { Icon(Icons.Outlined.ChevronForward, null) },
 				supportingContent = { Text(account.baseUrl) },
 				content = { Text(account.username?.ifBlank { account.baseUrl } ?: account.baseUrl) }
@@ -229,14 +223,10 @@ private fun ServerChoices(
 	) {
 		Spacer(Modifier.weight(1f))
 		serverTypes.forEachIndexed { index, type ->
-			val icon = when (type) {
-				ServerType.SUBSONIC -> Icons.Brand.Subsonic
-				ServerType.NAVIDROME -> Icons.Brand.Navidrome
-				ServerType.JELLYFIN -> Icons.Brand.Jellyfin
-			}
-
 			SegmentedListItem(
-				leadingContent = { Icon(icon, null) },
+				leadingContent = {
+					ServerTypeIcon(type)
+				},
 				trailingContent = { Icon(Icons.Outlined.ChevronForward, null) },
 				content = { Text(type.prettyName) },
 				onClick = { onServerTypeChanged(type) },

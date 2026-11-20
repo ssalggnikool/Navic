@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,9 +44,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.SubcomposeAsyncImage
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
@@ -77,7 +81,139 @@ import paige.navic.icons.outlined.Refresh
 import paige.navic.icons.outlined.Share
 import paige.navic.ui.navigation.Screen
 import paige.navic.designsystem.theme.positive
+import paige.navic.ui.component.common.ServerTypeIcon
 import paige.navic.ui.util.label
+
+@Composable
+private fun AccountAvatar(
+	modifier: Modifier = Modifier,
+	url: String?,
+	name: String,
+	cacheKey: String,
+	size: Dp,
+	imageLoader: ImageLoader,
+	coilPlatformContext: coil3.PlatformContext
+) {
+	if (url == null) {
+		Monogram(modifier = modifier.size(size), text = name)
+		return
+	}
+
+	val model = remember(url, cacheKey) {
+		ImageRequest.Builder(coilPlatformContext)
+			.data(url)
+			.memoryCacheKey(cacheKey)
+			.diskCacheKey(cacheKey)
+			.memoryCachePolicy(CachePolicy.ENABLED)
+			.diskCachePolicy(CachePolicy.ENABLED)
+			.build()
+	}
+
+	AsyncImage(
+		model = model,
+		imageLoader = imageLoader,
+		contentDescription = null,
+		modifier = modifier
+			.size(size)
+			.clip(CircleShape)
+	)
+}
+
+@Composable
+private fun AccountRow(
+	account: Account,
+	active: Boolean,
+	avatarUrl: String?,
+	imageLoader: ImageLoader,
+	coilPlatformContext: coil3.PlatformContext,
+	index: Int = 0,
+	count: Int = 1,
+	onClick: () -> Unit,
+	onRemove: (() -> Unit)? = null
+) {
+	val accountName = account.username?.ifBlank { account.baseUrl } ?: account.baseUrl
+	val avatarSize = if (active) 56.dp else 40.dp
+
+	val leadingContent: @Composable () -> Unit = {
+		AccountAvatar(
+			url = avatarUrl,
+			name = accountName,
+			cacheKey = "avatar:${account.id}:${account.username}",
+			size = avatarSize,
+			imageLoader = imageLoader,
+			coilPlatformContext = coilPlatformContext
+		)
+	}
+
+	if (active) {
+		Surface(
+			color = MaterialTheme.colorScheme.surfaceContainer,
+			shape = MaterialTheme.shapes.large,
+			onClick = onClick
+		) {
+			Row(
+				modifier = Modifier.padding(12.dp).fillMaxWidth(),
+				verticalAlignment = Alignment.CenterVertically,
+				horizontalArrangement = Arrangement.spacedBy(12.dp)
+			) {
+				leadingContent()
+				Column(modifier = Modifier.weight(1f)) {
+					Row(
+						horizontalArrangement = Arrangement.spacedBy(4.dp),
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						Text(accountName)
+						account.serverType?.let {
+							ServerTypeIcon(serverType = it, modifier = Modifier.size(16.dp))
+						}
+					}
+					Text(
+						text = account.baseUrl,
+						style = MaterialTheme.typography.labelSmall,
+						color = MaterialTheme.colorScheme.onSurfaceVariant
+					)
+				}
+				Icon(
+					imageVector = Icons.Outlined.Edit,
+					contentDescription = stringResource(R.string.action_edit),
+					tint = MaterialTheme.colorScheme.onSurfaceVariant
+				)
+			}
+		}
+	} else {
+		SegmentedListItem(
+			onClick = onClick,
+			shapes = SegmentedListItemDefaults.segmentedShapes(index = index, count = count),
+			leadingContent = leadingContent,
+			trailingContent = {
+				IconButton(onClick = { onRemove?.invoke() }) {
+					Icon(
+						imageVector = Icons.Outlined.Delete,
+						contentDescription = stringResource(R.string.action_remove_account)
+					)
+				}
+			},
+			supportingContent = {
+				Text(
+					text = account.baseUrl,
+					style = MaterialTheme.typography.labelSmall,
+					color = MaterialTheme.colorScheme.onSurfaceVariant
+				)
+			},
+			content = {
+				Row(
+					horizontalArrangement = Arrangement.spacedBy(4.dp),
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Text(accountName)
+					account.serverType?.let {
+						ServerTypeIcon(serverType = it, modifier = Modifier.size(16.dp))
+					}
+				}
+			}
+		)
+	}
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,6 +237,8 @@ fun AccountSheet(
 		enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
 	)
 	var profilePictureUrl by remember { mutableStateOf<String?>(null) }
+	val coilPlatformContext = LocalCoilPlatformContext.current
+	val imageLoader = koinInject<ImageLoader>()
 
 	LaunchedEffect(Unit) {
 		try {
@@ -150,58 +288,18 @@ fun AccountSheet(
 			modifier = Modifier.verticalScroll(rememberScrollState()),
 			verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
 		) {
-			Surface(
-				color = MaterialTheme.colorScheme.surfaceContainer,
-				shape = MaterialTheme.shapes.large,
-				onClick = {
-					animateToDismiss()
-					backStack.add(Screen.Settings.ConnectionOptions)
-				}
-			) {
-				Row(
-					modifier = Modifier
-						.padding(12.dp)
-						.fillMaxWidth(),
-					verticalAlignment = Alignment.CenterVertically,
-					horizontalArrangement = Arrangement.spacedBy(12.dp)
-				) {
-					if (profilePictureUrl != null) {
-						SubcomposeAsyncImage(
-							model = profilePictureUrl,
-							contentDescription = null,
-							modifier = Modifier
-								.size(56.dp)
-								.clip(CircleShape),
-							loading = {
-								Surface(color = MaterialTheme.colorScheme.secondary) {
-									Box(modifier = Modifier.fillMaxSize())
-								}
-							},
-							error = { Monogram(text = sessionManager.username) }
-						)
-					} else {
-						Monogram(text = sessionManager.username)
+			accounts.firstOrNull { it.id == sessionManager.activeAccountId }?.let { activeAccount ->
+				AccountRow(
+					account = activeAccount,
+					active = true,
+					avatarUrl = profilePictureUrl,
+					imageLoader = imageLoader,
+					coilPlatformContext = coilPlatformContext,
+					onClick = {
+						animateToDismiss()
+						backStack.add(Screen.Settings.ConnectionOptions)
 					}
-					Column(
-						modifier = Modifier.weight(1f)
-					) {
-						Text(
-							text = sessionManager.username,
-							style = MaterialTheme.typography.headlineSmall
-						)
-
-						Text(
-							text = sessionManager.instanceUrl,
-							style = MaterialTheme.typography.labelSmall,
-							color = MaterialTheme.colorScheme.onSurfaceVariant
-						)
-					}
-					Icon(
-						imageVector = Icons.Outlined.Edit,
-						contentDescription = stringResource(R.string.action_edit),
-						tint = MaterialTheme.colorScheme.onSurfaceVariant
-					)
-				}
+				)
 			}
 
 			Spacer(Modifier.height(8.dp))
@@ -212,38 +310,18 @@ fun AccountSheet(
 				val alternateAccounts = accounts.filterNot { it.id == sessionManager.activeAccountId }
 
 				alternateAccounts.forEachIndexed { index, account ->
-					SegmentedListItem(
+					AccountRow(
+						account = account,
+						active = false,
+						index = index,
+						count = accounts.size + 1,
+						avatarUrl = remember(account.id) {
+							runCatching { sessionManager.getAvatarUrl(account) }.getOrNull()
+						},
+						imageLoader = imageLoader,
+						coilPlatformContext = coilPlatformContext,
 						onClick = { loginManager.switchAccount(account.id) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(
-							index = index,
-							count = accounts.size + 1
-						),
-						leadingContent = {
-							Monogram(
-								modifier = Modifier.size(40.dp),
-								text = account.username?.ifBlank { account.baseUrl } ?: account.baseUrl
-							)
-						},
-						trailingContent = {
-							Row(verticalAlignment = Alignment.CenterVertically) {
-								IconButton(onClick = { accountToRemove = account }) {
-									Icon(
-										imageVector = Icons.Outlined.Delete,
-										contentDescription = stringResource(R.string.action_remove_account)
-									)
-								}
-							}
-						},
-						supportingContent = {
-							Text(
-								text = account.baseUrl,
-								style = MaterialTheme.typography.labelSmall,
-								color = MaterialTheme.colorScheme.onSurfaceVariant
-							)
-						},
-						content = {
-							Text(account.username?.ifBlank { account.baseUrl } ?: account.baseUrl)
-						}
+						onRemove = { accountToRemove = account }
 					)
 				}
 

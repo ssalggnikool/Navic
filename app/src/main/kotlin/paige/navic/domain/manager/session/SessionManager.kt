@@ -224,6 +224,12 @@ class SessionManager(
 		api = createClient(accountStore.activeAccount)
 	}
 
+	fun getAvatarUrl(account: Account): String? {
+		val username = account.username?.takeIf(String::isNotBlank) ?: return null
+		val authorization = account.authorization() ?: return null
+		return serverFactory.create(account.baseUrl, authorization).getAvatarUrl(username)
+	}
+
 	fun updateInstanceUrl(url: String) {
 		val rawUrl = url.trim().removeSuffix("/")
 		val formattedUrl = if (rawUrl.startsWith("https://") || rawUrl.startsWith("http://")) {
