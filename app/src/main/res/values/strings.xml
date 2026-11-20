@@ -95,6 +95,7 @@
 	<string name="title_integrations">Integrations</string>
 	<string name="title_appears_on">Appears on</string>
 	<string name="title_welcome">Welcome to Navic</string>
+	<string name="title_developer_list">Developers</string>
 
 	<!-- Subtitles -->
 
@@ -398,6 +399,7 @@
 	<string name="action_repeat">Repeat</string>
 	<string name="action_replace_cover">Replace cover</string>
 	<string name="action_restart_application">Restart application</string>
+	<string name="action_view_all_contributors">All contributors</string>
 
 	<!-- Notices -->
 

@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,6 +42,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
 import paige.navic.BuildConfig
 import paige.navic.R
@@ -50,6 +55,7 @@ import paige.navic.icons.Icons
 import paige.navic.icons.outlined.Code
 import paige.navic.icons.outlined.Globe
 import paige.navic.preferences.PreferenceManager
+import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
 import paige.navic.ui.component.layout.NestedTopBar
@@ -59,7 +65,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsLinkItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
 
-private const val CODEBERG_BASE_URL = "https://codeberg.org/paige/Navic/"
+private const val CODEBERG_BASE_URL = "https://codeberg.org/paige/Navic"
 
 @Composable
 fun SettingsAboutScreen() {
@@ -102,9 +108,11 @@ fun SettingsAboutScreen() {
 				}
 			}
 
+			DeveloperList()
+
 			SettingsGroup(title = { Text(stringResource(R.string.title_links)) }) {
 				SettingsLinkItem(
-					link = "${CODEBERG_BASE_URL}wiki",
+					link = "$CODEBERG_BASE_URL/wiki",
 					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3),
 					content = { Text(stringResource(R.string.title_wiki)) }
 				)
@@ -122,7 +130,7 @@ fun SettingsAboutScreen() {
 
 			// TODO: make this less ass
 			if (BuildConfig.GIT_COMMIT_HASH != "unknown") {
-				val commitLink = "${CODEBERG_BASE_URL}commit/${BuildConfig.GIT_COMMIT_HASH}"
+				val commitLink = "$CODEBERG_BASE_URL/commit/${BuildConfig.GIT_COMMIT_HASH}"
 				val branchName = BuildConfig.GIT_BRANCH_NAME
 				val commitAuthor = BuildConfig.GIT_COMMIT_AUTHOR
 
@@ -147,13 +155,13 @@ fun SettingsAboutScreen() {
 						}
 					)
 					SettingsLinkItem(
-						link = "${CODEBERG_BASE_URL}src/branch/${branchName}",
+						link = "$CODEBERG_BASE_URL/src/branch/$branchName",
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4),
 						content = { Text(stringResource(R.string.title_branch_name)) },
 						supportingContent = { Text(BuildConfig.GIT_BRANCH_NAME) }
 					)
 					SettingsLinkItem(
-						link = "${CODEBERG_BASE_URL}commits/${branchName}/?author=${commitAuthor}",
+						link = "$CODEBERG_BASE_URL/commits/$branchName/?author=$commitAuthor",
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4),
 						content = { Text(stringResource(R.string.title_commit_author)) },
 						supportingContent = { Text(commitAuthor) }
@@ -177,11 +185,15 @@ private fun AboutHeader() {
 	}
 
 	Column(
-		modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(top = 12.dp),
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.spacedBy(12.dp)
 	) {
-		AppIcon(Modifier.size(80.dp).clip(CircleShape))
+		AppIcon(Modifier
+			.size(80.dp)
+			.clip(CircleShape))
 
 		Column(
 			horizontalAlignment = Alignment.CenterHorizontally,
@@ -264,3 +276,76 @@ private fun IconLinkButton(
 		onDismissRequest = { linkToOpen = null }
 	)
 }
+
+@Composable
+private fun DeveloperList() {
+	SettingsGroup(title = { Text(stringResource(R.string.title_developer_list)) }) {
+		DeveloperListItem(
+			name = "paige",
+			link = "https://paige.moe/",
+			roles = persistentListOf("Creator", "Designer", "Infra"),
+			avatarUrl = "https://codeberg.org/paige.png",
+			shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 6)
+		)
+		DeveloperListItem(
+			name = "Nightdavisao",
+			link = "https://codeberg.org/Nightdavisao",
+			roles = persistentListOf("Developer", "Backend", "Playback"),
+			avatarUrl = "https://codeberg.org/Nightdavisao.png",
+			shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
+		)
+		DeveloperListItem(
+			name = "Heropowwa",
+			link = "https://codeberg.org/Heropowwa",
+			roles = persistentListOf("Developer", "Backend", "Jellyfin"),
+			avatarUrl = "https://codeberg.org/Heropowwa.png",
+			shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 6)
+		)
+		DeveloperListItem(
+			name = "Nick",
+			link = "https://zt64.dev/",
+			roles = persistentListOf("Subsonic library"),
+			avatarUrl = "https://github.com/zt64.png",
+			shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 6)
+		)
+		DeveloperListItem(
+			name = "lívia",
+			link = "https://codeberg.org/livia",
+			roles = persistentListOf("Build server"),
+			avatarUrl = "https://codeberg.org/livia.png",
+			shapes = SegmentedListItemDefaults.segmentedShapes(index = 4, count = 6)
+		)
+		SettingsLinkItem(
+			content = { Text(stringResource(R.string.action_view_all_contributors)) },
+			link = "$CODEBERG_BASE_URL/activity/contributors",
+			shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
+		)
+	}
+}
+
+@Composable
+private fun DeveloperListItem(
+	name: String,
+	link: String,
+	roles: ImmutableList<String>,
+	avatarUrl: String,
+	shapes: ListItemShapes
+) {
+	SettingsLinkItem(
+		link = link,
+		content = { Text(name) },
+		supportingContent = { MarqueeText(roles.joinToString(" • ")) },
+		leadingContent = {
+			AsyncImage(
+				model = avatarUrl,
+				imageLoader = koinInject<ImageLoader>(),
+				modifier = Modifier
+					.size(48.dp)
+					.clip(CircleShape),
+				contentDescription = null
+			)
+		},
+		shapes = shapes
+	)
+}
+
