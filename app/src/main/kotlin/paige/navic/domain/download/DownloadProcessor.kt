@@ -31,6 +31,7 @@ import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.repository.LyricsRepository
+import paige.navic.preferences.AccountSettings
 import paige.navic.preferences.PreferenceManager
 import paige.navic.util.Logger
 import paige.navic.util.network.NavicDnsResolver
@@ -47,9 +48,10 @@ class DownloadProcessor(
 	private val lyricDao: LyricDao,
 	private val sessionManager: SessionManager,
 	private val preferenceManager: PreferenceManager,
+	accountSettings: AccountSettings,
 	dnsResolver: NavicDnsResolver
 ) {
-	private val client = createHttpClientWithPreferences(preferenceManager, dnsResolver).apply {
+	private val client = createHttpClientWithPreferences(preferenceManager, accountSettings, dnsResolver).apply {
 		config {
 			HttpResponseValidator {
 				validateResponse { response ->

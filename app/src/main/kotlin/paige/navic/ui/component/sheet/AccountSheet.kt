@@ -25,11 +25,13 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +54,7 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
+import paige.navic.domain.manager.session.Account
 import paige.navic.domain.manager.session.LoginManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
@@ -60,14 +63,17 @@ import paige.navic.domain.manager.session.getUser
 import paige.navic.domain.manager.session.supportsExtension
 import paige.navic.domain.server.ServerExtension
 import paige.navic.ui.component.common.Monogram
+import paige.navic.ui.component.dialog.AlertDialog
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.icons.Icons
 import paige.navic.icons.filled.Settings
+import paige.navic.icons.outlined.Add
 import paige.navic.icons.outlined.Bedtime
+import paige.navic.icons.outlined.Check
+import paige.navic.icons.outlined.Delete
 import paige.navic.icons.outlined.Edit
 import paige.navic.icons.outlined.Forum
-import paige.navic.icons.outlined.Logout
 import paige.navic.icons.outlined.Refresh
 import paige.navic.icons.outlined.Share
 import paige.navic.ui.navigation.Screen
@@ -84,6 +90,8 @@ fun AccountSheet(
 	val sessionManager = koinInject<SessionManager>()
 	val syncManager = koinInject<SyncManager>()
 	val syncState by syncManager.syncState.collectAsStateWithLifecycle()
+	val accounts by sessionManager.accounts.collectAsStateWithLifecycle()
+	var accountToRemove by remember { mutableStateOf<Account?>(null) }
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
 	val sleepTimerManager = koinInject<SleepTimerManager>()
@@ -198,6 +206,67 @@ fun AccountSheet(
 			}
 
 			Spacer(Modifier.height(8.dp))
+
+			Column(
+				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
+			) {
+				accounts.forEachIndexed { index, account ->
+					val isActive = account.id == sessionManager.activeAccountId
+
+					SegmentedListItem(
+						selected = isActive,
+						onClick = { loginManager.switchAccount(account.id) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = index,
+							count = accounts.size + 1
+						),
+						leadingContent = {
+							Monogram(
+								modifier = Modifier.size(40.dp),
+								text = account.username.ifBlank { account.baseUrl }
+							)
+						},
+						trailingContent = {
+							Row(verticalAlignment = Alignment.CenterVertically) {
+								if (isActive) {
+									Icon(Icons.Outlined.Check, null)
+								}
+								IconButton(onClick = { accountToRemove = account }) {
+									Icon(
+										imageVector = Icons.Outlined.Delete,
+										contentDescription = stringResource(R.string.action_remove_server)
+									)
+								}
+							}
+						},
+						supportingContent = {
+							Text(
+								text = account.baseUrl,
+								style = MaterialTheme.typography.labelSmall,
+								color = MaterialTheme.colorScheme.onSurfaceVariant
+							)
+						},
+						content = {
+							Text(account.username.ifBlank { account.baseUrl })
+						}
+					)
+				}
+
+				SegmentedListItem(
+					onClick = {
+						animateToDismiss()
+						backStack.add(Screen.Login)
+					},
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = accounts.size,
+						count = accounts.size + 1
+					),
+					leadingContent = { Icon(Icons.Outlined.Add, null) },
+					content = { Text(stringResource(R.string.action_add_server)) }
+				)
+			}
+
+			Spacer(Modifier.height(4.dp))
 
 			Column(
 				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
@@ -346,20 +415,18 @@ fun AccountSheet(
 						count = 3
 					),
 					onClick = {
-						animateToDismiss()
-						loginManager.logout()
-						backStack.clear()
-						backStack.add(Screen.Login)
+						accounts.firstOrNull { it.id == sessionManager.activeAccountId }
+							?.let { accountToRemove = it }
 					},
 					colors = SegmentedListItemDefaults.segmentedErrorColors(),
 					leadingContent = {
 						Icon(
-							imageVector = Icons.Outlined.Logout,
+							imageVector = Icons.Outlined.Delete,
 							contentDescription = null,
 							tint = MaterialTheme.colorScheme.error
 						)
 					},
-					content = { Text(stringResource(R.string.action_log_out)) }
+					content = { Text(stringResource(R.string.action_remove_server)) }
 				)
 			}
 		}
@@ -367,5 +434,30 @@ fun AccountSheet(
 
 	if (sleepTimerSheetOpen) {
 		SleepTimerSheet(onDismissRequest = { sleepTimerSheetOpen = false })
+	}
+
+	accountToRemove?.let { account ->
+		AlertDialog(
+			onDismissRequest = { accountToRemove = null },
+			title = { Text(stringResource(R.string.title_remove_server)) },
+			text = {
+				Text(stringResource(R.string.notice_remove_server, account.baseUrl))
+			},
+			confirmButton = {
+				TextButton(
+					onClick = {
+						loginManager.removeAccount(account.id)
+						accountToRemove = null
+					}
+				) {
+					Text(stringResource(R.string.action_remove_server))
+				}
+			},
+			dismissButton = {
+				TextButton(onClick = { accountToRemove = null }) {
+					Text(stringResource(R.string.action_cancel))
+				}
+			}
+		)
 	}
 }

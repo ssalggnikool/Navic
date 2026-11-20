@@ -11,6 +11,7 @@ import dev.zt64.subsonic.client.SubsonicClient
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
+import paige.navic.preferences.AccountSettings
 import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
@@ -22,6 +23,7 @@ import paige.navic.util.network.getProxyUrlOrNull
 
 open class SubsonicMusicServerFactory(
 	private val preferenceManager: PreferenceManager,
+	private val accountSettings: AccountSettings,
 	private val dnsResolver: NavicDnsResolver
 ) : MusicServerFactory {
 	override fun create(baseUrl: String, credentials: ServerCredentials): MusicServer {
@@ -59,7 +61,7 @@ open class SubsonicMusicServerFactory(
 				agent = USER_AGENT
 			}
 
-			val customHeaders = preferenceManager.customHeadersMap()
+			val customHeaders = accountSettings.customHeadersMap()
 			if (customHeaders.isNotEmpty()) {
 				defaultRequest {
 					customHeaders.forEach { (key, value) -> header(key, value) }

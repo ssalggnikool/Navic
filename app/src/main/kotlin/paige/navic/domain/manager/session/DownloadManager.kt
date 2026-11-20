@@ -193,12 +193,15 @@ class DownloadManager(
 	}
 
 	fun cancelAllActiveDownloads() {
+		scope.launch {
+			cancelAllActiveDownloadsAndWait()
+		}
+	}
+
+	suspend fun cancelAllActiveDownloadsAndWait() {
 		isDownloadingLibrary.value = false
 		libraryDownloadProgress.value = 0f
-
-		scope.launch {
-			cancelActiveDownloadsInternal()
-		}
+		cancelActiveDownloadsInternal()
 	}
 
 	private suspend fun cancelActiveDownloadsInternal() {

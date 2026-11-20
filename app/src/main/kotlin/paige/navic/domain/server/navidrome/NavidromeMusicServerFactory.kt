@@ -6,6 +6,7 @@
 
 package paige.navic.domain.server.navidrome
 
+import paige.navic.preferences.AccountSettings
 import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.ServerCredentials
@@ -19,9 +20,10 @@ import paige.navic.util.network.getProxyUrlOrNull
 
 class NavidromeMusicServerFactory(
 	private val preferenceManager: PreferenceManager,
+	private val accountSettings: AccountSettings,
 	private val dnsResolver: NavicDnsResolver
 ) : SubsonicMusicServerFactory(
-	preferenceManager, dnsResolver
+	preferenceManager, accountSettings, dnsResolver
 ) {
 	override fun create(baseUrl: String, credentials: ServerCredentials): MusicServer {
 		val server = super.create(baseUrl, credentials)

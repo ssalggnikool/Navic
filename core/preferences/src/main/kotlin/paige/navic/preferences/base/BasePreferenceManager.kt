@@ -23,11 +23,14 @@ private typealias Setter<T> = (key: String, newValue: T) -> Unit
  * Base class for managing preferences.
  *
  * @property settings
+ * @property keyPrefix prepended to every preference key
  */
 @Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 abstract class BasePreferenceManager(
 	@PublishedApi
-	internal val settings: Settings
+	internal val settings: Settings,
+	@PublishedApi
+	internal val keyPrefix: String = ""
 ) {
 	protected fun preference(
 		key: String?,
@@ -36,7 +39,8 @@ abstract class BasePreferenceManager(
 		key = key,
 		defaultValue = defaultValue,
 		getter = settings::get,
-		setter = settings::set
+		setter = settings::set,
+		keyPrefix = keyPrefix
 	)
 
 	protected fun preference(defaultValue: String) = preference(null, defaultValue)
@@ -48,7 +52,8 @@ abstract class BasePreferenceManager(
 		key = key,
 		defaultValue = defaultValue,
 		getter = settings::get,
-		setter = settings::set
+		setter = settings::set,
+		keyPrefix = keyPrefix
 	)
 
 	protected fun preference(defaultValue: Boolean) = preference(null, defaultValue)
@@ -60,7 +65,8 @@ abstract class BasePreferenceManager(
 		key = key,
 		defaultValue = defaultValue,
 		getter = settings::get,
-		setter = settings::set
+		setter = settings::set,
+		keyPrefix = keyPrefix
 	)
 
 	protected fun preference(defaultValue: Int) = preference(null, defaultValue)
@@ -72,7 +78,8 @@ abstract class BasePreferenceManager(
 		key = key,
 		defaultValue = defaultValue,
 		getter = settings::get,
-		setter = settings::set
+		setter = settings::set,
+		keyPrefix = keyPrefix
 	)
 
 	protected fun preference(defaultValue: Float) = preference(null, defaultValue)
@@ -84,7 +91,8 @@ abstract class BasePreferenceManager(
 		key = key,
 		defaultValue = defaultValue,
 		getter = settings::get,
-		setter = settings::set
+		setter = settings::set,
+		keyPrefix = keyPrefix
 	)
 
 	protected fun preference(defaultValue: Long) = preference(null, defaultValue)
@@ -96,7 +104,8 @@ abstract class BasePreferenceManager(
 		key = key,
 		defaultValue = defaultValue,
 		getter = settings::getEnum,
-		setter = settings::putEnum
+		setter = settings::putEnum,
+		keyPrefix = keyPrefix
 	)
 
 	protected inline fun <reified E : Enum<E>> preference(defaultValue: E): PreferenceProvider<E> {
@@ -122,7 +131,8 @@ abstract class BasePreferenceManager(
 			},
 			setter = { k, newValue ->
 				settings.putString(k, json.encodeToString(newValue))
-			}
+			},
+			keyPrefix = keyPrefix
 		)
 	}
 
@@ -171,12 +181,13 @@ abstract class BasePreferenceManager(
 		private val key: String?,
 		private val defaultValue: T,
 		private val getter: Getter<T>,
-		private val setter: Setter<T>
+		private val setter: Setter<T>,
+		private val keyPrefix: String
 	) {
 		operator fun provideDelegate(
 			thisRef: Any,
 			property: KProperty<*>
-		) = Preferences(key ?: property.name, defaultValue, getter, setter)
+		) = Preferences(keyPrefix + (key ?: property.name), defaultValue, getter, setter)
 	}
 
 	fun clear() = settings.clear()

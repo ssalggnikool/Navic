@@ -14,6 +14,7 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import paige.navic.domain.manager.session.AccountStore
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.preferences.PreferenceManager
 import paige.navic.util.xxHash32
@@ -23,8 +24,13 @@ import java.util.UUID
 
 class StorageManager(
 	private val context: Context,
-	private val preferenceManager: PreferenceManager
+	private val preferenceManager: PreferenceManager,
+	private val accountStore: AccountStore
 ) {
+	private companion object {
+		const val ANONYMOUS_ACCOUNT = "anonymous"
+	}
+
 	private data class HashResult(
 		val parentDirectory: Pair<String, String>,
 		val fileName: String
@@ -32,9 +38,23 @@ class StorageManager(
 
 	private val dispatcher = Dispatchers.IO
 
-	private fun internalDownloadDir(): File = File(context.filesDir, "downloads")
+	private fun internalDownloadBase(): File = File(context.filesDir, "downloads")
 
-	private fun coverArtDir(): File = File(context.filesDir, "covers")
+	private fun coverArtBase(): File = File(context.filesDir, "covers")
+
+	private val usesLegacyDirs: Boolean
+		get() = accountStore.activeAccountId == null ||
+			accountStore.activeAccountId == accountStore.legacyAccountId
+
+	private fun accountName(): String =
+		accountStore.activeAccountId ?: ANONYMOUS_ACCOUNT
+
+	private fun accountDir(base: File): File =
+		if (usesLegacyDirs) base else File(base, accountName())
+
+	private fun internalDownloadDir(): File = accountDir(internalDownloadBase())
+
+	private fun coverArtDir(): File = accountDir(coverArtBase())
 
 	private fun coverArtPath(coverArtId: String): File {
 		val hash = coverArtId.xxHash32() + ("$coverArtId|cover").xxHash32() // Yeh
@@ -72,7 +92,7 @@ class StorageManager(
 	}
 
 	fun clearCoverArts() {
-		coverArtDir().deleteRecursively()
+		clearAccountEntries(coverArtBase())
 	}
 
 	private fun externalDownloadDirs(): List<File> =
@@ -96,7 +116,7 @@ class StorageManager(
 
 	fun getDownloadDirFor(storage: DownloadStorage): File? = when (storage) {
 		DownloadStorage.Internal -> internalDownloadDir().apply { mkdirs() }
-		DownloadStorage.External -> externalDownloadDir()?.apply { mkdirs() }
+		DownloadStorage.External -> externalDownloadDir()?.let(::accountDir)?.apply { mkdirs() }
 	}
 
 	fun currentDownloadDir(): File =
@@ -104,7 +124,7 @@ class StorageManager(
 			?: internalDownloadDir().apply { mkdirs() }
 
 	fun allDownloadDirs(): List<File> =
-		(listOf(internalDownloadDir()) + externalDownloadDirs())
+		(listOf(internalDownloadBase()) + externalDownloadDirs())
 			.distinctBy { it.absolutePath }
 
 	private fun generatePathHash(albumId: String, songId: String): HashResult {
@@ -229,10 +249,28 @@ class StorageManager(
 	}
 
 	fun clearDownloads() {
-		allDownloadDirs().forEach { dir ->
-			if (dir.exists()) {
-				dir.listFiles()?.forEach { it.deleteRecursively() }
-			}
+		allDownloadDirs().forEach(::clearAccountEntries)
+	}
+
+	fun deleteAccountData(accountId: String) {
+		val legacy = accountId == accountStore.legacyAccountId
+		allDownloadDirs().forEach { deleteAccountEntries(it, accountId, legacy) }
+		deleteAccountEntries(coverArtBase(), accountId, legacy)
+	}
+
+	private fun clearAccountEntries(base: File) {
+		deleteAccountEntries(base, accountName(), usesLegacyDirs)
+	}
+
+	private fun deleteAccountEntries(base: File, accountId: String, legacy: Boolean) {
+		if (!legacy) {
+			File(base, accountId).deleteRecursively()
+			return
+		}
+
+		base.listFiles()?.forEach { entry ->
+			if (entry.isDirectory && entry.name.length != 2) return@forEach
+			entry.deleteRecursively()
 		}
 	}
 

@@ -70,6 +70,8 @@
 	<string name="title_palette">Palette</string>
 	<string name="title_theme_mode">Theme mode</string>
 	<string name="title_account">Account</string>
+	<string name="title_remove_server">Remove server?</string>
+	<string name="title_saved_servers">Saved servers</string>
 	<string name="title_track_info">Track info</string>
 	<string name="title_statistics">Stats</string>
 	<string name="title_top_songs">Top songs</string>
@@ -350,6 +352,8 @@
 	<string name="action_disable_sleep_timer">Turn off timer</string>
 	<string name="action_navigate_back">Navigate up</string>
 	<string name="action_log_out">Log out</string>
+	<string name="action_add_server">Add server</string>
+	<string name="action_remove_server">Remove server</string>
 	<string name="action_log_in">Log in</string>
 	<string name="action_view_shares">Shares</string>
 	<string name="action_clear_search">Clear</string>
@@ -428,6 +432,7 @@
 	<string name="notice_image_saved">Image saved.</string>
 	<string name="notice_loading_lyrics">Loading lyrics…\nThis might take a while.</string>
 	<string name="notice_login_suggestion">Did you mean…</string>
+	<string name="notice_remove_server">This deletes the cached library, downloads and settings for %1$s.</string>
 	<string name="notice_queue_duplicate">This song is already in the queue. Do you want to add it again?</string>
 	<string name="notice_local_network_denied">Permission denied</string>
 	<string name="notice_notifications_denied">Permission denied</string>

@@ -39,8 +39,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.designsystem.theme.defaultFont
+import paige.navic.domain.manager.session.Account
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.server.AuthMethod
 import paige.navic.icons.Icons
 import paige.navic.icons.brand.Jellyfin
@@ -54,7 +58,8 @@ import paige.navic.ui.component.common.SegmentedListItemDefaults
 fun ServerPage(
 	modifier: Modifier = Modifier,
 	onAuthMethodChanged: (AuthMethod) -> Unit,
-	onNavigateForward: () -> Unit
+	onNavigateForward: () -> Unit,
+	onAccountSelected: (Account) -> Unit
 ) {
 	Scaffold(
 		modifier = modifier
@@ -71,6 +76,7 @@ fun ServerPage(
 			Header(
 				modifier = Modifier.weight(1.5f)
 			)
+			SavedServers(onAccountSelected = onAccountSelected)
 			ServerChoices(
 				modifier = Modifier.weight(1f),
 				onAuthMethodChanged = {
@@ -103,6 +109,48 @@ private fun Header(
 			text = stringResource(R.string.subtitle_welcome)
 		)
 		Spacer(Modifier.weight(0.5f))
+	}
+}
+
+@Composable
+private fun SavedServers(
+	onAccountSelected: (Account) -> Unit
+) {
+	val sessionManager = koinInject<SessionManager>()
+	val accounts by sessionManager.accounts.collectAsStateWithLifecycle()
+
+	if (accounts.isEmpty()) return
+
+	Column(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(horizontal = 16.dp),
+		verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
+	) {
+		Text(
+			text = stringResource(R.string.title_saved_servers),
+			style = MaterialTheme.typography.titleSmall,
+			color = MaterialTheme.colorScheme.onSurfaceVariant,
+			modifier = Modifier.padding(start = 4.dp)
+		)
+		accounts.forEachIndexed { index, account ->
+			val icon = when (account.authMethod) {
+				AuthMethod.Jellyfin -> Icons.Brand.Jellyfin
+				else -> Icons.Brand.Subsonic
+			}
+
+			SegmentedListItem(
+				onClick = { onAccountSelected(account) },
+				shapes = SegmentedListItemDefaults.segmentedShapes(
+					index = index,
+					count = accounts.size
+				),
+				leadingContent = { Icon(icon, null) },
+				trailingContent = { Icon(Icons.Outlined.ChevronForward, null) },
+				supportingContent = { Text(account.baseUrl) },
+				content = { Text(account.username.ifBlank { account.baseUrl }) }
+			)
+		}
 	}
 }
 

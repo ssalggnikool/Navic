@@ -20,6 +20,7 @@ import coil3.request.ImageResult
 import coil3.request.crossfade
 import coil3.serviceLoaderEnabled
 import coil3.size.Dimension
+import paige.navic.preferences.AccountSettings
 import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.util.network.NavicDnsResolver
@@ -29,6 +30,7 @@ import kotlin.math.abs
 class CoilSingleton(
 	private val context: Context,
 	preferenceManager: PreferenceManager,
+	accountSettings: AccountSettings,
 	dnsResolver: NavicDnsResolver,
 	private val storageManager: StorageManager
 ) {
@@ -37,7 +39,7 @@ class CoilSingleton(
 
 	@OptIn(ExperimentalCoilApi::class)
 	private val networkFetcher = KtorNetworkFetcherFactory(
-		createHttpClientWithPreferences(preferenceManager, dnsResolver)
+		createHttpClientWithPreferences(preferenceManager, accountSettings, dnsResolver)
 	)
 
 	// https://slack-chats.kotlinlang.org/t/8294624/hi-i-m-using-coil-to-load-images-in-compose-and-i-need-to-se

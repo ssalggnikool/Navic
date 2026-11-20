@@ -13,18 +13,23 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import paige.navic.domain.manager.session.AccountStore
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
 
 class PlayerStateRepository(
-	private val preferences: DataStore<Preferences>
+	private val preferences: DataStore<Preferences>,
+	accountStore: AccountStore
 ) {
+	// scoped per account, legacy accounts keep the unprefixed key
+	private val key = stringPreferencesKey("${accountStore.keyPrefix}player_state")
+
 	private val json = Json {
 		ignoreUnknownKeys = true
 	}
 
 	suspend fun getState(): PlayerUiState {
-		val encoded = preferences.data.first()[KEY_STATE] ?: return PlayerUiState()
+		val encoded = preferences.data.first()[key] ?: return PlayerUiState()
 		return try {
 			json.decodeFromString<PlayerUiState>(encoded)
 		} catch (ex: SerializationException) {
@@ -38,15 +43,11 @@ class PlayerStateRepository(
 
 	suspend fun setState(value: PlayerUiState) {
 		try {
-			preferences.edit { it[KEY_STATE] = json.encodeToString(value) }
+			preferences.edit { it[key] = json.encodeToString(value) }
 		} catch (ex: SerializationException) {
 			Logger.e("PlayerStateRepository", "failed to serialise state", ex)
 		} catch (ex: Exception) {
 			Logger.e("PlayerStateRepository", "failed to save state", ex)
 		}
-	}
-
-	private companion object {
-		val KEY_STATE = stringPreferencesKey("player_state")
 	}
 }
