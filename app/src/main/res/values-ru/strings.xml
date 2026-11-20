@@ -3,9 +3,7 @@
   ~ Navic, a Subsonic music streaming app for Android
   ~ Copyright (c) 2026 paige
   ~ SPDX-License-Identifier: GPL-3.0-only
-  -->
-
-<resources>
+  --><resources>
     <string name="app_name" translatable="false">Navic</string>
     <string name="title_library">Библиотека</string>
     <string name="title_playlists">Плейлисты</string>
@@ -33,8 +31,8 @@
     <string name="option_share_expires">Срок действия</string>
     <string name="option_account_username">Имя пользователя</string>
     <string name="option_account_password">Пароль</string>
-    <string name="option_lyrics_autoscroll">Автопрокрутка текста</string>
-    <string name="option_lyrics_beat_by_beat">Beat-by-beat текст</string>
+    <string name="option_lyrics_autoscroll">Автопрокрутка</string>
+    <string name="option_lyrics_beat_by_beat">Beat-by-beat синхронизация</string>
     <string name="option_sort_random">Случайно</string>
     <string name="option_sort_newest">Недавно добавлено</string>
     <string name="option_sort_frequent">Часто играет</string>
@@ -135,8 +133,8 @@
     <string name="subtitle_playback">Аудио-эффекты и поведение, история прослушивания</string>
     <string name="subtitle_developer">Отладка, тестирование, логи</string>
     <string name="subtitle_enable_scrobbling">Отправлять историю прослушивания на ваш сервер с музыкой</string>
-    <string name="subtitle_gapless_playback">Экспериментальное. Требуется перезапуск приложения. На некоторых устройствах может возникать конфликт при выносе аудиообработки</string>
-    <string name="subtitle_audio_offload">Экспериментальное. Требуется перезапуск приложения. Может конфликтовать с режимом воспроизведения без пропусков</string>
+    <string name="subtitle_gapless_playback">Экспериментальное. Требуется перезапуск. На некоторых устройствах может возникать конфликт при выносе аудиообработки</string>
+    <string name="subtitle_audio_offload">Экспериментальное. Требуется перезапуск. Может конфликтовать с режимом воспроизведения без пропусков</string>
     <string name="subtitle_now_playing_background_style">Выберите статический, если у вас есть проблемы с производительностью</string>
     <string name="option_now_playing_background_style">Стиль фона</string>
     <string name="option_now_playing_background_style_static">Статический</string>
@@ -211,7 +209,7 @@
     <string name="title_bulk_download">Скачать все альбомы</string>
     <string name="title_confirm">Подтвердить</string>
     <string name="subtitle_data_storage">Синхронизация, кэш, использование сети</string>
-    <string name="subtitle_trigger_sync">Принудительная полная синхронизация библиотеки</string>
+    <string name="subtitle_trigger_sync">Обновить локальную базу данных вашей библиотеки музыки</string>
     <string name="subtitle_pending_actions">%1$d элемент(-ов) ожидают подключения к сети</string>
     <string name="option_lyrics_keep_alive">Не выключать экран при просмотре текстов песен</string>
     <string name="option_live_status">Статус синхронизации</string>
@@ -232,8 +230,8 @@
     <string name="action_clear_pending_actions">Очистить очередь скачивания</string>
     <string name="action_clear_downloads">Очистить скачанное</string>
     <string name="action_rebuild_database">Пересобрать базу данных</string>
-    <string name="action_trigger_sync">Запустить ручную синхронизацию</string>
-    <string name="subtitle_rebuild_database">Очищает локальные метаданные и запускает полную синхронизацию</string>
+    <string name="action_trigger_sync">Синхронизировать библиотеку</string>
+    <string name="subtitle_rebuild_database">Очистить локальную копию библиотеки и синхронизировать её заново</string>
     <string name="notice_login_suggestion">Вы имели ввиду…</string>
     <string name="notice_queue_duplicate">Этот трек уже есть в очереди. Хотите добавить его повторно?</string>
     <string name="info_no_songs">Треки отсутствуют</string>
@@ -284,10 +282,10 @@
     <string name="title_library_download">Скачать всю библиотеку</string>
     <string name="info_status_downloading">Скачивание…</string>
     <string name="info_library_download_warning">Вы уверены, что хотите скачать всю свою библиотеку?\nУже скачанные элементы будут пропущены, однако этот процесс все еще может использовать значительный объем хранилища и трафика.</string>
-    <string name="info_library_download">Сохранить всю синхронизированную музыку для оффлайн воспроизведения</string>
+    <string name="info_library_download">Скачать всю музыку для оффлайн воспроизведения</string>
     <string name="info_progress">Прогресс</string>
     <string name="title_network">Сеть</string>
-    <string name="subtitle_offline_mode">Определяет, когда приложение должно перейти в режим оффлайн. Требуется перезапуск приложения</string>
+    <string name="subtitle_offline_mode">Определяет, когда приложение должно перейти в режим оффлайн</string>
     <string name="option_offline_mode">Режим оффлайн</string>
     <string name="option_offline_mode_auto">Автоматически</string>
     <string name="option_offline_mode_forced">Принудительно</string>
@@ -490,7 +488,7 @@
     <string name="option_enable_discord_integration">Включить интеграцию с Discord</string>
     <string name="action_edit_discord_app_id">Изменить ID приложения Discord</string>
     <string name="action_reset_to_default">Сбросить к по умолчанию</string>
-    <string name="option_disable_rpc_when_power_saving">Отключить статус в режиме энергосбережения</string>
+    <string name="option_disable_rpc_when_power_saving">Отключить в режиме энергосбережения</string>
     <string name="subtitle_enable_discord_integration">Похвастайся в Discord, какую музыку ты сейчас слушаешь</string>
     <string name="title_delete_radio">Удалить радио?</string>
     <string name="title_update_radio">Обновить радио</string>
@@ -514,8 +512,8 @@
     <string name="option_discord_rpc_status_type_artist_name">Название исполнителя</string>
     <string name="option_discord_rpc_status_type_song_name">Название трека</string>
     <string name="option_discord_rpc_status_type_app_name">Название приложения</string>
-    <string name="title_cover_art_providers">Поставщики обложек</string>
-    <string name="subtitle_cover_art_providers">Загрузка обложки, чтобы Discord мог её отобразить</string>
+    <string name="title_cover_art_providers">Поставщики хостинга обложек</string>
+    <string name="subtitle_cover_art_providers">Загружать обложки, чтобы Discord мог отображать их</string>
     <string name="subtitle_cover_art_key_required">Требуется ключ API</string>
     <string name="info_status_moving_downloads">Перемещение скачанного…</string>
     <string name="info_move_downloads">Это переместит всё скачанное в новое место. Продолжить?</string>
@@ -539,7 +537,7 @@
     <string name="title_commit_message">Сообщение коммита</string>
     <string name="title_branch_name">Название ветки</string>
     <string name="title_commit_author">Автор коммита</string>
-    <string name="subtitle_float_output">Экспериментальное. Требуется перезапуск приложения. Изменение скорости воспроизведения будет недоступно, если включено</string>
+    <string name="subtitle_float_output">Экспериментальное. Требуется перезапуск. Изменение скорости воспроизведения будет недоступно, если включено</string>
     <string name="option_float_output">Плавающая точность вывода</string>
     <string name="media_session_channel_name">Воспроизведение медиа</string>
     <string name="info_incorrect_credentials">Неверные учётные данные. Пожалуйста, проверьте еще раз и попробуйте снова.</string>
@@ -549,4 +547,56 @@
     <string name="notice_app_icon_changed">Иконка приложения изменена, приложение закрывается!</string>
     <string name="option_mini_player_progress_style_line">Линия</string>
     <string name="option_mini_player_progress_style_overlay">Накладной</string>
+    <string name="title_storage_usage">Использование хранилища</string>
+    <string name="title_wiki">Вики</string>
+    <string name="title_authentication_method">Метод аутентификации</string>
+    <string name="title_website">Веб-сайт</string>
+    <string name="title_links">Ссылки</string>
+    <string name="title_build_info">Информация о сборке</string>
+    <string name="title_download_management">Управление скачанным</string>
+    <string name="title_appears_on">Появляется в</string>
+    <string name="title_welcome">Добро пожаловать в Navic</string>
+    <string name="subtitle_welcome">Выберите тип сервера</string>
+    <string name="subtitle_clear_pending_sync_actions">Очистить очередь офлайн-действий, таких как история прослушивания</string>
+    <string name="subtitle_prevent_clipping">Уменьшить усиление, если оно приводит к превышению максимальной громкости</string>
+    <string name="option_share_description">Описание</string>
+    <string name="option_share_downloadable">Разрешить скачивание</string>
+    <string name="option_account_api_key">Ключ API</string>
+    <string name="option_account_use_api_key">Использовать аутентификацию по ключу API</string>
+    <string name="option_account_subsonic">Subsonic</string>
+    <string name="option_account_jellyfin">Jellyfin</string>
+    <string name="option_language">Язык</string>
+    <string name="option_system_default">По умолчанию (системы)</string>
+    <string name="option_prevent_clipping">Предотвращать искажение</string>
+    <string name="option_crossfade">Плавный переход</string>
+    <string name="option_streaming_cache_size">Размер кэша стриминга</string>
+    <string name="action_continue">Продолжить</string>
+    <string name="action_restart">Перезапустить</string>
+    <string name="action_upload_cover">Загрузить обложку</string>
+    <string name="action_remove_cover">Удалить обложку</string>
+    <string name="action_save_as_playlist">Сохранить как плейлист</string>
+    <string name="action_instant_mix">Мгновенный микс</string>
+    <string name="action_help">Помощь</string>
+    <string name="action_undo">Отменить</string>
+    <string name="action_repeat">Повторить</string>
+    <string name="action_replace_cover">Заменить обложку</string>
+    <string name="action_restart_application">Перезапустить приложение</string>
+    <string name="notice_cover_uploaded">Обложка обновлена.</string>
+    <string name="notice_cover_removed">Обложка удалена.</string>
+    <string name="notice_cover_upload_failed">Не удалось загрузить обложку.</string>
+    <string name="notice_cover_removal_failed">Не удалось удалить обложку.</string>
+    <string name="notice_restart_required">Перезапустить сейчас, чтобы применить это изменение?</string>
+    <string name="notice_instant_mix_empty">Похожие треки не найдены.</string>
+    <string name="notice_instant_mix_failed">Не удалось запустить мгновенный микс.</string>
+    <string name="notice_syncing_library">Синхронизация библиотеки…</string>
+    <string name="notice_cleared_queue">Очередь очищена.</string>
+    <string name="info_login_description_jellyfin">Войти на сервер Jellyfin.</string>
+    <string name="info_server_type">Тип сервера</string>
+    <string name="info_subsonic_server_version">Версия Subsonic</string>
+    <string name="info_server_is_opensubsonic">Это OpenSubsonic?</string>
+    <string name="info_server_info">Информация о сервере</string>
+    <string name="info_supported_server_extensions">Поддерживаемые расширения сервера</string>
+    <string name="info_server_version">Версия сервера</string>
+    <string name="info_sync_actions">Некоторые действия, выполняемые в Navic, когда сервер недоступен, ставятся в очередь, чтобы их можно было выполнить повторно, когда сервер снова станет доступен.</string>
+    <string name="info_library_syncing">Navic хранит локальную базу данных метаданных вашей библиотеки. Это позволяет вам получать доступ к библиотеке, даже когда ваш сервер недоступен. Navic периодически обновляет эту базу данных, но вы также можете синхронизировать ее вручную с помощью этой опции.</string>
 </resources>
