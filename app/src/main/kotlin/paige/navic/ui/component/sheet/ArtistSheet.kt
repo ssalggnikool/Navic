@@ -37,26 +37,26 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.database.entity.DownloadStatus
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.settings.DownloadDeletionType
+import paige.navic.icons.Icons
+import paige.navic.icons.brand.LastFM
+import paige.navic.icons.brand.MusicBrainz
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Close
+import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.Download
+import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.PlaylistAdd
+import paige.navic.icons.outlined.Queue
+import paige.navic.icons.outlined.QueuePlayNext
+import paige.navic.icons.outlined.Star
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.LinkConfirmationDialog
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.brand.LastFM
-import paige.navic.ui.icons.brand.MusicBrainz
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.Download
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.PlaylistAdd
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.ui.icons.outlined.QueuePlayNext
-import paige.navic.ui.icons.outlined.Star
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,25 +118,27 @@ fun ArtistSheet(
 
 		HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
 
+		val lastFmUrl = artist.lastFmUrl
+		val musicBrainzId = artist.musicBrainzId
 		Column(Modifier.verticalScroll(rememberScrollState())) {
-			if (artist.lastFmUrl != null) {
+			if (lastFmUrl != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_view_on_lastfm)) },
 					leadingContent = { Icon(Icons.Brand.LastFM, null) },
 					onClick = {
-						linkToOpen = artist.lastFmUrl
+						linkToOpen = lastFmUrl
 					},
 					colors = colors,
 					contentPadding = contentPadding
 				)
 			}
 
-			if (artist.musicBrainzId != null) {
+			if (musicBrainzId != null) {
 				ListItem(
 					content = { Text(stringResource(R.string.action_view_on_musicbrainz)) },
 					leadingContent = { Icon(Icons.Brand.MusicBrainz, null) },
 					onClick = {
-						linkToOpen = "https://musicbrainz.org/artist/${artist.musicBrainzId}"
+						linkToOpen = "https://musicbrainz.org/artist/$musicBrainzId"
 					},
 					colors = colors,
 					contentPadding = contentPadding

@@ -8,7 +8,7 @@ package paige.navic.domain.parser
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import paige.navic.ui.theme.warning
+import paige.navic.designsystem.theme.warning
 
 data class LogLine(
 	val id: Int,

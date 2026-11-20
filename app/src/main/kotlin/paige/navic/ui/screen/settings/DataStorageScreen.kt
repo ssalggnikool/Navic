@@ -57,13 +57,16 @@ import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.playback.StreamCacheManager
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.settings.CoverArtQuality
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.domain.model.settings.OfflineMode
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Offline
+import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
+import paige.navic.preferences.PreferenceManager
+import paige.navic.ui.component.common.HelpButton
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.common.SegmentedListItem
@@ -71,12 +74,10 @@ import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.dialog.BulkDownloadDialog
 import paige.navic.ui.component.dialog.BulkDownloadTarget
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
-import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.dialog.FormDialog
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.NestedTopBarDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Offline
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.component.SettingsChoiceItem
 import paige.navic.ui.screen.settings.component.SettingsGroup
@@ -84,6 +85,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsNavItem
 import paige.navic.ui.screen.settings.dialog.ConfirmDownloadDeletionSheet
 import paige.navic.ui.screen.settings.viewmodel.SettingsDataStorageViewModel
+import paige.navic.ui.util.label
 import paige.navic.util.toFileSize
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -147,8 +149,8 @@ fun SettingsDataStorageScreen() {
 	val offlineIcon = @Composable {
 		if (!isReachable) {
 			Icon(
-				Icons.Outlined.Offline,
-				stringResource(R.string.info_not_available_offline),
+				imageVector = Icons.Outlined.Offline,
+				contentDescription = stringResource(R.string.info_not_available_offline),
 				modifier = Modifier.size(20.dp)
 			)
 		}
@@ -253,7 +255,7 @@ fun SettingsDataStorageScreen() {
 						onChoiceSelected = { preferenceManager.offlineMode = it },
 						description = stringResource(R.string.subtitle_offline_mode),
 						content = { Text(stringResource(R.string.option_offline_mode)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
 					)
 
@@ -269,14 +271,13 @@ fun SettingsDataStorageScreen() {
 							}
 						},
 						content = { Text(stringResource(R.string.option_cover_art_quality)) },
-						label = { stringResource(it.displayName) },
+						label = { it.label() },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
 
 				SettingsGroup(title = { Text(stringResource(R.string.title_sync_control)) }) {
 					SegmentedListItem(
-						onClick = {},
 						content = { Text(stringResource(R.string.option_live_status)) },
 						supportingContent = {
 							Column(Modifier.fillMaxWidth()) {
@@ -300,12 +301,22 @@ fun SettingsDataStorageScreen() {
 							}
 						},
 						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 4)
 					)
 
 					SegmentedListItem(
-						onClick = {},
+						content = { Text(stringResource(R.string.option_last_sync)) },
+						supportingContent = { Text(timeSinceLastSync()) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 4)
+					)
+
+					SegmentedListItem(
 						content = { Text(stringResource(R.string.option_pending_actions)) },
+						trailingContent = {
+							HelpButton(
+								helpDescription = { Text(stringResource(R.string.info_sync_actions)) }
+							)
+						},
 						supportingContent = {
 							Text(
 								text = stringResource(
@@ -314,7 +325,7 @@ fun SettingsDataStorageScreen() {
 								)
 							)
 						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 4)
 					)
 
 					SegmentedListItem(
@@ -322,19 +333,16 @@ fun SettingsDataStorageScreen() {
 						enabled = isReachable,
 						content = { Text(stringResource(R.string.action_trigger_sync)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_trigger_sync)) },
-						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
-					)
-
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(R.string.option_last_sync)) },
-						supportingContent = { Text(timeSinceLastSync()) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
+						trailingContent = {
+							HelpButton(
+								helpDescription = { Text(stringResource(R.string.info_library_syncing)) }
+							)
+						},
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 4)
 					)
 				}
 
-				SettingsGroup(title = { Text(stringResource(R.string.title_storage_management)) }) {
+				SettingsGroup(title = { Text(stringResource(R.string.title_download_management)) }) {
 					SettingsChoiceItem(
 						choices = DownloadStorage.entries.toImmutableList(),
 						selectedChoice = preferenceManager.downloadStorage,
@@ -358,32 +366,15 @@ fun SettingsDataStorageScreen() {
 							it != DownloadStorage.External || hasExternalStorage
 						},
 						content = { Text(stringResource(R.string.option_download_location)) },
-						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 7)
+						label = { it.label() },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 
 					SegmentedListItem(
 						onClick = { showConfirmDeletionDialog = true },
 						content = { Text(stringResource(R.string.option_confirm_download_deletion)) },
 						supportingContent = { Text(stringResource(R.string.subtitle_confirm_download_deletion)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 7)
-					)
-
-					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(R.string.option_downloaded_songs)) },
-						supportingContent = {
-							Text(
-								text = "${
-									pluralStringResource(
-										R.plurals.count_songs,
-										downloadCount,
-										downloadCount
-									)
-								} ($downloadsSizeMb) // $freeSpaceFormatted free"
-							)
-						},
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 7)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
 					)
 
 					SegmentedListItem(
@@ -461,22 +452,36 @@ fun SettingsDataStorageScreen() {
 							}
 						},
 						trailingContent = offlineIcon,
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 5, count = 6)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
-				SettingsGroup(title = { Text(stringResource(R.string.title_cache_management)) }) {
+				SettingsGroup(title = { Text(stringResource(R.string.title_storage_usage)) }) {
 					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(R.string.option_image_cache_size)) },
-						supportingContent = { Text(imageCacheSizeMb) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 2)
+						content = { Text(stringResource(R.string.option_downloaded_songs)) },
+						supportingContent = {
+							Text(
+								text = "${
+									pluralStringResource(
+										R.plurals.count_songs,
+										downloadCount,
+										downloadCount
+									)
+								} ($downloadsSizeMb) // $freeSpaceFormatted free"
+							)
+						},
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 3)
 					)
 
 					SegmentedListItem(
-						onClick = {},
-						content = { Text(stringResource(R.string.option_streaming_cache)) },
+						content = { Text(stringResource(R.string.option_image_cache_size)) },
+						supportingContent = { Text(imageCacheSizeMb) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 3)
+					)
+
+					SegmentedListItem(
+						content = { Text(stringResource(R.string.option_streaming_cache_size)) },
 						supportingContent = { Text(streamCacheSize) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 1, count = 2)
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 3)
 					)
 				}
 
@@ -505,16 +510,17 @@ fun SettingsDataStorageScreen() {
 						colors = SegmentedListItemDefaults.segmentedErrorColors()
 					)
 					SegmentedListItem(
-						onClick = viewModel::removeAllActions,
-						content = { Text(stringResource(R.string.action_clear_pending_actions)) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5),
-						colors = SegmentedListItemDefaults.segmentedErrorColors()
-					)
-					SegmentedListItem(
 						onClick = {
 							downloadDeletionHandler.requestDelete(DeleteDownloadTarget.Library)
 						},
 						content = { Text(stringResource(R.string.action_clear_downloads)) },
+						shapes = SegmentedListItemDefaults.segmentedShapes(index = 2, count = 5),
+						colors = SegmentedListItemDefaults.segmentedErrorColors()
+					)
+					SegmentedListItem(
+						onClick = viewModel::removeAllActions,
+						content = { Text(stringResource(R.string.action_clear_pending_actions)) },
+						supportingContent = { Text(stringResource(R.string.subtitle_clear_pending_sync_actions)) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(index = 3, count = 5),
 						colors = SegmentedListItemDefaults.segmentedErrorColors()
 					)

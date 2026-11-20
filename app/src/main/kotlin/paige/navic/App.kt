@@ -7,6 +7,7 @@
 package paige.navic
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
@@ -29,7 +30,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.detailPane
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion.listPane
@@ -68,18 +71,19 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.koinInject
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.di.LocalSizeClass
 import paige.navic.di.LocalSnackBarState
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.manager.ui.BottomBarScrollManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.layout.SideBar
 import paige.navic.ui.component.sheet.ChangelogSheet
 import paige.navic.ui.component.snackbar.NavicSnackBar
@@ -129,7 +133,6 @@ import paige.navic.ui.screen.song.SongDetailSheet
 import paige.navic.ui.screen.song.SongListScreen
 import paige.navic.ui.screen.starred.StarredScreen
 import paige.navic.ui.screen.stats.StatisticsScreen
-import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.Material3Transitions
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -147,6 +150,7 @@ fun App() {
 	val density = LocalDensity.current
 	val activity = LocalActivity.current!!
 	val resources = LocalResources.current
+	val context = koinInject<Context>()
 
 	val sizeClass = calculateWindowSizeClass(activity)
 	val sessionManager = koinInject<SessionManager>()
@@ -186,9 +190,21 @@ fun App() {
 
 	LaunchedEffect(Unit) {
 		snackBarManager.events.collectLatest { event ->
-			snackBarState.showSnackbar(
-				resources.getString(event.resource, *event.args.toTypedArray())
+			val actionLabelRes = event.actionLabelRes
+			val actionLabel = actionLabelRes?.let { resources.getString(it) }
+			val duration = if (actionLabelRes != null) {
+				SnackbarDuration.Long
+			} else {
+				SnackbarDuration.Short
+			}
+			val result = snackBarState.showSnackbar(
+				message = resources.getString(event.resource, *event.args.toTypedArray()),
+				actionLabel = actionLabel,
+				duration = duration
 			)
+			if (result == SnackbarResult.ActionPerformed) {
+				event.onAction?.invoke(context)
+			}
 		}
 	}
 
@@ -369,7 +385,7 @@ private fun entryProvider(
 			NowPlayingScreen()
 		}
 		entry<Screen.Lyrics>(metadata = NowPlayingSceneStrategy.bottomSheet(isTransparent = true)) {
-			val player = koinInject<MediaPlayer>()
+			val player = koinInject<PlayerRepository>()
 			val playerState by player.uiState.collectAsStateWithLifecycle()
 			val song = playerState.currentSong
 			LyricsScreen(song)
@@ -381,7 +397,7 @@ private fun entryProvider(
 			PlaybackSpeedScreen()
 		}
 		entry<Screen.CollectionDetail>(metadata = detailPane("root")) { key ->
-			CollectionDetailScreen(key.collectionId, key.tab)
+			CollectionDetailScreen(key.collectionId)
 		}
 		entry<Screen.SongDetailScreen> { key ->
 			SongDetailScreen(

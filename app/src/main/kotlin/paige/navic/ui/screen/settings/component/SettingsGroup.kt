@@ -20,7 +20,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import paige.navic.ui.component.common.SegmentedListItemDefaults
-import paige.navic.ui.theme.defaultFont
+import paige.navic.designsystem.theme.defaultFont
 
 @Composable
 fun SettingsGroup(

@@ -38,23 +38,23 @@ import paige.navic.database.entity.DownloadStatus
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Play
-import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.Download
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Shuffle
-import paige.navic.ui.theme.defaultFont
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Play
+import paige.navic.icons.outlined.Close
+import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.Download
+import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.Shuffle
+import paige.navic.designsystem.theme.defaultFont
 
 @Composable
 fun CollectionDetailScreenHeadingRowButtons(
 	collection: DomainSongCollection
 ) {
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val snackBarManager = koinInject<SnackBarManager>()
 	val downloadManager = koinInject<DownloadManager>()
 	val downloadDeletionHandler = rememberDownloadDeletionHandler()
@@ -77,7 +77,8 @@ fun CollectionDetailScreenHeadingRowButtons(
 		OutlinedButton(
 			modifier = Modifier.size(width = 52.dp, height = buttonHeight),
 			onClick = {
-				player.shufflePlay(collection)
+				player.setShuffle(true)
+				player.playNow(collection, collection.songs.indices.random())
 			},
 			shape = buttonShape,
 			contentPadding = PaddingValues(0.dp),
@@ -94,6 +95,7 @@ fun CollectionDetailScreenHeadingRowButtons(
 				.weight(1f)
 				.height(buttonHeight),
 			onClick = {
+				player.setShuffle(false)
 				player.playNow(collection)
 			},
 			shape = buttonShape,

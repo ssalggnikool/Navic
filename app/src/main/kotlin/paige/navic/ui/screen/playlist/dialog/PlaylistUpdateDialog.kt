@@ -39,16 +39,16 @@ import kotlinx.collections.immutable.ImmutableList
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
+import paige.navic.domain.model.DomainPlaylist
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.PlaylistAdd
+import paige.navic.icons.outlined.Refresh
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.PlaylistAdd
-import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistUpdateDialogViewModel
-import dev.zt64.subsonic.api.model.Playlist as ApiPlaylist
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -66,7 +66,7 @@ fun PlaylistUpdateDialog(
 
 	var createDialogShown by rememberSaveable { mutableStateOf(false) }
 
-	val list: @Composable (playlists: List<ApiPlaylist>) -> Unit = { playlists ->
+	val list: @Composable (playlists: List<DomainPlaylist>) -> Unit = { playlists ->
 		LazyColumn(
 			modifier = Modifier
 				.clip(MaterialTheme.shapes.largeIncreased)
@@ -83,7 +83,7 @@ fun PlaylistUpdateDialog(
 							},
 							role = Role.Checkbox
 						),
-					content = { Text(playlist.name) },
+					content = { Text(playlist.name.orEmpty()) },
 					leadingContent = {
 						Checkbox(
 							checked = isSelected,

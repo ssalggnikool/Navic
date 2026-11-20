@@ -24,17 +24,17 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
 import paige.navic.R
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainPlaylist
-import paige.navic.playback.MediaPlayer
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.MoreHoriz
+import paige.navic.playback.PlayerRepository
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.sheet.SleepTimerSheet
 import paige.navic.ui.component.sheet.SongSheet
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.MoreHoriz
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 
 @Composable
@@ -43,7 +43,7 @@ fun NowPlayingMoreButton(
 	onSetSongRating: (Int) -> Unit
 ) {
 	val backStack = LocalNavStack.current
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val song = playerState.currentSong
 	var expanded by remember { mutableStateOf(false) }
@@ -72,10 +72,13 @@ fun NowPlayingMoreButton(
 				onDismissRequest = { expanded = false },
 				song = song,
 				isPlaylist = playerState.currentCollection is DomainPlaylist,
+				onInstantMix = if (song.id.startsWith("radio_")) null else {
+					{ player.playInstantMix(song) }
+				},
 				onViewAlbum = dropUnlessResumed {
 					playerState.currentCollection?.let { collection ->
 						backStack.remove(Screen.NowPlaying)
-						backStack.add(Screen.CollectionDetail(collection.id, ""))
+						backStack.add(Screen.CollectionDetail(collection.id))
 					}
 				},
 				onViewArtist = dropUnlessResumed {
@@ -126,7 +129,7 @@ fun NowPlayingMoreButton(
 	}
 
 	NavicTheme(colorScheme) {
-		ShareDialog(
+		ShareSheet(
 			id = shareId,
 			onDismissRequest = { shareId = null }
 		)

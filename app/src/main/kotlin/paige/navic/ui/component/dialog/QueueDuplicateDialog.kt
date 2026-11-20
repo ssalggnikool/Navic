@@ -26,13 +26,13 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainSong
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.PlaylistAdd
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.PlaylistAdd
 
 @Composable
 fun QueueDuplicateDialog(
@@ -42,7 +42,7 @@ fun QueueDuplicateDialog(
 	onConfirm: (() -> Unit)? = null
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 
 	if (showDialog) {
 		FormDialog(

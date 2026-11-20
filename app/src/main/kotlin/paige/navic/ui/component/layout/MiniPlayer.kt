@@ -49,15 +49,15 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.MiniPlayerProgressStyle
 import paige.navic.domain.model.settings.MiniPlayerStyle
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Note
-import paige.navic.ui.icons.filled.SkipNext
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Note
+import paige.navic.icons.filled.SkipNext
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.util.appendArtists
 import paige.navic.ui.util.playPauseIconPainter
@@ -131,7 +131,7 @@ fun MiniPlayer(
 ) {
 	val backStack = LocalNavStack.current
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	val song = playerState.currentSong
 	val isInteractive = enabled && song != null

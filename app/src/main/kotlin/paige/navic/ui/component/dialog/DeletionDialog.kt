@@ -33,11 +33,11 @@ import paige.navic.database.entity.SyncActionType
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.ui.SnackBarManager
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Delete
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Delete
 
 sealed interface DeletionTarget {
 	data class Playlist(val id: String) : DeletionTarget
@@ -72,12 +72,12 @@ class DeletionViewModel(
 					}
 
 					is DeletionTarget.Share -> {
-						sessionManager.api.deleteShare(target.id)
+						sessionManager.shares?.deleteShare(target.id)
 						R.string.notice_deleted_share
 					}
 
 					is DeletionTarget.Radio -> {
-						sessionManager.api.deleteInternetRadioStation(target.id)
+						sessionManager.radio?.deleteRadioStation(target.id)
 						R.string.notice_deleted_radio
 					}
 				}

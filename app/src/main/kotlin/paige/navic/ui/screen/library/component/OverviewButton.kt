@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.NavKey
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.di.LocalNavStack
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.theme.defaultFont
 
 fun LazyGridScope.libraryScreenOverviewButton(
 	icon: ImageVector,

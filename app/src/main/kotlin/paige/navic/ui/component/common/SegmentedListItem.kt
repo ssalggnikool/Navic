@@ -27,9 +27,40 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SegmentedListItem(
-	onClick: () -> Unit,
-	shapes: ListItemShapes,
 	modifier: Modifier = Modifier,
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1),
+	enabled: Boolean = true,
+	leadingContent: @Composable (() -> Unit)? = null,
+	trailingContent: @Composable (() -> Unit)? = null,
+	overlineContent: @Composable (() -> Unit)? = null,
+	supportingContent: @Composable (() -> Unit)? = null,
+	verticalAlignment: Alignment.Vertical = SegmentedListItemDefaults.verticalAlignment(),
+	colors: ListItemColors = SegmentedListItemDefaults.segmentedColors(),
+	elevation: ListItemElevation = ListItemDefaults.elevation(),
+	contentPadding: PaddingValues = SegmentedListItemDefaults.ContentPadding,
+	content: @Composable () -> Unit,
+) {
+	androidx.compose.material3.SegmentedListItem(
+		modifier = modifier,
+		shapes = shapes,
+		enabled = enabled,
+		leadingContent = leadingContent,
+		trailingContent = trailingContent,
+		overlineContent = overlineContent,
+		supportingContent = supportingContent,
+		verticalAlignment = verticalAlignment,
+		colors = colors,
+		elevation = elevation,
+		contentPadding = contentPadding,
+		content = content
+	)
+}
+
+@Composable
+fun SegmentedListItem(
+	modifier: Modifier = Modifier,
+	onClick: () -> Unit,
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1),
 	enabled: Boolean = true,
 	leadingContent: @Composable (() -> Unit)? = null,
 	trailingContent: @Composable (() -> Unit)? = null,
@@ -66,10 +97,10 @@ fun SegmentedListItem(
 
 @Composable
 fun SegmentedListItem(
+	modifier: Modifier = Modifier,
 	selected: Boolean,
 	onClick: () -> Unit,
-	shapes: ListItemShapes,
-	modifier: Modifier = Modifier,
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1),
 	enabled: Boolean = true,
 	leadingContent: @Composable (() -> Unit)? = null,
 	trailingContent: @Composable (() -> Unit)? = null,
@@ -200,6 +231,9 @@ object SegmentedListItemDefaults {
 		contentColor = MaterialTheme.colorScheme.error,
 		supportingContentColor = MaterialTheme.colorScheme.error
 	)
+
+	@Composable
+	fun segmentedShapes() = segmentedShapes(index = 0, count = 1)
 
 	@Composable
 	fun segmentedShapes(

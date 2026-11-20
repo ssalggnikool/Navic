@@ -27,7 +27,6 @@ import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 @Composable
 fun AlbumListScreenGridItem(
 	modifier: Modifier = Modifier,
-	tab: String,
 	album: DomainAlbum,
 	selected: Boolean,
 	starred: Boolean,
@@ -49,15 +48,13 @@ fun AlbumListScreenGridItem(
 		ArtGridItem(
 			onClick = dropUnlessResumed {
 				scope.launch {
-					backStack.add(Screen.CollectionDetail(album.id, tab))
+					backStack.add(Screen.CollectionDetail(album.id))
 				}
 			},
 			onLongClick = onSelect,
 			coverArtId = album.coverArtId,
 			title = album.name ?: "[unknown album]",
-			subtitle = album.artistName,
-			id = album.id,
-			tab = tab
+			subtitle = album.artistName
 		)
 		if (selected) {
 			CollectionSheet(

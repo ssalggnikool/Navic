@@ -20,7 +20,7 @@ import coil3.request.ImageResult
 import coil3.request.crossfade
 import coil3.serviceLoaderEnabled
 import coil3.size.Dimension
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.util.network.NavicDnsResolver
 import paige.navic.util.network.createHttpClientWithPreferences

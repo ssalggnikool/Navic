@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -25,14 +24,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.designsystem.theme.defaultFont
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.screen.stats.viewmodel.ArtistStats
-import paige.navic.ui.theme.defaultFont
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import paige.navic.util.toSummaryString
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TopArtistItem(
 	stats: ArtistStats,

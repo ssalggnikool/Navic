@@ -31,7 +31,9 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,13 +47,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.util.rememberDraggableListState
 import kotlin.math.round
 
 @Composable
 fun PlaybackSpeedScreen() {
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val lazyListState = rememberLazyListState()
 	val haptic = LocalHapticFeedback.current
 	val playerState by player.uiState.collectAsStateWithLifecycle()
@@ -62,6 +64,7 @@ fun PlaybackSpeedScreen() {
 	}
 
 	val selectedSpeed = playerState.playbackSpeed
+	val speedSliderState = rememberSliderState(value = selectedSpeed, trackRange = 0.5f..2.0f)
 	val playbackSpeeds = listOf(
 		1.0f,
 		1.25f,
@@ -69,6 +72,10 @@ fun PlaybackSpeedScreen() {
 		1.75f,
 		2.0f
 	)
+
+	LaunchedEffect(selectedSpeed) {
+		speedSliderState.value = selectedSpeed
+	}
 
 	LazyColumn(
 		modifier = Modifier
@@ -88,12 +95,12 @@ fun PlaybackSpeedScreen() {
 				verticalAlignment = Alignment.CenterVertically
 			) {
 				Slider(
-					value = selectedSpeed,
+					state = speedSliderState,
 					onValueChange = { newValue ->
 						val snappedValue = round(newValue * 100) / 100f
+						speedSliderState.value = snappedValue
 						player.setPlaybackSpeed(snappedValue)
 					},
-					valueRange = 0.5f..2.0f,
 					modifier = Modifier.weight(1f),
 					colors = SliderDefaults.colors(
 						thumbColor = MaterialTheme.colorScheme.primary,

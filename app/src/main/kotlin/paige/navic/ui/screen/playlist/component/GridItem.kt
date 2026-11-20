@@ -29,7 +29,6 @@ import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 @Composable
 fun PlaylistListScreenGridItem(
 	modifier: Modifier = Modifier,
-	tab: String,
 	playlist: DomainPlaylist,
 	selected: Boolean,
 	onPlayNext: () -> Unit,
@@ -48,11 +47,12 @@ fun PlaylistListScreenGridItem(
 		ArtGridItem(
 			onClick = dropUnlessResumed {
 				scope.launch {
-					backStack.add(Screen.CollectionDetail(playlist.id, tab))
+					backStack.add(Screen.CollectionDetail(playlist.id))
 				}
 			},
 			onLongClick = onSelect,
 			coverArtId = playlist.coverArtId,
+			coverVersion = playlist.modifiedAt.toEpochMilliseconds().toString(),
 			title = playlist.name ?: "[unknown playlist]",
 			subtitle = buildString {
 				append(
@@ -65,9 +65,7 @@ fun PlaylistListScreenGridItem(
 				playlist.comment?.let {
 					append("\n${playlist.comment}\n")
 				}
-			},
-			id = playlist.id,
-			tab = tab
+			}
 		)
 		if (selected) {
 			CollectionSheet(

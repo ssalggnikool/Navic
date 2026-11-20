@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Slider
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -24,6 +26,7 @@ fun SettingsSliderItem(
 	value: Float,
 	valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
 	onValueChange: (Float) -> Unit,
+	onValueChangeFinished: (() -> Unit)? = null,
 	steps: Int = 0,
 	enabled: Boolean = true,
 	shapes: ListItemShapes,
@@ -31,18 +34,25 @@ fun SettingsSliderItem(
 	trailingContent: @Composable () -> Unit,
 	content: @Composable () -> Unit
 ) {
+	val sliderState = rememberSliderState(value = value, steps = steps, trackRange = valueRange)
+
+	LaunchedEffect(value) {
+		sliderState.value = value
+	}
+
 	SegmentedListItem(
-		onClick = {},
 		enabled = enabled,
 		shapes = shapes,
 		contentPadding = contentPadding,
 		content = content,
 		supportingContent = {
 			Slider(
-				value = value,
-				valueRange = valueRange,
-				onValueChange = onValueChange,
-				steps = steps
+				state = sliderState,
+				onValueChange = {
+					sliderState.value = it
+					onValueChange(it)
+				},
+				onValueChangeFinished = onValueChangeFinished
 			)
 		},
 		trailingContent = {

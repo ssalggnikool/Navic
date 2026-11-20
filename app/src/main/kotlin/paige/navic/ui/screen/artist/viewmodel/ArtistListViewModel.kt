@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.LetterCount
 import paige.navic.database.mapper.toDomainModel
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.model.DomainArtist
@@ -26,7 +26,7 @@ import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.toBitmask
 import paige.navic.domain.model.toDomainFilters
 import paige.navic.domain.repository.ArtistRepository
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.viewmodel.SelectableViewModel
 
 
@@ -88,18 +88,18 @@ class ArtistListViewModel(
 		}
 	}
 
-	fun addArtistAlbumsToQueue(player: MediaPlayer) {
+	fun addArtistAlbumsToQueue(player: PlayerRepository) {
 		val artist = selected ?: return
 		viewModelScope.launch {
 			val artistAlbums =
 				albumDao.getAlbumsByArtist(artist.id).firstOrNull() ?: emptyList()
 			artistAlbums.map { it.toDomainModel() }.forEach { album ->
-				player.addToQueue(album)
+				player.appendQueue(album)
 			}
 		}
 	}
 
-	fun playArtistAlbumsNext(player: MediaPlayer) {
+	fun playArtistAlbumsNext(player: PlayerRepository) {
 		val artist = selected ?: return
 		launch {
 			val artistAlbums =

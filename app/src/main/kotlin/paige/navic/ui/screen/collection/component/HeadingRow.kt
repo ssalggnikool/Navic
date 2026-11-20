@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import paige.navic.R
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSharedTransitionScope
 import paige.navic.domain.model.DomainAlbum
@@ -34,20 +35,22 @@ import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.theme.defaultFont
 import paige.navic.ui.util.EmphasizedDecelerateEasing
 
 @Composable
 fun CollectionDetailScreenHeadingRow(
 	collection: DomainSongCollection,
-	tab: String,
 	titleAlpha: Float
 ) {
 	val backStack = LocalNavStack.current
-	val sharedTransitionKey = "${tab}-${collection.id}-cover"
+	val sharedTransitionKey = "${collection.id}-cover"
 	with(LocalSharedTransitionScope.current) {
 		CoverArt(
 			coverArtId = collection.coverArtId,
+			coverVersion = (collection as? DomainPlaylist)
+				?.modifiedAt
+				?.toEpochMilliseconds()
+				?.toString(),
 			contentDescription = collection.name,
 			modifier = Modifier
 				.widthIn(0.dp, 420.dp)

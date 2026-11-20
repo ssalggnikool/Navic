@@ -35,14 +35,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import paige.navic.R
 import paige.navic.database.entity.DownloadStatus
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Play
-import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.Download
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Shuffle
-import paige.navic.ui.theme.defaultFont
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Play
+import paige.navic.icons.outlined.Close
+import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.Download
+import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.Shuffle
+import paige.navic.designsystem.theme.defaultFont
 
 @Composable
 fun ArtistActionButtons(

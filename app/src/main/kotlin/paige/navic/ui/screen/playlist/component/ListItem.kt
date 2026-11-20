@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
@@ -57,6 +57,7 @@ fun PlaylistListScreenListItem(
 			leadingContent = {
 				CoverArt(
 					coverArtId = playlist.coverArtId,
+					coverVersion = playlist.modifiedAt.toEpochMilliseconds().toString(),
 					modifier = Modifier.size(50.dp),
 					shape = preferenceManager.coverArtShape.decreasedShape
 				)
@@ -81,7 +82,7 @@ fun PlaylistListScreenListItem(
 			},
 			onClick = dropUnlessResumed {
 				scope.launch {
-					backStack.add(Screen.CollectionDetail(playlist.id, ""))
+					backStack.add(Screen.CollectionDetail(playlist.id))
 				}
 			},
 			onLongClick = onSelect

@@ -39,17 +39,17 @@ import paige.navic.R
 import paige.navic.R.string.info_no_songs
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.layout.ArtGridPlaceholder
 import paige.navic.ui.component.layout.NestedTopBar
@@ -79,7 +79,7 @@ fun SongListScreen(
 		}
 	)
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val state by viewModel.uiState.collectAsStateWithLifecycle()
 	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
 	val downloadManager = koinInject<DownloadManager>()
@@ -238,7 +238,7 @@ fun SongListScreen(
 		}
 	}
 
-	ShareDialog(
+	ShareSheet(
 		id = shareId,
 		onDismissRequest = { shareId = null }
 	)

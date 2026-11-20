@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Navic, a Subsonic music streaming app for Android
+  ~ Copyright (c) 2026 paige
+  ~ SPDX-License-Identifier: GPL-3.0-only
+  -->
+
 <resources>
     <string name="title_library">Медіатека</string>
     <string name="title_settings">Налаштування</string>
@@ -12,7 +18,6 @@
     <string name="title_playback">Відтворення</string>
     <string name="title_data_storage">Дані та сховище</string>
     <string name="title_sync_control">Керування синхронізацією</string>
-    <string name="title_cache_management">Керування кешем</string>
     <string name="title_danger_zone">Небезпечна зона</string>
     <string name="title_developer">Параметри розробника</string>
     <string name="title_about">Про додаток</string>
@@ -377,7 +382,6 @@
     <string name="info_track_replay_gain">ReplayGain треку</string>
     <string name="info_album_replay_gain">ReplayGain альбому</string>
     <string name="info_dynamic_replay_gain">Динамічний ReplayGain</string>
-    <string name="info_track_replay_gain_effective">Фактичне значення ReplayGain</string>
     <string name="info_update">Випущено версію %1$s</string>
     <string name="info_shared_by">Надано користувачем %1$s</string>
     <string name="info_share_expires_in">Термін дії: ще %1$s</string>
@@ -497,7 +501,6 @@
     <string name="subtitle_confirm_download_deletion">Виберіть, коли запитувати підтвердження перед видаленням завантажень</string>
     <string name="subtitle_swipe_to_dismiss">Має бути увімкнено опцію «Приховувати під час бездіяльності»</string>
     <string name="option_swipe_to_dismiss">Закривати змахуванням</string>
-    <string name="option_streaming_cache">Кеш потокового відтворення</string>
     <string name="option_download_location">Розташування завантажень</string>
     <string name="option_download_storage_internal">Внутрішнє сховище</string>
     <string name="option_download_storage_external">SD-карта</string>
@@ -524,7 +527,7 @@
     <string name="info_delete_download_single">Ви дійсно хочете видалити завантажений файл для %1$s?</string>
     <string name="info_delete_download_collection">Ви дійсно хочете видалити завантажені пісні для %1$s?</string>
     <string name="info_delete_download_library">Ви дійсно хочете видалити всі завантажені пісні з пристрою?</string>
-    <string name="info_transcoding_unsupported">Ваш сервер не підтримує транскодування, тому ці параметри недоступні.</string>
+    <string name="info_transcode_streaming_unsupported">Ваш сервер не підтримує транскодування, тому ці параметри недоступні.</string>
     <string name="info_incorrect_instance_url_format">URL-адреса сервера не може бути порожньою</string>
     <string name="option_alternate_addresses">Альтернативні адреси</string>
     <string name="subtitle_alternative_addresses">Резервні адреси для підключення до музичного сервера</string>
@@ -537,7 +540,6 @@
     <string name="title_commit_author">Автор коміту</string>
     <string name="option_float_output">Точність виведення чисел з рухомою комою</string>
     <string name="subtitle_float_output">Експериментальна функція. Потребує перезапуску додатку. Якщо увімкнено, зміна швидкості відтворення не працюватиме</string>
-    <string name="title_storage_management">Керування сховищем</string>
     <string name="media_session_channel_name">Відтворення медіа</string>
     <string name="info_incorrect_credentials">Неправильні облікові дані. Перевірте їх та спробуйте ще раз.</string>
     <string name="title_integrations">Інтеграції</string>

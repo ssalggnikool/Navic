@@ -37,15 +37,15 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.playback.EqualizerManager
 import paige.navic.domain.model.settings.EqualizerMode
-import paige.navic.ui.component.common.SegmentedListItemDefaults
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Refresh
 import paige.navic.ui.component.common.VerticalSlider
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Refresh
 import paige.navic.ui.screen.settings.component.SettingsChoiceItem
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
+import paige.navic.ui.util.label
 
 @Composable
 fun SettingsEqualizerScreen() {
@@ -98,8 +98,7 @@ fun SettingsEqualizerScreen() {
 							}
 						},
 						content = { Text(stringResource(R.string.option_equalizer_mode)) },
-						label = { stringResource(it.displayName) },
-						shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+						label = { it.label() }
 					)
 				}
 

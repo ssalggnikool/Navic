@@ -8,7 +8,7 @@ package paige.navic.ui.screen.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.CoverArtHost
 import paige.navic.domain.model.settings.CoverArtProvidersConfig
 

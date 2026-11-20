@@ -6,8 +6,6 @@
 
 package paige.navic.domain.download
 
-import dev.zt64.subsonic.api.model.SubsonicException
-import dev.zt64.subsonic.api.model.SubsonicResponse
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.ServerResponseException
@@ -15,13 +13,11 @@ import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.prepareRequest
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.serialization.json.Json
 import paige.navic.database.dao.AlbumDao
 import paige.navic.database.dao.DownloadDao
 import paige.navic.database.dao.LyricDao
@@ -31,11 +27,11 @@ import paige.navic.database.entity.DownloadStatus
 import paige.navic.database.entity.LyricEntity
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.repository.LyricsRepository
+import paige.navic.preferences.PreferenceManager
 import paige.navic.util.Logger
 import paige.navic.util.network.NavicDnsResolver
 import paige.navic.util.network.createHttpClientWithPreferences
@@ -70,23 +66,9 @@ class DownloadProcessor(
 					}
 
 					val contentType = response.headers["content-type"]
-
-					if (contentType == ContentType.Application.Json.contentType) {
-						try {
-							val subsonicResponse =
-								Json.decodeFromString<SubsonicResponse<Any>>(response.bodyAsText())
-
-							if (subsonicResponse is SubsonicResponse.Error) {
-								throw SubsonicException(
-									subsonicResponse.error.message,
-									subsonicResponse.error.code
-								)
-							}
-						} catch (e: Exception) {
-							if (e is SubsonicException) throw e
-							// probably not our business, let something else handle the exception
-						}
-					}
+					sessionManager.api
+						.parseResponseError(contentType, response.bodyAsText())
+						?.let { throw it }
 				}
 			}
 		}
@@ -107,7 +89,7 @@ class DownloadProcessor(
 	private suspend fun resolveSong(songId: String): DomainSong {
 		songDao.getSongById(songId)?.let { return it.toDomainModel() }
 
-		val remote = sessionManager.api.getSong(songId).toEntity().toDomainModel()
+		val remote = sessionManager.api.getSong(songId)
 		songDao.insertSong(remote.toEntity())
 		return remote
 	}
@@ -171,11 +153,12 @@ class DownloadProcessor(
 		Logger.i("DownloadProcessor", "caching lyrics for $songId")
 		try {
 			val lyricsResult = lyricsRepository.fetchLyrics(songId)
-			if (lyricsResult?.rawContent != null) {
+			val rawContent = lyricsResult?.rawContent
+			if (rawContent != null) {
 				lyricDao.insertLyrics(
 					LyricEntity(
 						songId = songId,
-						rawContent = lyricsResult.rawContent,
+						rawContent = rawContent,
 						providerName = lyricsResult.providerName
 					)
 				)
@@ -216,12 +199,11 @@ class DownloadProcessor(
 		storageManager.deleteTempFile(finalPath)
 
 		val request = client.prepareRequest(
-			sessionManager.api.getStreamUrl(
+			sessionManager.api.getPlaybackStreamUrl(
 				id = song.id,
-				maxBitRate = bitrate,
+				bitrateKbps = bitrate,
 				format = container?.takeIf { it.isNotBlank() },
-				// if this is true u get "stream was reset: INTERNAL_ERROR" for some reason
-				estimateContentLength = false
+				skipTranscodeDecisions = true
 			)
 		) {
 			method = HttpMethod.Get

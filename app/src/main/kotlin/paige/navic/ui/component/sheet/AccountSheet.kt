@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -53,19 +54,24 @@ import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
 import paige.navic.domain.manager.session.LoginManager
 import paige.navic.domain.manager.session.SessionManager
-import paige.navic.domain.manager.session.SessionState
+import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.manager.session.canShare
+import paige.navic.domain.manager.session.getUser
+import paige.navic.domain.manager.session.supportsExtension
+import paige.navic.domain.server.ServerExtension
 import paige.navic.ui.component.common.Monogram
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Bedtime
-import paige.navic.ui.icons.outlined.Edit
-import paige.navic.ui.icons.outlined.Forum
-import paige.navic.ui.icons.outlined.Logout
-import paige.navic.ui.icons.outlined.Share
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Settings
+import paige.navic.icons.outlined.Bedtime
+import paige.navic.icons.outlined.Edit
+import paige.navic.icons.outlined.Forum
+import paige.navic.icons.outlined.Logout
+import paige.navic.icons.outlined.Refresh
+import paige.navic.icons.outlined.Share
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.theme.positive
+import paige.navic.designsystem.theme.positive
 import paige.navic.ui.util.label
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,8 +82,8 @@ fun AccountSheet(
 	val backStack = LocalNavStack.current
 	val loginManager = koinInject<LoginManager>()
 	val sessionManager = koinInject<SessionManager>()
-	val sessionState =
-		sessionManager.sessionState.collectAsStateWithLifecycle()
+	val syncManager = koinInject<SyncManager>()
+	val syncState by syncManager.syncState.collectAsStateWithLifecycle()
 
 	var sleepTimerSheetOpen by rememberSaveable { mutableStateOf(false) }
 	val sleepTimerManager = koinInject<SleepTimerManager>()
@@ -100,7 +106,6 @@ fun AccountSheet(
 			profilePictureUrl = null
 		}
 	}
-
 
 	val scope = rememberCoroutineScope()
 	val animateToDismiss = {
@@ -192,100 +197,171 @@ fun AccountSheet(
 				}
 			}
 
-			Spacer(Modifier.height(9.dp))
+			Spacer(Modifier.height(8.dp))
 
-			val isSharingAllowed =
-				(sessionState as? SessionState.Authenticated)?.currentUser?.canShare() == true
-			val count = if (isSharingAllowed) 4 else 3
+			Column(
+				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
+			) {
+				val isSharingAllowed = sessionManager.getUser()?.canShare() == true
+				val supportsChat = sessionManager.supportsExtension(ServerExtension.SUBSONIC_CHAT)
 
-			if (isSharingAllowed) {
+				var count = 1
+
+				if (isSharingAllowed) count++
+				if (supportsChat) count++
+
+				if (isSharingAllowed) {
+					SegmentedListItem(
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 0,
+							count = count
+						),
+						onClick = {
+							animateToDismiss()
+							backStack.add(Screen.ShareList)
+						},
+						leadingContent = { Icon(Icons.Outlined.Share, null) },
+						content = { Text(stringResource(R.string.action_view_shares)) }
+					)
+				}
+
+				if (supportsChat) {
+					SegmentedListItem(
+						shapes = SegmentedListItemDefaults.segmentedShapes(
+							index = 1,
+							count = count
+						),
+						onClick = {
+							animateToDismiss()
+							backStack.add(Screen.Chat)
+						},
+						leadingContent = { Icon(Icons.Outlined.Forum, null) },
+						content = { Text(stringResource(R.string.title_chat)) }
+					)
+				}
+
 				SegmentedListItem(
 					shapes = SegmentedListItemDefaults.segmentedShapes(
-						index = 0,
+						index = count - 1,
 						count = count
 					),
-					onClick = {
-						animateToDismiss()
-						backStack.add(Screen.ShareList)
+					onClick = { sleepTimerSheetOpen = true },
+					leadingContent = {
+						val tint = when (sleepTimerMode) {
+							!is SleepTimerMode.Disabled -> MaterialTheme.colorScheme.positive
+							else -> LocalContentColor.current
+						}
+						Icon(
+							imageVector = Icons.Outlined.Bedtime,
+							contentDescription = null,
+							tint = tint
+						)
 					},
-					leadingContent = { Icon(Icons.Outlined.Share, null) },
-					content = { Text(stringResource(R.string.action_view_shares)) }
+					content = {
+						val label = when (val mode = sleepTimerMode) {
+							is SleepTimerMode.Time -> stringResource(
+								R.string.action_sleep_timer_enabled,
+								sleepTimerManager.timeLeft?.label() ?: ""
+							)
+
+							is SleepTimerMode.Songs -> stringResource(
+								R.string.action_sleep_timer_songs_enabled,
+								mode.remaining
+							)
+
+							is SleepTimerMode.EndOfQueue -> stringResource(
+								R.string.action_sleep_timer_queue_enabled
+							)
+
+							else -> stringResource(R.string.action_sleep_timer)
+						}
+						val color = when (sleepTimerMode) {
+							!is SleepTimerMode.Disabled -> MaterialTheme.colorScheme.positive
+							else -> LocalContentColor.current
+						}
+						Text(
+							text = label,
+							color = color
+						)
+					}
 				)
 			}
 
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 3,
-					count = count
-				),
-				onClick = {
-					animateToDismiss()
-					backStack.add(Screen.Chat)
-				},
-				leadingContent = { Icon(Icons.Outlined.Forum, null) },
-				content = { Text(stringResource(R.string.title_chat)) }
-			)
+			Spacer(Modifier.height(4.dp))
 
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 2,
-					count = count
-				),
-				onClick = { sleepTimerSheetOpen = true },
-				leadingContent = {
-					val tint = when (sleepTimerMode) {
-						!is SleepTimerMode.Disabled -> MaterialTheme.colorScheme.positive
-						else -> LocalContentColor.current
+			Column(
+				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
+			) {
+				SegmentedListItem(
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = 0,
+						count = 3
+					),
+					onClick = {
+						if (!syncState.isSyncing) {
+							syncManager.triggerManualSync()
+						} else {
+							syncManager.stopPeriodicSync()
+						}
+					},
+					leadingContent = {
+						if (!syncState.isSyncing) {
+							Icon(Icons.Outlined.Refresh, null)
+						} else {
+							CircularProgressIndicator(
+								progress = { syncState.progress },
+								modifier = Modifier.size(24.dp),
+								color = MaterialTheme.colorScheme.secondary,
+								trackColor = MaterialTheme.colorScheme.surfaceVariant,
+							)
+						}
+					},
+					content = {
+						val label = if (syncState.isSyncing) {
+							stringResource(syncState.message)
+						} else {
+							stringResource(R.string.action_trigger_sync)
+						}
+
+						Text(label)
 					}
-					Icon(
-						imageVector = Icons.Outlined.Bedtime,
-						contentDescription = null,
-						tint = tint
-					)
-				},
-				content = {
-					val label = when (val mode = sleepTimerMode) {
-						is SleepTimerMode.Time -> stringResource(
-							R.string.action_sleep_timer_enabled,
-							sleepTimerManager.timeLeft?.label() ?: ""
+				)
+
+				SegmentedListItem(
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = 1,
+						count = 3
+					),
+					onClick = {
+						animateToDismiss()
+						backStack.add(Screen.Settings.Root)
+					},
+					leadingContent = { Icon(Icons.Filled.Settings, null) },
+					content = { Text(stringResource(R.string.title_settings)) }
+				)
+
+				SegmentedListItem(
+					shapes = SegmentedListItemDefaults.segmentedShapes(
+						index = 2,
+						count = 3
+					),
+					onClick = {
+						animateToDismiss()
+						loginManager.logout()
+						backStack.clear()
+						backStack.add(Screen.Login)
+					},
+					colors = SegmentedListItemDefaults.segmentedErrorColors(),
+					leadingContent = {
+						Icon(
+							imageVector = Icons.Outlined.Logout,
+							contentDescription = null,
+							tint = MaterialTheme.colorScheme.error
 						)
-
-						is SleepTimerMode.Songs -> stringResource(
-							R.string.action_sleep_timer_songs_enabled,
-							mode.remaining
-						)
-
-						is SleepTimerMode.EndOfQueue -> stringResource(
-							R.string.action_sleep_timer_queue_enabled
-						)
-
-						else -> stringResource(R.string.action_sleep_timer)
-					}
-					val color = when (sleepTimerMode) {
-						!is SleepTimerMode.Disabled -> MaterialTheme.colorScheme.positive
-						else -> LocalContentColor.current
-					}
-					Text(
-						text = label,
-						color = color
-					)
-				}
-			)
-
-			SegmentedListItem(
-				shapes = SegmentedListItemDefaults.segmentedShapes(
-					index = count - 1,
-					count = count
-				),
-				onClick = {
-					animateToDismiss()
-					loginManager.logout()
-					backStack.clear()
-					backStack.add(Screen.Login)
-				},
-				leadingContent = { Icon(Icons.Outlined.Logout, null) },
-				content = { Text(stringResource(R.string.action_log_out)) }
-			)
+					},
+					content = { Text(stringResource(R.string.action_log_out)) }
+				)
+			}
 		}
 	}
 

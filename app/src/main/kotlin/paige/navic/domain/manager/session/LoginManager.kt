@@ -6,14 +6,15 @@
 
 package paige.navic.domain.manager.session
 
-import android.content.Context
-import androidx.annotation.StringRes
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import dev.zt64.subsonic.api.model.SubsonicErrorCode
-import dev.zt64.subsonic.api.model.SubsonicException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,56 +22,64 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import paige.navic.R
-import paige.navic.domain.manager.runtime.NotificationIds
-import paige.navic.domain.manager.runtime.NotificationManager
 import paige.navic.domain.repository.DbRepository
+import paige.navic.domain.server.AuthMethod
+import paige.navic.domain.server.InvalidCredentialsException
+import paige.navic.domain.server.jellyfin.JellyfinMusicServerFactory
 import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
 import paige.navic.ui.core.LoginFormState
-import paige.navic.ui.core.LoginUiState
 import paige.navic.ui.util.AddressUtil
+import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(FlowPreview::class)
 class LoginManager(
 	private val repository: DbRepository,
 	private val sessionManager: SessionManager,
 	private val syncManager: SyncManager,
 	private val syncCoordinator: SyncCoordinator,
-	private val notificationManager: NotificationManager,
 	private val downloadManager: DownloadManager,
-	private val context: Context
+	private val jellyfinFactory: JellyfinMusicServerFactory
 ) {
 	val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 	private val mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
-
-	val loginState: StateFlow<LoginUiState>
-		field = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
 
 	val instanceState = TextFieldState()
 	val usernameState = TextFieldState()
 	val passwordState = TextFieldState()
 
+	var authMethod by mutableStateOf(AuthMethod.Token)
+
+	var supportsApiKeyAuthentication by mutableStateOf(false)
+		private set
+
+	fun selectAuthMethod(method: AuthMethod) {
+		if (authMethod != method) {
+			passwordState.clearText()
+		}
+		authMethod = method
+	}
+
 	private val validationShown = MutableStateFlow(false)
 
 	val formState: StateFlow<LoginFormState> = combine(
-		snapshotFlow {
-			Triple(
-				instanceState.text.isBlank(),
-				usernameState.text.isBlank(),
-				passwordState.text.isBlank()
-			)
-		},
+		snapshotFlow { instanceState.text.isBlank() },
+		snapshotFlow { usernameState.text.isBlank() },
+		snapshotFlow { passwordState.text.isBlank() },
+		snapshotFlow { authMethod },
 		validationShown
-	) { (instanceBlank, usernameBlank, passwordBlank), shown ->
+	) { instanceBlank, usernameBlank, secretBlank, method, shown ->
 		LoginFormState(
 			instanceError = shown && instanceBlank,
-			usernameError = shown && usernameBlank,
-			passwordError = shown && passwordBlank
+			usernameError = shown && (method == AuthMethod.Token || method == AuthMethod.Jellyfin) && usernameBlank,
+			passwordError = shown && secretBlank
 		)
 	}.stateIn(
 		scope = mainScope,
@@ -78,27 +87,64 @@ class LoginManager(
 		initialValue = LoginFormState()
 	)
 
+	init {
+		mainScope.launch {
+			snapshotFlow { instanceState.text.toString() }
+				.debounce(800.milliseconds)
+				.collectLatest { raw ->
+					val supported = raw.isNotBlank() && runCatching {
+						sessionManager.supportsApiKeyAuthentication(normalizeUrl(raw))
+					}.getOrDefault(false)
+
+					supportsApiKeyAuthentication = supported
+
+					if (!supported && authMethod == AuthMethod.ApiKey) {
+						authMethod = AuthMethod.Token
+						passwordState.clearText()
+					}
+				}
+		}
+	}
+
 	private val _events = MutableSharedFlow<LoginEvent>(extraBufferCapacity = 1)
 	val events: SharedFlow<LoginEvent> = _events.asSharedFlow()
+
+	private fun normalizeUrl(url: String): String {
+		val trimmed = url.trim().removeSuffix("/")
+		return if (trimmed.startsWith("https://") || trimmed.startsWith("http://")) {
+			trimmed
+		} else {
+			"https://$trimmed"
+		}
+	}
 
 	suspend fun isLocalNetworkInstance(): Boolean {
 		val host = AddressUtil.extractHostFromUri(instanceState.text.toString())
 			?: return false
 
-		return withContext(Dispatchers.IO) { AddressUtil.isAddressLocal(host) }
+		return try {
+			withContext(Dispatchers.IO) {
+				AddressUtil.isAddressLocal(host)
+			}
+		} catch (_: Exception) {
+			false
+		}
 	}
 
 	fun login() {
 		validationShown.value = true
 
+		val method = authMethod
 		val url = instanceState.text.toString().trim().removeSuffix("/")
 		val username = usernameState.text.toString()
-		val password = passwordState.text.toString()
+		val secret = passwordState.text.toString().let {
+			if (method == AuthMethod.ApiKey) it.trim() else it
+		}
 
 		val invalidField = when {
 			url.isBlank() -> LoginField.Instance
-			username.isBlank() -> LoginField.Username
-			password.isBlank() -> LoginField.Password
+			(method == AuthMethod.Token || method == AuthMethod.Jellyfin) && username.isBlank() -> LoginField.Username
+			secret.isBlank() -> LoginField.Password
 			else -> null
 		}
 
@@ -108,68 +154,36 @@ class LoginManager(
 		}
 
 		scope.launch {
-			loginState.value = LoginUiState.Loading
+			val normalizedUrl = normalizeUrl(url)
 
 			try {
-				val normalizedUrl = if (url.startsWith("https://") || url.startsWith("http://")) {
-					url
-				} else {
-					"https://$url"
-				}
-
-				try {
-					sessionManager.login(normalizedUrl, username, password)
-				} catch (e: SubsonicException) {
-					if (e.code != SubsonicErrorCode.WRONG_USERNAME_OR_PASSWORD) {
-						throw e
+				_events.tryEmit(LoginEvent.Loading)
+				when (method) {
+					AuthMethod.Token -> {
+						sessionManager.login(normalizedUrl, username, secret)
 					}
-					loginState.value = LoginUiState.Idle
-					_events.tryEmit(LoginEvent.InvalidCredentials)
-					return@launch
-				}
-
-				syncManager.startPeriodicSync(syncImmediately = false)
-
-				val result = try {
-					syncCoordinator.run(force = true) { progress, message ->
-						loginState.value = LoginUiState.Syncing(progress, message)
-
-						notificationManager.showProgressNotification(
-							id = NotificationIds.SYNC_LIBRARY,
-							title = contextTitle(progress),
-							message = contextString(message),
-							progress = progress,
-							indeterminate = progress <= 0f
-						)
+					AuthMethod.ApiKey -> {
+						sessionManager.login(normalizedUrl, secret)
 					}
-				} finally {
-					notificationManager.cancelNotification(NotificationIds.SYNC_LIBRARY)
+					AuthMethod.Jellyfin -> {
+						val creds = jellyfinFactory.authenticate(normalizedUrl, username, secret)
+						sessionManager.loginJellyfin(normalizedUrl, creds)
+					}
 				}
-
-				result.onSuccess {
-					loginState.value = LoginUiState.Success
-					_events.tryEmit(LoginEvent.Success)
-				}.onFailure { e ->
-					loginState.value = LoginUiState.Error(e as? Exception ?: Exception(e))
-				}
-
+			} catch (_: InvalidCredentialsException) {
+				_events.tryEmit(LoginEvent.InvalidCredentials)
+				return@launch
 			} catch (e: Exception) {
-				loginState.value = LoginUiState.Error(e)
+				_events.tryEmit(LoginEvent.Error(e))
+				return@launch
 			}
+
+			syncManager.triggerManualSync()
+			_events.tryEmit(LoginEvent.Success)
 		}
 	}
 
-	private fun contextTitle(progress: Float): String {
-		val title = context.getString(R.string.title_sync_control)
-		return "$title (${(progress * 100).toInt()}%)"
-	}
-
-	private fun contextString(@StringRes id: Int): String {
-		return context.getString(id)
-	}
-
 	fun logout() {
-		loginState.value = LoginUiState.Idle
 		syncManager.stopPeriodicSync()
 		downloadManager.cancelAllActiveDownloads()
 		sessionManager.logout()

@@ -31,7 +31,7 @@ class Application : android.app.Application(), KoinComponent {
 		Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
 			try {
 				val intent = Intent(this, CrashActivity::class.java).apply {
-					putExtra("stacktrace", Log.getStackTraceString(throwable))
+					putExtra("stacktrace", throwable.stackTraceToString())
 					flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 				}
 				startActivity(intent)

@@ -43,10 +43,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.SkipNext
-import paige.navic.ui.icons.filled.SkipPrevious
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.SkipNext
+import paige.navic.icons.filled.SkipPrevious
+import paige.navic.preferences.PreferenceManager
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -54,6 +54,7 @@ import kotlin.math.roundToInt
 fun Swiper(
 	onSwipeLeft: () -> Unit,
 	onSwipeRight: () -> Unit,
+	onSwipeUp: () -> Unit,
 	onSwipeDown: () -> Unit,
 	swipeLeftAccessibilityLabel: String,
 	swipeRightAccessibilityLabel: String,
@@ -104,6 +105,9 @@ fun Swiper(
 			if (offsetY.value > swipeThresholdY) {
 				offsetY.animateTo(offsetY.value * 5)
 				onSwipeDown()
+			} else if (offsetY.value < -swipeThresholdY) {
+				onSwipeUp()
+				offsetY.animateTo(0f)
 			} else {
 				offsetY.animateTo(0f)
 			}
@@ -164,7 +168,7 @@ fun Swiper(
 					orientation = Orientation.Vertical,
 					state = rememberDraggableState { delta ->
 						coroutineScope.launch {
-							offsetY.snapTo((offsetY.value + delta).coerceAtLeast(0f))
+							offsetY.snapTo(offsetY.value + delta)
 						}
 					},
 					onDragStopped = { handleSwipeYRelease() }

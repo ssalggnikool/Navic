@@ -16,8 +16,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import kotlin.math.abs
 
 @Composable
@@ -48,7 +48,7 @@ fun AlphabeticalScroller(
 	val scope = rememberCoroutineScope()
 	val offsets = remember { mutableStateMapOf<Int, Float>() }
 
-	var lastSelectedIndex by remember { mutableStateOf(-1) }
+	var lastSelectedIndex by remember { mutableIntStateOf(-1) }
 
 	fun updateSelection(yCoordinate: Float) {
 		val closestEntry = offsets.entries

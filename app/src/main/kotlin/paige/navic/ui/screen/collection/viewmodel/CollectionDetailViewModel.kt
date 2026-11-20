@@ -18,13 +18,13 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import paige.navic.R
-import paige.navic.database.mapper.toDomainModel
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SessionState
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
+import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.repository.AlbumRepository
@@ -34,6 +34,7 @@ import paige.navic.ui.viewmodel.AsyncViewModel
 
 data class CollectionViewState(
 	val collection: DomainSongCollection? = null,
+	val isCoverAbsent: Boolean = false,
 	val starred: Boolean = false,
 	val rating: Int = 0,
 	val albumInfo: DomainAlbumInfo? = null,
@@ -88,12 +89,17 @@ class CollectionDetailViewModel(
 
 	fun refreshCollection(fullRefresh: Boolean) = launch {
 		val collection = repository.getCollection(fullRefresh, collectionId)
+		val isCoverAbsent = runCatching {
+			sessionManager.playlistCovers?.isImageAbsent(playlistId = collectionId)
+		}.getOrNull() ?: false
+
 		val state = if (collection is DomainAlbum) {
 			CollectionViewState(
 				collection = collection,
+				isCoverAbsent,
 				starred = albumRepository.isAlbumStarred(collection.id),
 				rating = albumRepository.getAlbumRating(collection.id),
-				albumInfo = repository.getAlbumInfo(collectionId).toDomainModel()
+				albumInfo = repository.getAlbumInfo(collectionId)
 			)
 		} else {
 			CollectionViewState(collection = collection)
@@ -116,6 +122,36 @@ class CollectionDetailViewModel(
 
 	fun clearSelection() = updateData {
 		it.copy(selectedSong = null, selectedAlbum = null)
+	}
+
+	fun uploadPlaylistCover(bytes: ByteArray) {
+		val playlist = data?.collection as? DomainPlaylist ?: return
+		launch {
+			runCatching {
+				sessionManager.playlistCovers?.uploadPlaylistCover(playlist.id, bytes)
+					?: error("Playlist cover upload is not supported")
+			}.onSuccess {
+				snackBarManager.notify(R.string.notice_cover_uploaded)
+				refreshCollection(true)
+			}.onFailure {
+				snackBarManager.notify(R.string.notice_cover_upload_failed)
+			}
+		}
+	}
+
+	fun removePlaylistCover() {
+		val playlist = data?.collection as? DomainPlaylist ?: return
+		launch {
+			runCatching {
+				sessionManager.playlistCovers?.removePlaylistCover(playlist.id)
+					?: error("Playlist cover removal is not supported")
+			}.onSuccess {
+				snackBarManager.notify(R.string.notice_cover_removed)
+				refreshCollection(true)
+			}.onFailure {
+				snackBarManager.notify(R.string.notice_cover_removal_failed)
+			}
+		}
 	}
 
 	fun removeFromPlaylist() {

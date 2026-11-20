@@ -44,11 +44,11 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Bedtime
+import paige.navic.icons.outlined.Queue
+import paige.navic.icons.outlined.QueuePlayNext
 import paige.navic.ui.component.common.OptionCard
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Bedtime
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.ui.icons.outlined.QueuePlayNext
 import paige.navic.ui.util.label
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes

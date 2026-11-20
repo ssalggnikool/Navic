@@ -26,7 +26,7 @@ class ArtistRepository(
 	private val syncManager: SyncManager,
 	private val dbRepository: DbRepository
 ) {
-	private suspend fun getLocalData(
+	private fun getLocalData(
 		listType: DomainArtistListType,
 		filters: Set<DomainFilter> = emptySet(),
 		reversed: Boolean = false,

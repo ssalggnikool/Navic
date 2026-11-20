@@ -6,6 +6,9 @@
 
 package paige.navic.ui.screen.collection
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -31,9 +34,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,23 +48,29 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.materialkolor.dynamiccolor.ColorSpec
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.R.string.title_more_by_artist
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Album
+import paige.navic.playback.PlayerRepository
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.ContentUnavailable
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -67,8 +78,6 @@ import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.sheet.CollectionSheet
 import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Album
 import paige.navic.ui.navigation.Screen.ArtistDetail
 import paige.navic.ui.navigation.Screen.CollectionDetail
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenFooterRow
@@ -79,14 +88,12 @@ import paige.navic.ui.screen.collection.component.CollectionDetailScreenSongRowD
 import paige.navic.ui.screen.collection.component.CollectionDetailScreenTopBar
 import paige.navic.ui.screen.collection.viewmodel.CollectionDetailViewModel
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
-import paige.navic.ui.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 import paige.navic.ui.util.withoutTop
 
 @Composable
 fun CollectionDetailScreen(
-	collectionId: String,
-	tab: String
+	collectionId: String
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 
@@ -95,7 +102,7 @@ fun CollectionDetailScreen(
 		parameters = { parametersOf(collectionId) }
 	)
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -106,6 +113,22 @@ fun CollectionDetailScreen(
 	val isReachable by viewModel.isReachable.collectAsStateWithLifecycle()
 
 	var shareId by remember { mutableStateOf<String?>(null) }
+
+	val context = LocalContext.current
+	val scope = rememberCoroutineScope()
+	val coverPicker = rememberLauncherForActivityResult(
+		ActivityResultContracts.PickVisualMedia()
+	) { uri ->
+		if (uri == null) return@rememberLauncherForActivityResult
+		scope.launch {
+			val bytes = runCatching {
+				withContext(Dispatchers.IO) {
+					context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+				}
+			}.getOrNull() ?: return@launch
+			viewModel.uploadPlaylistCover(bytes)
+		}
+	}
 
 	val otherAlbums by viewModel.otherAlbums.collectAsStateWithLifecycle()
 	val downloadManager = koinInject<DownloadManager>()
@@ -147,8 +170,14 @@ fun CollectionDetailScreen(
 					collection = collection,
 					titleAlpha = titleAlpha,
 					onSetShareId = { shareId = it },
+					onUploadCover = {
+						coverPicker.launch(
+							PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+						)
+					},
+					onRemoveCover = viewModel::removePlaylistCover,
 					onPlayNext = { if (collection != null) player.playNext(collection) },
-					onAddToQueue = { if (collection != null) player.addToQueue(collection) },
+					onAddToQueue = { if (collection != null) player.appendQueue(collection) },
 					rating = state.data?.rating,
 					onSetRating = if (collection !is DomainPlaylist) {
 						{ viewModel.rateAlbum(it) }
@@ -191,7 +220,6 @@ fun CollectionDetailScreen(
 					item {
 						CollectionDetailScreenHeadingRow(
 							collection = collection,
-							tab = tab,
 							titleAlpha = 1f - titleAlpha
 						)
 					}
@@ -397,7 +425,7 @@ fun CollectionDetailScreen(
 										viewModel.selectAlbum(album)
 									},
 									onClick = dropUnlessResumed {
-										backStack.add(CollectionDetail(album.id, tab = tab))
+										backStack.add(CollectionDetail(album.id))
 									}
 								)
 								if (selectedAlbum != null && selectedAlbum == album) {
@@ -410,7 +438,7 @@ fun CollectionDetailScreen(
 											shareId = album.id
 										},
 										onPlayNext = { player.playNext(selectedAlbum as DomainSongCollection) },
-										onAddToQueue = { player.addToQueue(selectedAlbum as DomainSongCollection) },
+										onAddToQueue = { player.appendQueue(selectedAlbum as DomainSongCollection) },
 										onAddAllToPlaylist = { albumToAddToPlaylist = album },
 										onViewArtist = dropUnlessResumed {
 											backStack.add(
@@ -422,7 +450,8 @@ fun CollectionDetailScreen(
 										starred = isStarred,
 										onSetStarred = {
 											viewModel.starSelectedAlbum(!isStarred)
-										}
+										},
+										isImageAbsent = state.data?.isCoverAbsent ?: false
 									)
 								}
 							}
@@ -446,7 +475,7 @@ fun CollectionDetailScreen(
 			onClearError = { viewModel.clearError() }
 		)
 
-		ShareDialog(
+		ShareSheet(
 			id = shareId,
 			onDismissRequest = {
 				shareId = null

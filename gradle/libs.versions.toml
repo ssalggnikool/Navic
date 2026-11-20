@@ -1,17 +1,17 @@
 [versions]
-agp = "9.4.1"
-android-compileSdk = "37"
-android-compileSdkMinor = "2"
+agp = "9.5.1"
+android-sdk = "37.2"
 android-minSdk = "24"
 android-targetSdk = "37"
 kotlin = "2.4.21"
 
 # Androidx
 androidx-activity = "1.13.0"
+androidx-appcompat = "1.8.0"
 androidx-lifecycle = "2.11.0"
 androidx-datastore = "1.3.0"
 androidx-room3 = "3.0.3"
-androidx-navigation3 = "1.2.0"
+androidx-navigation3 = "1.2.1"
 androidx-media3 = "1.11.1"
 androidx-glance = "1.3.0-alpha02"
 androidx-work = "2.12.0"
@@ -26,11 +26,13 @@ material3-adaptive = "1.3.0-alpha04"
 kmpalette = "3.1.0"
 
 # Networking
-ktor = "3.6.0"
+ktor = "3.6.1"
 coil = "3.6.3"
+jellyfin-sdk = "1.9.4"
 
 # Misc
 koin = "4.2.2"
+kotlinxCoroutines = "1.11.0"
 mimeTypes = "2.0.0"
 pagingCommon = "3.5.3"
 recyclerview = "1.4.0"
@@ -49,28 +51,35 @@ compose-material3-windowSize = { module = "androidx.compose.material3:material3-
 # Androidx
 androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingCommon" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidx-lifecycle" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore" }
 androidx-animation-graphics = { group = "androidx.compose.animation", name = "animation-graphics", version = "1.12.1" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version = "2.7.1" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "androidx-room3" }
 androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "androidx-room3" }
+androidx-room3-paging = { group = "androidx.room3", name = "room3-paging", version.ref = "androidx-room3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "androidx-navigation3" }
+androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "androidx-media3" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "androidx-media3" }
 androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "androidx-media3" }
 androidx-media3-datasource-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "androidx-media3" }
 androidx-media3-decoder-ffmpeg = { module = "androidx.media3:media3-decoder-ffmpeg", version.ref = "androidx-media3" }
 androidx-annotation = { module = "androidx.annotation:annotation", version = "1.11.0" }
+androidx-annotation-experimental = { module = "androidx.annotation:annotation-experimental", version = "1.6.0" }
 androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "androidx-glance" }
 androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "androidx-glance" }
 androidx-browser = { module = "androidx.browser:browser", version = "1.10.0" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
 
 # Kotlinx
-cryptohash = { module = "com.appmattus.crypto:cryptohash", version = "1.0.2" }
+cryptohash = { module = "com.appmattus.crypto:cryptohash", version = "1.0.2" } # R8 fails to minify this on 2.0.0 for some reason, might kang the xxhash stuff latter
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.8.0" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.12.0" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.13.0" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version = "0.5.2" }
 
 # Networking
@@ -97,13 +106,22 @@ koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager", version.ref = "koin" }
 subsonicKotlin = { module = "dev.zt64.subsonic:subsonic-client", version = "1.0.0-beta08-SNAPSHOT" }
+jellyfin-core = { module = "org.jellyfin.sdk:jellyfin-core", version.ref = "jellyfin-sdk" }
+jellyfin-model = { module = "org.jellyfin.sdk:jellyfin-model", version.ref = "jellyfin-sdk" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version = "2.1.5" }
-antisocialcord = { module = "com.github.Nightdavisao:antisocialcord-kt", version = "master-SNAPSHOT" }
-androidx-room3-paging = { group = "androidx.room3", name = "room3-paging", version.ref = "androidx-room3" }
+antisocialcord = { module = "com.github.Nightdavisao:antisocialcord-kt", version = "c99fbe1" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "2.3.9" }
+ksp = { id = "com.google.devtools.ksp", version = "2.3.14" }
 androidx-room3 = { id = "androidx.room3", version.ref = "androidx-room3" }
+
+# Convention Plugins
+navic-application = { id = "navic.application" }
+navic-application-compose = { id = "navic.application.compose" }
+navic-library = { id = "navic.library" }
+navic-library-compose = { id = "navic.library.compose" }
+navic-feature = { id = "navic.feature" } # for the future

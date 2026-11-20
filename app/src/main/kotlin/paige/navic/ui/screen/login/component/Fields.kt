@@ -6,8 +6,11 @@
 
 package paige.navic.ui.screen.login.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.KeyboardActionHandler
@@ -15,6 +18,9 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,6 +34,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import paige.navic.R
+import paige.navic.domain.server.AuthMethod
 
 @Composable
 fun LoginScreenFields(
@@ -35,6 +42,9 @@ fun LoginScreenFields(
 	instanceState: TextFieldState,
 	instanceError: Boolean,
 	instanceFocusRequester: FocusRequester,
+	authMethod: AuthMethod,
+	supportsApiKeyAuthentication: Boolean,
+	onAuthMethodChange: (AuthMethod) -> Unit,
 	usernameState: TextFieldState,
 	usernameError: Boolean,
 	usernameFocusRequester: FocusRequester,
@@ -43,75 +53,122 @@ fun LoginScreenFields(
 	passwordFocusRequester: FocusRequester,
 	onLogin: () -> Unit
 ) {
-	OutlinedTextField(
-		modifier = Modifier
-			.heightIn(min = 60.dp)
-			.padding(horizontal = 16.dp)
-			.fillMaxWidth()
-			.focusRequester(instanceFocusRequester),
-		state = instanceState,
-		isError = instanceError,
-		label = { Text(stringResource(R.string.option_account_instance)) },
-		lineLimits = TextFieldLineLimits.SingleLine,
-		enabled = !isBusy,
-		keyboardOptions = KeyboardOptions(
-			autoCorrectEnabled = false,
-			keyboardType = KeyboardType.Uri,
-			imeAction = ImeAction.Next,
-			showKeyboardOnFocus = true
-		),
-		onKeyboardAction = KeyboardActionHandler {
-			usernameFocusRequester.requestFocus()
+	Column(
+		verticalArrangement = Arrangement.spacedBy(8.dp)
+	) {
+		OutlinedTextField(
+			modifier = Modifier
+				.height(70.dp)
+				.padding(horizontal = 16.dp)
+				.fillMaxWidth()
+				.focusRequester(instanceFocusRequester),
+			state = instanceState,
+			isError = instanceError,
+			label = { Text(stringResource(R.string.option_account_instance)) },
+			lineLimits = TextFieldLineLimits.SingleLine,
+			enabled = !isBusy,
+			keyboardOptions = KeyboardOptions(
+				autoCorrectEnabled = false,
+				keyboardType = KeyboardType.Uri,
+				imeAction = ImeAction.Next,
+				showKeyboardOnFocus = true
+			),
+			onKeyboardAction = KeyboardActionHandler {
+				if (authMethod == AuthMethod.Token || authMethod == AuthMethod.Jellyfin) {
+					usernameFocusRequester.requestFocus()
+				} else {
+					passwordFocusRequester.requestFocus()
+				}
+			}
+		)
+
+		LoginScreenSuggestionChips(instanceState = instanceState)
+
+		AnimatedVisibility(
+			visible = authMethod != AuthMethod.Jellyfin && supportsApiKeyAuthentication
+		) {
+			SingleChoiceSegmentedButtonRow(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(horizontal = 16.dp)
+			) {
+				val methods = listOf(AuthMethod.Token, AuthMethod.ApiKey)
+				methods.forEachIndexed { index, method ->
+					SegmentedButton(
+						shape = SegmentedButtonDefaults.itemShape(
+							index = index,
+							count = methods.size
+						),
+						onClick = { onAuthMethodChange(method) },
+						selected = authMethod == method,
+						enabled = !isBusy,
+						label = {
+							val label = when (method) {
+								AuthMethod.Token -> stringResource(R.string.option_account_subsonic)
+								AuthMethod.ApiKey -> stringResource(R.string.option_account_api_key)
+								AuthMethod.Jellyfin -> stringResource(R.string.option_account_jellyfin)
+							}
+							Text(label)
+						}
+					)
+				}
+			}
 		}
-	)
 
-	LoginScreenSuggestionChips(instanceState = instanceState)
+		if (authMethod == AuthMethod.Token || authMethod == AuthMethod.Jellyfin) {
+			OutlinedTextField(
+				modifier = Modifier
+					.height(70.dp)
+					.padding(horizontal = 16.dp)
+					.fillMaxWidth()
+					.focusRequester(usernameFocusRequester)
+					.semantics {
+						contentType = ContentType.Username
+					},
+				state = usernameState,
+				isError = usernameError,
+				label = { Text(stringResource(R.string.option_account_username)) },
+				lineLimits = TextFieldLineLimits.SingleLine,
+				enabled = !isBusy,
+				keyboardOptions = KeyboardOptions(
+					autoCorrectEnabled = false,
+					imeAction = ImeAction.Next,
+					showKeyboardOnFocus = true
+				),
+				onKeyboardAction = KeyboardActionHandler {
+					passwordFocusRequester.requestFocus()
+				}
+			)
+		}
 
-	OutlinedTextField(
-		modifier = Modifier
-			.heightIn(min = 60.dp)
-			.padding(horizontal = 16.dp)
-			.fillMaxWidth()
-			.focusRequester(usernameFocusRequester)
-			.semantics {
-				contentType = ContentType.Username
+		OutlinedSecureTextField(
+			modifier = Modifier
+				.height(70.dp)
+				.padding(horizontal = 16.dp)
+				.fillMaxWidth()
+				.focusRequester(passwordFocusRequester)
+				.semantics {
+					contentType = ContentType.Password
+				},
+			state = passwordState,
+			isError = passwordError,
+			label = {
+				val label = when (authMethod) {
+					AuthMethod.ApiKey -> stringResource(R.string.option_account_api_key)
+					else -> stringResource(R.string.option_account_password)
+				}
+				Text(label)
 			},
-		state = usernameState,
-		isError = usernameError,
-		label = { Text(stringResource(R.string.option_account_username)) },
-		lineLimits = TextFieldLineLimits.SingleLine,
-		enabled = !isBusy,
-		keyboardOptions = KeyboardOptions(
-			autoCorrectEnabled = false,
-			imeAction = ImeAction.Next,
-			showKeyboardOnFocus = true
-		),
-		onKeyboardAction = KeyboardActionHandler {
-			passwordFocusRequester.requestFocus()
-		}
-	)
-
-	OutlinedSecureTextField(
-		modifier = Modifier
-			.heightIn(min = 60.dp)
-			.padding(horizontal = 16.dp)
-			.fillMaxWidth()
-			.focusRequester(passwordFocusRequester)
-			.semantics {
-				contentType = ContentType.Password
-			},
-		state = passwordState,
-		isError = passwordError,
-		label = { Text(stringResource(R.string.option_account_password)) },
-		enabled = !isBusy,
-		keyboardOptions = KeyboardOptions(
-			autoCorrectEnabled = false,
-			keyboardType = KeyboardType.Password,
-			imeAction = ImeAction.Go,
-			showKeyboardOnFocus = true
-		),
-		onKeyboardAction = KeyboardActionHandler {
-			onLogin()
-		}
-	)
+			enabled = !isBusy,
+			keyboardOptions = KeyboardOptions(
+				autoCorrectEnabled = false,
+				keyboardType = KeyboardType.Password,
+				imeAction = ImeAction.Go,
+				showKeyboardOnFocus = true
+			),
+			onKeyboardAction = KeyboardActionHandler {
+				onLogin()
+			}
+		)
+	}
 }

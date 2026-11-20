@@ -6,11 +6,9 @@
 
 package paige.navic.ui.component.common
 
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,19 +37,19 @@ import paige.navic.R
 import paige.navic.database.entity.DownloadEntity
 import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.sheet.SongSheet
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Check
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Lock
-import paige.navic.ui.icons.outlined.Offline
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Check
+import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.Lock
+import paige.navic.icons.outlined.Offline
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 import paige.navic.ui.util.InlineExplicitIcon
@@ -80,7 +78,7 @@ fun SongRow(
 	onSetRating: (Int) -> Unit
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val backStack = LocalNavStack.current
@@ -97,12 +95,10 @@ fun SongRow(
 	ListItem(
 		modifier = modifier
 			.width(400.dp)
-			.alpha(if (isExplicit) .5f else 1f)
-			.combinedClickable(
-				onClick = onClick,
-				onLongClick = onLongClick,
-				enabled = !isExplicit
-			),
+			.alpha(if (isExplicit) .5f else 1f),
+		onClick = onClick,
+		onLongClick = onLongClick,
+		enabled = !isExplicit,
 		verticalAlignment = Alignment.CenterVertically,
 		content = {
 			Text(
@@ -122,12 +118,12 @@ fun SongRow(
 				MarqueeText(
 					buildSongInfoString(
 						song = song,
-						onClickArtist = { backStack.add(Screen.ArtistDetail(it)) },
 						showPlayCount = true
 					)
 				)
-				if (song.userRating != null && song.userRating != 0) {
-					SmallRatingRow(rating = song.userRating)
+				val userRating = song.userRating
+				if (userRating != null && userRating != 0) {
+					SmallRatingRow(rating = userRating)
 				}
 			}
 		},
@@ -139,7 +135,7 @@ fun SongRow(
 			)
 		},
 		trailingContent = {
-			Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(83.dp)) {
+			Row(verticalAlignment = Alignment.CenterVertically) {
 				if (starredState) {
 					Icon(
 						Icons.Filled.Star,
@@ -240,8 +236,7 @@ fun SongRow(
 			onViewAlbum = dropUnlessResumed {
 				backStack.add(
 					Screen.CollectionDetail(
-						collectionId = song.albumId as String,
-						tab = "library"
+						collectionId = song.albumId as String
 					)
 				)
 			},

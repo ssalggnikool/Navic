@@ -38,7 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.settings.DownloadDeletionType
 import paige.navic.ui.component.sheet.ModalBottomSheet
 
@@ -49,8 +49,6 @@ fun ConfirmDownloadDeletionSheet(
 	onDismissRequest: () -> Unit,
 ) {
 	if (!presented) return
-
-	val preferenceManager = koinInject<PreferenceManager>()
 
 	ModalBottomSheet(
 		onDismissRequest = onDismissRequest,
@@ -89,10 +87,7 @@ fun ConfirmDownloadDeletionSheet(
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
 				DownloadDeletionType.entries.forEach { type ->
-					DeletionTypeRow(
-						type = type,
-						preferenceManager = preferenceManager
-					)
+					DeletionTypeRow(type = type)
 				}
 			}
 
@@ -103,9 +98,9 @@ fun ConfirmDownloadDeletionSheet(
 
 @Composable
 private fun DeletionTypeRow(
-	type: DownloadDeletionType,
-	preferenceManager: PreferenceManager
+	type: DownloadDeletionType
 ) {
+	val preferenceManager = koinInject<PreferenceManager>()
 	var isChecked by remember(type) {
 		mutableStateOf(preferenceManager.isConfirmDeleteEnabled(type))
 	}

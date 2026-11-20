@@ -42,15 +42,15 @@ import paige.navic.R
 import paige.navic.R.string.info_no_albums
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.AlphabeticalScroller
 import paige.navic.ui.component.common.ContentUnavailable
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -84,7 +84,7 @@ fun AlbumListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val selectedSorting by viewModel.listType.collectAsStateWithLifecycle()
 	val selectedReversed by viewModel.selectedReversed.collectAsStateWithLifecycle()
 	val selectedFilters by viewModel.selectedFilters.collectAsStateWithLifecycle()
@@ -210,7 +210,6 @@ fun AlbumListScreen(
 									if (selectedViewMode == ListViewMode.Grid) {
 										AlbumListScreenGridItem(
 											modifier = Modifier.animateItem(),
-											tab = "albums",
 											album = album,
 											selected = album == selectedAlbum,
 											starred = selectedAlbum?.starredAt != null,
@@ -233,7 +232,7 @@ fun AlbumListScreen(
 											},
 											onAddToQueue = {
 												if (selectedAlbum != null) {
-													player.addToQueue(
+													player.appendQueue(
 														selectedAlbum as DomainSongCollection
 													)
 												}
@@ -266,7 +265,7 @@ fun AlbumListScreen(
 											},
 											onAddToQueue = {
 												if (selectedAlbum != null) {
-													player.addToQueue(
+													player.appendQueue(
 														selectedAlbum as DomainSongCollection
 													)
 												}
@@ -287,7 +286,6 @@ fun AlbumListScreen(
 								if (selectedViewMode == ListViewMode.Grid) {
 									AlbumListScreenGridItem(
 										modifier = Modifier.animateItem(),
-										tab = "albums",
 										album = album,
 										selected = album == selectedAlbum,
 										starred = selectedAlbum?.starredAt != null,
@@ -310,7 +308,7 @@ fun AlbumListScreen(
 										},
 										onAddToQueue = {
 											if (selectedAlbum != null) {
-												player.addToQueue(
+												player.appendQueue(
 													selectedAlbum as DomainSongCollection
 												)
 											}
@@ -343,7 +341,7 @@ fun AlbumListScreen(
 										},
 										onAddToQueue = {
 											if (selectedAlbum != null) {
-												player.addToQueue(
+												player.appendQueue(
 													selectedAlbum as DomainSongCollection
 												)
 											}
@@ -378,7 +376,7 @@ fun AlbumListScreen(
 		onClearError = { viewModel.clearError() }
 	)
 
-	ShareDialog(
+	ShareSheet(
 		id = shareId,
 		onDismissRequest = { shareId = null }
 	)

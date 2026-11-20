@@ -39,39 +39,41 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.database.entity.DownloadStatus
+import paige.navic.designsystem.theme.NavicTheme
+import paige.navic.designsystem.theme.positive
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.canUserShare
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.RatingRow
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Album
-import paige.navic.ui.icons.outlined.Artist
-import paige.navic.ui.icons.outlined.Bedtime
-import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.icons.outlined.Delete
-import paige.navic.ui.icons.outlined.Download
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Info
-import paige.navic.ui.icons.outlined.PlaylistAdd
-import paige.navic.ui.icons.outlined.PlaylistRemove
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.ui.icons.outlined.QueuePlayNext
-import paige.navic.ui.icons.outlined.Share
-import paige.navic.ui.icons.outlined.Speed
-import paige.navic.ui.icons.outlined.Star
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Album
+import paige.navic.icons.outlined.Artist
+import paige.navic.icons.outlined.Bedtime
+import paige.navic.icons.outlined.Close
+import paige.navic.icons.outlined.Delete
+import paige.navic.icons.outlined.Download
+import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.Info
+import paige.navic.icons.outlined.InstantMix
+import paige.navic.icons.outlined.PlaylistAdd
+import paige.navic.icons.outlined.PlaylistRemove
+import paige.navic.icons.outlined.Queue
+import paige.navic.icons.outlined.QueuePlayNext
+import paige.navic.icons.outlined.Share
+import paige.navic.icons.outlined.Speed
+import paige.navic.icons.outlined.Star
 import paige.navic.ui.navigation.Screen
-import paige.navic.ui.theme.NavicTheme
-import paige.navic.ui.theme.positive
 import paige.navic.ui.util.InlineExplicitIcon
 import paige.navic.ui.util.buildSongInfoString
 import paige.navic.ui.util.label
@@ -88,6 +90,7 @@ fun SongSheet(
 	onShare: (() -> Unit)? = null,
 	onPlayNext: (() -> Unit)? = null,
 	onAddToQueue: (() -> Unit)? = null,
+	onInstantMix: (() -> Unit)? = null,
 	onTrackInfo: (() -> Unit)? = null,
 	onViewAlbum: (() -> Unit)? = null,
 	onViewArtist: (() -> Unit)? = null,
@@ -107,6 +110,9 @@ fun SongSheet(
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 	val sessionManager = koinInject<SessionManager>()
+
+	val reachability = koinInject<ReachabilityFlow>()
+	val isReachable by reachability.isReachable.collectAsStateWithLifecycle()
 
 	val sleepTimerManager = koinInject<SleepTimerManager>()
 	val sleepTimerMode by sleepTimerManager.mode.collectAsStateWithLifecycle()
@@ -328,6 +334,20 @@ fun SongSheet(
 						},
 						colors = colors,
 						contentPadding = contentPadding
+					)
+				}
+
+				if (onInstantMix != null) {
+					ListItem(
+						content = { Text(stringResource(R.string.action_instant_mix)) },
+						leadingContent = { Icon(Icons.Outlined.InstantMix, null) },
+						onClick = {
+							onInstantMix()
+							onDismissRequest()
+						},
+						colors = colors,
+						contentPadding = contentPadding,
+						enabled = isReachable
 					)
 				}
 

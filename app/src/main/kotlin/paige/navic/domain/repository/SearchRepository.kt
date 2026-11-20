@@ -30,7 +30,7 @@ class SearchRepository(
 	suspend fun search(query: String): List<Any> {
 		return if (isReachable.value) {
 			try {
-				val data = sessionManager.api.searchID3(query)
+				val data = sessionManager.api.search(query)
 
 				albumDao.insertAlbumsIgnoringConflicts(data.albums.map { it.toEntity() })
 				artistDao.insertArtistsIgnoringConflicts(data.artists.map { it.toEntity() })

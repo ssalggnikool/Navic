@@ -25,8 +25,8 @@ import paige.navic.di.LocalNavStack
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.MoreVert
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.MoreVert
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.CollectionSheet
@@ -39,6 +39,8 @@ fun CollectionDetailScreenTopBar(
 	albumInfo: DomainAlbumInfo?,
 	titleAlpha: Float,
 	onSetShareId: (shareId: String?) -> Unit,
+	onUploadCover: (() -> Unit)? = null,
+	onRemoveCover: (() -> Unit)? = null,
 	onPlayNext: () -> Unit,
 	onAddToQueue: () -> Unit,
 	rating: Int?,
@@ -77,6 +79,8 @@ fun CollectionDetailScreenTopBar(
 						collection = collection,
 						albumInfo = albumInfo,
 						onShare = { onSetShareId(collection.id) },
+						onUploadCover = onUploadCover,
+						onRemoveCover = onRemoveCover,
 						onPlayNext = onPlayNext,
 						onAddToQueue = onAddToQueue,
 						onAddAllToPlaylist = { playlistDialogShown = true },

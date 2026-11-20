@@ -43,16 +43,16 @@ import paige.navic.R
 import paige.navic.R.string.info_no_playlists_short
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarCollapseMode
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.DeletionDialog
 import paige.navic.ui.component.dialog.DeletionTarget
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -61,8 +61,8 @@ import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.layout.artGridPlaceholder
 import paige.navic.ui.component.snackbar.ErrorSnackBar
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Add
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Add
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.screen.playlist.component.PlaylistListScreenGridItem
 import paige.navic.ui.screen.playlist.component.PlaylistListScreenListItem
@@ -86,7 +86,7 @@ fun PlaylistListScreen(
 			koinInject<PersistentViewModelStoreOwner>()
 		}
 	)
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val state by viewModel.uiState.collectAsStateWithLifecycle()
 	val lazyPagingItems = state.data?.items?.collectAsLazyPagingItems()
 	val selectedSorting by viewModel.selectedSorting.collectAsStateWithLifecycle()
@@ -203,7 +203,6 @@ fun PlaylistListScreen(
 						if (selectedViewMode == ListViewMode.Grid) {
 							PlaylistListScreenGridItem(
 								modifier = Modifier.animateItem(),
-								tab = "playlists",
 								playlist = playlist,
 								selected = playlist == state.data?.selected,
 								onSelect = {
@@ -224,7 +223,7 @@ fun PlaylistListScreen(
 									)
 								},
 								onAddToQueue = {
-									if (state.data?.selected != null) player.addToQueue(
+									if (state.data?.selected != null) player.appendQueue(
 										state.data?.selected as DomainSongCollection
 									)
 								},
@@ -252,7 +251,7 @@ fun PlaylistListScreen(
 									)
 								},
 								onAddToQueue = {
-									if (state.data?.selected != null) player.addToQueue(
+									if (state.data?.selected != null) player.appendQueue(
 										state.data?.selected as DomainSongCollection
 									)
 								},
@@ -277,7 +276,7 @@ fun PlaylistListScreen(
 		onClearError = { viewModel.clearError() }
 	)
 
-	ShareDialog(
+	ShareSheet(
 		id = shareId,
 		onDismissRequest = { shareId = null }
 	)

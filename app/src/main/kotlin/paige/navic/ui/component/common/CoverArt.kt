@@ -17,9 +17,9 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -29,21 +29,26 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import org.koin.compose.koinInject
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
+import paige.navic.ui.util.fakeShadow
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
 @Composable
 fun CoverArt(
 	modifier: Modifier = Modifier,
 	coverArtId: String?,
+	coverVersion: String? = null,
 	contentScale: ContentScale = if (coverArtId?.startsWith("ar-") == true) ContentScale.Crop else ContentScale.Fit,
 	contentDescription: String? = null,
 	onClick: (() -> Unit)? = null,
 	onLongClick: (() -> Unit)? = null,
+	onLoad: (() -> Unit)? = null,
 	square: Boolean = true,
 	crossfadeMs: Int = 500,
 	shadowElevation: Dp = 0.dp,
+	fakeShadowElevation: Dp = 0.dp,
+	rotationZ: Float = 0f,
 	interactionSource: MutableInteractionSource? = null,
 	shape: Shape? = null
 ) {
@@ -59,11 +64,12 @@ fun CoverArt(
 		preferenceManager.artistImageShape.shape
 	}
 
-	val model = remember(coverArtId) {
+	val model = remember(coverArtId, coverVersion) {
+		val cacheKey = listOfNotNull(coverArtId, coverVersion).joinToString("_")
 		ImageRequest.Builder(coilPlatformContext)
 			.data(coverArtId?.let { sessionManager.getCoverArtUrl(it) })
-			.memoryCacheKey(coverArtId)
-			.diskCacheKey(coverArtId)
+			.memoryCacheKey(cacheKey)
+			.diskCacheKey(cacheKey)
 			.diskCachePolicy(CachePolicy.ENABLED)
 			.memoryCachePolicy(CachePolicy.ENABLED)
 			.crossfade(crossfadeMs)
@@ -72,8 +78,16 @@ fun CoverArt(
 
 	val commonModifier = modifier
 		.then(if (square) Modifier.aspectRatio(1f) else Modifier)
-		.shadow(shadowElevation, shape)
-		.clip(shape)
+		.then(
+			if (shadowElevation > 0.dp) Modifier.shadow(shadowElevation, shape)
+			else Modifier
+		)
+		.fakeShadow(fakeShadowElevation, rotationZ, shape = shape)
+		.graphicsLayer {
+			this.rotationZ = rotationZ
+			clip = true
+			this.shape = shape
+		}
 		.background(MaterialTheme.colorScheme.surfaceContainer)
 		.then(
 			if (onClick != null)
@@ -96,6 +110,7 @@ fun CoverArt(
 		imageLoader = imageLoader,
 		contentDescription = contentDescription,
 		modifier = commonModifier,
-		contentScale = contentScale
+		contentScale = contentScale,
+		onSuccess = { onLoad?.invoke() }
 	)
 }

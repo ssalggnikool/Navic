@@ -14,11 +14,18 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Modifier.shimmerLoading(
@@ -51,5 +58,29 @@ fun Modifier.shimmerLoading(
 				end = Offset(x = translateAnimation + 200f, y = translateAnimation + 200f),
 			)
 		)
+	}
+}
+
+/**
+ * cheap approximation of an elevation shadow
+ */
+fun Modifier.fakeShadow(
+	elevation: Dp,
+	rotationZ: Float = 0f,
+	cornerRadius: Dp = 12.dp,
+	shape: Shape = RoundedCornerShape(cornerRadius)
+): Modifier {
+	if (elevation <= 0.dp) return this
+	return drawBehind {
+		val dy = elevation.toPx() * 0.5f
+		val alpha = (0.10f + elevation.value * 0.008f).coerceAtMost(0.20f)
+		rotate(rotationZ, pivot = center) {
+			translate(top = dy) {
+				drawOutline(
+					outline = shape.createOutline(size, layoutDirection, this),
+					color = Color.Black.copy(alpha = alpha)
+				)
+			}
+		}
 	}
 }

@@ -47,11 +47,11 @@ import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.database.entity.DownloadEntity
 import paige.navic.database.entity.DownloadStatus
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.ExplicitContentPlayback
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SegmentedListItem
@@ -60,14 +60,14 @@ import paige.navic.ui.component.common.SmallRatingRow
 import paige.navic.ui.component.common.SwipeToDismissBox
 import paige.navic.ui.component.common.Waveform
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Check
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Lock
-import paige.navic.ui.icons.outlined.Offline
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.ui.icons.outlined.QueuePlayNext
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Check
+import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.Lock
+import paige.navic.icons.outlined.Offline
+import paige.navic.icons.outlined.Queue
+import paige.navic.icons.outlined.QueuePlayNext
 import paige.navic.ui.util.InlineExplicitIcon
 import paige.navic.ui.util.buildSongInfoString
 import paige.navic.util.toHoursMinutesSeconds
@@ -89,7 +89,7 @@ fun CollectionDetailScreenSongRow(
 ) {
 	val preferenceManager = koinInject<PreferenceManager>()
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 
 	val isDownloaded = download?.status == DownloadStatus.DOWNLOADED
@@ -208,8 +208,9 @@ fun CollectionDetailScreenSongRow(
 							style = MaterialTheme.typography.bodySmall
 						)
 					}
-					if (song.userRating != null && song.userRating != 0) {
-						SmallRatingRow(rating = song.userRating)
+					val userRating = song.userRating
+					if (userRating != null && userRating != 0) {
+						SmallRatingRow(rating = userRating)
 					}
 				}
 			},

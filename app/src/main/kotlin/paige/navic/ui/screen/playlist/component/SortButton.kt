@@ -15,11 +15,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.toImmutableList
+import paige.navic.R
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainPlaylistListType
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Sort
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Sort
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.SortSheet
 
@@ -59,7 +60,16 @@ fun PlaylistListScreenSortButton(
 			entries = entries,
 			selectedSorting = selectedSorting,
 			selectedReversed = selectedReversed,
-			label = { stringResource(it.displayName) },
+			label = {
+				stringResource(
+					when (it) {
+						DomainPlaylistListType.Name -> R.string.option_sort_playlist_by_name
+						DomainPlaylistListType.DateAdded -> R.string.option_sort_playlist_date_added
+						DomainPlaylistListType.Duration -> R.string.option_sort_playlist_duration
+						DomainPlaylistListType.Random -> R.string.option_sort_random
+					}
+				)
+			},
 			onSetSorting = onSetSorting,
 			onSetReversed = onSetReversed,
 			onDismissRequest = { expanded = false },

@@ -46,7 +46,7 @@ import org.koin.core.parameter.parametersOf
 import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumListType
@@ -56,21 +56,21 @@ import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.DomainSongCollection
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.dialog.DeleteDownloadTarget
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
-import paige.navic.ui.component.dialog.ShareDialog
+import paige.navic.ui.component.dialog.ShareSheet
 import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.ui.component.layout.ArtGrid
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.artGridPlaceholder
 import paige.navic.ui.component.layout.horizontalSection
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Close
-import paige.navic.ui.icons.outlined.History
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Close
+import paige.navic.icons.outlined.History
 import paige.navic.ui.navigation.PersistentViewModelStoreOwner
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.album.component.AlbumListScreenGridItem
@@ -125,7 +125,7 @@ fun SearchScreen(
 	val state by viewModel.searchState.collectAsStateWithLifecycle()
 	val searchHistory by viewModel.searchHistory.collectAsStateWithLifecycle()
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 
 	var selectedCategory by remember { mutableStateOf(SearchCategory.ALL) }
 	var songToQueue by remember { mutableStateOf<DomainSong?>(null) }
@@ -278,7 +278,6 @@ fun SearchScreen(
 									modifier = Modifier
 										.animateItem(fadeInSpec = null)
 										.width(150.dp),
-									tab = "search",
 									album = album,
 									selected = album == albumListSelection.data?.selected,
 									starred = albumListSelection.data?.selected?.starredAt != null,
@@ -291,7 +290,7 @@ fun SearchScreen(
 									onSetStarred = { albumListViewModel.starAlbum(it) },
 									onSetShareId = { },
 									onPlayNext = { player.playNext(album as DomainSongCollection) },
-									onAddToQueue = { player.addToQueue(album as DomainSongCollection) },
+									onAddToQueue = { player.appendQueue(album as DomainSongCollection) },
 									rating = albumListSelection.data?.selected?.userRating ?: 0,
 									onSetRating = { albumListViewModel.setRating(it) }
 								)
@@ -307,7 +306,6 @@ fun SearchScreen(
 									modifier = Modifier
 										.animateItem(fadeInSpec = null)
 										.width(150.dp),
-									tab = "search",
 									artist = artist,
 									selected = artist == artistListSelection.data?.selected,
 									selectedArtistAlbums = emptyList(),
@@ -379,7 +377,7 @@ fun SearchScreen(
 		onDismissRequest = { songToQueue = null }
 	)
 
-	ShareDialog(
+	ShareSheet(
 		id = shareId,
 		onDismissRequest = {
 			shareId = null

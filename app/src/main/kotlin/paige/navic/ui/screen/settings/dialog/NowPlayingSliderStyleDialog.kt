@@ -17,10 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -36,13 +34,14 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.settings.NowPlayingSliderStyle
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SlimSlider
 import paige.navic.ui.component.common.SpermSlider
 import paige.navic.ui.component.common.SpermSliderDefaults
+import paige.navic.ui.component.dialog.AlertDialog
+import paige.navic.ui.util.label
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingSliderStyleDialog(
 	presented: Boolean,
@@ -78,7 +77,7 @@ fun NowPlayingSliderStyleDialog(
 								preferenceManager.nowPlayingSliderStyle = style
 							},
 							selected = preferenceManager.nowPlayingSliderStyle == style,
-							label = stringResource(style.displayName)
+							label = style.label()
 						) {
 							when (style) {
 								NowPlayingSliderStyle.Flat -> {

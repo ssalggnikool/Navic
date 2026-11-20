@@ -23,7 +23,7 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
@@ -76,7 +76,7 @@ fun AlbumListScreenListItem(
 			},
 			onClick = dropUnlessResumed {
 				scope.launch {
-					backStack.add(Screen.CollectionDetail(album.id, ""))
+					backStack.add(Screen.CollectionDetail(album.id))
 				}
 			},
 			onLongClick = onSelect

@@ -47,29 +47,29 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.R
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainSongListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Headphones
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Note
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.layout.ArtCarousel
 import paige.navic.ui.component.layout.ArtCarouselItem
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.RootBottomBar
 import paige.navic.ui.component.layout.RootTopBar
 import paige.navic.ui.component.sheet.ArtistSheet
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Headphones
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Note
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.stats.component.StatSummaryCard
 import paige.navic.ui.screen.stats.component.TopArtistItem
 import paige.navic.ui.screen.stats.viewmodel.StatisticsViewModel
-import paige.navic.ui.theme.NavicTheme
 import paige.navic.util.toSummaryString
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -248,7 +248,7 @@ fun StatisticsScreen(
 								duration = album.listeningTime,
 								contentDescription = null,
 								onClick = {
-									backStack.add(Screen.CollectionDetail(album.album.id, "stats"))
+									backStack.add(Screen.CollectionDetail(album.album.id))
 								}
 							)
 						}

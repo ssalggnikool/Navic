@@ -93,11 +93,11 @@ class LyricsRepository(
 		val song = songDao.getSongById(songId)?.toDomainModel() ?: return null
 
 		val currentConfig = getConfig()
-		for (provider in currentConfig.providers.filter { it.enabled }) {
+		for ((id) in currentConfig.providers.filter { it.enabled }) {
 			try {
 				var rawContentToCache: String? = null
 
-				val parsedLyrics = when (provider.id) {
+				val parsedLyrics = when (id) {
 					LyricsProvider.Id.LYRICS_PLUS -> {
 						val raw = fetchRawLyricsPlus(song, currentConfig)
 						rawContentToCache = raw
@@ -110,19 +110,19 @@ class LyricsRepository(
 						raw?.let { LyricsContentParser.parse(it) }
 					}
 
-					LyricsProvider.Id.SUBSONIC -> {
-						val subsonicLyrics = sessionManager.api.getLyrics(song.id).firstOrNull()
+					LyricsProvider.Id.SERVER_PROVIDED -> {
+						val subsonicLyrics = sessionManager.api.getLyrics(song.id)
 
 						val lines = subsonicLyrics?.lines?.flatMap { line ->
-							if (!subsonicLyrics.synced && line.value.contains("\n")) {
-								line.value.lineSequence()
+							if (!subsonicLyrics.synced && line.text.contains("\n")) {
+								line.text.lineSequence()
 									.filter { it.isNotBlank() }
 									.map { LyricsLine(time = null, text = it.trim()) }
 									.toList()
 							} else {
 								val time =
-									if (subsonicLyrics.synced) line.start?.milliseconds else null
-								listOf(LyricsLine(time = time, text = line.value))
+									if (subsonicLyrics.synced) line.startMillis?.milliseconds else null
+								listOf(LyricsLine(time = time, text = line.text))
 							}
 						}
 
@@ -147,7 +147,7 @@ class LyricsRepository(
 						rawContentToCache?.let { content ->
 							val entity = LyricEntity(
 								songId = song.id,
-								providerName = provider.id.name,
+								providerName = id.name,
 								rawContent = content
 							)
 							lyricDao.insertLyrics(entity)
@@ -157,12 +157,12 @@ class LyricsRepository(
 					}
 					return LyricsResult(
 						lines = parsedLyrics,
-						providerName = provider.id.name,
+						providerName = id.name,
 						rawContent = rawContentToCache
 					)
 				}
 			} catch (e: Exception) {
-				Logger.e("LyricRepository", "Provider ${provider.id.name} failed!", e)
+				Logger.e("LyricRepository", "Provider ${id.name} failed!", e)
 				continue
 			}
 		}

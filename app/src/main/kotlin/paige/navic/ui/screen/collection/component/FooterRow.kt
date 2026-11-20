@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import paige.navic.R
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.ui.theme.defaultFont
 
 @Composable
 fun CollectionDetailScreenFooterRow(

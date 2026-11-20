@@ -15,13 +15,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -33,6 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.drop
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -86,7 +94,41 @@ private fun TimeCard(
 	isMinutes: Boolean = false,
 	enabled: Boolean
 ) {
-	var text by remember(value) { mutableStateOf(value.toString().padStart(2, '0')) }
+	val formatted = value.toString().padStart(2, '0')
+	val state = rememberTextFieldState(formatted)
+	val currentOnValueChange by rememberUpdatedState(onValueChange)
+
+	LaunchedEffect(formatted) {
+		if (state.text.toString() != formatted) {
+			state.setTextAndPlaceCursorAtEnd(formatted)
+		}
+	}
+
+	LaunchedEffect(state) {
+		snapshotFlow { state.text.toString() }
+			.drop(1)
+			.collect { newText ->
+				currentOnValueChange(newText.toLongOrNull() ?: 0L)
+			}
+	}
+
+	val inputTransformation = remember(isMinutes) {
+		InputTransformation {
+			val numericString = asCharSequence().toString().filter { it.isDigit() }
+			val newText = if (numericString.length > 2) {
+				numericString.takeLast(2)
+			} else {
+				numericString.padStart(2, '0')
+			}
+			val newValue = newText.toLongOrNull() ?: 0L
+
+			if (isMinutes && newValue > 59) {
+				revertAllChanges()
+			} else {
+				replace(0, length, newText)
+			}
+		}
+	}
 
 	val focus = remember { FocusRequester() }
 	var isFocused by remember { mutableStateOf(false) }
@@ -99,35 +141,18 @@ private fun TimeCard(
 	}
 
 	BasicTextField(
-		value = text,
-		onValueChange = { input ->
-			val numericString = input.filter { it.isDigit() }
-
-			val newText = if (numericString.length > 2) {
-				numericString.takeLast(2)
-			} else {
-				numericString.padStart(2, '0')
-			}
-
-			val newValue = newText.toLongOrNull() ?: 0L
-
-			if (isMinutes && newValue > 59) {
-				return@BasicTextField
-			}
-
-			text = newText
-			onValueChange(newValue)
-		},
+		state = state,
 		enabled = enabled,
+		inputTransformation = inputTransformation,
 		textStyle = MaterialTheme.typography.headlineLarge.copy(
 			color = if (isFocused) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
 			textAlign = TextAlign.Center,
 			fontSize = 50.sp
 		),
 		keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-		singleLine = true,
+		lineLimits = TextFieldLineLimits.SingleLine,
 		cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer),
-		decorationBox = { innerTextField ->
+		decorator = { innerTextField ->
 			Box(
 				modifier = Modifier
 					.width(120.dp)

@@ -16,9 +16,9 @@ import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
 import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainSong
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.dialog.QueueDuplicateDialog
 import paige.navic.ui.component.sheet.SongSheet
 import paige.navic.ui.navigation.Screen
@@ -45,7 +45,7 @@ fun CollectionDetailScreenSongRowDropdown(
 	rating: Int,
 	onSetRating: (Int) -> Unit
 ) {
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val preferenceManager = koinInject<PreferenceManager>()
 	val backStack = LocalNavStack.current
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
@@ -53,6 +53,7 @@ fun CollectionDetailScreenSongRowDropdown(
 	var isPlayNextPending by rememberSaveable { mutableStateOf<Boolean?>(null) }
 
 	if (expanded) {
+		val albumId = song.albumId
 		SongSheet(
 			onDismissRequest = onDismissRequest,
 			song = song,
@@ -76,15 +77,15 @@ fun CollectionDetailScreenSongRowDropdown(
 					onAddToQueue()
 				}
 			},
+			onInstantMix = { player.playInstantMix(song) },
 			onTrackInfo = dropUnlessResumed {
 				backStack.add(Screen.SongDetailScreen(song.id, song.coverArtId))
 			},
-			onViewAlbum = if (isPlaylist && song.albumId != null) {
+			onViewAlbum = if (isPlaylist && albumId != null) {
 				dropUnlessResumed {
 					backStack.add(
 						Screen.CollectionDetail(
-							collectionId = song.albumId,
-							tab = "library"
+							collectionId = albumId
 						)
 					)
 				}

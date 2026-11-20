@@ -37,12 +37,12 @@ import paige.navic.R
 import paige.navic.di.LocalBottomBarScrollManager
 import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSizeClass
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainArtist
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.settings.BottomBarVisibilityMode
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.layout.ArtGridItem
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.PullToRefreshBox
@@ -86,7 +86,7 @@ fun ArtistListScreen(
 	val letterCounts by viewModel.letterCounts.collectAsStateWithLifecycle()
 	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 
 	val actions: @Composable RowScope.() -> Unit = {
 		ArtistListScreenSortButton(
@@ -174,7 +174,6 @@ fun ArtistListScreen(
 @Composable
 fun ArtistListScreenGridItem(
 	modifier: Modifier = Modifier,
-	tab: String,
 	artist: DomainArtist,
 	selected: Boolean,
 	selectedArtistAlbums: List<DomainAlbum>?,
@@ -201,9 +200,7 @@ fun ArtistListScreenGridItem(
 				R.plurals.count_albums,
 				artist.albumCount,
 				artist.albumCount
-			),
-			id = artist.id,
-			tab = tab
+			)
 		)
 		if (selected) {
 			ArtistSheet(

@@ -12,6 +12,7 @@ rootProject.name = "Navic"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+	includeBuild("build-logic")
 	includeBuild("vendor/androidx-media/build-logic-settings")
 	repositories {
 		google {
@@ -57,6 +58,18 @@ dependencyResolutionManagement {
 	}
 }
 
-include(":app")
+include(
+	":app",
+
+	// Core
+	":core:common",
+	":core:database",
+	":core:designsystem",
+	":core:icons",
+	":core:model",
+	":core:preferences",
+	":core:server",
+	":core:widgets"
+)
 includeMedia3(file("vendor/androidx-media"))
 includeBuild("vendor/subsonic-kotlin")

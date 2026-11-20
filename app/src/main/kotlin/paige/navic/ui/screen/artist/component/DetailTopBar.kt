@@ -27,9 +27,9 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.toPersistentList
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.MoreVert
-import paige.navic.playback.MediaPlayer
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.MoreVert
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.layout.NestedTopBar
 import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.component.sheet.ArtistSheet
@@ -49,7 +49,7 @@ fun ArtistDetailScreenTopBar(
 		if (scrolled) 1f else 0f
 	)
 
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 
@@ -87,7 +87,7 @@ fun ArtistDetailScreenTopBar(
 							},
 							onAddToQueue = {
 								state.albums.forEach { album ->
-									player.addToQueue(album)
+									player.appendQueue(album)
 								}
 							},
 							onAddAllToPlaylist = {

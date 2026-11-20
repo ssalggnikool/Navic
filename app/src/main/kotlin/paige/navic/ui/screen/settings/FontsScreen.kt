@@ -35,14 +35,16 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.designsystem.theme.googleSans
+import paige.navic.designsystem.theme.oneUiSans
 import paige.navic.domain.model.settings.FontOption
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Check
-import paige.navic.ui.theme.googleSans
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Check
+import paige.navic.util.PlatformSupport
 
 @Composable
 fun FontsScreen() {
@@ -88,13 +90,15 @@ private fun LazyListScope.inbuiltFonts(
 	onSelectFont: (FontOption) -> Unit,
 	selectedFont: FontOption
 ) {
+	val count = if (PlatformSupport.SUPPORTS_ONE_UI_SANS) 3 else 2
+
 	heading(R.string.title_fonts_inbuilt)
 	item {
 		FontRow(
 			fontName = "System",
 			fontFamily = FontFamily.Default,
 			index = 0,
-			count = 2,
+			count = count,
 			onClick = { onSelectFont(FontOption.System) },
 			selected = selectedFont == FontOption.System
 		)
@@ -104,11 +108,26 @@ private fun LazyListScope.inbuiltFonts(
 			fontName = "Google Sans",
 			fontFamily = googleSans(),
 			index = 1,
-			count = 2,
+			count = count,
 			onClick = { onSelectFont(FontOption.GoogleSans) },
 			selected = selectedFont == FontOption.GoogleSans
 		)
-		Spacer(Modifier.height(10.dp))
+		if (!PlatformSupport.SUPPORTS_ONE_UI_SANS) {
+			Spacer(Modifier.height(10.dp))
+		}
+	}
+	if (PlatformSupport.SUPPORTS_ONE_UI_SANS) {
+		item {
+			FontRow(
+				fontName = "One UI Sans",
+				fontFamily = oneUiSans(),
+				index = 2,
+				count = count,
+				onClick = { onSelectFont(FontOption.OneUISans) },
+				selected = selectedFont == FontOption.OneUISans
+			)
+			Spacer(Modifier.height(10.dp))
+		}
 	}
 }
 

@@ -32,8 +32,8 @@ import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.common.SegmentedListButtonDefaults
 import paige.navic.ui.component.dialog.FormDialog
 import paige.navic.ui.core.UiState
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Radio
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Radio
 import paige.navic.ui.screen.radio.viewmodel.RadioUpdateDialogViewModel
 
 @Composable

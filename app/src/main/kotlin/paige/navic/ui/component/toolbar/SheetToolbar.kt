@@ -33,8 +33,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.di.LocalSizeClass
-import paige.navic.ui.theme.defaultFont
 
 @Composable
 fun SheetToolbar(

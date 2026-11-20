@@ -38,9 +38,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.lyrics.LyricsResult
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.util.calculateWordProgress
 import kotlin.math.abs
 import kotlin.time.Duration
@@ -60,7 +60,7 @@ fun LyricsScreenContent(
 	contentPadding: PaddingValues
 ) {
 	val density = LocalDensity.current
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val preferenceManager = koinInject<PreferenceManager>()
 
 	val listState = rememberLazyListState()
@@ -77,7 +77,8 @@ fun LyricsScreenContent(
 	val anticipationOffset = 250.milliseconds
 	val activeIndex = if (isSynced) {
 		lyrics.indexOfLast { line ->
-			line.time != null && (currentDuration + anticipationOffset) >= line.time
+			val time = line.time
+			time != null && (currentDuration + anticipationOffset) >= time
 		}
 	} else -1
 
@@ -242,10 +243,13 @@ fun LyricsScreenContent(
 								}
 							}
 						}
-					} else if (line.time != null) {
-						player.seek((line.time / duration).toFloat())
-						if (player.uiState.value.isPaused) {
-							player.resume()
+					} else {
+						val time = line.time
+						if (time != null) {
+							player.seek((time / duration).toFloat())
+							if (player.uiState.value.isPaused) {
+								player.resume()
+							}
 						}
 					}
 				},

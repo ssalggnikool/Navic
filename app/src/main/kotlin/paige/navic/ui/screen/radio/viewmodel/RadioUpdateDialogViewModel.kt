@@ -28,7 +28,7 @@ class RadioUpdateDialogViewModel(
 	fun update() {
 		launch {
 			setLoading()
-			sessionManager.api.updateInternetRadioStation(
+			sessionManager.radio?.updateRadioStation(
 				id = initialRadio.id,
 				streamUrl = streamUrl.text.toString(),
 				name = name.text.toString(),

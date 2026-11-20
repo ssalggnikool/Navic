@@ -18,10 +18,10 @@ import paige.navic.domain.download.DownloadProcessor
 import paige.navic.domain.manager.playback.AudioGainManager
 import paige.navic.domain.manager.playback.EqualizerManager
 import paige.navic.domain.manager.playback.SleepTimerManager
-import paige.navic.domain.manager.playback.StreamCacheManager
+import paige.navic.playback.exoplayer.impl.cache.StreamCacheManager
 import paige.navic.domain.manager.runtime.NotificationManager
 import paige.navic.domain.manager.runtime.PermissionManager
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
@@ -34,9 +34,15 @@ import paige.navic.domain.manager.ui.LinkManager
 import paige.navic.domain.manager.ui.LogManager
 import paige.navic.domain.manager.ui.ShareManager
 import paige.navic.domain.manager.ui.SnackBarManager
+import paige.navic.domain.server.MultipleMusicServerFactory
+import paige.navic.domain.server.MusicServerFactory
+import paige.navic.domain.server.jellyfin.JellyfinMusicServerFactory
+import paige.navic.domain.server.navidrome.NavidromeMusicServerFactory
+import paige.navic.domain.server.subsonic.SubsonicMusicServerFactory
 import paige.navic.domain.sync.SyncActionProcessor
 import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.playback.exoplayer.ExoStateHolder
+import paige.navic.playback.exoplayer.impl.library.AndroidAutoLibrary
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource.NavicDataSourceFactory
 import paige.navic.util.network.NavicDnsResolver
 import paige.navic.util.network.createOkHttpClient
@@ -63,6 +69,16 @@ val managerModule = module {
 	singleOf(::SnackBarManager)
 	singleOf(::StorageManager)
 	singleOf(::StreamCacheManager)
+	singleOf(::JellyfinMusicServerFactory)
+	singleOf(::NavidromeMusicServerFactory)
+	singleOf(::SubsonicMusicServerFactory)
+	single<MusicServerFactory> {
+		MultipleMusicServerFactory(
+			navidromeFactory = get(),
+			subsonicFactory = get(),
+			jellyfinFactory = get()
+		)
+	}
 	singleOf(::SyncActionProcessor)
 	singleOf(::SyncCoordinator)
 	single(createdAtStart = true) {
@@ -101,5 +117,6 @@ val managerModule = module {
 			upstreamFactoryProvider = get()
 		)
 	}
+	singleOf(::AndroidAutoLibrary)
 	singleOf(::ExoStateHolder)
 }

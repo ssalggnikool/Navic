@@ -35,7 +35,7 @@ import paige.navic.R
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.screen.song.component.SongDetailScreenInfoRow
 import paige.navic.ui.screen.song.viewmodel.SongDetailViewModel
-import paige.navic.ui.theme.NavicTheme
+import paige.navic.designsystem.theme.NavicTheme
 import paige.navic.ui.util.rememberColorSchemeFromCoverArt
 
 @Composable

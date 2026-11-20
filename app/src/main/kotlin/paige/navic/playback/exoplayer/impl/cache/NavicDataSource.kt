@@ -16,17 +16,15 @@ import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.FileDataSource
 import androidx.media3.datasource.cache.CacheDataSource
-import dev.zt64.subsonic.api.model.MediaType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import paige.navic.domain.manager.playback.StreamCacheManager
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.BuildConfig
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
-import paige.navic.playback.PlaybackUtils
+import paige.navic.preferences.PreferenceManager
 import paige.navic.util.Logger
 import java.io.File
 
@@ -67,15 +65,21 @@ class NavicDataSource(
 	companion object {
 		const val NAVIC_SCHEME = "navic"
 		const val NAVIC_SONG_HOST = "song"
-		const val NAVIC_COVER_HOST = "cover"
+		const val ARTWORK_SIZE = 512
+		const val HQ_ARTWORK_SIZE = 1024
+		const val PARAM_TRANSCODE = "transcode"
+		const val PARAM_TIME_OFFSET = "timeOffset"
 		private const val TAG = "NavicDataSource"
 
 		fun String.buildSongUri(): Uri {
 			return "$NAVIC_SCHEME://$NAVIC_SONG_HOST/$this".toUri()
 		}
 
-		fun String.buildCoverUri(): Uri {
-			return "$NAVIC_SCHEME://$NAVIC_COVER_HOST/$this".toUri()
+		fun String.buildCoverUri(size: Int = ARTWORK_SIZE): Uri {
+			return "content://${BuildConfig.APPLICATION_ID}.cover-art/$this".toUri()
+				.buildUpon()
+				.appendQueryParameter("size", size.toString())
+				.build()
 		}
 
 		fun getCurrentQuality(preferenceManager: PreferenceManager, connectivityManager: ConnectivityManager): Pair<Int, String?> {
@@ -116,6 +120,10 @@ class NavicDataSource(
 			null
 		}
 
+		// set by TranscodeDataSource for streams that must be requested with a time offset
+		val isTranscode = uri.getQueryParameter(PARAM_TRANSCODE) == "1"
+		val timeOffsetSeconds = uri.getQueryParameter(PARAM_TIME_OFFSET)?.toIntOrNull()
+
 		var cacheKey: String? = null
 
 		val targetUri = songId?.let {
@@ -126,8 +134,10 @@ class NavicDataSource(
 						Uri.fromFile(File(localPath))
 					} else {
 						val (bitrateKbps, format) = getCurrentQuality(preferenceManager, connectivityManager)
-						cacheKey = streamCacheManager.keyFor(it, bitrateKbps, format)
-						resolveStreamUrl(it)
+						if (!isTranscode) {
+							cacheKey = streamCacheManager.keyFor(it, bitrateKbps, format)
+						}
+						resolveStreamUrl(it).withTimeOffset(timeOffsetSeconds)
 					}
 				}
 			}
@@ -181,14 +191,6 @@ class NavicDataSource(
 		}
 	}
 
-
-
-	private fun String.toStreamUri(): Uri {
-		return toUri().buildUpon()
-			.appendQueryParameter("estimateContentLength", "true")
-			.build()
-	}
-
 	private suspend fun resolveStreamUrl(id: String): Uri {
 		val (bitrateKbps, format) = getCurrentQuality(preferenceManager, connectivityManager)
 		val cacheKey = "$id|$bitrateKbps|${format.orEmpty()}"
@@ -198,43 +200,23 @@ class NavicDataSource(
 			return cachedStreamUrl.toUri()
 		}
 
-		val defaultStreamUrl = sessionManager.api.getStreamUrl(id, 0)
-
-		if (!sessionManager.supportsTranscoding.value) {
-			val streamUrl = defaultStreamUrl.toStreamUri().toString()
-			ttlLruCache.put(cacheKey, streamUrl)
-			return streamUrl.toUri()
-		}
-
-		return try {
-			val transcodeDecision = withContext(Dispatchers.IO) {
-				sessionManager.api.getTranscodeDecision(
-					id,
-					MediaType.SONG,
-					PlaybackUtils.buildClientInfo(bitrateKbps, format)
-				)
-			}
-			val isTranscode = !transcodeDecision.canDirectPlay &&
-				transcodeDecision.canTranscode &&
-				transcodeDecision.transcodeParams != null
-			val streamUrl = if (isTranscode) {
-				sessionManager.api.getTranscodeStreamUrl(
-					id, MediaType.SONG, 0,
-					transcodeDecision.transcodeParams!!
-				).toStreamUri().toString()
-			} else {
-				defaultStreamUrl.toStreamUri().toString()
-			}
-
-			ttlLruCache.put(cacheKey, streamUrl)
-
-			streamUrl.toUri()
+		val streamUrl = try {
+			sessionManager.api.getPlaybackStreamUrl(id, bitrateKbps, format)
 		} catch (e: Exception) {
 			if (e is CancellationException) throw e
-			Logger.w(TAG, "transcode decision failed for $id, using direct stream", e)
-			val streamUrl = defaultStreamUrl.toStreamUri().toString()
-			ttlLruCache.put(cacheKey, streamUrl)
-			streamUrl.toUri()
+			Logger.w(TAG, "stream url resolution failed for $id, skipping transcode decisions", e)
+			sessionManager.api.getPlaybackStreamUrl(id, bitrateKbps, format, true)
+		}
+
+		ttlLruCache.put(cacheKey, streamUrl)
+		return streamUrl.toUri()
+	}
+
+	private fun Uri.withTimeOffset(seconds: Int?): Uri {
+		return if (seconds == null || seconds <= 0) {
+			this
+		} else {
+			buildUpon().appendQueryParameter(PARAM_TIME_OFFSET, seconds.toString()).build()
 		}
 	}
 }

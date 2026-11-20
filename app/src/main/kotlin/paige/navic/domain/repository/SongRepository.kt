@@ -13,6 +13,7 @@ import paige.navic.database.entity.SyncActionType
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.paging.createPagedFlow
 import paige.navic.database.query.toSqlQuery
+import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSong
@@ -22,15 +23,34 @@ import kotlin.time.Clock
 class SongRepository(
 	private val songDao: SongDao,
 	private val dbRepository: DbRepository,
-	private val syncManager: SyncManager
+	private val syncManager: SyncManager,
+	private val sessionManager: SessionManager
 ) {
 	suspend fun getSongById(id: String) = songDao.getSongById(id)?.toDomainModel()
+
+	suspend fun getAppearsOnSongsForArtist(
+		artistId: String,
+		artistName: String,
+		excludedAlbumIds: List<String>
+	): List<DomainSong> {
+		return songDao.getAppearsOnSongsForArtist(artistId, artistName, excludedAlbumIds)
+			.map { it.toDomainModel() }
+	}
+
+	suspend fun getSimilarSongs(songId: String, count: Int = 50): Result<List<DomainSong>> =
+		runCatching {
+			sessionManager.api.getSimilarSongs(songId, count)
+		}
+
+	suspend fun getSongsByIds(ids: List<String>) = ids.chunked(500)
+		.flatMap { songDao.getSongsByIds(it) }
+		.map { it.toDomainModel() }
 
 	suspend fun getRandomSongsList(count: Int): List<DomainSong> {
 		return songDao.getRandomSongsList(count).map { it.toDomainModel() }
 	}
 
-	private suspend fun getLocalData(
+	private fun getLocalData(
 		listType: DomainSongListType,
 		reversed: Boolean = false,
 		filters: Set<DomainFilter> = emptySet()

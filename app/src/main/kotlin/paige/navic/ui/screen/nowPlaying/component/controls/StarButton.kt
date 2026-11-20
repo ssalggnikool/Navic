@@ -6,6 +6,11 @@
 
 package paige.navic.ui.screen.nowPlaying.component.controls
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,17 +23,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Star
-import paige.navic.playback.MediaPlayer
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Star
+import paige.navic.playback.PlayerRepository
 
 @Composable
 fun NowPlayingStarButton(
 	songIsStarred: Boolean,
 	onSetSongIsStarred: (Boolean) -> Unit
 ) {
-	val player = koinInject<MediaPlayer>()
+	val player = koinInject<PlayerRepository>()
 	val playerState by player.uiState.collectAsStateWithLifecycle()
 	IconButton(
 		onClick = {
@@ -38,9 +43,14 @@ fun NowPlayingStarButton(
 		modifier = Modifier.size(32.dp),
 		enabled = playerState.currentSong != null
 	) {
-		Icon(
-			if (songIsStarred) Icons.Filled.Star else Icons.Outlined.Star,
-			contentDescription = stringResource(R.string.action_star)
-		)
+		AnimatedContent(
+			targetState = songIsStarred,
+			transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(200)) }
+		) { isStarred ->
+			Icon(
+				if (isStarred) Icons.Filled.Star else Icons.Outlined.Star,
+				contentDescription = stringResource(R.string.action_star)
+			)
+		}
 	}
 }

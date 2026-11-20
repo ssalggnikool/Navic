@@ -210,7 +210,6 @@
     <string name="title_data_storage">Data og lagring</string>
     <string name="title_bottom_app_bar">Bunnlinje</string>
     <string name="title_behaviour">Oppførsel</string>
-    <string name="title_cache_management">Mellomlagring</string>
     <string name="title_danger_zone">Faresone</string>
     <string name="title_genres">Sjangere</string>
     <string name="title_navigation_bar">Navigasjonslinje</string>
@@ -451,8 +450,6 @@
     <string name="title_delete_download">Slett nedlastinger?</string>
     <string name="action_edit_api_key">Rediger %1$s API nøkkel</string>
     <string name="media_session_channel_name">Medieavspilling</string>
-    <string name="title_storage_management">Lagring</string>
-    <string name="option_streaming_cache">Mellomlager for strømming</string>
     <string name="action_clear_stream_cache">Tøm mellomlager for strømming</string>
     <string name="alt_addresses_edit_address">Rediger adresse</string>
     <string name="notice_deleted_downloads">Slett nedlastinger.</string>

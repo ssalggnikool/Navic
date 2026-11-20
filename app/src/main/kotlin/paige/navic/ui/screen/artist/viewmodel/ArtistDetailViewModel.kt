@@ -25,7 +25,7 @@ import paige.navic.domain.repository.AlbumRepository
 import paige.navic.domain.repository.ArtistRepository
 import paige.navic.domain.repository.DbRepository
 import paige.navic.domain.repository.SongRepository
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.core.UiState
 import paige.navic.util.Logger
 
@@ -34,6 +34,7 @@ data class ArtistState(
 	val artist: DomainArtist,
 	val albums: List<DomainAlbum>,
 	val topSongs: List<DomainSong>,
+	val appearsOnSongs: List<DomainSong> = emptyList(),
 	val similarArtists: List<DomainArtist> = emptyList()
 )
 
@@ -96,9 +97,18 @@ class ArtistDetailViewModel(
 				}
 
 				val domainAlbums = albumsWithSongs.map { it.toDomainModel() }
+				val mainAlbumIds = domainAlbums.map { it.id }
 
-				val domainSongs = albumsWithSongs.flatMap { it.songs }
-					.map { it.toDomainModel() }
+				val appearsOnSongs = songRepository.getAppearsOnSongsForArtist(
+					artistId = artistId,
+					artistName = domainArtist.name,
+					excludedAlbumIds = mainAlbumIds
+				)
+
+				val allArtistSongs = (albumsWithSongs.flatMap { it.songs }.map { it.toDomainModel() } + appearsOnSongs)
+					.distinctBy { it.id }
+
+				val domainSongs = allArtistSongs
 					.sortedByDescending { it.playCount }
 					.take(12)
 
@@ -113,6 +123,7 @@ class ArtistDetailViewModel(
 						artist = domainArtist,
 						albums = domainAlbums,
 						topSongs = domainSongs,
+						appearsOnSongs = appearsOnSongs,
 						similarArtists = initialSimilarArtists
 					)
 				)
@@ -238,7 +249,7 @@ class ArtistDetailViewModel(
 		}
 	}
 
-	fun playArtistAlbums(player: MediaPlayer) {
+	fun playArtistAlbums(player: PlayerRepository) {
 		val songs = (artistState.value as? UiState.Success)?.data
 			?.albums?.flatMap { it.songs }
 			?: return
@@ -247,7 +258,7 @@ class ArtistDetailViewModel(
 		player.playNow(songs)
 	}
 
-	fun playArtistAlbumsShuffled(player: MediaPlayer) {
+	fun playArtistAlbumsShuffled(player: PlayerRepository) {
 		val songs = (artistState.value as? UiState.Success)?.data
 			?.albums?.flatMap { it.songs }
 			?: return

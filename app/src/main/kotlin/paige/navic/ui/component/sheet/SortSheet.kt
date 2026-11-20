@@ -35,15 +35,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import paige.navic.R
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.settings.ListViewMode
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.outlined.Download
-import paige.navic.ui.icons.outlined.ListArrow
-import paige.navic.ui.icons.outlined.Star
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
-import paige.navic.ui.theme.defaultFont
+import paige.navic.icons.Icons
+import paige.navic.icons.outlined.Download
+import paige.navic.icons.outlined.Grid
+import paige.navic.icons.outlined.List
+import paige.navic.icons.outlined.ListArrow
+import paige.navic.icons.outlined.Star
+import paige.navic.ui.util.label
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -167,10 +170,14 @@ fun <T> SortSheet(
 							),
 							onClick = { onSetViewMode(viewMode) },
 							selected = selectedViewMode == viewMode,
-							label = { Text(stringResource(viewMode.displayName)) },
+							label = { Text(viewMode.label()) },
 							icon = {
+								val icon = when (viewMode) {
+									ListViewMode.Grid -> Icons.Outlined.Grid
+									ListViewMode.List -> Icons.Outlined.List
+								}
 								Icon(
-									imageVector = viewMode.icon,
+									imageVector = icon,
 									contentDescription = null
 								)
 							}

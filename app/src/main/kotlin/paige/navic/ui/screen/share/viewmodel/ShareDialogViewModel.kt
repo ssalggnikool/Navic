@@ -24,15 +24,22 @@ class ShareDialogViewModel(
 
 	fun share(
 		id: String,
-		expiry: Duration?
+		expiry: Duration?,
+		description: String? = null,
+		downloadable: Boolean = false
 	) {
 		viewModelScope.launch {
 			state.value = UiState.Loading()
 			try {
 				val expiration = expiry?.let { Clock.System.now() + it }
-				val url = sessionManager.api
-					.createShare(listOf(id), expiresAt = expiration)
-					.url
+				val url = sessionManager.shares
+					?.createShare(
+						ids = listOf(id),
+						description = description,
+						expiresAt = expiration,
+						downloadable = downloadable
+					)
+					?.url
 				state.value = UiState.Success(url)
 			} catch (e: Exception) {
 				state.value = UiState.Error(e)

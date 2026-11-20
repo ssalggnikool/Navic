@@ -32,25 +32,25 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.dropUnlessResumed
 import org.koin.compose.koinInject
 import paige.navic.R
+import paige.navic.designsystem.theme.defaultFont
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.BottomNavigation
+import paige.navic.icons.filled.Info
+import paige.navic.icons.filled.Palette
+import paige.navic.icons.filled.Play
+import paige.navic.icons.outlined.AccountCircle
+import paige.navic.icons.outlined.ChevronForward
+import paige.navic.icons.outlined.Code
+import paige.navic.icons.outlined.DataTable
+import paige.navic.icons.outlined.Note
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
 import paige.navic.ui.component.layout.NestedTopBar
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.BottomNavigation
-import paige.navic.ui.icons.filled.Info
-import paige.navic.ui.icons.filled.Palette
-import paige.navic.ui.icons.filled.Play
-import paige.navic.ui.icons.outlined.AccountCircle
-import paige.navic.ui.icons.outlined.ChevronForward
-import paige.navic.ui.icons.outlined.Code
-import paige.navic.ui.icons.outlined.DataTable
-import paige.navic.ui.icons.outlined.Note
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
-import paige.navic.ui.theme.defaultFont
 
 @Composable
 fun SettingsScreen() {
@@ -127,8 +127,7 @@ fun SettingsScreen() {
 					destination = Screen.Settings.About,
 					icon = Icons.Filled.Info,
 					title = R.string.title_about,
-					subtitle = R.string.subtitle_about,
-					shapes = SegmentedListItemDefaults.segmentedShapes(index = 0, count = 1)
+					subtitle = R.string.subtitle_about
 				)
 			}
 		}
@@ -142,7 +141,7 @@ private fun PageRow(
 	iconSize: Dp = 22.dp,
 	title: Int,
 	subtitle: Int,
-	shapes: ListItemShapes
+	shapes: ListItemShapes = SegmentedListItemDefaults.segmentedShapes()
 ) {
 	val backStack = LocalNavStack.current
 	val preferenceManager = koinInject<PreferenceManager>()

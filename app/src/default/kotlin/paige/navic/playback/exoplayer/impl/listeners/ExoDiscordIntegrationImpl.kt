@@ -12,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -27,7 +28,7 @@ import night.milkyway.antisocialcord.model.ActivityType
 import night.milkyway.antisocialcord.model.StatusDisplayType
 import org.koin.core.component.inject
 import paige.navic.discord.CoverArtUploadManager
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.model.settings.DiscordStatusType
@@ -87,6 +88,15 @@ class ExoDiscordIntegrationImpl(val player: Player) : ExoDiscordIntegration {
 		scope.launch(block = block)
 	}
 
+	override fun onMediaItemTransition(
+		mediaItem: MediaItem?,
+		reason: @Player.MediaItemTransitionReason Int
+	) {
+		launch {
+			setCurrentActivity(mediaItem)
+		}
+	}
+
 	override fun onPlaybackStateChanged(playbackState: @Player.State Int) {
 		launch {
 			if (playbackState == Player.STATE_READY) {
@@ -123,6 +133,11 @@ class ExoDiscordIntegrationImpl(val player: Player) : ExoDiscordIntegration {
 				setCurrentActivity(player.currentMediaItem)
 			}
 		}
+	}
+
+	override fun release() {
+		scope.cancel()
+		runCatching { client.disconnect() }
 	}
 
 	private fun isIntegrationEnabled() = preferenceManager.enableDiscordIntegration

@@ -10,7 +10,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
@@ -32,15 +34,22 @@ fun VerticalSlider(
 	interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 	colors: SliderColors = SliderDefaults.colors()
 ) {
+	val state = rememberSliderState(value = value, steps = steps, trackRange = valueRange)
+
+	LaunchedEffect(value) {
+		state.value = value
+	}
+
 	Slider(
 		colors = colors,
 		interactionSource = interactionSource,
 		onValueChangeFinished = onValueChangeFinished,
-		steps = steps,
-		valueRange = valueRange,
 		enabled = enabled,
-		value = value,
-		onValueChange = onValueChange,
+		state = state,
+		onValueChange = {
+			state.value = it
+			onValueChange(it)
+		},
 		modifier = Modifier
 			.graphicsLayer {
 				rotationZ = 270f

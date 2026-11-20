@@ -10,8 +10,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import paige.navic.ui.core.PlayerUiState
@@ -24,11 +23,10 @@ class PlayerStateRepository(
 		ignoreUnknownKeys = true
 	}
 
-	val state: Flow<PlayerUiState> = preferences.data.map {
-		try {
-			json.decodeFromString<PlayerUiState>(
-				it[KEY_STATE] ?: return@map PlayerUiState()
-			)
+	suspend fun getState(): PlayerUiState {
+		val encoded = preferences.data.first()[KEY_STATE] ?: return PlayerUiState()
+		return try {
+			json.decodeFromString<PlayerUiState>(encoded)
 		} catch (ex: SerializationException) {
 			Logger.e("PlayerStateRepository", "failed to deserialise state", ex)
 			PlayerUiState()

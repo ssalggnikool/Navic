@@ -39,20 +39,21 @@ import paige.navic.R
 import paige.navic.database.entity.DownloadEntity
 import paige.navic.database.entity.DownloadStatus
 import paige.navic.di.LocalNavStack
-import paige.navic.domain.manager.runtime.PreferenceManager
 import paige.navic.domain.model.DomainExplicitStatus
 import paige.navic.domain.model.DomainSong
+import paige.navic.icons.Icons
+import paige.navic.icons.filled.Star
+import paige.navic.icons.outlined.Check
+import paige.navic.icons.outlined.DownloadOff
+import paige.navic.icons.outlined.Queue
+import paige.navic.icons.outlined.QueuePlayNext
+import paige.navic.playback.PlayerRepository
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.component.common.CoverArt
 import paige.navic.ui.component.common.MarqueeText
 import paige.navic.ui.component.common.SmallRatingRow
 import paige.navic.ui.component.common.SwipeToDismissBox
 import paige.navic.ui.component.sheet.SongSheet
-import paige.navic.ui.icons.Icons
-import paige.navic.ui.icons.filled.Star
-import paige.navic.ui.icons.outlined.Check
-import paige.navic.ui.icons.outlined.DownloadOff
-import paige.navic.ui.icons.outlined.Queue
-import paige.navic.ui.icons.outlined.QueuePlayNext
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.screen.playlist.dialog.PlaylistUpdateDialog
 import paige.navic.ui.util.InlineExplicitIcon
@@ -83,6 +84,7 @@ fun SongListScreenItem(
 	val scope = rememberCoroutineScope()
 	var playlistDialogShown by rememberSaveable { mutableStateOf(false) }
 	val preferenceManager = koinInject<PreferenceManager>()
+	val player = koinInject<PlayerRepository>()
 
 	SwipeToDismissBox(
 		modifier = modifier,
@@ -147,8 +149,9 @@ fun SongListScreenItem(
 						MarqueeText(
 							buildSongInfoString(song)
 						)
-						if (song.userRating != null && song.userRating != 0) {
-							SmallRatingRow(rating = song.userRating)
+						val userRating = song.userRating
+						if (userRating != null && userRating != 0) {
+							SmallRatingRow(rating = userRating)
 						}
 					}
 				},
@@ -210,6 +213,7 @@ fun SongListScreenItem(
 					onShare = { onSetShareId(song.id) },
 					onPlayNext = onPlayNext,
 					onAddToQueue = onAddToQueue,
+					onInstantMix = { player.playInstantMix(song) },
 					onTrackInfo = dropUnlessResumed {
 						backStack.add(Screen.SongDetailScreen(song.id, song.coverArtId))
 					},
@@ -217,8 +221,7 @@ fun SongListScreenItem(
 						dropUnlessResumed {
 							backStack.add(
 								Screen.CollectionDetail(
-									collectionId = albumId,
-									tab = "library"
+									collectionId = albumId
 								)
 							)
 						}

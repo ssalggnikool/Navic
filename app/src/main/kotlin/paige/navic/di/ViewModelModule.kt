@@ -14,7 +14,7 @@ import paige.navic.domain.model.DomainAlbumListType
 import paige.navic.domain.model.DomainArtistListType
 import paige.navic.domain.model.DomainFilter
 import paige.navic.domain.model.DomainSongListType
-import paige.navic.playback.MediaPlayer
+import paige.navic.playback.PlayerRepository
 import paige.navic.ui.component.dialog.DeletionViewModel
 import paige.navic.ui.component.sheet.ChangelogViewModel
 import paige.navic.ui.screen.album.viewmodel.AlbumListViewModel
@@ -23,6 +23,7 @@ import paige.navic.ui.screen.artist.viewmodel.ArtistListViewModel
 import paige.navic.ui.screen.chat.viewmodel.ChatViewModel
 import paige.navic.ui.screen.collection.viewmodel.CollectionDetailViewModel
 import paige.navic.ui.screen.genre.viewmodel.GenreListViewModel
+import paige.navic.ui.screen.login.viewmodel.LoginViewModel
 import paige.navic.ui.screen.lyrics.viewmodel.LyricsScreenViewModel
 import paige.navic.ui.screen.nowPlaying.viewmodel.NowPlayingViewModel
 import paige.navic.ui.screen.playlist.viewmodel.PlaylistCreateDialogViewModel
@@ -46,8 +47,8 @@ import paige.navic.ui.viewmodel.RootViewModel
 import paige.navic.util.network.NavicDnsResolver
 
 val viewModelModule = module {
-	single<MediaPlayer> {
-		MediaPlayer(
+	single<PlayerRepository> {
+		PlayerRepository(
 			application = androidApplication(),
 			stateRepository = get(),
 			songRepository = get(),
@@ -146,6 +147,8 @@ val viewModelModule = module {
 		PlaylistCreateDialogViewModel(
 			songIds = songIds,
 			playlistDao = get(),
+			songDao = get(),
+			syncManager = get(),
 			sessionManager = get(),
 			snackBarManager = get()
 		)
@@ -176,4 +179,5 @@ val viewModelModule = module {
 	viewModelOf(::RootViewModel)
 	viewModelOf(::StatisticsViewModel)
 	viewModelOf(::ChatViewModel)
+	viewModelOf(::LoginViewModel)
 }

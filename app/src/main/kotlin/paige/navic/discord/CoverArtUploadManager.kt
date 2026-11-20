@@ -17,7 +17,7 @@ import paige.navic.discord.uploader.FreeImageHostUploader
 import paige.navic.discord.uploader.ImgBbUploader
 import paige.navic.discord.uploader.catbox.CatboxUploader
 import paige.navic.discord.uploader.catbox.LitterboxUploader
-import paige.navic.domain.manager.runtime.PreferenceManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.settings.CoverArtHost
 import paige.navic.util.Logger
