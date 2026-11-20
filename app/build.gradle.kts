@@ -189,6 +189,7 @@ dependencies {
 	implementation(libs.androidx.room3.runtime)
 	implementation(libs.androidx.navigation3.ui)
 	implementation(libs.androidx.media3.exoplayer)
+	implementation(libs.androidx.media3.hls)
 	implementation(libs.androidx.media3.session)
 	implementation(libs.androidx.media3.datasource.okhttp)
 	implementation(libs.androidx.media3.decoder.ffmpeg)

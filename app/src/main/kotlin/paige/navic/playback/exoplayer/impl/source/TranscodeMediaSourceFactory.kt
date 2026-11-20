@@ -51,24 +51,34 @@ internal class TranscodeMediaSourceFactory(
 		val durationMs = mediaItem.mediaMetadata.durationMs
 		val downloadable = songId != null && !songId.startsWith(RADIO_PREFIX)
 		val downloaded = downloadable && downloadManager.downloadedSongs.value.containsKey(songId)
+		val (bitrateKbps, format) =
+			NavicDataSource.getCurrentQuality(preferenceManager, connectivityManager)
 
-		return if (
-			songId != null &&
-			downloadable &&
-			!downloaded &&
-			durationMs != null &&
-			durationMs > 0L &&
-			isTranscodingActive() &&
-			sessionManager.supportsExtension(ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET)
-		) {
-			TimeOffsetMediaSource(
-				mediaItem = mediaItem,
-				durationUs = durationMs * 1_000L,
-				dataSourceFactory = dataSourceFactory,
-				extractorsFactory = extractorsFactory
+		// hls playlist base uris are relative, so exoplayer needs the real url as the item uri
+		val hlsUrl = songId
+			?.takeIf { downloadable && !downloaded }
+			?.let { sessionManager.api.getHlsStreamUrl(it, bitrateKbps, format) }
+
+		return when {
+			hlsUrl != null -> delegate.createMediaSource(
+				mediaItem.buildUpon().setUri(hlsUrl).build()
 			)
-		} else {
-			delegate.createMediaSource(mediaItem)
+
+			songId != null &&
+				downloadable &&
+				!downloaded &&
+				durationMs != null &&
+				durationMs > 0L &&
+				(bitrateKbps > 0 || format != null) &&
+				sessionManager.supportsExtension(ServerExtension.OPENSUBSONIC_TRANSCODE_OFFSET) ->
+				TimeOffsetMediaSource(
+					mediaItem = mediaItem,
+					durationUs = durationMs * 1_000L,
+					dataSourceFactory = dataSourceFactory,
+					extractorsFactory = extractorsFactory
+				)
+
+			else -> delegate.createMediaSource(mediaItem)
 		}
 	}
 
@@ -95,11 +105,6 @@ internal class TranscodeMediaSourceFactory(
 	override fun setSubtitleParserFactory(
 		subtitleParserFactory: SubtitleParser.Factory
 	): MediaSource.Factory = apply { delegate.setSubtitleParserFactory(subtitleParserFactory) }
-
-	private fun isTranscodingActive(): Boolean {
-		val (bitrate, container) = NavicDataSource.getCurrentQuality(preferenceManager, connectivityManager)
-		return bitrate > 0 || container != null
-	}
 
 	private companion object {
 		const val RADIO_PREFIX = "radio_"
