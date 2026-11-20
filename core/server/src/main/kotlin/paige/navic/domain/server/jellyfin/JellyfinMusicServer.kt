@@ -9,6 +9,7 @@ package paige.navic.domain.server.jellyfin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.api.client.ApiClient
+import org.jellyfin.sdk.api.operations.ImageApi
 import org.jellyfin.sdk.api.operations.InstantMixApi
 import org.jellyfin.sdk.api.operations.ItemUpdateApi
 import org.jellyfin.sdk.api.operations.LibraryApi
@@ -18,8 +19,10 @@ import org.jellyfin.sdk.api.operations.SessionApi
 import org.jellyfin.sdk.api.operations.SystemApi
 import org.jellyfin.sdk.api.operations.UserApi
 import org.jellyfin.sdk.api.operations.UserDataApi
+import org.jellyfin.sdk.model.FileInfo
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.CreatePlaylistDto
+import org.jellyfin.sdk.model.api.ImageType
 import org.jellyfin.sdk.model.api.ItemFields
 import org.jellyfin.sdk.model.api.ItemSortBy
 import org.jellyfin.sdk.model.api.MediaType
@@ -43,6 +46,7 @@ import paige.navic.domain.model.DomainUser
 import paige.navic.domain.model.ServerLyricLine
 import paige.navic.domain.model.ServerLyrics
 import paige.navic.domain.server.MusicServer
+import paige.navic.domain.server.PlaylistCoverServer
 import paige.navic.domain.server.ServerException
 import paige.navic.domain.server.ServerInfo
 import paige.navic.domain.server.ServerStatus
@@ -58,7 +62,7 @@ class JellyfinMusicServer(
 	private val baseUrl: String,
 	private val userId: UUID,
 	private val accessToken: String
-) : MusicServer {
+) : MusicServer, PlaylistCoverServer {
 
 	private val systemApi = SystemApi(api)
 	private val userApi = UserApi(api)
@@ -69,6 +73,7 @@ class JellyfinMusicServer(
 	private val sessionApi = SessionApi(api)
 	private val lyricApi = LyricApi(api)
 	private val itemUpdateApi = ItemUpdateApi(api)
+	private val imageApi = ImageApi(api)
 
 	override suspend fun ping(): ServerStatus {
 		//systemApi.getPingSystem()
@@ -522,6 +527,27 @@ class JellyfinMusicServer(
 
 	override fun parseResponseError(contentType: String?, body: String): ServerException? {
 		return null
+	}
+
+	override suspend fun isImageAbsent(playlistId: String): Boolean {
+		try {
+			imageApi.getItemImage(playlistId.toUuid(), ImageType.PRIMARY)
+			return true
+		} catch (_: Exception) {
+			return false
+		}
+	}
+
+	override suspend fun uploadPlaylistCover(id: String, bytes: ByteArray, contentType: String?) {
+		imageApi.setItemImage(
+			itemId = id.toUuid(),
+			imageType = ImageType.PRIMARY,
+			data = FileInfo(bytes, contentType ?: "image/jpeg")
+		)
+	}
+
+	override suspend fun removePlaylistCover(id: String) {
+		imageApi.deleteItemImage(id.toUuid(), ImageType.PRIMARY)
 	}
 }
 

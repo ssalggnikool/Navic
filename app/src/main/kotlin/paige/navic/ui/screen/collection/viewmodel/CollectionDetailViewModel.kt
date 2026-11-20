@@ -18,9 +18,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import paige.navic.R
-import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SessionState
+import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
 import paige.navic.domain.manager.ui.SnackBarManager
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
@@ -31,6 +31,7 @@ import paige.navic.domain.repository.AlbumRepository
 import paige.navic.domain.repository.CollectionRepository
 import paige.navic.domain.repository.SongRepository
 import paige.navic.ui.viewmodel.AsyncViewModel
+import paige.navic.util.Logger
 
 data class CollectionViewState(
 	val collection: DomainSongCollection? = null,
@@ -124,16 +125,17 @@ class CollectionDetailViewModel(
 		it.copy(selectedSong = null, selectedAlbum = null)
 	}
 
-	fun uploadPlaylistCover(bytes: ByteArray) {
+	fun uploadPlaylistCover(bytes: ByteArray, contentType: String?) {
 		val playlist = data?.collection as? DomainPlaylist ?: return
 		launch {
 			runCatching {
-				sessionManager.playlistCovers?.uploadPlaylistCover(playlist.id, bytes)
+				sessionManager.playlistCovers?.uploadPlaylistCover(playlist.id, bytes, contentType)
 					?: error("Playlist cover upload is not supported")
 			}.onSuccess {
 				snackBarManager.notify(R.string.notice_cover_uploaded)
 				refreshCollection(true)
 			}.onFailure {
+				Logger.e("CollectionDetailViewModel", "playlist cover upload failed", it)
 				snackBarManager.notify(R.string.notice_cover_upload_failed)
 			}
 		}
@@ -149,6 +151,7 @@ class CollectionDetailViewModel(
 				snackBarManager.notify(R.string.notice_cover_removed)
 				refreshCollection(true)
 			}.onFailure {
+				Logger.e("CollectionDetailViewModel", "playlist cover removal failed", it)
 				snackBarManager.notify(R.string.notice_cover_removal_failed)
 			}
 		}

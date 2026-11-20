@@ -126,7 +126,8 @@ fun CollectionDetailScreen(
 					context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
 				}
 			}.getOrNull() ?: return@launch
-			viewModel.uploadPlaylistCover(bytes)
+			val contentType = context.contentResolver.getType(uri)
+			viewModel.uploadPlaylistCover(bytes, contentType)
 		}
 	}
 

@@ -144,7 +144,7 @@ interface RadioServer {
 interface PlaylistCoverServer {
 	suspend fun isImageAbsent(playlistId: String): Boolean
 
-	suspend fun uploadPlaylistCover(id: String, bytes: ByteArray)
+	suspend fun uploadPlaylistCover(id: String, bytes: ByteArray, contentType: String?)
 
 	suspend fun removePlaylistCover(id: String)
 }

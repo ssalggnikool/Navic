@@ -40,21 +40,15 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.database.entity.DownloadStatus
-import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.canUserShare
+import paige.navic.domain.manager.session.isJellyfin
 import paige.navic.domain.manager.session.isNavidrome
 import paige.navic.domain.model.DomainAlbum
 import paige.navic.domain.model.DomainAlbumInfo
 import paige.navic.domain.model.DomainPlaylist
 import paige.navic.domain.model.DomainSongCollection
-import paige.navic.ui.component.common.CoverArt
-import paige.navic.ui.component.common.MarqueeText
-import paige.navic.ui.component.common.RatingRow
-import paige.navic.ui.component.dialog.DeleteDownloadTarget
-import paige.navic.ui.component.dialog.LinkConfirmationDialog
-import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 import paige.navic.icons.Icons
 import paige.navic.icons.brand.LastFM
 import paige.navic.icons.brand.MusicBrainz
@@ -71,6 +65,13 @@ import paige.navic.icons.outlined.Queue
 import paige.navic.icons.outlined.QueuePlayNext
 import paige.navic.icons.outlined.Share
 import paige.navic.icons.outlined.Star
+import paige.navic.preferences.PreferenceManager
+import paige.navic.ui.component.common.CoverArt
+import paige.navic.ui.component.common.MarqueeText
+import paige.navic.ui.component.common.RatingRow
+import paige.navic.ui.component.dialog.DeleteDownloadTarget
+import paige.navic.ui.component.dialog.LinkConfirmationDialog
+import paige.navic.ui.component.dialog.rememberDownloadDeletionHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,7 +110,7 @@ fun CollectionSheet(
 	var linkToOpen by rememberSaveable { mutableStateOf<String?>(null) }
 	val canEditCover = collection is DomainPlaylist &&
 		collection.readOnly != true &&
-		sessionManager.isNavidrome()
+		(sessionManager.isNavidrome() || sessionManager.isJellyfin())
 	val downloadDeletionHandler = rememberDownloadDeletionHandler()
 
 	ModalBottomSheet(

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.model.DomainUser
 import paige.navic.domain.server.AuthMethod
 import paige.navic.domain.server.ChatServer
@@ -28,6 +27,7 @@ import paige.navic.domain.server.ServerCredentials
 import paige.navic.domain.server.ServerExtension
 import paige.navic.domain.server.ServerInfo
 import paige.navic.domain.server.ShareServer
+import paige.navic.preferences.PreferenceManager
 import paige.navic.util.Logger
 import paige.navic.util.TTLLruCache
 import paige.navic.util.getEncryptedString
@@ -299,6 +299,10 @@ fun SessionManager.getServerInfo(): ServerInfo? {
 
 fun SessionManager.isNavidrome(): Boolean {
 	return this.getServerInfo()?.type.equals("navidrome", ignoreCase = true)
+}
+
+fun SessionManager.isJellyfin(): Boolean {
+	return this.getServerInfo()?.type.equals("jellyfin", ignoreCase = true)
 }
 
 fun SessionManager.supportsExtension(extension: ServerExtension): Boolean {
