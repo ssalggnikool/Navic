@@ -204,8 +204,8 @@ class NavicDataSource(
 			sessionManager.api.getPlaybackStreamUrl(id, bitrateKbps, format)
 		} catch (e: Exception) {
 			if (e is CancellationException) throw e
-			Logger.w(TAG, "stream url resolution failed for $id, using direct stream", e)
-			sessionManager.api.getStreamUrl(id, format = "raw")
+			Logger.w(TAG, "stream url resolution failed for $id, skipping transcode decisions", e)
+			sessionManager.api.getPlaybackStreamUrl(id, bitrateKbps, format, true)
 		}
 
 		ttlLruCache.put(cacheKey, streamUrl)

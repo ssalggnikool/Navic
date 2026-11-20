@@ -487,15 +487,15 @@ class JellyfinMusicServer(
 		}
 	}
 
-	override fun getStreamUrl(
+	override suspend fun getPlaybackStreamUrl(
 		id: String,
-		maxBitRate: Int,
+		bitrateKbps: Int,
 		format: String?,
-		estimateContentLength: Boolean
+		skipTranscodeDecisions: Boolean
 	): String {
 		val params = mutableListOf("api_key=$accessToken")
-		if (maxBitRate > 0) {
-			params.add("maxStreamingBitrate=${maxBitRate * 1000}")
+		if (bitrateKbps > 0) {
+			params.add("maxStreamingBitrate=${bitrateKbps * 1000}")
 		} else {
 			params.add("static=true")
 		}
@@ -503,20 +503,6 @@ class JellyfinMusicServer(
 			"$baseUrl/Audio/$id/stream.$format?${params.joinToString("&")}"
 		} else {
 			"$baseUrl/Audio/$id/stream?${params.joinToString("&")}"
-		}
-	}
-
-	override suspend fun getPlaybackStreamUrl(
-		id: String,
-		bitrateKbps: Int,
-		format: String?
-	): String {
-		val formattedFormat = format?.takeIf { it.isNotBlank() } ?: "mp3"
-		return if (bitrateKbps > 0) {
-			val bitrateBps = bitrateKbps * 1000
-			"$baseUrl/Audio/$id/stream.$formattedFormat?maxStreamingBitrate=$bitrateBps&api_key=$accessToken"
-		} else {
-			getStreamUrl(id, maxBitRate = 0, format = format)
 		}
 	}
 

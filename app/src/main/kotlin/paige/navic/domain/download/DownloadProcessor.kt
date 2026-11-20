@@ -27,11 +27,11 @@ import paige.navic.database.entity.DownloadStatus
 import paige.navic.database.entity.LyricEntity
 import paige.navic.database.mapper.toDomainModel
 import paige.navic.database.mapper.toEntity
-import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.model.DomainSong
 import paige.navic.domain.repository.LyricsRepository
+import paige.navic.preferences.PreferenceManager
 import paige.navic.util.Logger
 import paige.navic.util.network.NavicDnsResolver
 import paige.navic.util.network.createHttpClientWithPreferences
@@ -199,12 +199,11 @@ class DownloadProcessor(
 		storageManager.deleteTempFile(finalPath)
 
 		val request = client.prepareRequest(
-			sessionManager.api.getStreamUrl(
+			sessionManager.api.getPlaybackStreamUrl(
 				id = song.id,
-				maxBitRate = bitrate,
+				bitrateKbps = bitrate,
 				format = container?.takeIf { it.isNotBlank() },
-				// if this is true u get "stream was reset: INTERNAL_ERROR" for some reason
-				estimateContentLength = false
+				skipTranscodeDecisions = true
 			)
 		) {
 			method = HttpMethod.Get
