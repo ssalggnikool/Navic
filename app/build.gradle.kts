@@ -33,6 +33,12 @@ android {
 		generateLocaleConfig = true
 	}
 
+	lint {
+		// TODO: remove lint disable
+		// lint false-positives on the widget receivers in :core:widgets (they do extend BroadcastReceiver)
+		disable += "Instantiatable"
+	}
+
 	defaultConfig {
 		applicationId = "paige.navic"
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
