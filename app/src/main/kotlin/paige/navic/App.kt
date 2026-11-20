@@ -17,9 +17,12 @@ import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.unveilIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -65,6 +68,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.NavDisplay.popTransitionSpec
 import androidx.navigation3.ui.NavDisplay.predictivePopTransitionSpec
 import androidx.navigation3.ui.NavDisplay.transitionSpec
+import androidx.navigationevent.NavigationEvent
 import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -294,15 +298,23 @@ fun App() {
 									density
 								)
 							},
-							predictivePopTransitionSpec = {
+							predictivePopTransitionSpec = { edge ->
 								if (preferenceManager.enablePredictiveBackAnimations) {
-									slideInHorizontally(
-										animationSpec = tween(300, easing = EaseOutQuart),
-										initialOffsetX = { -it }
-									) togetherWith slideOutHorizontally(
-										animationSpec = tween(300, easing = EaseOutQuart),
-										targetOffsetX = { it }
-									)
+									val mult = if (edge == NavigationEvent.EDGE_RIGHT) -1 else 1
+									val enter = unveilIn()
+										.plus(scaleIn(initialScale = 0.25f))
+										.plus(
+											slideInHorizontally(
+											animationSpec = tween(500, easing = EaseOutQuart),
+											initialOffsetX = { (-it * 25) * mult }
+										))
+									val exit = scaleOut(targetScale = 0.9f)
+										.plus(
+											slideOutHorizontally(
+											animationSpec = tween(300, easing = EaseOutQuart),
+											targetOffsetX = { (it / 10) * mult }
+										))
+									enter togetherWith exit
 								} else {
 									ContentTransform(EnterTransition.None, ExitTransition.None)
 								}
