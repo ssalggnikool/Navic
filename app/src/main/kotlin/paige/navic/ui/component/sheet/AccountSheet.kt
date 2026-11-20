@@ -229,7 +229,7 @@ fun AccountSheet(
 								IconButton(onClick = { accountToRemove = account }) {
 									Icon(
 										imageVector = Icons.Outlined.Delete,
-										contentDescription = stringResource(R.string.action_remove_server)
+										contentDescription = stringResource(R.string.action_remove_account)
 									)
 								}
 							}
@@ -257,7 +257,7 @@ fun AccountSheet(
 						count = alternateAccounts.size + 1
 					),
 					leadingContent = { Icon(Icons.Outlined.Add, null) },
-					content = { Text(stringResource(R.string.action_add_server)) }
+					content = { Text(stringResource(R.string.action_add_account)) }
 				)
 			}
 
@@ -421,7 +421,7 @@ fun AccountSheet(
 							tint = MaterialTheme.colorScheme.error
 						)
 					},
-					content = { Text(stringResource(R.string.action_remove_server)) }
+					content = { Text(stringResource(R.string.action_remove_account)) }
 				)
 			}
 		}
@@ -434,7 +434,7 @@ fun AccountSheet(
 	accountToRemove?.let { account ->
 		AlertDialog(
 			onDismissRequest = { accountToRemove = null },
-			title = { Text(stringResource(R.string.title_remove_server)) },
+			title = { Text(stringResource(R.string.title_remove_account)) },
 			text = {
 				Text(stringResource(R.string.notice_remove_server, account.baseUrl))
 			},
@@ -445,7 +445,7 @@ fun AccountSheet(
 						accountToRemove = null
 					}
 				) {
-					Text(stringResource(R.string.action_remove_server))
+					Text(stringResource(R.string.action_remove_account))
 				}
 			},
 			dismissButton = {
