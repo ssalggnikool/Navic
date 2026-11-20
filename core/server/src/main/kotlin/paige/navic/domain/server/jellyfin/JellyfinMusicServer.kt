@@ -499,10 +499,11 @@ class JellyfinMusicServer(
 		} else {
 			params.add("static=true")
 		}
-		if (!format.isNullOrBlank()) {
-			params.add("container=$format")
+		return if (!format.isNullOrBlank()) {
+			"$baseUrl/Audio/$id/stream.$format?${params.joinToString("&")}"
+		} else {
+			"$baseUrl/Audio/$id/stream?${params.joinToString("&")}"
 		}
-		return "$baseUrl/Audio/$id/stream?${params.joinToString("&")}"
 	}
 
 	override suspend fun getPlaybackStreamUrl(
@@ -513,7 +514,7 @@ class JellyfinMusicServer(
 		val formattedFormat = format?.takeIf { it.isNotBlank() } ?: "mp3"
 		return if (bitrateKbps > 0) {
 			val bitrateBps = bitrateKbps * 1000
-			"$baseUrl/Audio/$id/universal?maxStreamingBitrate=$bitrateBps&container=$formattedFormat&api_key=$accessToken"
+			"$baseUrl/Audio/$id/stream.$formattedFormat?maxStreamingBitrate=$bitrateBps&api_key=$accessToken"
 		} else {
 			getStreamUrl(id, maxBitRate = 0, format = format)
 		}
