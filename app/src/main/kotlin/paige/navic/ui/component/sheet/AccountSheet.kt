@@ -70,7 +70,6 @@ import paige.navic.icons.Icons
 import paige.navic.icons.filled.Settings
 import paige.navic.icons.outlined.Add
 import paige.navic.icons.outlined.Bedtime
-import paige.navic.icons.outlined.Check
 import paige.navic.icons.outlined.Delete
 import paige.navic.icons.outlined.Edit
 import paige.navic.icons.outlined.Forum
@@ -210,11 +209,10 @@ fun AccountSheet(
 			Column(
 				verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
 			) {
-				accounts.forEachIndexed { index, account ->
-					val isActive = account.id == sessionManager.activeAccountId
+				val alternateAccounts = accounts.filterNot { it.id == sessionManager.activeAccountId }
 
+				alternateAccounts.forEachIndexed { index, account ->
 					SegmentedListItem(
-						selected = isActive,
 						onClick = { loginManager.switchAccount(account.id) },
 						shapes = SegmentedListItemDefaults.segmentedShapes(
 							index = index,
@@ -228,9 +226,6 @@ fun AccountSheet(
 						},
 						trailingContent = {
 							Row(verticalAlignment = Alignment.CenterVertically) {
-								if (isActive) {
-									Icon(Icons.Outlined.Check, null)
-								}
 								IconButton(onClick = { accountToRemove = account }) {
 									Icon(
 										imageVector = Icons.Outlined.Delete,
@@ -258,8 +253,8 @@ fun AccountSheet(
 						backStack.add(Screen.Login)
 					},
 					shapes = SegmentedListItemDefaults.segmentedShapes(
-						index = accounts.size,
-						count = accounts.size + 1
+						index = alternateAccounts.size,
+						count = alternateAccounts.size + 1
 					),
 					leadingContent = { Icon(Icons.Outlined.Add, null) },
 					content = { Text(stringResource(R.string.action_add_server)) }
