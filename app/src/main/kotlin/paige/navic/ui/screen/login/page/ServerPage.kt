@@ -50,7 +50,6 @@ import paige.navic.icons.Icons
 import paige.navic.icons.brand.Jellyfin
 import paige.navic.icons.brand.Navidrome
 import paige.navic.icons.brand.Subsonic
-import paige.navic.icons.outlined.Album
 import paige.navic.icons.outlined.ChevronForward
 import paige.navic.ui.component.common.SegmentedListItem
 import paige.navic.ui.component.common.SegmentedListItemDefaults
@@ -129,7 +128,7 @@ private fun SavedServers(
 		verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
 	) {
 		Text(
-			text = stringResource(R.string.title_saved_servers),
+			text = stringResource(R.string.title_saved_accounts),
 			style = MaterialTheme.typography.titleSmall,
 			color = MaterialTheme.colorScheme.onSurfaceVariant,
 			modifier = Modifier.padding(start = 4.dp)
