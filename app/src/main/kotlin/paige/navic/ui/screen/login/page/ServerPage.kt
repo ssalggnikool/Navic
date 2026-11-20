@@ -48,6 +48,7 @@ import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.server.ServerType
 import paige.navic.icons.Icons
 import paige.navic.icons.brand.Jellyfin
+import paige.navic.icons.brand.Navidrome
 import paige.navic.icons.brand.Subsonic
 import paige.navic.icons.outlined.Album
 import paige.navic.icons.outlined.ChevronForward
@@ -136,7 +137,7 @@ private fun SavedServers(
 		accounts.forEachIndexed { index, account ->
 			val icon = when (account.serverType) {
 				ServerType.JELLYFIN -> Icons.Brand.Jellyfin
-				ServerType.NAVIDROME -> Icons.Outlined.Album
+				ServerType.NAVIDROME -> Icons.Brand.Navidrome
 				else -> Icons.Brand.Subsonic
 			}
 
@@ -231,7 +232,7 @@ private fun ServerChoices(
 		serverTypes.forEachIndexed { index, type ->
 			val icon = when (type) {
 				ServerType.SUBSONIC -> Icons.Brand.Subsonic
-				ServerType.NAVIDROME -> Icons.Outlined.Album
+				ServerType.NAVIDROME -> Icons.Brand.Navidrome
 				ServerType.JELLYFIN -> Icons.Brand.Jellyfin
 			}
 
