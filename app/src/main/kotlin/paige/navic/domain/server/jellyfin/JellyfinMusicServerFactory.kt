@@ -35,7 +35,8 @@ class JellyfinMusicServerFactory(
 	override fun create(baseUrl: String, credentials: ServerCredentials): MusicServer {
 		val jellyfinCreds = credentials as? ServerCredentials.Jellyfin
 		val accessToken = jellyfinCreds?.accessToken
-		val userIdString = jellyfinCreds?.userId ?: UUID.randomUUID().toString()
+		val userIdString =
+			jellyfinCreds?.userId?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
 
 		val apiClient = jellyfin.createApi(
 			baseUrl = baseUrl,
