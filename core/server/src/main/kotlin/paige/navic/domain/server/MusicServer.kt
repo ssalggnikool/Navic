@@ -90,6 +90,8 @@ interface MusicServer {
 
 	suspend fun deletePlaylist(id: String)
 
+	// this is for progressive streams, if you're implementing something that supports proper HLS,
+	// do prefer to implement that for a stable streaming experience
 	suspend fun getPlaybackStreamUrl(
 		id: String,
 		bitrateKbps: Int = 0,
