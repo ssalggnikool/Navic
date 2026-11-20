@@ -1,6 +1,7 @@
 .idea
 !.idea/icon.svg
 !.idea/copyright/**
+!.idea/dictionaries/**
 !.idea/scopes/**
 .kotlin
 .gradle
