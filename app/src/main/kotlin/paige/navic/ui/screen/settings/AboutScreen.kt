@@ -8,6 +8,7 @@ package paige.navic.ui.screen.settings
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,7 +40,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -64,6 +68,7 @@ import paige.navic.ui.screen.settings.component.SettingsGroup
 import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 import paige.navic.ui.screen.settings.component.SettingsLinkItem
 import paige.navic.ui.screen.settings.component.SettingsToggleItem
+import kotlin.random.Random
 
 private const val CODEBERG_BASE_URL = "https://codeberg.org/paige/Navic"
 
@@ -168,6 +173,8 @@ fun SettingsAboutScreen() {
 					)
 				}
 			}
+
+			Blurb()
 		}
 	}
 
@@ -191,9 +198,11 @@ private fun AboutHeader() {
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.spacedBy(12.dp)
 	) {
-		AppIcon(Modifier
-			.size(80.dp)
-			.clip(CircleShape))
+		AppIcon(
+			modifier = Modifier
+				.size(80.dp)
+				.clip(CircleShape)
+		)
 
 		Column(
 			horizontalAlignment = Alignment.CenterHorizontally,
@@ -349,3 +358,50 @@ private fun DeveloperListItem(
 	)
 }
 
+@Composable
+private fun Blurb() {
+	var seed by rememberSaveable { mutableIntStateOf(0) }
+	val text = rememberSaveable(seed) {
+		persistentListOf(
+			"Send ✌",
+			"click \"Add Friend\"",
+			"I built Navic—",
+			"Weigh the soul of incoming HTTP requests",
+			"navic is in flutter?????????????",
+			"Did my comment hurt your ego?",
+			"Wow.",
+			"LOL",
+			"AICR",
+			"Set reminder",
+			"MS-DOS*",
+			"Cookie monster!",
+			"Line Line Line",
+			"The tag for the server is CHUD...?",
+			"The author is literally a pie \uD83E\uDD67",
+			"the lion logo was promised to me 3000 years ago", // heropowwa
+			"the runner was promised to navic 3000 years ago", // wgrav
+			"Selamat Pagi!", // noa
+			"12reaissend", // urwq
+			"oh yk", // faye
+			"Also try Terraria!", // rift
+			"my... talents? can't i just be cute?", // lumi
+			"watch hidamari sketch", // lyn
+			"Play Persona 5 Royal #ad #sponsored #AtlusPartner", // clover
+			"Play Puyo Puyo Tetris 3DS #ad #sponsored #SegaPartner", // vivi
+			"The plague is everywhere. The plague is everywhere. The plague is all around you." // luna
+		).shuffled().random(Random(seed = seed))
+	}
+	Text(
+		text = text,
+		style = MaterialTheme.typography.labelSmall,
+		fontStyle = FontStyle.Italic,
+		color = MaterialTheme.colorScheme.onSurfaceVariant,
+		textAlign = TextAlign.Center,
+		modifier = Modifier
+			.padding(bottom = 10.dp)
+			.fillMaxWidth()
+			.clickable(interactionSource = null, indication = null) {
+				seed++
+			}
+	)
+}
