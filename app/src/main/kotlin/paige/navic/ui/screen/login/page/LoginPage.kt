@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.ui.screen.login.component
+package paige.navic.ui.screen.login.page
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -14,7 +15,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -30,8 +30,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,20 +63,33 @@ import paige.navic.di.LocalNavStack
 import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.runtime.PermissionManager
 import paige.navic.domain.manager.session.LoginManager
+import paige.navic.domain.server.AuthMethod
 import paige.navic.icons.Icons
+import paige.navic.icons.outlined.ArrowBack
 import paige.navic.icons.outlined.Error
 import paige.navic.ui.component.common.ErrorBox
 import paige.navic.ui.component.common.SegmentedListButton
 import paige.navic.ui.component.dialog.FormDialog
+import paige.navic.ui.component.layout.TopBarButton
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
 import paige.navic.ui.core.UiState
 import paige.navic.ui.navigation.Screen
 import paige.navic.ui.navigation.Screen.Library
+import paige.navic.ui.screen.login.component.LoginScreenFields
 
 @Composable
-fun LoginScreenContent(innerPadding: PaddingValues) {
+fun LoginPage(
+	modifier: Modifier = Modifier,
+	authMethod: AuthMethod,
+	onNavigateBack: () -> Unit
+) {
 	val viewModel = koinInject<LoginManager>()
+
+	LaunchedEffect(authMethod) {
+		viewModel.selectAuthMethod(authMethod)
+	}
+
 	val formState by viewModel.formState.collectAsStateWithLifecycle()
 
 	val instanceState = viewModel.instanceState
@@ -115,6 +131,8 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 		}
 	}
 
+	val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
 	LaunchedEffect(Unit) {
 		viewModel.events.collect { event ->
 			isBusy = event is LoginEvent.Loading
@@ -148,7 +166,41 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 		}
 	}
 
-	Box {
+	Scaffold(
+		modifier = modifier,
+		topBar = {
+			LargeFlexibleTopAppBar(
+				title = {
+					Text(
+						text = stringResource(R.string.action_log_in),
+						style = MaterialTheme.typography.headlineMedium,
+						fontFamily = defaultFont(round = 100f)
+					)
+				},
+				subtitle = {
+					Crossfade(targetState = viewModel.authMethod) { state ->
+						val label = when (state) {
+							AuthMethod.Jellyfin -> stringResource(R.string.info_login_description_jellyfin)
+							else -> stringResource(R.string.info_login_description)
+						}
+						Text(label)
+					}
+				},
+				navigationIcon = {
+					TopBarButton(
+						modifier = Modifier.padding(horizontal = 12.dp),
+						onClick = onNavigateBack
+					) {
+						Icon(
+							imageVector = Icons.Outlined.ArrowBack,
+							contentDescription = stringResource(R.string.action_navigate_back)
+						)
+					}
+				},
+				scrollBehavior = scrollBehavior
+			)
+		}
+	) { innerPadding ->
 		Column(
 			modifier = Modifier
 				.fillMaxSize()
@@ -158,27 +210,11 @@ fun LoginScreenContent(innerPadding: PaddingValues) {
 			horizontalAlignment = Alignment.CenterHorizontally,
 			verticalArrangement = Arrangement.spacedBy(6.dp)
 		) {
-			Spacer(
-				Modifier.weight(0.2f)
-			)
 			Column(
 				modifier = Modifier
 					.weight(1f)
 					.verticalScroll(rememberScrollState())
 			) {
-				Text(
-					text = stringResource(R.string.action_log_in),
-					style = MaterialTheme.typography.headlineMedium,
-					fontFamily = defaultFont(round = 100f),
-					modifier = Modifier.padding(horizontal = 16.dp)
-				)
-				Text(
-					text = stringResource(R.string.info_login_description),
-					modifier = Modifier.padding(horizontal = 16.dp)
-				)
-
-				Spacer(Modifier.height(8.dp))
-
 				val spatialSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
 				val effectSpec = MaterialTheme.motionScheme.slowEffectsSpec<Float>()
 				AnimatedContent(

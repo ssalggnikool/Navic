@@ -90,17 +90,11 @@ interface MusicServer {
 
 	suspend fun deletePlaylist(id: String)
 
-	fun getStreamUrl(
-		id: String,
-		maxBitRate: Int = 0,
-		format: String? = null,
-		estimateContentLength: Boolean = false
-	): String
-
 	suspend fun getPlaybackStreamUrl(
 		id: String,
 		bitrateKbps: Int = 0,
-		format: String? = null
+		format: String? = null,
+		skipTranscodeDecisions: Boolean = false
 	): String
 
 	fun getCoverArtUrl(id: String, size: String? = null): String

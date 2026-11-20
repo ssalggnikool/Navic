@@ -224,6 +224,8 @@ dependencies {
 	implementation(libs.koin.compose.viewmodel)
 	implementation(libs.koin.androidx.workmanager)
 	implementation(libs.subsonicKotlin)
+	implementation(libs.jellyfin.core)
+	implementation(libs.jellyfin.model)
 	"defaultImplementation"(libs.antisocialcord)
 	implementation(libs.cryptohash)
 	implementation(libs.mimetypes)

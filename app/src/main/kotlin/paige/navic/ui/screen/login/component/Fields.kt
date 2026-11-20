@@ -7,14 +7,10 @@
 package paige.navic.ui.screen.login.component
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.KeyboardActionHandler
@@ -62,7 +58,7 @@ fun LoginScreenFields(
 	) {
 		OutlinedTextField(
 			modifier = Modifier
-				.heightIn(min = 60.dp)
+				.height(70.dp)
 				.padding(horizontal = 16.dp)
 				.fillMaxWidth()
 				.focusRequester(instanceFocusRequester),
@@ -78,7 +74,7 @@ fun LoginScreenFields(
 				showKeyboardOnFocus = true
 			),
 			onKeyboardAction = KeyboardActionHandler {
-				if (authMethod == AuthMethod.Token) {
+				if (authMethod == AuthMethod.Token || authMethod == AuthMethod.Jellyfin) {
 					usernameFocusRequester.requestFocus()
 				} else {
 					passwordFocusRequester.requestFocus()
@@ -89,36 +85,40 @@ fun LoginScreenFields(
 		LoginScreenSuggestionChips(instanceState = instanceState)
 
 		AnimatedVisibility(
-			visible = supportsApiKeyAuthentication,
-			enter = expandVertically() + fadeIn(),
-			exit = shrinkVertically() + fadeOut()
+			visible = authMethod != AuthMethod.Jellyfin && supportsApiKeyAuthentication
 		) {
 			SingleChoiceSegmentedButtonRow(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(horizontal = 16.dp)
 			) {
-				SegmentedButton(
-					shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-					onClick = { onAuthMethodChange(AuthMethod.Token) },
-					selected = authMethod == AuthMethod.Token,
-					enabled = !isBusy,
-					label = { Text(stringResource(R.string.option_account_password)) }
-				)
-				SegmentedButton(
-					shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-					onClick = { onAuthMethodChange(AuthMethod.ApiKey) },
-					selected = authMethod == AuthMethod.ApiKey,
-					enabled = !isBusy,
-					label = { Text(stringResource(R.string.option_account_api_key)) }
-				)
+				val methods = listOf(AuthMethod.Token, AuthMethod.ApiKey)
+				methods.forEachIndexed { index, method ->
+					SegmentedButton(
+						shape = SegmentedButtonDefaults.itemShape(
+							index = index,
+							count = methods.size
+						),
+						onClick = { onAuthMethodChange(method) },
+						selected = authMethod == method,
+						enabled = !isBusy,
+						label = {
+							val label = when (method) {
+								AuthMethod.Token -> stringResource(R.string.option_account_subsonic)
+								AuthMethod.ApiKey -> stringResource(R.string.option_account_api_key)
+								AuthMethod.Jellyfin -> stringResource(R.string.option_account_jellyfin)
+							}
+							Text(label)
+						}
+					)
+				}
 			}
 		}
 
-		if (authMethod == AuthMethod.Token) {
+		if (authMethod == AuthMethod.Token || authMethod == AuthMethod.Jellyfin) {
 			OutlinedTextField(
 				modifier = Modifier
-					.heightIn(min = 60.dp)
+					.height(70.dp)
 					.padding(horizontal = 16.dp)
 					.fillMaxWidth()
 					.focusRequester(usernameFocusRequester)
@@ -143,7 +143,7 @@ fun LoginScreenFields(
 
 		OutlinedSecureTextField(
 			modifier = Modifier
-				.heightIn(min = 60.dp)
+				.height(70.dp)
 				.padding(horizontal = 16.dp)
 				.fillMaxWidth()
 				.focusRequester(passwordFocusRequester)
@@ -153,15 +153,11 @@ fun LoginScreenFields(
 			state = passwordState,
 			isError = passwordError,
 			label = {
-				Text(
-					stringResource(
-						if (authMethod == AuthMethod.ApiKey) {
-							R.string.option_account_api_key
-						} else {
-							R.string.option_account_password
-						}
-					)
-				)
+				val label = when (authMethod) {
+					AuthMethod.ApiKey -> stringResource(R.string.option_account_api_key)
+					else -> stringResource(R.string.option_account_password)
+				}
+				Text(label)
 			},
 			enabled = !isBusy,
 			keyboardOptions = KeyboardOptions(

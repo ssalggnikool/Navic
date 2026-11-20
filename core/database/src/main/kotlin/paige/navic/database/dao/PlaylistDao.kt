@@ -109,7 +109,7 @@ interface PlaylistDao {
 	@Transaction
 	suspend fun deleteObsoletePlaylists(remoteIds: Set<String>) {
 		getAllPlaylistIds().forEach { localId ->
-			if (localId !in remoteIds) {
+			if (localId !in remoteIds && !localId.startsWith("local_")) {
 				Logger.w("PlaylistDao", "playlist $localId no longer exists remotely")
 				deletePlaylist(localId)
 			}

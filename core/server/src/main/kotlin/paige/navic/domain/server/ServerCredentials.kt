@@ -8,11 +8,18 @@ package paige.navic.domain.server
 
 enum class AuthMethod {
 	Token,
-	ApiKey
+	ApiKey,
+	Jellyfin
 }
 
 sealed interface ServerCredentials {
 	data class Token(val username: String, val password: String) : ServerCredentials
 
 	data class ApiKey(val apiKey: String) : ServerCredentials
+
+	data class Jellyfin(
+		val username: String,
+		val accessToken: String,
+		val userId: String
+	) : ServerCredentials
 }

@@ -32,6 +32,7 @@ open class SubsonicMusicServerFactory(
 			)
 
 			is ServerCredentials.ApiKey -> SubsonicAuth.Key(apiKey = credentials.apiKey)
+			else -> SubsonicAuth.None
 		}
 
 		return SubsonicMusicServer(

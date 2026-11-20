@@ -31,6 +31,7 @@ import kotlinx.coroutines.withContext
 import paige.navic.domain.repository.DbRepository
 import paige.navic.domain.server.AuthMethod
 import paige.navic.domain.server.InvalidCredentialsException
+import paige.navic.domain.server.jellyfin.JellyfinMusicServerFactory
 import paige.navic.domain.sync.SyncCoordinator
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
@@ -44,7 +45,8 @@ class LoginManager(
 	private val sessionManager: SessionManager,
 	private val syncManager: SyncManager,
 	private val syncCoordinator: SyncCoordinator,
-	private val downloadManager: DownloadManager
+	private val downloadManager: DownloadManager,
+	private val jellyfinFactory: JellyfinMusicServerFactory
 ) {
 	val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 	private val mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
@@ -76,7 +78,7 @@ class LoginManager(
 	) { instanceBlank, usernameBlank, secretBlank, method, shown ->
 		LoginFormState(
 			instanceError = shown && instanceBlank,
-			usernameError = shown && method == AuthMethod.Token && usernameBlank,
+			usernameError = shown && (method == AuthMethod.Token || method == AuthMethod.Jellyfin) && usernameBlank,
 			passwordError = shown && secretBlank
 		)
 	}.stateIn(
@@ -141,7 +143,7 @@ class LoginManager(
 
 		val invalidField = when {
 			url.isBlank() -> LoginField.Instance
-			method == AuthMethod.Token && username.isBlank() -> LoginField.Username
+			(method == AuthMethod.Token || method == AuthMethod.Jellyfin) && username.isBlank() -> LoginField.Username
 			secret.isBlank() -> LoginField.Password
 			else -> null
 		}
@@ -156,12 +158,19 @@ class LoginManager(
 
 			try {
 				_events.tryEmit(LoginEvent.Loading)
-				if (method == AuthMethod.ApiKey) {
-					sessionManager.login(normalizedUrl, secret)
-				} else {
-					sessionManager.login(normalizedUrl, username, secret)
+				when (method) {
+					AuthMethod.Token -> {
+						sessionManager.login(normalizedUrl, username, secret)
+					}
+					AuthMethod.ApiKey -> {
+						sessionManager.login(normalizedUrl, secret)
+					}
+					AuthMethod.Jellyfin -> {
+						val creds = jellyfinFactory.authenticate(normalizedUrl, username, secret)
+						sessionManager.loginJellyfin(normalizedUrl, creds)
+					}
 				}
-			} catch (e: InvalidCredentialsException) {
+			} catch (_: InvalidCredentialsException) {
 				_events.tryEmit(LoginEvent.InvalidCredentials)
 				return@launch
 			} catch (e: Exception) {

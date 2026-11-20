@@ -38,6 +38,8 @@ import paige.navic.domain.server.ServerExtension
 import paige.navic.domain.server.ServerInfo
 import paige.navic.domain.server.ServerStatus
 import paige.navic.domain.server.ShareServer
+import paige.navic.domain.server.subsonic.mapper.toApi
+import paige.navic.domain.server.subsonic.mapper.toDomainModel
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -278,30 +280,21 @@ class SubsonicMusicServer(
 		call { client.deletePlaylist(id) }
 	}
 
-	override fun getStreamUrl(
-		id: String,
-		maxBitRate: Int,
-		format: String?,
-		estimateContentLength: Boolean
-	): String = client.getStreamUrl(
-		id = id,
-		maxBitRate = maxBitRate,
-		format = format,
-		estimateContentLength = estimateContentLength
-	)
-
 	override suspend fun getPlaybackStreamUrl(
 		id: String,
 		bitrateKbps: Int,
-		format: String?
+		format: String?,
+		skipTranscodeDecisions: Boolean
 	): String {
-		val directUrl = getStreamUrl(
+		val directUrl = client.getStreamUrl(
 			id,
 			maxBitRate = bitrateKbps,
 			format
 		)
 		val supportedExtensions = extensions ?: serverInfo().extensions
-		if (ServerExtension.OPENSUBSONIC_TRANSCODE_DECISION !in supportedExtensions) return directUrl
+		if (ServerExtension.OPENSUBSONIC_TRANSCODE_DECISION !in supportedExtensions
+			|| skipTranscodeDecisions
+		) return directUrl
 
 		val decision = call {
 			client.getTranscodeDecision(

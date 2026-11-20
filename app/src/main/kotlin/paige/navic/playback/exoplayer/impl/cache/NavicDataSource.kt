@@ -21,10 +21,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import paige.navic.BuildConfig
-import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
+import paige.navic.preferences.PreferenceManager
 import paige.navic.util.Logger
 import java.io.File
 
@@ -204,8 +204,8 @@ class NavicDataSource(
 			sessionManager.api.getPlaybackStreamUrl(id, bitrateKbps, format)
 		} catch (e: Exception) {
 			if (e is CancellationException) throw e
-			Logger.w(TAG, "stream url resolution failed for $id, using direct stream", e)
-			sessionManager.api.getStreamUrl(id, format = "raw")
+			Logger.w(TAG, "stream url resolution failed for $id, skipping transcode decisions", e)
+			sessionManager.api.getPlaybackStreamUrl(id, bitrateKbps, format, true)
 		}
 
 		ttlLruCache.put(cacheKey, streamUrl)

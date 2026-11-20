@@ -1,1 +1,1 @@
-Subsonic music streaming app for Android
+Subsonic/Jellyfin music streaming app for Android

@@ -15,7 +15,7 @@ data class LyricsProvider(
 ) {
 	@Serializable
 	enum class Id {
-		SUBSONIC,
+		SERVER_PROVIDED,
 		LYRICS_PLUS,
 		LRCLIB
 	}
