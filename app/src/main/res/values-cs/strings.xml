@@ -12,7 +12,6 @@
     <string name="title_playback">Přehrávání</string>
     <string name="title_data_storage">Data a Úložiště</string>
     <string name="title_sync_control">Správa synchronizace</string>
-    <string name="title_cache_management">Správa mezipaměti</string>
     <string name="title_danger_zone">Nebezpečná zóna</string>
     <string name="title_developer">Možnosti pro vývojáře</string>
     <string name="title_about">O aplikaci</string>
