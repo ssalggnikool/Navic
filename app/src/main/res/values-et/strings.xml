@@ -1,3 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_library">Meediumiakogu</string>
+    <string name="title_starred">Lemmik</string>
+    <string name="title_playlists">Esitusloendid</string>
+    <string name="title_settings">Seadistused</string>
+    <string name="title_search">Otsi</string>
+    <string name="title_appearance">Välimus</string>
+    <string name="title_behaviour">Käitumine</string>
+    <string name="title_now_playing">Hetkel esitamisel</string>
+    <string name="title_playback">Taasesitus</string>
+    <string name="title_data_storage">Andmed ja salvestusruum</string>
+    <string name="title_sync_control">Sünkroonimise haldus</string>
 </resources>

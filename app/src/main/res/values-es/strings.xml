@@ -241,7 +241,7 @@
     <string name="subtitle_pending_actions">%1$d elementos a la espera de red</string>
     <string name="option_lyrics_keep_alive">Mantener encendida la pantalla en la vista de letra</string>
     <string name="action_trigger_sync">Sincronizar manualmente</string>
-    <string name="subtitle_check_for_updates">Al abrir la app, revisa GitHub en busca de posibles nuevas actualizaciones</string>
+    <string name="subtitle_check_for_updates">Al abrir la app, revisa Codeberg en busca de posibles nuevas actualizaciones</string>
     <string name="title_danger_zone">Zona Peligrosa</string>
     <string name="info_update">Se ha publicado la versión %1$s</string>
     <string name="subtitle_data_storage">Sincronización, caché, uso de datos</string>
@@ -533,4 +533,8 @@
     <string name="info_equalizer_mode_not_builtin">Por favor ajuste el ecualizador externo con su aplicación dedicada.</string>
     <string name="info_starred_songs">Canciones favoritas</string>
     <string name="info_duration_left">%1$s restantes</string>
+    <string name="title_matrix_space">Espacio de Matrix</string>
+    <string name="option_mini_player_progress_style_line">Línea</string>
+    <string name="notice_app_icon_changed">Ícono del app cambiado, ¡cerrandolo!</string>
+    <string name="option_mini_player_progress_style_overlay">Superpuesto</string>
 </resources>

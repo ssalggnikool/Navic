@@ -432,7 +432,7 @@
     <string name="info_equalizer_mode_not_builtin">Juster den eksterne tonekontrollen med egen app.</string>
     <string name="info_login_description">Log inn på en Subsonic-tjener.</string>
     <string name="option_account_instance">Nettadresse til tjener</string>
-    <string name="subtitle_ignore_ssl_certificates">Kun slå dette på hvis du hver hva du gjør. Detter et nyttig hvis du bruker en mellomtjener for å undersøke forespørsler.</string>
+    <string name="subtitle_ignore_ssl_certificates">Kun slå dette på hvis du hver hva du gjør. Dette er nyttig hvis du bruker en mellomtjener for å inspisere forespørsler.</string>
     <string name="subtitle_custom_headers">Ekstra informasjon som sendes med hver forespørsel</string>
     <string name="subtitle_enable_ratings">Slå på 5-stjernevurdering av musikk</string>
     <string name="subtitle_equalizer">Justering og forbedring av lyd</string>

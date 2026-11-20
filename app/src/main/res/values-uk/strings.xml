@@ -546,4 +546,6 @@
     <string name="action_edit_api_key">Редагувати ключ API %1$s</string>
     <string name="title_matrix_space">Простір Matrix</string>
     <string name="notice_app_icon_changed">Значок додатку змінився, додаток закривається!</string>
+    <string name="option_mini_player_progress_style_line">Лінія</string>
+    <string name="option_mini_player_progress_style_overlay">Накладання</string>
 </resources>
