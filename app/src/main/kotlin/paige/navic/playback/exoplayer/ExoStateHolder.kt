@@ -79,7 +79,7 @@ import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
 import paige.navic.playback.exoplayer.impl.listeners.ScrobbleExoListener
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
 import paige.navic.playback.exoplayer.impl.playback.ExoEqualizerManager
-import paige.navic.playback.exoplayer.impl.source.TranscodeMediaSourceFactory
+import paige.navic.playback.exoplayer.impl.source.NavicMediaSourceFactory
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
@@ -289,7 +289,7 @@ class ExoStateHolder(
 
 	private suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
 		val mediaSourceFactory =
-			TranscodeMediaSourceFactory(
+			NavicMediaSourceFactory(
 				delegate = DefaultMediaSourceFactory(
 					/* dataSourceFactory = */ dataSource,
 					/* extractorsFactory = */ extractorsFactory
