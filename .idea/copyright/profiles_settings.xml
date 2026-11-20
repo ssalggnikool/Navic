@@ -1,7 +1,3 @@
 <component name="CopyrightManager">
-  <settings>
-    <module2copyright>
-      <element module="RootProjectOnly" copyright="copyright" />
-    </module2copyright>
-  </settings>
+  <settings default="copyright" />
 </component>
