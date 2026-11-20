@@ -598,4 +598,6 @@
     <string name="info_server_version">Версія сервера</string>
     <string name="info_sync_actions">Деякі дії, які ви виконуєте в Navic, коли сервер недоступний, додаються до черги, щоб їх можна було виконати повторно, щойно сервер знову стане доступним.</string>
     <string name="info_library_syncing">Navic зберігає локальну базу даних метаданих вашої медіатеки. Завдяки цьому ви маєте доступ до медіатеки, навіть коли сервер недоступний. Navic періодично оновлює цю базу даних, але ви також можете синхронізувати її вручну за допомогою цього параметра.</string>
+    <string name="title_developer_list">Розробники</string>
+    <string name="action_view_all_contributors">Усі учасники розробки</string>
 </resources>
