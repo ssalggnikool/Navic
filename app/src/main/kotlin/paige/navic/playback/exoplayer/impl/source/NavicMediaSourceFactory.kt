@@ -26,12 +26,13 @@ import paige.navic.domain.server.ServerExtension
 import paige.navic.playback.exoplayer.impl.cache.NavicDataSource
 
 /**
- * uses [TimeOffsetMediaSource] for songs that will be transcoded,
- * and delegates everything else to the normal progressive source
+ * this uses [TimeOffsetMediaSource] for OpenSubsonic transcode streams
+ * (so that we can abuse the timeOffset extension for allowing proper seeking),
+ * and delegates everything else to the normal progressive/HLS sources
  */
 @OptIn(UnstableApi::class, ExperimentalApi::class)
 @Suppress("DEPRECATION")
-internal class TranscodeMediaSourceFactory(
+internal class NavicMediaSourceFactory(
 	private val delegate: MediaSource.Factory,
 	private val dataSourceFactory: DataSource.Factory,
 	private val extractorsFactory: ExtractorsFactory,
