@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import paige.navic.R
 import paige.navic.domain.server.AuthMethod
+import paige.navic.domain.server.ServerType
 
 @Composable
 fun LoginScreenFields(
@@ -43,7 +44,7 @@ fun LoginScreenFields(
 	instanceError: Boolean,
 	instanceFocusRequester: FocusRequester,
 	authMethod: AuthMethod,
-	supportsApiKeyAuthentication: Boolean,
+	serverType: ServerType?,
 	onAuthMethodChange: (AuthMethod) -> Unit,
 	usernameState: TextFieldState,
 	usernameError: Boolean,
@@ -74,7 +75,7 @@ fun LoginScreenFields(
 				showKeyboardOnFocus = true
 			),
 			onKeyboardAction = KeyboardActionHandler {
-				if (authMethod == AuthMethod.Token || authMethod == AuthMethod.Jellyfin) {
+				if (serverType == ServerType.JELLYFIN || authMethod == AuthMethod.Token) {
 					usernameFocusRequester.requestFocus()
 				} else {
 					passwordFocusRequester.requestFocus()
@@ -85,7 +86,7 @@ fun LoginScreenFields(
 		LoginScreenSuggestionChips(instanceState = instanceState)
 
 		AnimatedVisibility(
-			visible = authMethod != AuthMethod.Jellyfin && supportsApiKeyAuthentication
+			visible = serverType != ServerType.JELLYFIN
 		) {
 			SingleChoiceSegmentedButtonRow(
 				modifier = Modifier
@@ -104,9 +105,8 @@ fun LoginScreenFields(
 						enabled = !isBusy,
 						label = {
 							val label = when (method) {
-								AuthMethod.Token -> stringResource(R.string.option_account_subsonic)
+								AuthMethod.Token -> stringResource(R.string.option_account_password)
 								AuthMethod.ApiKey -> stringResource(R.string.option_account_api_key)
-								AuthMethod.Jellyfin -> stringResource(R.string.option_account_jellyfin)
 							}
 							Text(label)
 						}
@@ -115,7 +115,7 @@ fun LoginScreenFields(
 			}
 		}
 
-		if (authMethod == AuthMethod.Token || authMethod == AuthMethod.Jellyfin) {
+		if (serverType == ServerType.JELLYFIN || authMethod == AuthMethod.Token) {
 			OutlinedTextField(
 				modifier = Modifier
 					.height(70.dp)

@@ -12,7 +12,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 import paige.navic.database.CacheDatabase
-import paige.navic.domain.manager.session.AccountStore
+import paige.navic.domain.manager.session.account.AccountStore
 import paige.navic.util.Logger
 import java.io.File
 
@@ -43,9 +43,6 @@ val databaseModule = module {
 		val accountStore: AccountStore = get()
 		accountStore.claimDatabaseDeletions().forEach { id ->
 			context.deleteDatabase(databaseName(id))
-		}
-		accountStore.legacyAccountId?.let { legacyAccountId ->
-			migrateLegacyDatabase(context, legacyAccountId)
 		}
 
 		val accountId = accountStore.activeAccountId ?: ANONYMOUS_ACCOUNT

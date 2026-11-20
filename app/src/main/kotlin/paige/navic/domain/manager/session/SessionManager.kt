@@ -13,15 +13,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import paige.navic.domain.manager.session.account.Account
+import paige.navic.domain.manager.session.account.AccountStore
 import paige.navic.domain.model.DomainUser
 import paige.navic.domain.server.AuthMethod
+import paige.navic.domain.server.AuthorizationData
 import paige.navic.domain.server.ChatServer
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
 import paige.navic.domain.server.PlaylistCoverServer
 import paige.navic.domain.server.RadioServer
-import paige.navic.domain.server.ServerCredentials
+import paige.navic.domain.server.ServerType
+import paige.navic.domain.server.UserCredentials
 import paige.navic.domain.server.ServerExtension
 import paige.navic.domain.server.ServerInfo
 import paige.navic.domain.server.ShareServer
@@ -81,7 +85,7 @@ class SessionManager(
 
 	private fun createClient(account: Account?): MusicServer = serverFactory.create(
 		baseUrl = account?.baseUrl.orEmpty(),
-		credentials = account?.credentials() ?: ServerCredentials.Token("", "")
+		authorization = account?.authorization() ?: AuthorizationData.SubsonicToken("", "")
 	)
 
 	var api: MusicServer = createClient(accountStore.activeAccount)
@@ -121,9 +125,13 @@ class SessionManager(
 	}
 
 	private suspend fun restore(account: Account) {
+		val authorization = account.authorization() ?: run {
+			signOut()
+			return
+		}
 		val server = serverFactory.create(
 			baseUrl = account.baseUrl,
-			credentials = account.credentials()
+			authorization = authorization
 		)
 		val serverInfo = server.serverInfo()
 		Logger.i(TAG, "Ping result: $serverInfo")
@@ -136,38 +144,9 @@ class SessionManager(
 		)
 	}
 
-	@Throws(InvalidCredentialsException::class)
-	suspend fun login(
-		instanceUrl: String,
-		username: String,
-		password: String
-	): Account = login(
-		instanceUrl = instanceUrl,
-		credentials = ServerCredentials.Token(username = username, password = password)
-	)
-
-	@Throws(InvalidCredentialsException::class)
-	suspend fun login(
-		instanceUrl: String,
-		apiKey: String
-	): Account = login(
-		instanceUrl = instanceUrl,
-		credentials = ServerCredentials.ApiKey(apiKey = apiKey)
-	)
-
-	suspend fun loginJellyfin(
-		instanceUrl: String,
-		credentials: ServerCredentials.Jellyfin
-	): Account = login(
-		instanceUrl = instanceUrl,
-		credentials = credentials
-	)
-
-	private suspend fun login(instanceUrl: String, credentials: ServerCredentials): Account {
-		val server = serverFactory.create(
-			baseUrl = instanceUrl,
-			credentials = credentials
-		)
+	suspend fun login(instanceUrl: String, credentials: UserCredentials): Account {
+		val authorization = serverFactory.authenticate(instanceUrl, credentials)
+		val server = serverFactory.create(instanceUrl, authorization)
 
 		val serverInfo = server.serverInfo()
 		Logger.i(TAG, "Ping result: $serverInfo")
@@ -178,20 +157,22 @@ class SessionManager(
 			Account(
 				id = UUID.randomUUID().toString(),
 				baseUrl = instanceUrl,
-				authMethod = when (credentials) {
-					is ServerCredentials.Token -> AuthMethod.Token
-					is ServerCredentials.ApiKey -> AuthMethod.ApiKey
-					is ServerCredentials.Jellyfin -> AuthMethod.Jellyfin
+				serverType = when (authorization) {
+					is AuthorizationData.JellyfinToken -> ServerType.JELLYFIN
+					else -> ServerType.NAVIDROME
 				},
-				username = when (credentials) {
-					is ServerCredentials.Token -> credentials.username
-					is ServerCredentials.ApiKey -> user.username
-					is ServerCredentials.Jellyfin -> credentials.username
+				authMethod = when (authorization) {
+					is AuthorizationData.SubsonicApiKey -> AuthMethod.ApiKey
+					else -> AuthMethod.Token
 				},
-				password = (credentials as? ServerCredentials.Token)?.password.orEmpty(),
-				apiKey = (credentials as? ServerCredentials.ApiKey)?.apiKey.orEmpty(),
-				jellyfinToken = (credentials as? ServerCredentials.Jellyfin)?.accessToken.orEmpty(),
-				jellyfinUserId = (credentials as? ServerCredentials.Jellyfin)?.userId.orEmpty()
+				username = when (authorization) {
+					is AuthorizationData.SubsonicToken -> authorization.username
+					else -> user.username
+				},
+				password = (authorization as? AuthorizationData.SubsonicToken)?.password.orEmpty(),
+				apiKey = (authorization as? AuthorizationData.SubsonicApiKey)?.apiKey.orEmpty(),
+				jellyfinToken = (authorization as? AuthorizationData.JellyfinToken)?.accessToken.orEmpty(),
+				jellyfinUserId = (authorization as? AuthorizationData.JellyfinToken)?.userId.orEmpty()
 			)
 		)
 
@@ -262,8 +243,6 @@ class SessionManager(
 		size = "${preferenceManager.coverArtQuality.value}"
 	)
 
-	suspend fun supportsApiKeyAuthentication(instanceUrl: String): Boolean =
-		serverFactory.supportsApiKeyAuthentication(instanceUrl)
 }
 
 fun DomainUser.hasRole(role: String): Boolean {

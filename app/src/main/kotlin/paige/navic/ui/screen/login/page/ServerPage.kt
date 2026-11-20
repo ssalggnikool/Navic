@@ -43,9 +43,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import paige.navic.R
 import paige.navic.designsystem.theme.defaultFont
-import paige.navic.domain.manager.session.Account
+import paige.navic.domain.manager.session.account.Account
 import paige.navic.domain.manager.session.SessionManager
-import paige.navic.domain.server.AuthMethod
+import paige.navic.domain.server.ServerType
 import paige.navic.icons.Icons
 import paige.navic.icons.brand.Jellyfin
 import paige.navic.icons.brand.Subsonic
@@ -57,7 +57,7 @@ import paige.navic.ui.component.common.SegmentedListItemDefaults
 @Composable
 fun ServerPage(
 	modifier: Modifier = Modifier,
-	onAuthMethodChanged: (AuthMethod) -> Unit,
+	onServerTypeChanged: (ServerType) -> Unit,
 	onNavigateForward: () -> Unit,
 	onAccountSelected: (Account) -> Unit
 ) {
@@ -79,8 +79,8 @@ fun ServerPage(
 			SavedServers(onAccountSelected = onAccountSelected)
 			ServerChoices(
 				modifier = Modifier.weight(1f),
-				onAuthMethodChanged = {
-					onAuthMethodChanged(it)
+				onServerTypeChanged = {
+					onServerTypeChanged(it)
 					onNavigateForward()
 				}
 			)
@@ -134,8 +134,9 @@ private fun SavedServers(
 			modifier = Modifier.padding(start = 4.dp)
 		)
 		accounts.forEachIndexed { index, account ->
-			val icon = when (account.authMethod) {
-				AuthMethod.Jellyfin -> Icons.Brand.Jellyfin
+			val icon = when (account.serverType) {
+				ServerType.JELLYFIN -> Icons.Brand.Jellyfin
+				ServerType.NAVIDROME -> Icons.Outlined.Album
 				else -> Icons.Brand.Subsonic
 			}
 
@@ -148,7 +149,7 @@ private fun SavedServers(
 				leadingContent = { Icon(icon, null) },
 				trailingContent = { Icon(Icons.Outlined.ChevronForward, null) },
 				supportingContent = { Text(account.baseUrl) },
-				content = { Text(account.username.ifBlank { account.baseUrl }) }
+				content = { Text(account.username?.ifBlank { account.baseUrl } ?: account.baseUrl) }
 			)
 		}
 	}
@@ -207,7 +208,7 @@ private fun Logo() {
 @Composable
 private fun ServerChoices(
 	modifier: Modifier = Modifier,
-	onAuthMethodChanged: (AuthMethod) -> Unit
+	onServerTypeChanged: (ServerType) -> Unit
 ) {
 	val context = LocalContext.current
 	val packageInfo = remember {
@@ -215,7 +216,11 @@ private fun ServerChoices(
 	}
 
 	// "navidrome" is just the same as subsonic, it's just there for people who don't know what subsonic is
-	val methods = listOf(AuthMethod.Token, "navidrome", AuthMethod.Jellyfin)
+	val serverTypes = listOf(
+		ServerType.SUBSONIC,
+		ServerType.NAVIDROME,
+		ServerType.JELLYFIN
+	)
 
 	Column(
 		modifier = modifier.padding(horizontal = 16.dp),
@@ -223,32 +228,21 @@ private fun ServerChoices(
 		verticalArrangement = Arrangement.spacedBy(SegmentedListItemDefaults.SegmentedGap)
 	) {
 		Spacer(Modifier.weight(1f))
-		methods.forEachIndexed { index, method ->
-			val icon = when (method) {
-				AuthMethod.Jellyfin -> Icons.Brand.Jellyfin
-				"navidrome" -> Icons.Outlined.Album
-				else -> Icons.Brand.Subsonic
-			}
-			val label = when (method) {
-				AuthMethod.Jellyfin -> stringResource(R.string.option_account_jellyfin)
-				"navidrome" -> "Navidrome"
-				else -> stringResource(R.string.option_account_subsonic)
+		serverTypes.forEachIndexed { index, type ->
+			val icon = when (type) {
+				ServerType.SUBSONIC -> Icons.Brand.Subsonic
+				ServerType.NAVIDROME -> Icons.Outlined.Album
+				ServerType.JELLYFIN -> Icons.Brand.Jellyfin
 			}
 
 			SegmentedListItem(
 				leadingContent = { Icon(icon, null) },
 				trailingContent = { Icon(Icons.Outlined.ChevronForward, null) },
-				content = { Text(label) },
-				onClick = {
-					if (method is AuthMethod) {
-						onAuthMethodChanged(method)
-					} else {
-						onAuthMethodChanged(AuthMethod.Token)
-					}
-				},
+				content = { Text(type.prettyName) },
+				onClick = { onServerTypeChanged(type) },
 				shapes = SegmentedListItemDefaults.segmentedShapes(
 					index = index,
-					count = methods.count()
+					count = serverTypes.count()
 				)
 			)
 		}

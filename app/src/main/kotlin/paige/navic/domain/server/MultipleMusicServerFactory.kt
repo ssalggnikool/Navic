@@ -15,15 +15,18 @@ class MultipleMusicServerFactory(
 	private val subsonicFactory: SubsonicMusicServerFactory,
 	val jellyfinFactory: JellyfinMusicServerFactory
 ) : MusicServerFactory {
-
-	override fun create(baseUrl: String, credentials: ServerCredentials): MusicServer {
-		return when (credentials) {
-			is ServerCredentials.Jellyfin -> jellyfinFactory.create(baseUrl, credentials)
-			else -> navidromeFactory.create(baseUrl, credentials)
+	override fun create(baseUrl: String, authorization: AuthorizationData): MusicServer {
+		return when (authorization) {
+			is AuthorizationData.JellyfinToken -> jellyfinFactory.create(baseUrl, authorization)
+			else -> navidromeFactory.create(baseUrl, authorization)
 		}
 	}
 
-	override suspend fun supportsApiKeyAuthentication(baseUrl: String): Boolean {
-		return subsonicFactory.supportsApiKeyAuthentication(baseUrl)
+	override suspend fun authenticate(
+		baseUrl: String,
+		credentials: UserCredentials
+	): AuthorizationData = when (credentials) {
+		is UserCredentials.Jellyfin -> jellyfinFactory.authenticate(baseUrl, credentials)
+		else -> subsonicFactory.authenticate(baseUrl, credentials)
 	}
 }

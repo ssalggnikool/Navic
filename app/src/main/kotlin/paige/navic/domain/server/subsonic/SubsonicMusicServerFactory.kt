@@ -13,9 +13,10 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import paige.navic.preferences.AccountSettings
 import paige.navic.preferences.PreferenceManager
+import paige.navic.domain.server.AuthorizationData
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
-import paige.navic.domain.server.ServerCredentials
+import paige.navic.domain.server.UserCredentials
 import paige.navic.util.network.NavicDnsResolver
 import paige.navic.util.network.buildKtorEngine
 import paige.navic.util.network.createOkHttpClient
@@ -26,30 +27,32 @@ open class SubsonicMusicServerFactory(
 	private val accountSettings: AccountSettings,
 	private val dnsResolver: NavicDnsResolver
 ) : MusicServerFactory {
-	override fun create(baseUrl: String, credentials: ServerCredentials): MusicServer {
-		val auth = when (credentials) {
-			is ServerCredentials.Token -> SubsonicAuth.Token(
-				username = credentials.username,
-				password = credentials.password
+	override fun create(baseUrl: String, authorization: AuthorizationData): MusicServer {
+		val auth = when (authorization) {
+			is AuthorizationData.SubsonicToken -> SubsonicAuth.Token(
+				username = authorization.username,
+				password = authorization.password
 			)
-
-			is ServerCredentials.ApiKey -> SubsonicAuth.Key(apiKey = credentials.apiKey)
+			is AuthorizationData.SubsonicApiKey -> SubsonicAuth.Key(apiKey = authorization.apiKey)
 			else -> SubsonicAuth.None
 		}
 
 		return SubsonicMusicServer(
 			client = createClient(baseUrl, auth),
-			username = (credentials as? ServerCredentials.Token)?.username
+			username = (authorization as? AuthorizationData.SubsonicToken)?.username
 		)
 	}
 
-	override suspend fun supportsApiKeyAuthentication(baseUrl: String): Boolean {
-		val client = createClient(baseUrl, SubsonicAuth.None)
-		return client.use { client ->
-			client.getOpenSubsonicExtensions().any { extension ->
-				extension.name == "apiKeyAuthentication" && extension.versions.contains(1)
-			}
-		}
+	override suspend fun authenticate(
+		baseUrl: String,
+		credentials: UserCredentials
+	): AuthorizationData = when (credentials) {
+		is UserCredentials.Password -> AuthorizationData.SubsonicToken(
+			username = credentials.username,
+			password = credentials.password
+		)
+		is UserCredentials.ApiKey -> AuthorizationData.SubsonicApiKey(credentials.apiKey)
+		is UserCredentials.Jellyfin -> throw IllegalArgumentException("Jellyfin credentials require the Jellyfin factory")
 	}
 
 	private fun createClient(baseUrl: String, auth: SubsonicAuth) = SubsonicClient.Companion(

@@ -14,7 +14,7 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import paige.navic.domain.manager.session.AccountStore
+import paige.navic.domain.manager.session.account.AccountStore
 import paige.navic.domain.model.settings.DownloadStorage
 import paige.navic.preferences.PreferenceManager
 import paige.navic.util.xxHash32
@@ -43,8 +43,7 @@ class StorageManager(
 	private fun coverArtBase(): File = File(context.filesDir, "covers")
 
 	private val usesLegacyDirs: Boolean
-		get() = accountStore.activeAccountId == null ||
-			accountStore.activeAccountId == accountStore.legacyAccountId
+		get() = accountStore.activeAccountId == null
 
 	private fun accountName(): String =
 		accountStore.activeAccountId ?: ANONYMOUS_ACCOUNT
@@ -253,9 +252,8 @@ class StorageManager(
 	}
 
 	fun deleteAccountData(accountId: String) {
-		val legacy = accountId == accountStore.legacyAccountId
-		allDownloadDirs().forEach { deleteAccountEntries(it, accountId, legacy) }
-		deleteAccountEntries(coverArtBase(), accountId, legacy)
+		allDownloadDirs().forEach { deleteAccountEntries(it, accountId, false) }
+		deleteAccountEntries(coverArtBase(), accountId, false)
 	}
 
 	private fun clearAccountEntries(base: File) {

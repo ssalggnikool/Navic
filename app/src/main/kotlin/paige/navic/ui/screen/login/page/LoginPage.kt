@@ -64,6 +64,7 @@ import paige.navic.di.LocalSnackBarState
 import paige.navic.domain.manager.runtime.PermissionManager
 import paige.navic.domain.manager.session.LoginManager
 import paige.navic.domain.server.AuthMethod
+import paige.navic.domain.server.ServerType
 import paige.navic.icons.Icons
 import paige.navic.icons.outlined.ArrowBack
 import paige.navic.icons.outlined.Error
@@ -87,7 +88,10 @@ fun LoginPage(
 	val viewModel = koinInject<LoginManager>()
 
 	LaunchedEffect(authMethod) {
-		viewModel.selectAuthMethod(authMethod)
+		when (authMethod) {
+			AuthMethod.ApiKey -> viewModel.selectAuthMethod(AuthMethod.ApiKey)
+			else -> viewModel.selectAuthMethod(AuthMethod.Token)
+		}
 	}
 
 	val formState by viewModel.formState.collectAsStateWithLifecycle()
@@ -178,9 +182,9 @@ fun LoginPage(
 					)
 				},
 				subtitle = {
-					Crossfade(targetState = viewModel.authMethod) { state ->
+					Crossfade(targetState = viewModel.serverType) { state ->
 						val label = when (state) {
-							AuthMethod.Jellyfin -> stringResource(R.string.info_login_description_jellyfin)
+							ServerType.JELLYFIN -> stringResource(R.string.info_login_description_jellyfin)
 							else -> stringResource(R.string.info_login_description)
 						}
 						Text(label)
@@ -253,7 +257,7 @@ fun LoginPage(
 					instanceError = formState.instanceError,
 					instanceFocusRequester = instanceFocusRequester,
 					authMethod = viewModel.authMethod,
-					supportsApiKeyAuthentication = viewModel.supportsApiKeyAuthentication,
+					serverType = viewModel.serverType,
 					onAuthMethodChange = viewModel::selectAuthMethod,
 					usernameState = usernameState,
 					usernameError = formState.usernameError,
