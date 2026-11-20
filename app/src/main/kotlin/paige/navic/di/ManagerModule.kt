@@ -6,6 +6,7 @@
 
 package paige.navic.di
 
+import android.content.Context
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
@@ -28,7 +29,7 @@ import paige.navic.preferences.PreferenceManager
 import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
 import paige.navic.domain.manager.session.connectivity.ReachabilityFlow
-import paige.navic.domain.manager.session.AccountStore
+import paige.navic.domain.manager.session.account.AccountStore
 import paige.navic.domain.manager.session.DownloadManager
 import paige.navic.domain.manager.session.LoginManager
 import paige.navic.domain.manager.session.SessionManager
@@ -61,7 +62,7 @@ val managerModule = module {
 			SharedPreferencesSettings(
 				context.getSharedPreferences(
 					preferencesFile(context),
-					android.content.Context.MODE_PRIVATE
+					Context.MODE_PRIVATE
 				),
 				commit = true
 			)

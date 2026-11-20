@@ -13,7 +13,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import paige.navic.domain.manager.session.AccountStore
+import paige.navic.domain.manager.session.account.AccountStore
 import paige.navic.ui.core.PlayerUiState
 import paige.navic.util.Logger
 

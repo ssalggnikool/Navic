@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.Dns
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
-import paige.navic.domain.manager.session.AccountStore
+import paige.navic.domain.manager.session.account.AccountStore
 import paige.navic.preferences.AccountSettings
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
 import paige.navic.domain.manager.session.connectivity.NetworkStatus

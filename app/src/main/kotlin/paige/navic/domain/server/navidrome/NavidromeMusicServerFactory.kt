@@ -8,8 +8,8 @@ package paige.navic.domain.server.navidrome
 
 import paige.navic.preferences.AccountSettings
 import paige.navic.preferences.PreferenceManager
+import paige.navic.domain.server.AuthorizationData
 import paige.navic.domain.server.MusicServer
-import paige.navic.domain.server.ServerCredentials
 import paige.navic.domain.server.ShareServer
 import paige.navic.domain.server.navidrome.api.NavidromeClient
 import paige.navic.domain.server.subsonic.SubsonicMusicServerFactory
@@ -25,9 +25,9 @@ class NavidromeMusicServerFactory(
 ) : SubsonicMusicServerFactory(
 	preferenceManager, accountSettings, dnsResolver
 ) {
-	override fun create(baseUrl: String, credentials: ServerCredentials): MusicServer {
-		val server = super.create(baseUrl, credentials)
-		val token = credentials as? ServerCredentials.Token ?: return server
+	override fun create(baseUrl: String, authorization: AuthorizationData): MusicServer {
+		val server = super.create(baseUrl, authorization)
+		val token = authorization as? AuthorizationData.SubsonicToken ?: return server
 		val shares = server as? ShareServer ?: return server
 
 		val engine = buildKtorEngine(

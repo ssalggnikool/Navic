@@ -14,10 +14,11 @@ import org.jellyfin.sdk.api.operations.AuthenticationApi
 import org.jellyfin.sdk.createJellyfin
 import org.jellyfin.sdk.model.ClientInfo
 import paige.navic.BuildConfig
+import paige.navic.domain.server.AuthorizationData
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.server.MusicServer
 import paige.navic.domain.server.MusicServerFactory
-import paige.navic.domain.server.ServerCredentials
+import paige.navic.domain.server.UserCredentials
 import paige.navic.domain.server.ServerException
 import java.util.UUID
 
@@ -32,11 +33,11 @@ class JellyfinMusicServerFactory(
 		}
 	}
 
-	override fun create(baseUrl: String, credentials: ServerCredentials): MusicServer {
-		val jellyfinCreds = credentials as? ServerCredentials.Jellyfin
-		val accessToken = jellyfinCreds?.accessToken
+	override fun create(baseUrl: String, authorization: AuthorizationData): MusicServer {
+		val jellyfinToken = authorization as? AuthorizationData.JellyfinToken
+		val accessToken = jellyfinToken?.accessToken
 		val userIdString =
-			jellyfinCreds?.userId?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
+			jellyfinToken?.userId?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
 
 		val apiClient = jellyfin.createApi(
 			baseUrl = baseUrl,
@@ -51,15 +52,20 @@ class JellyfinMusicServerFactory(
 		)
 	}
 
-	suspend fun authenticate(baseUrl: String, username: String, password: String): ServerCredentials.Jellyfin {
+	override suspend fun authenticate(
+		baseUrl: String,
+		credentials: UserCredentials
+	): AuthorizationData {
+		val jellyfinCredentials = credentials as? UserCredentials.Jellyfin
+			?: throw IllegalArgumentException("Jellyfin factory requires Jellyfin credentials")
 		val apiClient = jellyfin.createApi(baseUrl = baseUrl)
 		val authApi = AuthenticationApi(apiClient)
 
 		val authResult = try {
 			authApi.authenticateUserByName(
 				data = org.jellyfin.sdk.model.api.AuthenticateUserByName(
-					username = username,
-					pw = password
+					username = jellyfinCredentials.username,
+					pw = jellyfinCredentials.password
 				)
 			).content
 		} catch (e: InvalidStatusException) {
@@ -79,8 +85,7 @@ class JellyfinMusicServerFactory(
 		val token = authResult.accessToken ?: throw InvalidCredentialsException("No access token returned from Jellyfin")
 		val userId = authResult.user?.id ?: throw InvalidCredentialsException("No user ID returned from Jellyfin")
 
-		return ServerCredentials.Jellyfin(
-			username = username,
+		return AuthorizationData.JellyfinToken(
 			accessToken = token,
 			userId = userId.toString()
 		)

@@ -15,7 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,16 +22,17 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import paige.navic.domain.manager.runtime.StorageManager
+import paige.navic.domain.manager.session.account.Account
+import paige.navic.domain.manager.session.account.AccountStore
 import paige.navic.domain.server.AuthMethod
 import paige.navic.domain.server.InvalidCredentialsException
-import paige.navic.domain.server.jellyfin.JellyfinMusicServerFactory
+import paige.navic.domain.server.ServerType
+import paige.navic.domain.server.UserCredentials
 import paige.navic.preferences.AccountSettings
 import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.core.LoginEvent
@@ -40,9 +40,7 @@ import paige.navic.ui.core.LoginField
 import paige.navic.ui.core.LoginFormState
 import paige.navic.ui.util.AddressUtil
 import paige.navic.util.AppRestarter
-import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(FlowPreview::class)
 class LoginManager(
 	private val sessionManager: SessionManager,
 	private val syncManager: SyncManager,
@@ -51,8 +49,7 @@ class LoginManager(
 	private val accountStore: AccountStore,
 	private val accountSettings: AccountSettings,
 	private val preferenceManager: PreferenceManager,
-	private val appRestarter: AppRestarter,
-	private val jellyfinFactory: JellyfinMusicServerFactory
+	private val appRestarter: AppRestarter
 ) {
 	val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 	private val mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
@@ -61,10 +58,17 @@ class LoginManager(
 	val usernameState = TextFieldState()
 	val passwordState = TextFieldState()
 
+	var serverType by mutableStateOf<ServerType?>(null)
+
 	var authMethod by mutableStateOf(AuthMethod.Token)
 
-	var supportsApiKeyAuthentication by mutableStateOf(false)
-		private set
+
+	fun selectServerType(type: ServerType) {
+		if (serverType != type) {
+			passwordState.clearText()
+		}
+		serverType = type
+	}
 
 	fun selectAuthMethod(method: AuthMethod) {
 		if (authMethod != method) {
@@ -79,12 +83,15 @@ class LoginManager(
 		snapshotFlow { instanceState.text.isBlank() },
 		snapshotFlow { usernameState.text.isBlank() },
 		snapshotFlow { passwordState.text.isBlank() },
-		snapshotFlow { authMethod },
+		snapshotFlow { serverType to authMethod },
 		validationShown
 	) { instanceBlank, usernameBlank, secretBlank, method, shown ->
+		val (type, auth) = method
+		val needsUsername = type == ServerType.JELLYFIN ||
+			(type != null && auth == AuthMethod.Token)
 		LoginFormState(
 			instanceError = shown && instanceBlank,
-			usernameError = shown && (method == AuthMethod.Token || method == AuthMethod.Jellyfin) && usernameBlank,
+			usernameError = shown && needsUsername && usernameBlank,
 			passwordError = shown && secretBlank
 		)
 	}.stateIn(
@@ -93,24 +100,6 @@ class LoginManager(
 		initialValue = LoginFormState()
 	)
 
-	init {
-		mainScope.launch {
-			snapshotFlow { instanceState.text.toString() }
-				.debounce(800.milliseconds)
-				.collectLatest { raw ->
-					val supported = raw.isNotBlank() && runCatching {
-						sessionManager.supportsApiKeyAuthentication(normalizeUrl(raw))
-					}.getOrDefault(false)
-
-					supportsApiKeyAuthentication = supported
-
-					if (!supported && authMethod == AuthMethod.ApiKey) {
-						authMethod = AuthMethod.Token
-						passwordState.clearText()
-					}
-				}
-		}
-	}
 
 	private val _events = MutableSharedFlow<LoginEvent>(extraBufferCapacity = 1)
 	val events: SharedFlow<LoginEvent> = _events.asSharedFlow()
@@ -139,24 +128,27 @@ class LoginManager(
 
 	fun fillFor(account: Account) {
 		instanceState.setTextAndPlaceCursorAtEnd(account.baseUrl)
-		usernameState.setTextAndPlaceCursorAtEnd(account.username)
+		usernameState.setTextAndPlaceCursorAtEnd(account.username.orEmpty())
 		passwordState.clearText()
+		account.serverType?.let(::selectServerType)
 		selectAuthMethod(account.authMethod)
 	}
 
 	fun login() {
 		validationShown.value = true
 
+		val type = serverType ?: return
 		val method = authMethod
 		val url = instanceState.text.toString().trim().removeSuffix("/")
 		val username = usernameState.text.toString()
 		val secret = passwordState.text.toString().let {
-			if (method == AuthMethod.ApiKey) it.trim() else it
+			if (type != ServerType.JELLYFIN && method == AuthMethod.ApiKey) it.trim() else it
 		}
 
+		val requiresUsername = type == ServerType.JELLYFIN || method == AuthMethod.Token
 		val invalidField = when {
 			url.isBlank() -> LoginField.Instance
-			(method == AuthMethod.Token || method == AuthMethod.Jellyfin) && username.isBlank() -> LoginField.Username
+			requiresUsername && username.isBlank() -> LoginField.Username
 			secret.isBlank() -> LoginField.Password
 			else -> null
 		}
@@ -172,18 +164,17 @@ class LoginManager(
 
 			val account = try {
 				_events.tryEmit(LoginEvent.Loading)
-				when (method) {
-					AuthMethod.Token -> {
-						sessionManager.login(normalizedUrl, username, secret)
-					}
-					AuthMethod.ApiKey -> {
-						sessionManager.login(normalizedUrl, secret)
-					}
-					AuthMethod.Jellyfin -> {
-						val creds = jellyfinFactory.authenticate(normalizedUrl, username, secret)
-						sessionManager.loginJellyfin(normalizedUrl, creds)
-					}
+				val credentials = when {
+					type == ServerType.JELLYFIN ->
+						UserCredentials.Jellyfin(username, secret)
+
+					method == AuthMethod.ApiKey ->
+						UserCredentials.ApiKey(secret)
+
+					else ->
+						UserCredentials.Password(username, secret)
 				}
+				sessionManager.login(normalizedUrl, credentials)
 			} catch (_: InvalidCredentialsException) {
 				_events.tryEmit(LoginEvent.InvalidCredentials)
 				return@launch

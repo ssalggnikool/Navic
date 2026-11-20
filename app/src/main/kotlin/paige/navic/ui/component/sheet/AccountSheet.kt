@@ -54,7 +54,7 @@ import paige.navic.R
 import paige.navic.di.LocalNavStack
 import paige.navic.domain.manager.playback.SleepTimerManager
 import paige.navic.domain.manager.playback.SleepTimerMode
-import paige.navic.domain.manager.session.Account
+import paige.navic.domain.manager.session.account.Account
 import paige.navic.domain.manager.session.LoginManager
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.domain.manager.session.SyncManager
@@ -223,7 +223,7 @@ fun AccountSheet(
 						leadingContent = {
 							Monogram(
 								modifier = Modifier.size(40.dp),
-								text = account.username.ifBlank { account.baseUrl }
+								text = account.username?.ifBlank { account.baseUrl } ?: account.baseUrl
 							)
 						},
 						trailingContent = {
@@ -247,7 +247,7 @@ fun AccountSheet(
 							)
 						},
 						content = {
-							Text(account.username.ifBlank { account.baseUrl })
+							Text(account.username?.ifBlank { account.baseUrl } ?: account.baseUrl)
 						}
 					)
 				}

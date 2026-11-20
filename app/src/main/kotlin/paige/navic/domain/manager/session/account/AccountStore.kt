@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package paige.navic.domain.manager.session
+package paige.navic.domain.manager.session.account
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
@@ -12,11 +12,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
-import paige.navic.domain.server.AuthMethod
 import paige.navic.util.Logger
 import paige.navic.util.getEncryptedString
 import paige.navic.util.insertEncryptedString
-import java.util.UUID
 
 class AccountStore(
 	private val settings: Settings
@@ -25,18 +23,7 @@ class AccountStore(
 		const val TAG = "AccountStore"
 		const val ACCOUNTS = "accounts"
 		const val ACTIVE_ACCOUNT = "activeAccountId"
-		const val LEGACY_ACCOUNT = "legacyAccountId"
 		const val PENDING_DELETIONS = "pendingDeletedAccounts"
-
-		val LEGACY_KEYS = listOf(
-			"username",
-			"password",
-			"apiKey",
-			"jellyfinToken",
-			"jellyfinUserId",
-			"instanceUrl",
-			"authMethod"
-		)
 	}
 
 	private val json = Json {
@@ -50,9 +37,6 @@ class AccountStore(
 	val activeAccountId: String?
 		get() = settings.getString(ACTIVE_ACCOUNT, "").ifBlank { null }
 
-	val legacyAccountId: String?
-		get() = settings.getString(LEGACY_ACCOUNT, "").ifBlank { null }
-
 	val activeAccount: Account?
 		get() = account(activeAccountId)
 
@@ -60,7 +44,6 @@ class AccountStore(
 		get() = keyPrefixFor(activeAccountId)
 
 	init {
-		migrateLegacyAccount()
 		_accounts.value = readAccounts()
 	}
 
@@ -68,7 +51,7 @@ class AccountStore(
 		_accounts.value.firstOrNull { it.id == id }
 
 	fun keyPrefixFor(id: String?): String =
-		if (id == null || id == legacyAccountId) "" else "$id/"
+		if (id == null) "" else "$id/"
 
 	fun upsert(account: Account): Account {
 		val existing = _accounts.value.firstOrNull {
@@ -105,9 +88,6 @@ class AccountStore(
 		if (activeAccountId == id) {
 			setActive(_accounts.value.firstOrNull()?.id)
 		}
-		if (legacyAccountId == id) {
-			settings.remove(LEGACY_ACCOUNT)
-		}
 	}
 
 	fun queueDatabaseDeletion(id: String) {
@@ -143,32 +123,4 @@ class AccountStore(
 		_accounts.value = accounts
 	}
 
-	private fun migrateLegacyAccount() {
-		if (settings.getString(ACCOUNTS, "").isNotBlank()) return
-
-		val instanceUrl = settings.getString("instanceUrl", "")
-		if (instanceUrl.isBlank()) return
-
-		val authMethod = runCatching {
-			AuthMethod.valueOf(settings.getString("authMethod", AuthMethod.Token.name))
-		}.getOrDefault(AuthMethod.Token)
-
-		val account = Account(
-			id = UUID.randomUUID().toString(),
-			baseUrl = instanceUrl,
-			authMethod = authMethod,
-			username = settings.getString("username", ""),
-			password = settings.getEncryptedString("password", ""),
-			apiKey = settings.getEncryptedString("apiKey", ""),
-			jellyfinToken = settings.getEncryptedString("jellyfinToken", ""),
-			jellyfinUserId = settings.getString("jellyfinUserId", "")
-		)
-		if (!account.hasCredentials) return
-
-		writeAccounts(listOf(account))
-		settings[LEGACY_ACCOUNT] = account.id
-		settings[ACTIVE_ACCOUNT] = account.id
-		LEGACY_KEYS.forEach(settings::remove)
-		Logger.i(TAG, "migrated existing credentials to account ${account.id}")
-	}
 }

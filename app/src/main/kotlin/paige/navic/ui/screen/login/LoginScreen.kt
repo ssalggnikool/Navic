@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import paige.navic.domain.manager.session.LoginManager
+import paige.navic.domain.server.AuthMethod
 import paige.navic.ui.screen.login.component.HorizontalPagerAnimationSpec
 import paige.navic.ui.screen.login.component.NavigableHorizontalPager
 import paige.navic.ui.screen.login.page.LoginPage
@@ -33,6 +34,7 @@ fun LoginScreen() {
 	val viewModel = koinViewModel<LoginViewModel>()
 	val loginManager = koinInject<LoginManager>()
 	val authMethod by viewModel.authMethod.collectAsStateWithLifecycle()
+	val serverType by viewModel.serverType.collectAsStateWithLifecycle()
 
 	val pagerState = rememberPagerState(
 		initialPage = 0,
@@ -51,7 +53,11 @@ fun LoginScreen() {
 		when (page) {
 			Page.Server -> ServerPage(
 				modifier = pageModifier,
-				onAuthMethodChanged = viewModel::selectAuthMethod,
+				onServerTypeChanged = {
+					loginManager.selectServerType(it)
+					viewModel.selectServerType(it)
+					viewModel.selectAuthMethod(AuthMethod.Token)
+				},
 				onNavigateForward = {
 					pagerScope.launch {
 						pagerState.animateScrollToPage(
@@ -63,6 +69,8 @@ fun LoginScreen() {
 				onAccountSelected = { account ->
 					loginManager.fillFor(account)
 					viewModel.selectAuthMethod(account.authMethod)
+					viewModel.selectServerType(account.serverType)
+
 					focusManager.clearFocus(true)
 					pagerScope.launch {
 						pagerState.animateScrollToPage(
@@ -73,19 +81,25 @@ fun LoginScreen() {
 				}
 			)
 
-			Page.Login -> LoginPage(
-				modifier = pageModifier,
-				authMethod = authMethod!!,
-				onNavigateBack = {
-					focusManager.clearFocus(true)
-					pagerScope.launch {
-						pagerState.animateScrollToPage(
-							0,
-							animationSpec = HorizontalPagerAnimationSpec
-						)
-					}
+			Page.Login -> {
+				val selectedAuthMethod = authMethod
+				val selectedServerType = serverType
+				if (selectedAuthMethod != null && selectedServerType != null) {
+					LoginPage(
+						modifier = pageModifier,
+						authMethod = selectedAuthMethod,
+						onNavigateBack = {
+							focusManager.clearFocus(true)
+							pagerScope.launch {
+								pagerState.animateScrollToPage(
+									0,
+									animationSpec = HorizontalPagerAnimationSpec
+								)
+							}
+						}
+					)
 				}
-			)
+			}
 		}
 	}
 }
