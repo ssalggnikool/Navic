@@ -102,7 +102,13 @@ val managerModule = module {
 	singleOf(::SyncActionProcessor)
 	singleOf(::SyncCoordinator)
 	single(createdAtStart = true) {
-		SyncManager(get(), get(), get(), get(), get())
+		SyncManager(
+			context = get(),
+			syncDao = get(),
+			albumDao = get(),
+			sessionManager = get(),
+			preferenceManager = get()
+		)
 	}
 	single<() -> DataSource.Factory> {
 		val preferenceManager: PreferenceManager = get()

@@ -47,6 +47,7 @@ import androidx.media3.extractor.mp4.Mp4Extractor
 import androidx.media3.extractor.ogg.OggExtractor
 import androidx.media3.extractor.text.DefaultSubtitleParserFactory
 import androidx.media3.extractor.ts.AdtsExtractor
+import androidx.media3.extractor.ts.TsExtractor
 import androidx.media3.extractor.wav.WavExtractor
 import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaLibraryService
@@ -78,7 +79,7 @@ import paige.navic.playback.exoplayer.impl.listeners.ExoDiscordIntegrationImpl
 import paige.navic.playback.exoplayer.impl.listeners.ScrobbleExoListener
 import paige.navic.playback.exoplayer.impl.playback.ExoAudioGainProcessor
 import paige.navic.playback.exoplayer.impl.playback.ExoEqualizerManager
-import paige.navic.playback.exoplayer.impl.source.TranscodeMediaSourceFactory
+import paige.navic.playback.exoplayer.impl.source.NavicMediaSourceFactory
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
@@ -137,6 +138,7 @@ class ExoStateHolder(
 			FlacExtractor(),
 			WavExtractor(),
 			FragmentedMp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
+			TsExtractor(DefaultSubtitleParserFactory.UNSUPPORTED),
 			Mp4Extractor(DefaultSubtitleParserFactory.UNSUPPORTED),
 			OggExtractor(),
 			MatroskaExtractor(DefaultSubtitleParserFactory.UNSUPPORTED),
@@ -287,8 +289,11 @@ class ExoStateHolder(
 
 	private suspend fun createPlayerInstance(): ExoPlayer = mutex.withLock {
 		val mediaSourceFactory =
-			TranscodeMediaSourceFactory(
-				delegate = DefaultMediaSourceFactory(dataSource, extractorsFactory),
+			NavicMediaSourceFactory(
+				delegate = DefaultMediaSourceFactory(
+					/* dataSourceFactory = */ dataSource,
+					/* extractorsFactory = */ extractorsFactory
+				),
 				dataSourceFactory = dataSource,
 				extractorsFactory = extractorsFactory,
 				preferenceManager = preferenceManager,
@@ -298,8 +303,8 @@ class ExoStateHolder(
 			)
 
 		player = ExoPlayer.Builder(
-			context,
-			createRenderers(context)
+			/* context = */ context,
+			/* renderersFactory = */ createRenderers(context)
 		).apply {
 			setLoadControl(loadControl)
 			setMediaSourceFactory(mediaSourceFactory)
