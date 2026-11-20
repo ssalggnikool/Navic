@@ -89,7 +89,7 @@ jobs:
 
       - name: Build with Gradle (release)
         id: build_release
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && env.SIGNING_KEY_ALIAS
+        if: ${{ (forgejo.event_name == 'push' || forgejo.event_name == 'workflow_dispatch') && env.SIGNING_KEY_ALIAS }}
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -105,7 +105,7 @@ jobs:
 
       - name: Build with Gradle (debug)
         id: build_debug
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true
+        if: forgejo.event_name == 'pull_request' && forgejo.event.pull_request.head.repo.fork == true
         run: |
           ./gradlew :app:assembleDefaultDebug --stacktrace --no-daemon --no-watch-fs
           mv app/build/outputs/apk/**/**/*.apk ./
