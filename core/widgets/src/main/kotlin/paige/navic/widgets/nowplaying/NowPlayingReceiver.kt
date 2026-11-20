@@ -18,9 +18,9 @@ import kotlinx.coroutines.launch
 /**
  * Base receiver class which widgets' receivers will inherit from. Used with `NowPlayingWidget`
  */
-open class NowPlayingReceiver(
-	private val widgetClass: Class<out NowPlayingWidget>
-) : GlanceAppWidgetReceiver() {
+abstract class NowPlayingReceiver : GlanceAppWidgetReceiver() {
+
+	abstract val widgetClass: Class<out NowPlayingWidget>
 
 	override val glanceAppWidget: GlanceAppWidget by lazy {
 		widgetClass.getDeclaredConstructor().newInstance()
