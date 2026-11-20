@@ -3,9 +3,7 @@
   ~ Navic, a Subsonic music streaming app for Android
   ~ Copyright (c) 2026 paige
   ~ SPDX-License-Identifier: GPL-3.0-only
-  -->
-
-<resources>
+  --><resources>
     <string name="title_library">Медіатека</string>
     <string name="title_settings">Налаштування</string>
     <string name="title_search">Пошук</string>
@@ -69,17 +67,17 @@
     <string name="subtitle_bottom_app_bar">Налаштування нижньої панелі та мініпрогравача</string>
     <string name="subtitle_playback">Звукові ефекти, поведінка відтворення та скроблінг</string>
     <string name="subtitle_data_storage">Синхронізація, кеш і використання даних</string>
-    <string name="subtitle_trigger_sync">Негайно повністю синхронізує медіатеку із сервером</string>
+    <string name="subtitle_trigger_sync">Оновити локальну базу даних вашої медіатеки</string>
     <string name="subtitle_pending_actions">Дій, що очікують на мережу: %1$d</string>
     <string name="subtitle_developer">Налагодження, тестування та журнали</string>
     <string name="subtitle_about">Відомості про додаток, версію, оновлення та ліцензії</string>
     <string name="subtitle_playlist">Список відтворення</string>
     <string name="subtitle_enable_scrobbling">Надсилати відомості про прослухані треки на ваш сервер</string>
-    <string name="subtitle_gapless_playback">Експериментальна функція. Потрібен перезапуск додатку. На деяких пристроях може конфліктувати з апаратним розвантаженням аудіо</string>
-    <string name="subtitle_audio_offload">Експериментальна функція. Потрібен перезапуск додатку. На деяких пристроях може конфліктувати з безперервним відтворенням</string>
+    <string name="subtitle_gapless_playback">Експериментальна функція. Потрібен перезапуск. На деяких пристроях може конфліктувати з апаратним розвантаженням аудіо</string>
+    <string name="subtitle_audio_offload">Експериментальна функція. Потрібен перезапуск. На деяких пристроях може конфліктувати з безперервним відтворенням</string>
     <string name="subtitle_now_playing_background_style">Якщо є проблеми з продуктивністю, виберіть статичний фон</string>
     <string name="subtitle_check_for_updates">Перевіряти оновлення на Codeberg під час запуску додатку</string>
-    <string name="subtitle_offline_mode">Визначає, коли додаток переходить в автономний режим. Потрібен перезапуск додатку</string>
+    <string name="subtitle_offline_mode">Визначає, коли додаток має переходити в офлайн-режим</string>
     <string name="subtitle_streaming_quality">Налаштуйте якість музики під час потокового відтворення</string>
     <string name="subtitle_download_quality">Налаштуйте якість завантаженої музики</string>
     <string name="subtitle_dynamic_theming">Автоматично підбирати оформлення альбомів і виконавців за кольорами обкладинки</string>
@@ -112,8 +110,8 @@
     <string name="option_share_expires">Термін дії</string>
     <string name="option_account_username">Ім’я користувача</string>
     <string name="option_account_password">Пароль</string>
-    <string name="option_lyrics_autoscroll">Автопрокручування тексту пісні</string>
-    <string name="option_lyrics_beat_by_beat">Синхронізація тексту за ритмом</string>
+    <string name="option_lyrics_autoscroll">Режим автопрокручування</string>
+    <string name="option_lyrics_beat_by_beat">Режим синхронізації за ритмом</string>
     <string name="option_sort_random">Випадково</string>
     <string name="option_sort_newest">Новинки</string>
     <string name="option_sort_rating">За оцінкою</string>
@@ -181,9 +179,9 @@
     <string name="info_status_downloading">Триває завантаження…</string>
     <string name="info_sync_never">Ніколи</string>
     <string name="info_sync_just_now">Щойно</string>
-    <string name="info_bulk_download_warning">Завантажити всі альбоми виконавця %1$s?\nДля цього може знадобитися значний обсяг сховища й трафіку.</string>
+    <string name="info_bulk_download_warning">Ви впевнені, що хочете завантажити всі альбоми виконавця «%1$s»?\nДля цього може знадобитися значний обсяг сховища й трафіку.</string>
     <string name="info_library_download_warning">Завантажити всю медіатеку?\nУже завантажені елементи буде пропущено, але операція все одно може використати значний обсяг сховища й трафіку.</string>
-    <string name="info_library_download">Зберегти всю синхронізовану музику для прослуховування без мережі</string>
+    <string name="info_library_download">Завантажити всю музику для прослуховування офлайн</string>
     <string name="info_progress">Прогрес</string>
     <string name="info_in_use">(використовується)</string>
     <string name="info_explicit">Відвертий вміст</string>
@@ -328,14 +326,14 @@
     <string name="action_clear_pending_actions">Очистити дії, що очікують синхронізації</string>
     <string name="action_clear_downloads">Видалити всі завантаження</string>
     <string name="action_rebuild_database">Перебудувати базу даних</string>
-    <string name="action_trigger_sync">Запустити синхронізацію вручну</string>
+    <string name="action_trigger_sync">Синхронізувати медіатеку зараз</string>
     <string name="action_test_exception_handler">Перевірити обробник винятків</string>
     <string name="action_dont_show_again">Більше не показувати</string>
     <string name="action_open_settings">Відкрити налаштування</string>
     <string name="action_reset">Скинути</string>
     <string name="action_configure_lyric_providers">Налаштувати джерела текстів пісень</string>
     <string name="action_visit_site">Відвідати сайт</string>
-    <string name="subtitle_rebuild_database">Видаляє всі локальні метадані та запускає повну синхронізацію з нуля</string>
+    <string name="subtitle_rebuild_database">Видалити локальну копію вашої медіатеки та синхронізувати її заново</string>
     <string name="notice_deleted_playlist">Список відтворення видалено.</string>
     <string name="notice_deleted_share">Спільне посилання видалено.</string>
     <string name="notice_created_playlist">Створено список відтворення «%1$s».</string>
@@ -488,7 +486,7 @@
     <string name="action_copy">Скопіювати</string>
     <string name="subtitle_enable_discord_integration">Показувати у Discord, яку музику ви зараз слухаєте</string>
     <string name="option_enable_discord_integration">Увімкнути інтеграцію з Discord</string>
-    <string name="option_disable_rpc_when_power_saving">Вимкнути статус активності в режимі енергозбереження</string>
+    <string name="option_disable_rpc_when_power_saving">Вимикати в режимі енергозбереження</string>
     <string name="action_reset_to_default">Скинути до значень за замовчуванням</string>
     <string name="action_edit_discord_app_id">Змінити ID додатку Discord</string>
     <string name="title_delete_radio">Видалити радіостанцію?</string>
@@ -513,8 +511,8 @@
     <string name="option_discord_rpc_status_type_artist_name">Ім’я виконавця</string>
     <string name="option_discord_rpc_status_type_song_name">Назва пісні</string>
     <string name="option_discord_rpc_status_type_app_name">Назва додатку</string>
-    <string name="title_cover_art_providers">Джерела обкладинок</string>
-    <string name="subtitle_cover_art_providers">Завантажувати обкладинки для відображення в Discord</string>
+    <string name="title_cover_art_providers">Сервіси хостингу обкладинок</string>
+    <string name="subtitle_cover_art_providers">Завантажувати обкладинки, щоб Discord міг їх відображати</string>
     <string name="subtitle_cover_art_key_required">Потрібен ключ API</string>
     <string name="info_status_moving_downloads">Переміщення завантажень…</string>
     <string name="info_move_downloads">Наявні завантаження буде переміщено в нове місце. Продовжити?</string>
@@ -539,7 +537,7 @@
     <string name="title_branch_name">Назва гілки</string>
     <string name="title_commit_author">Автор коміту</string>
     <string name="option_float_output">Точність виведення чисел з рухомою комою</string>
-    <string name="subtitle_float_output">Експериментальна функція. Потребує перезапуску додатку. Якщо увімкнено, зміна швидкості відтворення не працюватиме</string>
+    <string name="subtitle_float_output">Експериментальна функція. Потрібен перезапуск. Якщо цей параметр увімкнено, зміна швидкості відтворення не працюватиме</string>
     <string name="media_session_channel_name">Відтворення медіа</string>
     <string name="info_incorrect_credentials">Неправильні облікові дані. Перевірте їх та спробуйте ще раз.</string>
     <string name="title_integrations">Інтеграції</string>
@@ -548,4 +546,58 @@
     <string name="notice_app_icon_changed">Значок додатку змінився, додаток закривається!</string>
     <string name="option_mini_player_progress_style_line">Лінія</string>
     <string name="option_mini_player_progress_style_overlay">Накладання</string>
+    <string name="title_storage_usage">Використання сховища</string>
+    <string name="title_wiki">Посібник</string>
+    <string name="title_authentication_method">Спосіб автентифікації</string>
+    <string name="title_website">Вебсайт</string>
+    <string name="title_links">Посилання</string>
+    <string name="title_build_info">Інформація про збірку</string>
+    <string name="title_download_management">Керування завантаженнями</string>
+    <string name="title_appears_on">Участь у релізах</string>
+    <string name="title_welcome">Вітаємо в Navic</string>
+    <string name="subtitle_welcome">Виберіть тип сервера</string>
+    <string name="subtitle_clear_pending_sync_actions">Очистити чергу офлайн-дій, як-от скроблів</string>
+    <string name="subtitle_prevent_clipping">Знижувати підсилення, якщо піковий рівень перевищуватиме максимальну гучність</string>
+    <string name="option_share_description">Опис</string>
+    <string name="option_share_downloadable">Дозволити завантаження</string>
+    <string name="option_account_api_key">Ключ API</string>
+    <string name="option_account_use_api_key">Використовувати автентифікацію за ключем API</string>
+    <string name="option_account_subsonic">Subsonic</string>
+    <string name="option_account_jellyfin">Jellyfin</string>
+    <string name="option_language">Мова</string>
+    <string name="option_system_default">Як у системі</string>
+    <string name="option_prevent_clipping">Запобігати кліпінгу</string>
+    <string name="option_crossfade">Плавний перехід</string>
+    <string name="option_streaming_cache_size">Розмір кешу потокового відтворення</string>
+    <string name="action_continue">Продовжити</string>
+    <string name="action_restart">Перезапустити</string>
+    <string name="action_upload_cover">Завантажити обкладинку</string>
+    <string name="action_remove_cover">Видалити обкладинку</string>
+    <string name="action_save_as_playlist">Зберегти як список відтворення</string>
+    <string name="action_instant_mix">Миттєвий мікс</string>
+    <string name="action_help">Довідка</string>
+    <string name="action_undo">Скасувати</string>
+    <string name="action_repeat">Повтор</string>
+    <string name="action_replace_cover">Замінити обкладинку</string>
+    <string name="action_restart_application">Перезапустити додаток</string>
+    <string name="notice_cover_uploaded">Обкладинку оновлено.</string>
+    <string name="notice_cover_removed">Обкладинку видалено.</string>
+    <string name="notice_cover_upload_failed">Не вдалося завантажити обкладинку.</string>
+    <string name="notice_cover_removal_failed">Не вдалося видалити обкладинку.</string>
+    <string name="notice_restart_required">Перезапустити зараз, щоб застосувати зміни?</string>
+    <string name="notice_instant_mix_empty">Схожих пісень не знайдено.</string>
+    <string name="notice_instant_mix_failed">Не вдалося запустити миттєвий мікс.</string>
+    <string name="notice_syncing_library">Синхронізація медіатеки…</string>
+    <string name="notice_cleared_queue">Чергу очищено.</string>
+    <string name="info_login_description_jellyfin">Увійти на сервер Jellyfin.</string>
+    <string name="info_server_type">Тип сервера</string>
+    <string name="info_subsonic_server_version">Версія Subsonic</string>
+    <string name="info_server_is_opensubsonic">Це OpenSubsonic?</string>
+    <string name="info_server_info">Інформація про сервер</string>
+    <string name="info_supported_server_extensions">Підтримувані розширення сервера</string>
+    <string name="info_server_version">Версія сервера</string>
+    <string name="info_sync_actions">Деякі дії, які ви виконуєте в Navic, коли сервер недоступний, додаються до черги, щоб їх можна було виконати повторно, щойно сервер знову стане доступним.</string>
+    <string name="info_library_syncing">Navic зберігає локальну базу даних метаданих вашої медіатеки. Завдяки цьому ви маєте доступ до медіатеки, навіть коли сервер недоступний. Navic періодично оновлює цю базу даних, але ви також можете синхронізувати її вручну за допомогою цього параметра.</string>
+    <string name="title_developer_list">Розробники</string>
+    <string name="action_view_all_contributors">Усі учасники розробки</string>
 </resources>
