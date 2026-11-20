@@ -3,9 +3,7 @@
   ~ Navic, a Subsonic music streaming app for Android
   ~ Copyright (c) 2026 paige
   ~ SPDX-License-Identifier: GPL-3.0-only
-  -->
-
-<resources>
+  --><resources>
     <string name="title_library">ライブラリ</string>
     <string name="title_playlists">プレイリスト</string>
     <string name="title_settings">設定</string>
@@ -390,7 +388,7 @@
     <string name="info_dynamic_replay_gain">ダイナミック</string>
     <string name="info_total_plays">総再生回数</string>
     <string name="info_total_listening_time">総再生時間</string>
-    <string name="info_listening_stats_ratio">総再生時間の%1$s</string>
+    <string name="info_listening_stats_ratio">総再生時間の%1$s％</string>
     <string name="info_update">バージョン%1$sがリリースされました</string>
     <string name="info_shared_by">%1$sが共有しました</string>
     <string name="info_share_expires_in">有効期限：%1$s</string>
@@ -487,7 +485,7 @@
     <string name="info_delete_download_collection">本当に%1$sのダウンロード済み楽曲を削除しますか？</string>
     <string name="info_delete_download_library">本当にこのデバイスの全てのダウンロード楽曲を削除しますか？</string>
     <string name="info_transcode_streaming_unsupported">このサーバーはトランスコーディングをサポートしていないため、この設定は利用できません。</string>
-    <string name="info_incorrect_instance_url_format">サーバーURLは空欄にできません</string>
+    <string name="info_incorrect_instance_url_format">サーバーURLは必須です</string>
     <string name="option_alternate_addresses">代替アドレス</string>
     <string name="subtitle_alternative_addresses">音楽サーバーにアクセスするための代替アドレス</string>
     <string name="alt_addresses_edit_address">アドレスを編集</string>
@@ -512,4 +510,11 @@
     <string name="notice_app_icon_changed">アプリアイコンが変更されました。アプリを終了します。</string>
     <string name="option_mini_player_progress_style_line">ライン</string>
     <string name="option_mini_player_progress_style_overlay">オーバーレイ</string>
+    <string name="title_storage_usage">ストレージ使用量</string>
+    <string name="title_wiki">Wiki</string>
+    <string name="title_authentication_method">認証方法</string>
+    <string name="title_website">ウェブサイト</string>
+    <string name="title_links">リンク</string>
+    <string name="title_build_info">ビルド情報</string>
+    <string name="title_download_management">ダウンロードデータ</string>
 </resources>
