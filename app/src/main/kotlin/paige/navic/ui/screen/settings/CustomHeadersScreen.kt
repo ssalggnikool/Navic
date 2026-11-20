@@ -44,7 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.preferences.PreferenceManager
+import paige.navic.preferences.AccountSettings
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.playback.exoplayer.ExoStateHolder
 import paige.navic.ui.component.common.ContentUnavailable
@@ -64,11 +64,11 @@ private data class Header(
 @Composable
 fun SettingsCustomHeadersScreen() {
 	val sessionManager = koinInject<SessionManager>()
-	val preferenceManager = koinInject<PreferenceManager>()
+	val accountSettings = koinInject<AccountSettings>()
 	val exoStateHolder = koinInject<ExoStateHolder>()
 
 	val headers = remember {
-		preferenceManager.customHeaders.lines()
+		accountSettings.customHeaders.lines()
 			.filter { it.contains(":") }
 			.map {
 				val parts = it.split(":", limit = 2)
@@ -78,7 +78,7 @@ fun SettingsCustomHeadersScreen() {
 	}
 
 	val update = {
-		preferenceManager.customHeaders = headers
+		accountSettings.customHeaders = headers
 			.filter { it.key.isNotBlank() && it.value.isNotBlank() }
 			.joinToString("\n") { "${it.key}:${it.value}" }
 		sessionManager.refreshClient()

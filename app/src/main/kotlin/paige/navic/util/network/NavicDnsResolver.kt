@@ -7,7 +7,6 @@
 package paige.navic.util.network
 
 import androidx.core.net.toUri
-import com.russhwolf.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,7 +17,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.Dns
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
-import paige.navic.preferences.PreferenceManager
+import paige.navic.domain.manager.session.AccountStore
+import paige.navic.preferences.AccountSettings
 import paige.navic.domain.manager.session.connectivity.ConnectivityManager
 import paige.navic.domain.manager.session.connectivity.NetworkStatus
 import paige.navic.util.TTLLruCache
@@ -26,8 +26,8 @@ import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
 class NavicDnsResolver(
-	val preferenceManager: PreferenceManager,
-	val settings: Settings,
+	val accountSettings: AccountSettings,
+	val accountStore: AccountStore,
 	val connectivityManager: ConnectivityManager
 ) : Dns {
 	private companion object {
@@ -62,7 +62,10 @@ class NavicDnsResolver(
 	}
 
 	fun resolve(hostname: String): List<InetAddress> {
-		val serverDomain = settings.getStringOrNull("instanceUrl")?.toUri()?.host
+		val serverDomain = accountStore.activeAccount
+			?.baseUrl
+			?.toUri()
+			?.host
 		val systemAddresses = Dns.SYSTEM.lookup(hostname)
 		if (hostname != serverDomain) return systemAddresses
 		val alternates = hosts.mapNotNull {
@@ -75,7 +78,7 @@ class NavicDnsResolver(
 	}
 
 	private val addresses: List<String>
-		get() = preferenceManager.alternateServerAddresses
+		get() = accountSettings.alternateServerAddresses
 
 	private val hosts: List<String>
 		get() = addresses.map { it.extractHost() }

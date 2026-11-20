@@ -17,6 +17,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import okhttp3.Dns
 import okhttp3.OkHttpClient
+import paige.navic.preferences.AccountSettings
 import paige.navic.preferences.PreferenceManager
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
@@ -146,11 +147,12 @@ fun extractProxyConfigFromUrl(url: String): ProxyConfig? {
 
 fun createHttpClientWithPreferences(
 	preferenceManager: PreferenceManager,
+	accountSettings: AccountSettings,
 	dnsResolver: NavicDnsResolver
 ): HttpClient {
 	return createHttpClient(
 		preferenceManager.dangerousSslNoopEnabled,
-		preferenceManager.customHeadersMap(),
+		accountSettings.customHeadersMap(),
 		preferenceManager.proxyUrl,
 		dnsResolver
 	)

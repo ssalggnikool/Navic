@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 import paige.navic.R
-import paige.navic.preferences.PreferenceManager
+import paige.navic.preferences.AccountSettings
 import paige.navic.domain.manager.session.SessionManager
 import paige.navic.ui.component.common.ContentUnavailable
 import paige.navic.ui.component.dialog.AlertDialog
@@ -56,14 +56,14 @@ import paige.navic.ui.screen.settings.component.SettingsGroupDefaults
 @Composable
 fun SettingsAlternativeAddressesScreen() {
 	val sessionManager = koinInject<SessionManager>()
-	val preferenceManager = koinInject<PreferenceManager>()
+	val accountSettings = koinInject<AccountSettings>()
 
 	val alternativeAddresses = remember {
-		preferenceManager.alternateServerAddresses.toMutableStateList()
+		accountSettings.alternateServerAddresses.toMutableStateList()
 	}
 
 	val update = {
-		preferenceManager.alternateServerAddresses = alternativeAddresses.filterNot { it.isBlank() }
+		accountSettings.alternateServerAddresses = alternativeAddresses.filterNot { it.isBlank() }
 		sessionManager.refreshClient()
 	}
 

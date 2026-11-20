@@ -22,7 +22,7 @@ import coil3.network.httpHeaders
 import coil3.request.ImageRequest
 import paige.navic.domain.model.DomainChatMessage
 import org.koin.compose.koinInject
-import paige.navic.preferences.PreferenceManager
+import paige.navic.preferences.AccountSettings
 import paige.navic.domain.manager.session.SessionManager
 import coil3.compose.LocalPlatformContext as LocalCoilPlatformContext
 
@@ -34,11 +34,11 @@ fun ChatMessageItem(
 
 	val imageLoader = koinInject<ImageLoader>()
 	val sessionManager = koinInject<SessionManager>()
-	val preferenceManager = koinInject<PreferenceManager>()
+	val accountSettings = koinInject<AccountSettings>()
 
-	val avatarModel = remember(message.username, preferenceManager.customHeaders) {
+	val avatarModel = remember(message.username, accountSettings.customHeaders) {
 		val networkHeaders = NetworkHeaders.Builder().apply {
-			preferenceManager.customHeadersMap().forEach { (key, value) -> add(key, value) }
+			accountSettings.customHeadersMap().forEach { (key, value) -> add(key, value) }
 		}.build()
 		ImageRequest.Builder(coilPlatformContext)
 			.data(sessionManager.api.getAvatarUrl(message.username))

@@ -8,6 +8,7 @@ package paige.navic.domain.manager.session
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,24 +29,29 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import paige.navic.domain.repository.DbRepository
+import paige.navic.domain.manager.runtime.StorageManager
 import paige.navic.domain.server.AuthMethod
 import paige.navic.domain.server.InvalidCredentialsException
 import paige.navic.domain.server.jellyfin.JellyfinMusicServerFactory
-import paige.navic.domain.sync.SyncCoordinator
+import paige.navic.preferences.AccountSettings
+import paige.navic.preferences.PreferenceManager
 import paige.navic.ui.core.LoginEvent
 import paige.navic.ui.core.LoginField
 import paige.navic.ui.core.LoginFormState
 import paige.navic.ui.util.AddressUtil
+import paige.navic.util.AppRestarter
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
 class LoginManager(
-	private val repository: DbRepository,
 	private val sessionManager: SessionManager,
 	private val syncManager: SyncManager,
-	private val syncCoordinator: SyncCoordinator,
 	private val downloadManager: DownloadManager,
+	private val storageManager: StorageManager,
+	private val accountStore: AccountStore,
+	private val accountSettings: AccountSettings,
+	private val preferenceManager: PreferenceManager,
+	private val appRestarter: AppRestarter,
 	private val jellyfinFactory: JellyfinMusicServerFactory
 ) {
 	val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -131,6 +137,13 @@ class LoginManager(
 		}
 	}
 
+	fun fillFor(account: Account) {
+		instanceState.setTextAndPlaceCursorAtEnd(account.baseUrl)
+		usernameState.setTextAndPlaceCursorAtEnd(account.username)
+		passwordState.clearText()
+		selectAuthMethod(account.authMethod)
+	}
+
 	fun login() {
 		validationShown.value = true
 
@@ -155,8 +168,9 @@ class LoginManager(
 
 		scope.launch {
 			val normalizedUrl = normalizeUrl(url)
+			val previousAccountId = sessionManager.activeAccountId
 
-			try {
+			val account = try {
 				_events.tryEmit(LoginEvent.Loading)
 				when (method) {
 					AuthMethod.Token -> {
@@ -178,20 +192,50 @@ class LoginManager(
 				return@launch
 			}
 
+			// a different account means different databases and directories, which
+			// are only resolved on startup
+			if (account.id != previousAccountId) {
+				activate(account.id)
+				return@launch
+			}
+
 			syncManager.triggerManualSync()
 			_events.tryEmit(LoginEvent.Success)
 		}
 	}
 
-	fun logout() {
-		syncManager.stopPeriodicSync()
-		downloadManager.cancelAllActiveDownloads()
-		sessionManager.logout()
+	fun switchAccount(accountId: String) {
+		if (accountId == sessionManager.activeAccountId) return
 
 		scope.launch {
-			syncManager.stopPeriodicSyncAndWait()
-			syncCoordinator.awaitIdle()
-			repository.removeEverything()
+			activate(accountId)
 		}
+	}
+
+	fun removeAccount(accountId: String) {
+		val isActive = accountId == sessionManager.activeAccountId
+
+		scope.launch {
+			if (isActive) {
+				downloadManager.cancelAllActiveDownloadsAndWait()
+			}
+
+			storageManager.deleteAccountData(accountId)
+			accountSettings.clearAccount(accountStore.keyPrefixFor(accountId))
+			accountStore.queueDatabaseDeletion(accountId)
+			sessionManager.removeAccount(accountId)
+
+			if (isActive) {
+				preferenceManager.lastFullSyncTime = 0
+				appRestarter.restart()
+			}
+		}
+	}
+
+	private suspend fun activate(accountId: String) {
+		downloadManager.cancelAllActiveDownloadsAndWait()
+		preferenceManager.lastFullSyncTime = 0
+		sessionManager.setActiveAccount(accountId)
+		appRestarter.restart()
 	}
 }

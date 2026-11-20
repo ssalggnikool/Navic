@@ -64,8 +64,8 @@ val viewModelModule = module {
 	}
 	single<NavicDnsResolver> {
 		NavicDnsResolver(
-			preferenceManager = get(),
-			settings = get(),
+			accountSettings = get(),
+			accountStore = get(),
 			connectivityManager = get()
 		)
 	}

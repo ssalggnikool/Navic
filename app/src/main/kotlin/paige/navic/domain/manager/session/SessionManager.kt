@@ -6,8 +6,6 @@
 
 package paige.navic.domain.manager.session
 
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.set
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,8 +28,7 @@ import paige.navic.domain.server.ShareServer
 import paige.navic.preferences.PreferenceManager
 import paige.navic.util.Logger
 import paige.navic.util.TTLLruCache
-import paige.navic.util.getEncryptedString
-import paige.navic.util.insertEncryptedString
+import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
@@ -45,7 +42,7 @@ sealed interface SessionState {
 }
 
 class SessionManager(
-	private val settings: Settings,
+	private val accountStore: AccountStore,
 	private val preferenceManager: PreferenceManager,
 	private val serverFactory: MusicServerFactory
 ) {
@@ -58,12 +55,13 @@ class SessionManager(
 		const val TAG = "SessionManager"
 	}
 
+	val accounts: StateFlow<List<Account>> = accountStore.accounts
+
+	val activeAccountId: String?
+		get() = accountStore.activeAccountId
+
 	private val hasStoredCredentials: Boolean
-		get() = instanceUrl.isNotBlank() && when (authMethod) {
-			AuthMethod.Token -> username.isNotBlank() && password.isNotBlank()
-			AuthMethod.ApiKey -> apiKey.isNotBlank()
-			AuthMethod.Jellyfin -> jellyfinToken.isNotBlank() && jellyfinUserId.isNotBlank()
-		}
+		get() = accountStore.activeAccount?.hasCredentials == true
 
 	private val _state = MutableStateFlow(
 		if (hasStoredCredentials) SessionState.Restoring else SessionState.Unauthenticated
@@ -72,64 +70,21 @@ class SessionManager(
 
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-	var username: String
-		get() = settings.getString("username", "")
-		private set(value) {
-			settings["username"] = value
-		}
+	val username: String
+		get() = accountStore.activeAccount?.username.orEmpty()
 
-	var password: String
-		get() = settings.getEncryptedString("password", "")
-		private set(value) {
-			settings.insertEncryptedString("password", value)
-		}
+	val instanceUrl: String
+		get() = accountStore.activeAccount?.baseUrl.orEmpty()
 
-	var instanceUrl: String
-		get() = settings.getString("instanceUrl", "")
-		private set(value) {
-			settings["instanceUrl"] = value
-		}
+	val authMethod: AuthMethod
+		get() = accountStore.activeAccount?.authMethod ?: AuthMethod.Token
 
-	var authMethod: AuthMethod
-		get() = runCatching {
-			AuthMethod.valueOf(settings.getString("authMethod", AuthMethod.Token.name))
-		}.getOrDefault(AuthMethod.Token)
-		private set(value) {
-			settings["authMethod"] = value.name
-		}
-
-	var apiKey: String
-		get() = settings.getEncryptedString("apiKey", "")
-		private set(value) {
-			settings.insertEncryptedString("apiKey", value)
-		}
-
-	var jellyfinToken: String
-		get() = settings.getEncryptedString("jellyfinToken", "")
-		private set(value) {
-			settings.insertEncryptedString("jellyfinToken", value)
-		}
-
-	var jellyfinUserId: String
-		get() = settings.getString("jellyfinUserId", "")
-		private set(value) {
-			settings["jellyfinUserId"] = value
-		}
-
-	private fun storedCredentials(): ServerCredentials = when (authMethod) {
-		AuthMethod.Token -> ServerCredentials.Token(username = username, password = password)
-		AuthMethod.ApiKey -> ServerCredentials.ApiKey(apiKey = apiKey)
-		AuthMethod.Jellyfin -> ServerCredentials.Jellyfin(
-			username = username,
-			accessToken = jellyfinToken,
-			userId = jellyfinUserId
-		)
-	}
-
-	var api: MusicServer = serverFactory.create(
-		baseUrl = instanceUrl,
-		credentials = storedCredentials()
+	private fun createClient(account: Account?): MusicServer = serverFactory.create(
+		baseUrl = account?.baseUrl.orEmpty(),
+		credentials = account?.credentials() ?: ServerCredentials.Token("", "")
 	)
+
+	var api: MusicServer = createClient(accountStore.activeAccount)
 		private set
 
 	val chat: ChatServer?
@@ -145,13 +100,15 @@ class SessionManager(
 		get() = api as? PlaylistCoverServer
 
 	init {
-		if (hasStoredCredentials) {
+		val account = accountStore.activeAccount
+		if (account != null && account.hasCredentials) {
 			scope.launch {
 				try {
-					login(instanceUrl, storedCredentials())
+					restore(account)
 				} catch (e: InvalidCredentialsException) {
-					Logger.e(TAG, "Credentials invalid, logging out", e)
-					logout()
+					// keep the account so its cache and downloads survive a rejected login
+					Logger.e(TAG, "Credentials invalid, signing out", e)
+					signOut()
 				} catch (e: Exception) {
 					Logger.w(TAG, "Failed to reach server during restoration, treating as offline authenticated", e)
 					_state.value = SessionState.Authenticated(
@@ -163,12 +120,28 @@ class SessionManager(
 		}
 	}
 
+	private suspend fun restore(account: Account) {
+		val server = serverFactory.create(
+			baseUrl = account.baseUrl,
+			credentials = account.credentials()
+		)
+		val serverInfo = server.serverInfo()
+		Logger.i(TAG, "Ping result: $serverInfo")
+		val user = server.currentUser()
+
+		api = server
+		_state.value = SessionState.Authenticated(
+			currentUser = user,
+			serverInfo = serverInfo
+		)
+	}
+
 	@Throws(InvalidCredentialsException::class)
 	suspend fun login(
 		instanceUrl: String,
 		username: String,
 		password: String
-	) = login(
+	): Account = login(
 		instanceUrl = instanceUrl,
 		credentials = ServerCredentials.Token(username = username, password = password)
 	)
@@ -177,7 +150,7 @@ class SessionManager(
 	suspend fun login(
 		instanceUrl: String,
 		apiKey: String
-	) = login(
+	): Account = login(
 		instanceUrl = instanceUrl,
 		credentials = ServerCredentials.ApiKey(apiKey = apiKey)
 	)
@@ -185,12 +158,12 @@ class SessionManager(
 	suspend fun loginJellyfin(
 		instanceUrl: String,
 		credentials: ServerCredentials.Jellyfin
-	) = login(
+	): Account = login(
 		instanceUrl = instanceUrl,
 		credentials = credentials
 	)
 
-	private suspend fun login(instanceUrl: String, credentials: ServerCredentials) {
+	private suspend fun login(instanceUrl: String, credentials: ServerCredentials): Account {
 		val server = serverFactory.create(
 			baseUrl = instanceUrl,
 			credentials = credentials
@@ -201,58 +174,73 @@ class SessionManager(
 
 		val user = server.currentUser()
 
-		this.instanceUrl = instanceUrl
-		when (credentials) {
-			is ServerCredentials.Token -> {
-				authMethod = AuthMethod.Token
-				username = credentials.username
-				password = credentials.password
-				settings.remove("apiKey")
-				settings.remove("jellyfinToken")
-				settings.remove("jellyfinUserId")
-			}
+		val account = accountStore.upsert(
+			Account(
+				id = UUID.randomUUID().toString(),
+				baseUrl = instanceUrl,
+				authMethod = when (credentials) {
+					is ServerCredentials.Token -> AuthMethod.Token
+					is ServerCredentials.ApiKey -> AuthMethod.ApiKey
+					is ServerCredentials.Jellyfin -> AuthMethod.Jellyfin
+				},
+				username = when (credentials) {
+					is ServerCredentials.Token -> credentials.username
+					is ServerCredentials.ApiKey -> user.username
+					is ServerCredentials.Jellyfin -> credentials.username
+				},
+				password = (credentials as? ServerCredentials.Token)?.password.orEmpty(),
+				apiKey = (credentials as? ServerCredentials.ApiKey)?.apiKey.orEmpty(),
+				jellyfinToken = (credentials as? ServerCredentials.Jellyfin)?.accessToken.orEmpty(),
+				jellyfinUserId = (credentials as? ServerCredentials.Jellyfin)?.userId.orEmpty()
+			)
+		)
 
-			is ServerCredentials.ApiKey -> {
-				authMethod = AuthMethod.ApiKey
-				username = user.username
-				settings.remove("password")
-				apiKey = credentials.apiKey
-				settings.remove("jellyfinToken")
-				settings.remove("jellyfinUserId")
-			}
-
-			is ServerCredentials.Jellyfin -> {
-				authMethod = AuthMethod.Jellyfin
-				username = credentials.username
-				jellyfinToken = credentials.accessToken
-				jellyfinUserId = credentials.userId
-				settings.remove("password")
-				settings.remove("apiKey")
-			}
+		// never change the active account here: a different account means different
+		// databases and directories, which the caller applies by switching and restarting
+		if (account.id == accountStore.activeAccountId) {
+			api = server
+			_state.value = SessionState.Authenticated(
+				currentUser = user,
+				serverInfo = serverInfo
+			)
 		}
 
-		api = server
-		_state.value = SessionState.Authenticated(
-			currentUser = user,
-			serverInfo = serverInfo
-		)
+		return account
 	}
 
-	fun logout() {
-		settings["username"] = null
-		settings.remove("password")
-		settings.remove("apiKey")
-		settings.remove("jellyfinToken")
-		settings.remove("jellyfinUserId")
+	fun signOut() {
 		ttlLruCache.clear()
 		_state.value = SessionState.Unauthenticated
 	}
 
+	/**
+	 * Points the session at another saved account. Data paths only change on the
+	 * next process start, so callers restart the app afterwards.
+	 */
+	fun setActiveAccount(id: String) {
+		accountStore.setActive(id)
+		api = createClient(accountStore.activeAccount)
+		ttlLruCache.clear()
+	}
+
+	fun removeAccount(id: String) {
+		val wasActive = accountStore.activeAccountId == id
+		accountStore.remove(id)
+		if (!wasActive) return
+
+		api = createClient(accountStore.activeAccount)
+		ttlLruCache.clear()
+
+		val active = accountStore.activeAccount
+		_state.value = if (active != null && active.hasCredentials) {
+			SessionState.Restoring
+		} else {
+			SessionState.Unauthenticated
+		}
+	}
+
 	fun refreshClient() {
-		api = serverFactory.create(
-			baseUrl = instanceUrl,
-			credentials = storedCredentials()
-		)
+		api = createClient(accountStore.activeAccount)
 	}
 
 	fun updateInstanceUrl(url: String) {
@@ -262,8 +250,9 @@ class SessionManager(
 		} else {
 			"https://$rawUrl"
 		}
-		if (formattedUrl.isNotBlank() && formattedUrl != instanceUrl) {
-			instanceUrl = formattedUrl
+		val account = accountStore.activeAccount ?: return
+		if (formattedUrl.isNotBlank() && formattedUrl != account.baseUrl) {
+			accountStore.updateBaseUrl(account.id, formattedUrl)
 			refreshClient()
 		}
 	}
